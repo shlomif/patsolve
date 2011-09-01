@@ -22,6 +22,76 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 ----------------------------------------------------------------------
+
+Dr. Holryod has given the clearance in this E-mail:
+
+======================================================================
+Return-path: <tomh@kurage.nimh.nih.gov>
+X-Spam-Checker-Version: SpamAssassin 3.4.0-r929098 (2010-03-30) on
+	lap.shlomifish.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_HI,
+	RP_MATCHES_RCVD,SPF_HELO_PASS autolearn=ham version=3.4.0-r929098
+Envelope-to: shlomif@shlomifish.org
+Delivery-date: Thu, 01 Sep 2011 12:50:56 -0500
+Received: from nihrelayxway.hub.nih.gov ([128.231.90.106]:15765)
+	by gator245.hostgator.com with esmtp (Exim 4.69)
+	(envelope-from <tomh@kurage.nimh.nih.gov>)
+	id 1QzBPk-0006XT-7G
+	for shlomif@shlomifish.org; Thu, 01 Sep 2011 12:50:56 -0500
+X-IronPortListener: NIH_Relay
+X-SBRS: None
+X-IronPort-AV: E=Sophos;i="4.68,314,1312171200"; 
+   d="scan'208";a="488407262"
+Received: from kurage.nimh.nih.gov (HELO [128.231.213.26]) ([128.231.213.26])
+  by nihrelayxway.hub.nih.gov with ESMTP; 01 Sep 2011 13:50:55 -0400
+Message-ID: <4E5FC5FF.3070507@kurage.nimh.nih.gov>
+Date: Thu, 01 Sep 2011 13:50:55 -0400
+From: "Tom Holroyd (NIH/NIMH) [E]" <tomh@kurage.nimh.nih.gov>
+User-Agent: Thunderbird 1.5.0.12 (X11/20070718)
+MIME-Version: 1.0
+To: Shlomi Fish <shlomif@shlomifish.org>
+Subject: Re: Can I integrate patsolve into Freecell Solver?
+References: <20110826195001.5570f38d@lap.shlomifish.org>
+In-Reply-To: <20110826195001.5570f38d@lap.shlomifish.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hi! Sorry to take so long to get back to you.
+
+This is fine with me. Do I need to do anything other than this?
+
+Cheers,
+Tom
+
+Shlomi Fish wrote:
+> Hi Dr. Holroyd,
+> 
+> as you may recall, I am Shlomi Fish, the author of Freecell Solver
+> ( http://fc-solve.berlios.de/ ), a library for automatically solving layouts of
+> some Solitaire games. For a long while, I've been interested in the
+> atomic-moves-based solving code of your patsolve, which is a different solver.
+> Now I'd like to integrate it into Freecell Solver, because at the moment, its
+> atomic-moves solving kinda sucks.
+> 
+> In order to do so, I'll need you to relicense patsolve from the GPLv2 to a
+> permissive licence such as the http://en.wikipedia.org/wiki/MIT_License , which
+> is used by Freecell Solver. Would you agree to do so? If you do, and I perform
+> the adapatation of patsolve's code to the fc-solve framework, then patsolve
+> will be able to benefit from the other facilities provided by fc-solve, such as
+> multi-tasking. 
+> 
+> Regards,
+> 
+> 	Shlomi Fish
+> 
+
+-- 
+"What the rabble once learned to believe without reason, who could
+refute to them by means of reason?" -- Thus spoke Zarathustra
+======================================================================
+
+----------------------------------------------------------------------
 Previously (before patsolve-shlomif-3.0.3):
 
             GNU GENERAL PUBLIC LICENSE
