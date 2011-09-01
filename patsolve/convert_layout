@@ -1,0 +1,47 @@
+#! /usr/bin/env tcl
+
+# read the position information dumped from patience-1.9
+# 10 work piles, 2 temp
+
+set hand [read [open "/tmp/hand" "r"]]
+
+proc formatcard {c} {
+	set rank [string range $c 0 0]
+	set suit [string range $c 1 1]
+	if {$rank == "0"} {set rank "t"}
+	if {$rank == "b"} {set rank "j"}
+	if {$rank == "d"} {set rank "q"}
+	if {$suit == "c"} {set suit "d"}
+	if {$suit == "k"} {set suit "c"}
+	if {$suit == "p"} {set suit "s"}
+	return "$rank$suit"
+}
+
+set npiles 10
+#set npiles 8
+
+for {set pile 0} {$pile < $npiles} {incr pile} {
+	set p ""
+	set ncards 5
+#        if {$pile < 4} {
+#                set ncards 7
+#        } else {
+#                set ncards 6
+#        }
+
+	for {set card 0} {$card < $ncards} {incr card} {
+		set idx [expr {51 - $pile - $card * $npiles}]
+		set c [lindex $hand $idx]
+		append p [formatcard $c]
+		if {$card != [expr {$ncards - 1}]} {
+			append p " "
+		}
+	}
+	echo $p
+}
+
+# Temp cells:
+set p "[formatcard [lindex $hand 0]] "
+append p [formatcard [lindex $hand 1]]
+echo $p
+

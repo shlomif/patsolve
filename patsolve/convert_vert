@@ -1,0 +1,17 @@
+#! /usr/bin/env tcl
+
+# Read positions in vertical column mode
+
+set hand [read [open [lindex $argv 0] "r"]]
+
+set npiles 8
+
+set n 0
+foreach card $hand {
+	lappend pile($n) $card
+	set n [expr {($n + 1) % $npiles}]
+}
+
+for {set n 0} {$n < $npiles} {incr n} {
+	echo $pile($n)
+}

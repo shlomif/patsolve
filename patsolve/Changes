@@ -1,0 +1,7 @@
+3.0.2: (2009-07-25):
+    - eliminated several warnings in latest gcc's - signed vs. unsigned char
+    pointer, and too large integer constants.
+
+3.0.1:
+    - First release by Shlomi Fish.
+    - Converted to CMake and got the build to work flawlessly.
