@@ -113,13 +113,15 @@ void quit(int sig)
 }
 #endif
 
+void play(fc_solve_soft_thread_t * soft_thread);
+
 int main(int argc, char **argv)
 {
 	int i, c, argc0;
 	char *curr_arg, **argv0;
 	u_int64_t gn;
 	FILE *infile;
-	void play(void);
+    fc_solve_soft_thread_t soft_thread_struct;
 
 	Progname = *argv;
 #if DEBUG
@@ -354,7 +356,7 @@ Init_mem_remain = Mem_remain;
 		if (!Quiet) {
 			print_layout();
 		}
-		play();
+		play(&soft_thread_struct);
 	} else {
 
 		/* Range mode.  Play lots of consecutive games. */
@@ -363,7 +365,7 @@ Init_mem_remain = Mem_remain;
 		for (gn = Sgame; gn < Egame; gn++) {
 			printf("#%ld\n", (long)gn);
 			msdeal(gn);
-			play();
+			play(&soft_thread_struct);
 			fflush(stdout);
 		}
 	}
@@ -371,7 +373,7 @@ Init_mem_remain = Mem_remain;
 	return Status;
 }
 
-void play(void)
+void play(fc_solve_soft_thread_t * soft_thread)
 {
 	/* Initialize the hash tables. */
 
@@ -388,7 +390,7 @@ void play(void)
 
 	/* Go to it. */
 
-	doit();
+	doit(soft_thread);
 	if (Status != WIN && !Quiet) {
 		if (Status == FAIL) {
 			printf("Out of memory.\n");

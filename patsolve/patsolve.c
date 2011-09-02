@@ -35,28 +35,20 @@ search. */
 #include "pat.h"
 #include "fnv.h"
 
-#define NQUEUES 100
-
-static POSITION *Qhead[NQUEUES]; /* separate queue for each priority */
-static POSITION *Qtail[NQUEUES]; /* positions are added here */
-static int Maxq;
-
-static int solve(POSITION *);
+static int solve(fc_solve_soft_thread_t *, POSITION *);
 static void free_position(POSITION *pos, int);
-static void queue_position(POSITION *, int);
-static POSITION *dequeue_position();
+static void queue_position(fc_solve_soft_thread_t *, POSITION *, int);
+static POSITION *dequeue_position(fc_solve_soft_thread_t *);
 
 #if DEBUG
-int Clusternum[0x10000];
-static int Inq[NQUEUES];
 
 void print_queue(void)
 {
 	int i, n;
 
-	msg("Maxq %d\n", Maxq);
+	msg("Maxq %d\n", soft_thread->Maxq);
 	n = 0;
-	for (i = 0; i <= Maxq; i++) {
+	for (i = 0; i <= soft_thread->Maxq; i++) {
 		if (Inq[i]) {
 			msg("Inq %2d %5d", i, Inq[i]);
 			if (n & 1) {
@@ -71,7 +63,7 @@ void print_queue(void)
 }
 #endif
 
-void doit()
+void doit(fc_solve_soft_thread_t * soft_thread)
 {
 	int i, q;
 	POSITION *pos;
@@ -81,9 +73,9 @@ void doit()
 	/* Init the queues. */
 
 	for (i = 0; i < NQUEUES; i++) {
-		Qhead[i] = NULL;
+	    soft_thread->Qhead[i] = NULL;
 	}
-	Maxq = 0;
+	soft_thread->Maxq = 0;
 #if DEBUG
 memset(Clusternum, 0, sizeof(Clusternum));
 memset(Inq, 0, sizeof(Inq));
@@ -98,12 +90,12 @@ memset(Inq, 0, sizeof(Inq));
 	if (pos == NULL) {
 		return;
 	}
-	queue_position(pos, 0);
+	queue_position(soft_thread, pos, 0);
 
 	/* Solve it. */
 
-	while ((pos = dequeue_position()) != NULL) {
-		q = solve(pos);
+	while ((pos = dequeue_position(soft_thread)) != NULL) {
+		q = solve(soft_thread, pos);
 		if (!q) {
 			free_position(pos, TRUE);
 		}
@@ -114,7 +106,7 @@ memset(Inq, 0, sizeof(Inq));
 recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
 
-static int solve(POSITION *parent)
+static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 {
 	int i, nmoves, q, qq;
 	MOVE *mp, *mp0;
@@ -167,14 +159,14 @@ static int solve(POSITION *parent)
 		later. */
 
 		if (pos->cluster != parent->cluster || nmoves < Cutoff) {
-			qq = solve(pos);
+			qq = solve(soft_thread, pos);
 			undo_move(mp);
 			if (!qq) {
 				free_position(pos, FALSE);
 			}
 			q |= qq;
 		} else {
-			queue_position(pos, mp->pri);
+			queue_position(soft_thread, pos, mp->pri);
 			undo_move(mp);
 			q = TRUE;
 		}
@@ -219,7 +211,7 @@ static void free_position(POSITION *pos, int rec)
 that got us here.  The work queue is kept sorted by priority (simply by
 having separate queues). */
 
-static void queue_position(POSITION *pos, int pri)
+static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int pri)
 {
 	int nout;
 	double x;
@@ -240,8 +232,8 @@ static void queue_position(POSITION *pos, int pri)
 	} else if (pri >= NQUEUES) {
 		pri = NQUEUES - 1;
 	}
-	if (pri > Maxq) {
-		Maxq = pri;
+	if (pri > soft_thread->Maxq) {
+		soft_thread->Maxq = pri;
 	}
 
 	/* We always dequeue from the head.  Here we either stick the move
@@ -249,16 +241,16 @@ static void queue_position(POSITION *pos, int pri)
 	pretending it's a stack or a queue. */
 
 	pos->queue = NULL;
-	if (Qhead[pri] == NULL) {
-		Qhead[pri] = pos;
-		Qtail[pri] = pos;
+	if (soft_thread->Qhead[pri] == NULL) {
+		soft_thread->Qhead[pri] = pos;
+		soft_thread->Qtail[pri] = pos;
 	} else {
 		if (Stack) {
-			pos->queue = Qhead[pri];
-			Qhead[pri] = pos;
+			pos->queue = soft_thread->Qhead[pri];
+			soft_thread->Qhead[pri] = pos;
 		} else {
-			Qtail[pri]->queue = pos;
-			Qtail[pri] = pos;
+			soft_thread->Qtail[pri]->queue = pos;
+			soft_thread->Qtail[pri] = pos;
 		}
 	}
 #if DEBUG
@@ -269,7 +261,7 @@ Clusternum[pos->cluster]++;
 
 /* Return the position on the head of the queue, or NULL if there isn't one. */
 
-static POSITION *dequeue_position()
+static POSITION *dequeue_position(fc_solve_soft_thread_t * soft_thread)
 {
 	int last;
 	POSITION *pos;
@@ -290,27 +282,27 @@ static POSITION *dequeue_position()
 			if (last) {
 				return NULL;
 			}
-			qpos = Maxq;
+			qpos = soft_thread->Maxq;
 			minpos--;
 			if (minpos < 0) {
-				minpos = Maxq;
+				minpos = soft_thread->Maxq;
 			}
 			if (minpos == 0) {
 				last = TRUE;
 			}
 		}
-	} while (Qhead[qpos] == NULL);
+	} while (soft_thread->Qhead[qpos] == NULL);
 
-	pos = Qhead[qpos];
-	Qhead[qpos] = pos->queue;
+	pos = soft_thread->Qhead[qpos];
+	soft_thread->Qhead[qpos] = pos->queue;
 #if DEBUG
 	Inq[qpos]--;
 #endif
 
-	/* Decrease Maxq if that queue emptied. */
+	/* Decrease soft_thread->Maxq if that queue emptied. */
 
-	while (Qhead[qpos] == NULL && qpos == Maxq && Maxq > 0) {
-		Maxq--;
+	while (soft_thread->Qhead[qpos] == NULL && qpos == soft_thread->Maxq && soft_thread->Maxq > 0) {
+		soft_thread->Maxq--;
 		qpos--;
 		if (qpos < minpos) {
 			minpos = qpos;

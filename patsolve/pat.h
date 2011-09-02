@@ -165,9 +165,24 @@ extern long Mem_remain;
 extern int Xparam[];
 extern double Yparam[];
 
+#define NQUEUES 100
+
+struct fc_solve_soft_thread_struct
+{
+    POSITION *Qhead[NQUEUES]; /* separate queue for each priority */
+    POSITION *Qtail[NQUEUES]; /* positions are added here */
+    int Maxq;
+#if DEBUG
+    int Clusternum[0x10000];
+    int Inq[NQUEUES];
+#endif
+};
+
+typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
+
 /* Prototypes. */
 
-extern void doit();
+extern void doit(fc_solve_soft_thread_t *);
 extern void read_layout(FILE *);
 extern void printcard(card_t card, FILE *);
 extern void print_layout();
