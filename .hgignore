@@ -6,3 +6,4 @@ patsolve/_CPack_Packages
 patsolve/CPackSourceConfig.cmake
 patsolve/Makefile
 patsolve/patsolve
+patsolve/win
