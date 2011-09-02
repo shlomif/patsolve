@@ -38,8 +38,9 @@
 const char Rank[] = " A23456789TJQK";
 const char Suit[] = "DCHS";
 
+const card_t Osuit[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
+
 card_t O[4];
-card_t Osuit[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
 
 /* Position freelist. */
 

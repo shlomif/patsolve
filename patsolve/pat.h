@@ -108,7 +108,7 @@ extern int Widx[MAXWPILES];     /* used to keep the piles sorted */
 extern int Widxi[MAXWPILES];    /* inverse of the above */
 
 extern card_t O[4];             /* output piles store only the rank or NONE */
-extern card_t Osuit[4];         /* suits of the output piles */
+extern const card_t Osuit[4];         /* suits of the output piles */
 
 /* Temp storage for possible moves. */
 
