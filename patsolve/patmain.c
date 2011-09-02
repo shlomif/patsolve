@@ -53,9 +53,6 @@ long Mem_remain = 50 * 1000 * 1000;
 long Init_mem_remain;
 #endif
 
-int Sgame = -1;         /* for range solving */
-int Egame;
-
 /* Statistics. */
 
 int Total_positions;
@@ -120,6 +117,9 @@ int main(int argc, char **argv)
 	char *curr_arg, **argv0;
 	u_int64_t gn;
 	FILE *infile;
+    int Sgame = -1;         /* for range solving */
+    int Egame;
+
     fc_solve_soft_thread_t soft_thread_struct;
     fc_solve_soft_thread_t * soft_thread;
 
