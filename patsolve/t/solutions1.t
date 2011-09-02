@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 12;
 
 use Test::Trap qw( trap $trap :flow:stderr(systemsafe):stdout(systemsafe):warn );
 
@@ -359,6 +359,122 @@ QC out
 KH out
 KC out
 KD out
+EOF
+
+}
+
+{
+    trap
+    {
+        system("./patsolve", "-s", "./t/data/1.seahaven.board");
+    };
+
+    # TEST
+    is ($trap->stdout(), <<'EOF', 'seahaven 1 STDOUT');
+Seahaven; any card may start a pile.
+10 work piles, 4 temp cells.
+A winner.
+76 moves.
+EOF
+
+    # TEST
+    ok (!defined($trap->exit()), '0 exit status.');
+
+    # TEST
+    is ($trap->stderr(), <<'EOF', 'sea1 stderr');
+JD 9S JS 4D 6D 
+2D 5S AS 7S 8S 
+9H AD AH 3S 8D 
+JC QC 3C TD QS 
+5D KH 4C 4S 6C 
+7H 3H 5C TH 3D 
+7C 2S TS 8H 8C 
+5H KS QH 2C TC 
+KD 9D 4H JH 6S 
+KC QD AC 7D 9C 
+2H 6H       
+            
+---
+EOF
+
+    # TEST
+    is (_slurp('win'), <<'EOF', 'seahaven 1 win contents');
+8D to temp
+3S to temp
+AH out
+AD out
+2H out
+9H to temp
+8S to empty pile
+7S to 8S 
+AS out
+5S to 6S 
+2D out
+3D out
+9C to empty pile
+6D to 7D 
+4D out
+8C to 9C 
+9H to TH 
+8H to temp
+TS to JS 
+2S out
+3S out
+6C to 7C 
+4S out
+5S out
+6S out
+7S out
+8S out
+4C to empty pile
+KH to temp
+5D out
+6D out
+7D out
+AC out
+8D out
+TS to empty pile
+JS to temp
+9S out
+TS out
+JS out
+QS out
+TC to empty pile
+2C out
+TD to JD 
+3C out
+4C out
+9H to empty pile
+TH to temp
+5C out
+6C out
+7C out
+8C out
+9C out
+TC out
+3H out
+QH to empty pile
+KS out
+JH to empty pile
+4H out
+5H out
+9D out
+TD out
+JD out
+QD out
+KD out
+6H out
+7H out
+8H out
+9H out
+TH out
+JH out
+QH out
+KH out
+QC to empty pile
+JC out
+QC out
+KC out
 EOF
 
 }
