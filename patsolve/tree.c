@@ -79,7 +79,7 @@ int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **nod
 	if (new == NULL) {
 		return ERR;
 	}
-	Total_generated++;
+	soft_thread->Total_generated++;
 
 	i = insert_node(new, d, &tl->tree, node);
 

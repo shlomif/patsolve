@@ -222,9 +222,9 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
 
 	nout = soft_thread->O[0] + soft_thread->O[1] + soft_thread->O[2] + soft_thread->O[3];
 
-	/* Yparam[0] * nout^2 + Yparam[1] * nout + Yparam[2] */
+	/* soft_thread->Yparam[0] * nout^2 + soft_thread->Yparam[1] * nout + soft_thread->Yparam[2] */
 
-	x = (Yparam[0] * nout + Yparam[1]) * nout + Yparam[2];
+	x = (soft_thread->Yparam[0] * nout + soft_thread->Yparam[1]) * nout + soft_thread->Yparam[2];
 	pri += (int)floor(x + .5);
 
 	if (pri < 0) {

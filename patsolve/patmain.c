@@ -27,7 +27,6 @@
 #include <signal.h>
 #include "pat.h"
 #include "tree.h"
-#include "param.h"
 
 char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
@@ -52,28 +51,20 @@ long Mem_remain = 50 * 1000 * 1000;
 #if DEBUG
 long Init_mem_remain;
 #endif
-
-/* Statistics. */
-
-int Total_positions;
-int Total_generated;
-
-int Xparam[NXPARAM];
-double Yparam[NYPARAM];
-
-void set_param(int pnum)
+void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 {
-	int i, *x;
-	double *y;
+	const int *x;
+	const double *y;
+    int i;
 
 	x = XYparam[pnum].x;
 	y = XYparam[pnum].y;
 	for (i = 0; i < NXPARAM; i++) {
-		Xparam[i] = x[i];
+		soft_thread->Xparam[i] = x[i];
 	}
-	Cutoff = Xparam[NXPARAM - 1];
+	Cutoff = soft_thread->Xparam[NXPARAM - 1];
 	for (i = 0; i < NYPARAM; i++) {
-		Yparam[i] = y[i];
+		soft_thread->Yparam[i] = y[i];
 	}
 }
 
@@ -210,19 +201,19 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 	/* Set parameters. */
 
 	if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !Stack) {
-		set_param(FreecellBest);
+		set_param(soft_thread, FreecellBest);
 	} else if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && Stack) {
-		set_param(FreecellSpeed);
+		set_param(soft_thread, FreecellSpeed);
 	} else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !Stack) {
-		set_param(SeahavenBest);
+		set_param(soft_thread, SeahavenBest);
 	} else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && Stack) {
-		set_param(SeahavenSpeed);
+		set_param(soft_thread, SeahavenSpeed);
 	} else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && !Stack) {
-		set_param(SeahavenKing);
+		set_param(soft_thread, SeahavenKing);
 	} else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && Stack) {
-		set_param(SeahavenKingSpeed);
+		set_param(soft_thread, SeahavenKingSpeed);
 	} else {
-		set_param(0);   /* default */
+		set_param(soft_thread, 0);   /* default */
 	}
 
 	/* Now get the other args, and allow overriding the parameters. */
@@ -280,7 +271,7 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 				/* use -c for the last X param */
 
 				for (i = 0; i < NXPARAM - 1; i++) {
-					Xparam[i] = atoi(argv[i + 1]);
+					soft_thread->Xparam[i] = atoi(argv[i + 1]);
 				}
 				argv += NXPARAM - 1;
 				argc -= NXPARAM - 1;
@@ -289,7 +280,7 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 
 			case 'Y':
 				for (i = 0; i < NYPARAM; i++) {
-					Yparam[i] = atof(argv[i + 1]);
+					soft_thread->Yparam[i] = atof(argv[i + 1]);
 				}
 				argv += NYPARAM;
 				argc -= NYPARAM;
@@ -301,7 +292,7 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 				if (i < 0 || i > LastParam) {
 					fatalerr("invalid parameter code");
 				}
-				set_param(i);
+				set_param(soft_thread, i);
 				curr_arg = NULL;
 				break;
 
@@ -392,8 +383,8 @@ void play(fc_solve_soft_thread_t * soft_thread)
 
 	/* Reset stats. */
 
-	Total_positions = 0;
-	Total_generated = 0;
+	soft_thread->Total_positions = 0;
+	soft_thread->Total_generated = 0;
 	Numsol = 0;
 
 	Status = NOSOL;
@@ -410,8 +401,8 @@ void play(fc_solve_soft_thread_t * soft_thread)
 			printf("No solution.\n");
 		}
 #if DEBUG
-		printf("%d positions generated.\n", Total_generated);
-		printf("%d unique positions.\n", Total_positions);
+		printf("%d positions generated.\n", soft_thread->Total_generated);
+		printf("%d unique positions.\n", soft_thread->Total_positions);
 		printf("Mem_remain = %ld\n", Mem_remain);
 #endif
 	}

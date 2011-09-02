@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include "config.h"
 #include "tree.h"
+#include "param.h"
 
 /* A card is represented as (suit << 4) + rank. */
 
@@ -135,12 +136,7 @@ typedef struct treelist {
 
 /* Statistics. */
 
-extern int Total_positions;
-extern int Total_generated;
 extern long Mem_remain;
-
-extern int Xparam[];
-extern double Yparam[];
 
 #define NQUEUES 100
 
@@ -185,6 +181,14 @@ struct fc_solve_soft_thread_struct
 
     MOVE Possible[MAXMOVES];
 
+
+    /* Statistics. */
+
+    int Total_positions;
+    int Total_generated;
+
+    int Xparam[NXPARAM];
+    double Yparam[NYPARAM];
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;

@@ -438,14 +438,14 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
 				w = mp->from;
 				for (j = 0; j < npile; j++) {
 					if (w == pile[j]) {
-						mp->pri += Xparam[0];
+						mp->pri += soft_thread->Xparam[0];
 					}
 				}
 				if (soft_thread->Wlen[w] > 1) {
 					card = soft_thread->W[w][soft_thread->Wlen[w] - 2];
 					for (s = 0; s < 4; s++) {
 						if (card == need[s]) {
-							mp->pri += Xparam[1];
+							mp->pri += soft_thread->Xparam[1];
 							break;
 						}
 					}
@@ -454,7 +454,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
 			if (mp->totype == W_TYPE) {
 				for (j = 0; j < npile; j++) {
 					if (mp->to == pile[j]) {
-						mp->pri -= Xparam[2];
+						mp->pri -= soft_thread->Xparam[2];
 					}
 				}
 			}
@@ -729,7 +729,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
 				mp->totype = W_TYPE;
 				mp->srccard = soft_thread->Wp[i][-1];
 				mp->destcard = NONE;
-				mp->pri = Xparam[3];
+				mp->pri = soft_thread->Xparam[3];
 				n++;
 				mp++;
 			}
@@ -758,7 +758,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
 						mp->srccard = soft_thread->Wp[i][-1];
 					}
 					mp->destcard = *soft_thread->Wp[w];
-					mp->pri = Xparam[4];
+					mp->pri = soft_thread->Xparam[4];
 					n++;
 					mp++;
 				}
@@ -782,7 +782,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
 					mp->totype = W_TYPE;
 					mp->srccard = NONE;
 					mp->destcard = *soft_thread->Wp[w];
-					mp->pri = Xparam[5];
+					mp->pri = soft_thread->Xparam[5];
 					n++;
 					mp++;
 				}
@@ -803,7 +803,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
 				mp->totype = W_TYPE;
 				mp->srccard = NONE;
 				mp->destcard = NONE;
-				mp->pri = Xparam[6];
+				mp->pri = soft_thread->Xparam[6];
 				n++;
 				mp++;
 			}
@@ -831,7 +831,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
 					mp->srccard = soft_thread->Wp[w][-1];
 				}
 				mp->destcard = NONE;
-				mp->pri = Xparam[7];
+				mp->pri = soft_thread->Xparam[7];
 				n++;
 				mp++;
 			}
@@ -867,7 +867,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
 			}
 		}
 		if (irr) {
-			mp->pri += Xparam[8];
+			mp->pri += soft_thread->Xparam[8];
 		}
 	}
 }
@@ -894,7 +894,7 @@ POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, M
 	}
 	i = insert(soft_thread, &cluster, depth, &node);
 	if (i == NEW) {
-		Total_positions++;
+		soft_thread->Total_positions++;
 	} else if (i != FOUND_BETTER) {
 		return NULL;
 	}
@@ -939,7 +939,7 @@ POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, M
 
 static INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
 {
-	if (Xparam[9] < 0) {
+	if (soft_thread->Xparam[9] < 0) {
 		return soft_thread->Wpilenum[b] - soft_thread->Wpilenum[a];       /* newer piles first */
 	} else {
 		return soft_thread->Wpilenum[a] - soft_thread->Wpilenum[b];       /* older piles first */
@@ -949,7 +949,7 @@ static INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
 #if 0
 static INLINE int wcmp(int a, int b)
 {
-	if (Xparam[9] < 0) {
+	if (soft_thread->Xparam[9] < 0) {
 		return soft_thread->Wlen[b] - soft_thread->Wlen[a];       /* longer piles first */
 	} else {
 		return soft_thread->Wlen[a] - soft_thread->Wlen[b];       /* shorter piles first */
@@ -1188,8 +1188,8 @@ static void win(POSITION *pos)
 		printf("A winner.\n");
 		printf("%d moves.\n", nmoves);
 #if DEBUG
-		printf("%d positions generated.\n", Total_generated);
-		printf("%d unique positions.\n", Total_positions);
+		printf("%d positions generated.\n", soft_thread->Total_generated);
+		printf("%d unique positions.\n", soft_thread->Total_positions);
 		printf("Mem_remain = %ld\n", Mem_remain);
 #endif
 	}
