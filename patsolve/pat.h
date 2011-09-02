@@ -63,8 +63,8 @@ extern card_t Suit_val;
 
 #define king_only(card) (!King_only || rank(card) == PS_KING)
 
-extern char Rank[];
-extern char Suit[];
+extern const char Rank[];
+extern const char Suit[];
 
 /* Represent a move. */
 

@@ -43,8 +43,8 @@ card_t Suit_val;
 
 /* Names of the cards.  The ordering is defined in pat.h. */
 
-char Rank[] = " A23456789TJQK";
-char Suit[] = "DCHS";
+const char Rank[] = " A23456789TJQK";
+const char Suit[] = "DCHS";
 
 card_t O[4];
 card_t Osuit[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
