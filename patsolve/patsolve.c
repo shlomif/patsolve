@@ -36,7 +36,7 @@ search. */
 #include "fnv.h"
 
 static int solve(fc_solve_soft_thread_t *, POSITION *);
-static void free_position(POSITION *pos, int);
+static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int);
 static void queue_position(fc_solve_soft_thread_t *, POSITION *, int);
 static POSITION *dequeue_position(fc_solve_soft_thread_t *);
 
@@ -97,7 +97,7 @@ memset(Inq, 0, sizeof(Inq));
 	while ((pos = dequeue_position(soft_thread)) != NULL) {
 		q = solve(soft_thread, pos);
 		if (!q) {
-			free_position(pos, TRUE);
+			free_position(soft_thread, pos, TRUE);
 		}
 	}
 }
@@ -138,7 +138,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 
 	q = FALSE;
 	for (i = 0, mp = mp0; i < nmoves; i++, mp++) {
-		make_move(mp);
+		make_move(soft_thread, mp);
 
 		/* Calculate indices for the new piles. */
 
@@ -147,7 +147,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 		/* See if this is a new position. */
 
 		if ((pos = new_position(soft_thread, parent, mp)) == NULL) {
-			undo_move(mp);
+			undo_move(soft_thread, mp);
 			parent->nchild--;
 			continue;
 		}
@@ -160,14 +160,14 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 
 		if (pos->cluster != parent->cluster || nmoves < Cutoff) {
 			qq = solve(soft_thread, pos);
-			undo_move(mp);
+			undo_move(soft_thread, mp);
 			if (!qq) {
-				free_position(pos, FALSE);
+				free_position(soft_thread, pos, FALSE);
 			}
 			q |= qq;
 		} else {
 			queue_position(soft_thread, pos, mp->pri);
-			undo_move(mp);
+			undo_move(soft_thread, mp);
 			q = TRUE;
 		}
 	}
@@ -185,19 +185,19 @@ The nchild element keeps track of descendents, and when there are none left
 in the parent we can free it too after solve() returns and we get called
 recursively (rec == TRUE). */
 
-static void free_position(POSITION *pos, int rec)
+static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int rec)
 {
 	/* We don't really free anything here, we just push it onto a
 	freelist (using the queue member), so we can use it again later. */
 
 	if (!rec) {
-		pos->queue = Freepos;
-		Freepos = pos;
+		pos->queue = soft_thread->Freepos;
+		soft_thread->Freepos = pos;
 		pos->parent->nchild--;
 	} else {
 		do {
-			pos->queue = Freepos;
-			Freepos = pos;
+			pos->queue = soft_thread->Freepos;
+			soft_thread->Freepos = pos;
 			pos = pos->parent;
 			if (pos == NULL) {
 				return;
@@ -220,7 +220,7 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
 	additional priority depending on the number of cards out.  We use a
 	"queue squashing function" to map nout to priority.  */
 
-	nout = O[0] + O[1] + O[2] + O[3];
+	nout = soft_thread->O[0] + soft_thread->O[1] + soft_thread->O[2] + soft_thread->O[3];
 
 	/* Yparam[0] * nout^2 + Yparam[1] * nout + Yparam[2] */
 

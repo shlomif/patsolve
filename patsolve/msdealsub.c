@@ -74,14 +74,6 @@ static UINT rando()
 #define PS_SPADE   0x30         /* black */
 static int msdeal_Suit[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
 
-#define MAXTPILES       8       /* max number of piles */
-#define MAXWPILES      13
-extern card_t W[MAXWPILES][52]; /* the workspace */
-extern card_t *Wp[MAXWPILES];   /* point to the top card of each work pile */
-extern int Wlen[MAXWPILES];     /* the number of cards in each pile */
-extern card_t T[MAXTPILES];     /* one card in each temp cell */
-extern card_t O[4];             /* output piles store only the rank or NONE */
-
 void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 {
 	int i, j, c;
@@ -120,22 +112,22 @@ void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 		j = 0;
 		while (pos[i][j]) {
 			c = pos[i][j] - 1;
-			W[i][j] = msdeal_Suit[c % 4] + (c / 4) + 1;
+			soft_thread->W[i][j] = msdeal_Suit[c % 4] + (c / 4) + 1;
 			j++;
 		}
-		Wp[i] = &W[i][j - 1];
-		Wlen[i] = j;
+		soft_thread->Wp[i] = &soft_thread->W[i][j - 1];
+		soft_thread->Wlen[i] = j;
 	}
 	/* leftover cards to temp */
 	for (i = 0; i < MAXTPILES; i++) {
-		T[i] = 0;
+		soft_thread->T[i] = 0;
 		if (wLeft) {
 			j = --wLeft;
 			c = deck[j] - 1;
-			T[i] = msdeal_Suit[c % 4] + (c / 4) + 1;
+			soft_thread->T[i] = msdeal_Suit[c % 4] + (c / 4) + 1;
 		}
 	}
 	for (i = 0; i < 4; i++) {
-		O[i] = 0;
+		soft_thread->O[i] = 0;
 	}
 }

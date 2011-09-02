@@ -123,13 +123,15 @@ int main(int argc, char **argv)
     fc_solve_soft_thread_t soft_thread_struct;
     fc_solve_soft_thread_t * soft_thread;
 
+    soft_thread = &soft_thread_struct;
+
+    soft_thread->Freepos = NULL;
     /* Default variation. */
     soft_thread_struct.Same_suit = SAME_SUIT;
     soft_thread_struct.King_only = KING_ONLY;
     soft_thread_struct.Nwpiles = NWPILES;
     soft_thread_struct.Ntpiles = NTPILES;
 
-    soft_thread = &soft_thread_struct;
 
 	Progname = *argv;
 #if DEBUG
@@ -417,7 +419,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 		free_buckets();
 		free_clusters();
 		free_blocks();
-		Freepos = NULL;
+		soft_thread->Freepos = NULL;
 	}
 #if DEBUG
 if (Mem_remain != Init_mem_remain) {
@@ -441,9 +443,9 @@ void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
 	w = 0;
 	total = 0;
 	while (fgets(buf, 100, infile)) {
-		i = parse_pile(buf, W[w], 52);
-		Wp[w] = &W[w][i - 1];
-		Wlen[w] = i;
+		i = parse_pile(buf, soft_thread->W[w], 52);
+		soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
+		soft_thread->Wlen[w] = i;
 		w++;
 		total += i;
 		if (w == soft_thread->Nwpiles) {
@@ -457,24 +459,24 @@ void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
 	/* Temp cells may have some cards too. */
 
 	for (i = 0; i < soft_thread->Ntpiles; i++) {
-		T[i] = NONE;
+		soft_thread->T[i] = NONE;
 	}
 	if (total != 52) {
 		fgets(buf, 100, infile);
-		total += parse_pile(buf, T, soft_thread->Ntpiles);
+		total += parse_pile(buf, soft_thread->T, soft_thread->Ntpiles);
 	}
 
 	/* Output piles, if any. */
 
 	for (i = 0; i < 4; i++) {
-		O[i] = out[i] = NONE;
+		soft_thread->O[i] = out[i] = NONE;
 	}
 	if (total != 52) {
 		fgets(buf, 100, infile);
 		parse_pile(buf, out, 4);
 		for (i = 0; i < 4; i++) {
 			if (out[i] != NONE) {
-				O[suit(out[i])] = rank(out[i]);
+				soft_thread->O[suit(out[i])] = rank(out[i]);
 				total += rank(out[i]);
 			}
 		}
@@ -531,17 +533,17 @@ void print_layout(fc_solve_soft_thread_t * soft_thread)
 	int i, t, w, o;
 
 	for (w = 0; w < soft_thread->Nwpiles; w++) {
-		for (i = 0; i < Wlen[w]; i++) {
-			printcard(W[w][i], stderr);
+		for (i = 0; i < soft_thread->Wlen[w]; i++) {
+			printcard(soft_thread->W[w][i], stderr);
 		}
 		fputc('\n', stderr);
 	}
 	for (t = 0; t < soft_thread->Ntpiles; t++) {
-		printcard(T[t], stderr);
+		printcard(soft_thread->T[t], stderr);
 	}
 	fputc('\n', stderr);
 	for (o = 0; o < 4; o++) {
-		printcard(O[o] + Osuit[o], stderr);
+		printcard(soft_thread->O[o] + Osuit[o], stderr);
 	}
 	fprintf(stderr, "\n---\n");
 }

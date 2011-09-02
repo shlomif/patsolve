@@ -35,6 +35,7 @@ typedef u_char card_t;
 #define PS_DIAMOND 0x00         /* red */
 #define PS_CLUB    0x10         /* black */
 #define PS_HEART   0x20         /* red */
+
 #define PS_SPADE   0x30         /* black */
 #define PS_COLOR   0x10         /* black if set */
 #define PS_SUIT    0x30         /* mask both suit bits */
@@ -95,25 +96,11 @@ typedef struct pos {
 	u_char ntemp;           /* number of cards in T */
 	u_char nchild;          /* number of child nodes left */
 } POSITION;
-
-extern POSITION *Freepos;       /* position freelist */
-
-/* Work arrays. */
-
-extern card_t T[MAXTPILES];     /* one card in each temp cell */
-extern card_t W[MAXWPILES][52]; /* the workspace */
-extern card_t *Wp[MAXWPILES];   /* point to the top card of each work pile */
-extern int Wlen[MAXWPILES];     /* the number of cards in each pile */
-extern int Widx[MAXWPILES];     /* used to keep the piles sorted */
-extern int Widxi[MAXWPILES];    /* inverse of the above */
-
-extern card_t O[4];             /* output piles store only the rank or NONE */
 extern const card_t Osuit[4];         /* suits of the output piles */
 
 /* Temp storage for possible moves. */
 
 #define MAXMOVES 64             /* > max # moves from any position */
-extern MOVE Possible[MAXMOVES];
 
 enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
 
@@ -175,6 +162,29 @@ struct fc_solve_soft_thread_struct
 
     card_t Suit_mask;
     card_t Suit_val;
+
+    POSITION *Freepos;       /* position freelist */
+
+    /* Work arrays. */
+
+    card_t T[MAXTPILES];     /* one card in each temp cell */
+    card_t W[MAXWPILES][52]; /* the workspace */
+    card_t *Wp[MAXWPILES];   /* point to the top card of each work pile */
+    int Wlen[MAXWPILES];     /* the number of cards in each pile */
+    int Widx[MAXWPILES];     /* used to keep the piles sorted */
+    int Widxi[MAXWPILES];    /* inverse of the above */
+
+    card_t O[4];             /* output piles store only the rank or NONE */
+
+    /* Every different pile has a hash and a unique id. */
+
+    u_int32_t Whash[MAXWPILES];
+    int Wpilenum[MAXWPILES];
+
+    /* Temp storage for possible moves. */
+
+    MOVE Possible[MAXMOVES];
+
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
@@ -186,8 +196,8 @@ extern void doit(fc_solve_soft_thread_t *);
 extern void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *);
 extern void printcard(card_t card, FILE *);
 extern void print_layout(fc_solve_soft_thread_t * soft_thread);
-extern void make_move(MOVE *);
-extern void undo_move(MOVE *);
+extern void make_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
+extern void undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
 extern POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, MOVE *m);
 extern void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *);

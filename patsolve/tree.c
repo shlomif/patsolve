@@ -60,9 +60,9 @@ int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **nod
 
 	/* Get the cluster number from the Out cell contents. */
 
-	i = O[0] + (O[1] << 4);
+	i = soft_thread->O[0] + (soft_thread->O[1] << 4);
 	k = i;
-	i = O[2] + (O[3] << 4);
+	i = soft_thread->O[2] + (soft_thread->O[3] << 4);
 	k |= i << 8;
 	*cluster = k;
 
