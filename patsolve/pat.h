@@ -47,21 +47,14 @@ typedef u_char card_t;
 #define suit(card) ((card) >> 4)
 #define color(card) ((card) & PS_COLOR)
 
-extern int Same_suit;           /* game parameters */
-extern int King_only;
-extern int Nwpiles;
-extern int Ntpiles;
-
 /* Some macros used in get_possible_moves(). */
 
 /* The following macro implements
 	(Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
 */
-#define suitable(a, b) ((((a) ^ (b)) & Suit_mask) == Suit_val)
-extern card_t Suit_mask;
-extern card_t Suit_val;
+#define suitable(a, b) ((((a) ^ (b)) & soft_thread->Suit_mask) == soft_thread->Suit_val)
 
-#define king_only(card) (!King_only || rank(card) == PS_KING)
+#define king_only(card) (!soft_thread->King_only || rank(card) == PS_KING)
 
 extern const char Rank[];
 extern const char Suit[];
@@ -116,9 +109,6 @@ extern int Widxi[MAXWPILES];    /* inverse of the above */
 
 extern card_t O[4];             /* output piles store only the rank or NONE */
 extern card_t Osuit[4];         /* suits of the output piles */
-
-extern int Nwpiles;             /* the numbers we're actually using */
-extern int Ntpiles;
 
 /* Temp storage for possible moves. */
 
@@ -176,23 +166,34 @@ struct fc_solve_soft_thread_struct
     int Clusternum[0x10000];
     int Inq[NQUEUES];
 #endif
+    /* game parameters */
+    int Same_suit;
+    int King_only;
+    /* the numbers we're actually using */
+    int Nwpiles;
+    int Ntpiles;
+
+    card_t Suit_mask;
+    card_t Suit_val;
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
 
 /* Prototypes. */
 
+extern int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node);
 extern void doit(fc_solve_soft_thread_t *);
-extern void read_layout(FILE *);
+extern void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *);
 extern void printcard(card_t card, FILE *);
-extern void print_layout();
+extern void print_layout(fc_solve_soft_thread_t * soft_thread);
 extern void make_move(MOVE *);
 extern void undo_move(MOVE *);
-extern MOVE *get_moves(POSITION *, int *);
-extern POSITION *new_position(POSITION *parent, MOVE *m);
-extern void unpack_position(POSITION *);
-extern TREE *pack_position(void);
-extern void init_buckets(void);
+extern MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
+extern POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, MOVE *m);
+extern void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *);
+extern TREE *pack_position(fc_solve_soft_thread_t * soft_thread);
+extern void init_buckets(fc_solve_soft_thread_t * soft_thread);
 extern void init_clusters(void);
 extern u_char *new_from_block(size_t);
-extern void pilesort(void);
+extern void pilesort(fc_solve_soft_thread_t * soft_thread);
+extern void msdeal(fc_solve_soft_thread_t * soft_thread, u_int64_t);

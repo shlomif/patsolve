@@ -41,6 +41,5 @@ struct tree_node {
 	short depth;
 };
 
-extern int insert(int *cluster, int d, TREE **node);
 
 #endif

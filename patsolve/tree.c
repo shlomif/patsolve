@@ -52,7 +52,7 @@ static INLINE int CMP(u_char *a, u_char *b)
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
-int insert(int *cluster, int d, TREE **node)
+int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node)
 {
 	int i, k;
 	TREE *new;
@@ -75,7 +75,7 @@ int insert(int *cluster, int d, TREE **node)
 
 	/* Create a compact position representation. */
 
-	new = pack_position();
+	new = pack_position(soft_thread);
 	if (new == NULL) {
 		return ERR;
 	}

@@ -28,19 +28,18 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <string.h>
+#include "pat.h"
 
 #ifdef WIN32
 typedef void VOID;
 typedef unsigned __int64 LONG;
 typedef unsigned __int32 UINT;
 typedef int CARD;
-typedef unsigned char card_t;
 #else
 typedef void VOID;
 typedef u_int64_t LONG;
 typedef u_int32_t UINT;
 typedef int CARD;
-typedef u_char card_t;
 #endif
 
 #define NUM_CARDS 52
@@ -73,7 +72,7 @@ static UINT rando()
 #define PS_CLUB    0x10         /* black */
 #define PS_HEART   0x20         /* red */
 #define PS_SPADE   0x30         /* black */
-static int Suit[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
+static int msdeal_Suit[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
 
 #define MAXTPILES       8       /* max number of piles */
 #define MAXWPILES      13
@@ -83,9 +82,7 @@ extern int Wlen[MAXWPILES];     /* the number of cards in each pile */
 extern card_t T[MAXTPILES];     /* one card in each temp cell */
 extern card_t O[4];             /* output piles store only the rank or NONE */
 
-extern int Nwpiles;
-
-void msdeal(LONG gnGameNumber)
+void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 {
 	int i, j, c;
 	int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
@@ -113,17 +110,17 @@ void msdeal(LONG gnGameNumber)
 		} else {
 			j = (randp() + 1) % wLeft;
 		}
-		pos[i % Nwpiles][i / Nwpiles] = deck[j];
+		pos[i % soft_thread->Nwpiles][i / soft_thread->Nwpiles] = deck[j];
 		deck[j] = deck[--wLeft];
-		if (Nwpiles == 10 && i == 49) {
+		if (soft_thread->Nwpiles == 10 && i == 49) {
 			break;
 		}
 	}
-	for (i = 0; i < Nwpiles; i++) {
+	for (i = 0; i < soft_thread->Nwpiles; i++) {
 		j = 0;
 		while (pos[i][j]) {
 			c = pos[i][j] - 1;
-			W[i][j] = Suit[c % 4] + (c / 4) + 1;
+			W[i][j] = msdeal_Suit[c % 4] + (c / 4) + 1;
 			j++;
 		}
 		Wp[i] = &W[i][j - 1];
@@ -135,7 +132,7 @@ void msdeal(LONG gnGameNumber)
 		if (wLeft) {
 			j = --wLeft;
 			c = deck[j] - 1;
-			T[i] = Suit[c % 4] + (c / 4) + 1;
+			T[i] = msdeal_Suit[c % 4] + (c / 4) + 1;
 		}
 	}
 	for (i = 0; i < 4; i++) {

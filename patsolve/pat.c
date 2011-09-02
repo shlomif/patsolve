@@ -31,15 +31,7 @@
 #include "fnv.h"
 #include "tree.h"
 
-/* Default variation. */
 
-int Same_suit = SAME_SUIT;
-int King_only = KING_ONLY;
-int Nwpiles = NWPILES;
-int Ntpiles = NTPILES;
-
-card_t Suit_mask;
-card_t Suit_val;
 
 /* Names of the cards.  The ordering is defined in pat.h. */
 
@@ -73,8 +65,8 @@ MOVE Possible[MAXMOVES];
 
 extern int Pilebytes;
 
-static int get_possible_moves(int *, int *);
-static void mark_irreversible(int n);
+static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
+static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n);
 static void win(POSITION *pos);
 static INLINE int get_pilenum(int w);
 
@@ -92,11 +84,11 @@ static INLINE void hashpile(int w)
 
 /* Hash the whole layout.  This is called once, at the start. */
 
-void hash_layout(void)
+void hash_layout(fc_solve_soft_thread_t * soft_thread)
 {
 	int w;
 
-	for (w = 0; w < Nwpiles; w++) {
+	for (w = 0; w < soft_thread->Nwpiles; w++) {
 		hashpile(w);
 	}
 }
@@ -169,16 +161,16 @@ void undo_move(MOVE *m)
 }
 
 /* This prune applies only to Seahaven in -k mode: if we're putting a card
-onto a W pile, and if that pile already has Ntpiles+1 cards of this suit in
+onto a W pile, and if that pile already has soft_thread->Ntpiles+1 cards of this suit in
 a row, and if there is a smaller card of the same suit below the run, then
 the position is unsolvable.  This cuts out a lot of useless searching, so
 it's worth checking.  */
 
-static int prune_seahaven(MOVE *mp)
+static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, MOVE *mp)
 {
 	int i, j, w, r, s;
 
-	if (!Same_suit || !King_only || mp->totype != W_TYPE) {
+	if (!soft_thread->Same_suit || !soft_thread->King_only || mp->totype != W_TYPE) {
 		return FALSE;
 	}
 	w = mp->to;
@@ -193,7 +185,7 @@ static int prune_seahaven(MOVE *mp)
 			j++;
 		}
 	}
-	if (j < Ntpiles + 1) {
+	if (j < soft_thread->Ntpiles + 1) {
 		return FALSE;
 	}
 
@@ -245,7 +237,7 @@ static INLINE int cardisdest(card_t card, MOVE **mpp, int j)
 
 #define MAXPREVMOVE 4   /* Increasing this beyond 4 doesn't do much. */
 
-static int prune_redundant(MOVE *mp, POSITION *pos0)
+static int prune_redundant(fc_solve_soft_thread_t * soft_thread, MOVE *mp, POSITION *pos0)
 {
 	int i, j;
 	int zerot;
@@ -309,7 +301,7 @@ static int prune_redundant(MOVE *mp, POSITION *pos0)
 	zerot = 0;
 	pos = pos0;
 	for (i = 0; i < j; i++) {
-		zerot |= (pos->ntemp == Ntpiles);
+		zerot |= (pos->ntemp == soft_thread->Ntpiles);
 		pos = pos->parent;
 	}
 
@@ -377,7 +369,7 @@ static int prune_redundant(MOVE *mp, POSITION *pos0)
 		first move, prune.  There are other cases, but they
 		are more complicated. */
 
-		if (pos->ntemp != Ntpiles && !zerot) {
+		if (pos->ntemp != soft_thread->Ntpiles && !zerot) {
 			return TRUE;
 		}
 
@@ -410,7 +402,7 @@ positions when they are added to the queue. */
 
 #define NNEED 8
 
-static void prioritize(MOVE *mp0, int n)
+static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
 {
 	int i, j, s, w, pile[NNEED], npile;
 	card_t card, need[4];
@@ -438,7 +430,7 @@ static void prioritize(MOVE *mp0, int n)
 	like maybe an array that keeps track of every card; if maintaining
 	such an array is not too expensive. */
 
-	for (w = 0; w < Nwpiles; w++) {
+	for (w = 0; w < soft_thread->Nwpiles; w++) {
 		j = Wlen[w];
 		for (i = 0; i < j; i++) {
 			card = W[w][i];
@@ -498,14 +490,14 @@ static void prioritize(MOVE *mp0, int n)
 
 /* Generate an array of the moves we can make from this position. */
 
-MOVE *get_moves(POSITION *pos, int *nmoves)
+MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves)
 {
 	int i, n, alln, o, a, numout;
 	MOVE *mp, *mp0;
 
 	/* Fill in the Possible array. */
 
-	alln = n = get_possible_moves(&a, &numout);
+	alln = n = get_possible_moves(soft_thread, &a, &numout);
 
 	if (!a) {
 
@@ -515,7 +507,7 @@ MOVE *get_moves(POSITION *pos, int *nmoves)
 
 			/* Special prune for Seahaven -k. */
 
-			if (prune_seahaven(mp)) {
+			if (prune_seahaven(soft_thread, mp)) {
 				mp->card = NONE;
 				n--;
 				continue;
@@ -523,7 +515,7 @@ MOVE *get_moves(POSITION *pos, int *nmoves)
 
 			/* Prune redundant moves. */
 
-			if (prune_redundant(mp, pos)) {
+			if (prune_redundant(soft_thread, mp, pos)) {
 				mp->card = NONE;
 				n--;
 			}
@@ -531,7 +523,7 @@ MOVE *get_moves(POSITION *pos, int *nmoves)
 
 		/* Mark any irreversible moves. */
 
-		mark_irreversible(n);
+		mark_irreversible(soft_thread, n);
 	}
 
 	/* No moves?  Maybe we won. */
@@ -571,7 +563,7 @@ MOVE *get_moves(POSITION *pos, int *nmoves)
 	don't need a priority. */
 
 	if (!a) {
-		prioritize(Possible, alln);
+		prioritize(soft_thread, Possible, alln);
 	}
 
 	/* Now copy to safe storage and return.  Non-auto moves out get put
@@ -613,11 +605,11 @@ MOVE *get_moves(POSITION *pos, int *nmoves)
 
 /* Automove logic.  Freecell games must avoid certain types of automoves. */
 
-static INLINE int good_automove(int o, int r)
+static INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o, int r)
 {
 	int i;
 
-	if (Same_suit || r <= 2) {
+	if (soft_thread->Same_suit || r <= 2) {
 		return TRUE;
 	}
 
@@ -655,7 +647,7 @@ static INLINE int good_automove(int o, int r)
 
 /* Get the possible moves from a position, and store them in Possible[]. */
 
-static int get_possible_moves(int *a, int *numout)
+static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int *numout)
 {
 	int i, n, t, w, o, empty, emptyw;
 	card_t card;
@@ -665,7 +657,7 @@ static int get_possible_moves(int *a, int *numout)
 
 	n = 0;
 	mp = Possible;
-	for (w = 0; w < Nwpiles; w++) {
+	for (w = 0; w < soft_thread->Nwpiles; w++) {
 		if (Wlen[w] > 0) {
 			card = *Wp[w];
 			o = suit(card);
@@ -688,7 +680,7 @@ static int get_possible_moves(int *a, int *numout)
 
 				/* If it's an automove, just do it. */
 
-				if (good_automove(o, rank(card))) {
+				if (good_automove(soft_thread, o, rank(card))) {
 					*a = TRUE;
 					if (n != 1) {
 						Possible[0] = mp[-1];
@@ -702,7 +694,7 @@ static int get_possible_moves(int *a, int *numout)
 
 	/* Check for moves from T to O. */
 
-	for (t = 0; t < Ntpiles; t++) {
+	for (t = 0; t < soft_thread->Ntpiles; t++) {
 		if (T[t] != NONE) {
 			card = T[t];
 			o = suit(card);
@@ -722,7 +714,7 @@ static int get_possible_moves(int *a, int *numout)
 
 				/* If it's an automove, just do it. */
 
-				if (good_automove(o, rank(card))) {
+				if (good_automove(soft_thread, o, rank(card))) {
 					*a = TRUE;
 					if (n != 1) {
 						Possible[0] = mp[-1];
@@ -743,14 +735,14 @@ static int get_possible_moves(int *a, int *numout)
 	empty W cells. */
 
 	emptyw = -1;
-	for (w = 0; w < Nwpiles; w++) {
+	for (w = 0; w < soft_thread->Nwpiles; w++) {
 		if (Wlen[w] == 0) {
 			emptyw = w;
 			break;
 		}
 	}
 	if (emptyw >= 0) {
-		for (i = 0; i < Nwpiles; i++) {
+		for (i = 0; i < soft_thread->Nwpiles; i++) {
 			if (i == emptyw) {
 				continue;
 			}
@@ -772,10 +764,10 @@ static int get_possible_moves(int *a, int *numout)
 
 	/* Check for moves from W to non-empty W cells. */
 
-	for (i = 0; i < Nwpiles; i++) {
+	for (i = 0; i < soft_thread->Nwpiles; i++) {
 		if (Wlen[i] > 0) {
 			card = *Wp[i];
-			for (w = 0; w < Nwpiles; w++) {
+			for (w = 0; w < soft_thread->Nwpiles; w++) {
 				if (i == w) {
 					continue;
 				}
@@ -802,10 +794,10 @@ static int get_possible_moves(int *a, int *numout)
 
 	/* Check for moves from T to non-empty W cells. */
 
-	for (t = 0; t < Ntpiles; t++) {
+	for (t = 0; t < soft_thread->Ntpiles; t++) {
 		card = T[t];
 		if (card != NONE) {
-			for (w = 0; w < Nwpiles; w++) {
+			for (w = 0; w < soft_thread->Nwpiles; w++) {
 				if (Wlen[w] > 0 &&
 				    (rank(card) == rank(*Wp[w]) - 1 &&
 				     suitable(card, *Wp[w]))) {
@@ -827,7 +819,7 @@ static int get_possible_moves(int *a, int *numout)
 	/* Check for moves from T to one of any empty W cells. */
 
 	if (emptyw >= 0) {
-		for (t = 0; t < Ntpiles; t++) {
+		for (t = 0; t < soft_thread->Ntpiles; t++) {
 			card = T[t];
 			if (card != NONE && king_only(card)) {
 				mp->card = card;
@@ -846,13 +838,13 @@ static int get_possible_moves(int *a, int *numout)
 
 	/* Check for moves from W to one of any empty T cells. */
 
-	for (t = 0; t < Ntpiles; t++) {
+	for (t = 0; t < soft_thread->Ntpiles; t++) {
 		if (T[t] == NONE) {
 			break;
 		}
 	}
-	if (t < Ntpiles) {
-		for (w = 0; w < Nwpiles; w++) {
+	if (t < soft_thread->Ntpiles) {
+		for (w = 0; w < soft_thread->Nwpiles; w++) {
 			if (Wlen[w] > 0) {
 				card = *Wp[w];
 				mp->card = card;
@@ -878,7 +870,7 @@ static int get_possible_moves(int *a, int *numout)
 /* Moves that can't be undone get slightly higher priority, since it means
 we are moving a card for the first time. */
 
-static void mark_irreversible(int n)
+static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
 {
 	int i, irr;
 	card_t card, srccard;
@@ -896,7 +888,7 @@ static void mark_irreversible(int n)
 				    !suitable(card, srccard)) {
 					irr = TRUE;
 				}
-			} else if (King_only && mp->card != PS_KING) {
+			} else if (soft_thread->King_only && mp->card != PS_KING) {
 				irr = TRUE;
 			}
 		}
@@ -911,7 +903,7 @@ it, along with the pointer to its parent and the move we used to get here. */
 
 int Posbytes;
 
-POSITION *new_position(POSITION *parent, MOVE *m)
+POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, MOVE *m)
 {
 	int i, t, depth, cluster;
 	u_char *p;
@@ -926,7 +918,7 @@ POSITION *new_position(POSITION *parent, MOVE *m)
 	} else {
 		depth = parent->depth + 1;
 	}
-	i = insert(&cluster, depth, &node);
+	i = insert(soft_thread, &cluster, depth, &node);
 	if (i == NEW) {
 		Total_positions++;
 	} else if (i != FOUND_BETTER) {
@@ -958,7 +950,7 @@ POSITION *new_position(POSITION *parent, MOVE *m)
 
 	p += sizeof(POSITION);
 	i = 0;
-	for (t = 0; t < Ntpiles; t++) {
+	for (t = 0; t < soft_thread->Ntpiles; t++) {
 		*p++ = T[t];
 		if (T[t] != NONE) {
 			i++;
@@ -994,13 +986,13 @@ static INLINE int wcmp(int a, int b)
 /* Sort the piles, to remove the physical differences between logically
 equivalent layouts.  Assume it's already mostly sorted.  */
 
-void pilesort(void)
+void pilesort(fc_solve_soft_thread_t * soft_thread)
 {
 	int w, i, j;
 
 	/* Make sure all the piles have id numbers. */
 
-	for (w = 0; w < Nwpiles; w++) {
+	for (w = 0; w < soft_thread->Nwpiles; w++) {
 		if (Wpilenum[w] < 0) {
 			Wpilenum[w] = get_pilenum(w);
 			if (Wpilenum[w] < 0) {
@@ -1013,7 +1005,7 @@ void pilesort(void)
 
 	Widx[0] = 0;
 	w = 0;
-	for (i = 1; i < Nwpiles; i++) {
+	for (i = 1; i < soft_thread->Nwpiles; i++) {
 		if (wcmp(Widx[w], i) < 0) {
 			w++;
 			Widx[w] = i;
@@ -1031,7 +1023,7 @@ void pilesort(void)
 
 	/* Compute the inverse. */
 
-	for (i = 0; i < Nwpiles; i++) {
+	for (i = 0; i < soft_thread->Nwpiles; i++) {
 		Widxi[Widx[i]] = i;
 	}
 }
@@ -1054,7 +1046,7 @@ BUCKETLIST *Pilebucket[NPILES]; /* reverse lookup for unpack to get the bucket
 
 /* Compact position representation.  The position is stored as an
 array with the following format:
-	pile0# pile1# ... pileN# (N = Nwpiles)
+	pile0# pile1# ... pileN# (N = soft_thread->Nwpiles)
 where each pile number is packed into 12 bits (so 2 piles take 3 bytes).
 Positions in this format are unique can be compared with memcmp().  The O
 cells are encoded as a cluster number: no two positions with different
@@ -1063,7 +1055,7 @@ different trees.  */
 
 int Treebytes;
 
-TREE *pack_position(void)
+TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
 {
 	int j, k, w;
 	u_char *p;
@@ -1088,7 +1080,7 @@ TREE *pack_position(void)
 	*/
 
 	k = 0;
-	for (w = 0; w < Nwpiles; w++) {
+	for (w = 0; w < soft_thread->Nwpiles; w++) {
 		j = Wpilenum[Widx[w]];
 		switch (k) {
 		case 0:
@@ -1110,7 +1102,7 @@ TREE *pack_position(void)
 /* Unpack a compact position rep.  T cells must be restored from the
 array following the POSITION struct. */
 
-void unpack_position(POSITION *pos)
+void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
 {
 	int i, k, w;
 	u_char c, *p;
@@ -1137,7 +1129,7 @@ void unpack_position(POSITION *pos)
 
 	k = w = i = c = 0;
 	p = (u_char *)(pos->node) + sizeof(TREE);
-	while (w < Nwpiles) {
+	while (w < soft_thread->Nwpiles) {
 		switch (k) {
 		case 0:
 			i = *p++ << 4;
@@ -1164,7 +1156,7 @@ void unpack_position(POSITION *pos)
 
 	p = (u_char *)pos;
 	p += sizeof(POSITION);
-	for (i = 0; i < Ntpiles; i++) {
+	for (i = 0; i < soft_thread->Ntpiles; i++) {
 		T[i] = *p++;
 	}
 }
@@ -1231,15 +1223,15 @@ static void win(POSITION *pos)
 
 /* Initialize the hash buckets. */
 
-void init_buckets(void)
+void init_buckets(fc_solve_soft_thread_t * soft_thread)
 {
 	int i;
 
 	/* Packed positions need 3 bytes for every 2 piles. */
 
-	i = Nwpiles * 3;
+	i = soft_thread->Nwpiles * 3;
 	i >>= 1;
-	i += Nwpiles & 0x1;
+	i += soft_thread->Nwpiles & 0x1;
 	Pilebytes = i;
 
 	memset(Bucketlist, 0, sizeof(Bucketlist));
@@ -1258,7 +1250,7 @@ void init_buckets(void)
 		Treebytes |= ALIGN_BITS;
 		Treebytes++;
 	}
-	Posbytes = sizeof(POSITION) + Ntpiles;
+	Posbytes = sizeof(POSITION) + soft_thread->Ntpiles;
 	if (Posbytes & ALIGN_BITS) {
 		Posbytes |= ALIGN_BITS;
 		Posbytes++;

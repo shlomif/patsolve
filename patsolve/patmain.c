@@ -55,7 +55,6 @@ long Init_mem_remain;
 
 int Sgame = -1;         /* for range solving */
 int Egame;
-extern void msdeal(u_int64_t);
 
 /* Statistics. */
 
@@ -107,7 +106,7 @@ void quit(int sig)
 	if (c != 0) {
 		msg("\n");
 	}
-	print_layout();
+	print_layout(soft_thread);
 
 	signal(SIGQUIT, quit);
 }
@@ -122,6 +121,15 @@ int main(int argc, char **argv)
 	u_int64_t gn;
 	FILE *infile;
     fc_solve_soft_thread_t soft_thread_struct;
+    fc_solve_soft_thread_t * soft_thread;
+
+    /* Default variation. */
+    soft_thread_struct.Same_suit = SAME_SUIT;
+    soft_thread_struct.King_only = KING_ONLY;
+    soft_thread_struct.Nwpiles = NWPILES;
+    soft_thread_struct.Ntpiles = NTPILES;
+
+    soft_thread = &soft_thread_struct;
 
 	Progname = *argv;
 #if DEBUG
@@ -144,25 +152,25 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 			switch (c) {
 
 			case 's':
-				Same_suit = TRUE;
-				King_only = FALSE;
-				Nwpiles = 10;
-				Ntpiles = 4;
+				soft_thread_struct.Same_suit = TRUE;
+				soft_thread_struct.King_only = FALSE;
+				soft_thread_struct.Nwpiles = 10;
+				soft_thread_struct.Ntpiles = 4;
 				break;
 
 			case 'f':
-				Same_suit = FALSE;
-				King_only = FALSE;
-				Nwpiles = 8;
-				Ntpiles = 4;
+				soft_thread_struct.Same_suit = FALSE;
+				soft_thread_struct.King_only = FALSE;
+				soft_thread_struct.Nwpiles = 8;
+				soft_thread_struct.Ntpiles = 4;
 				break;
 
 			case 'k':
-				King_only = TRUE;
+				soft_thread_struct.King_only = TRUE;
 				break;
 
 			case 'a':
-				King_only = FALSE;
+				soft_thread_struct.King_only = FALSE;
 				break;
 
 			case 'S':
@@ -170,12 +178,12 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 				break;
 
 			case 'w':
-				Nwpiles = atoi(curr_arg);
+				soft_thread_struct.Nwpiles = atoi(curr_arg);
 				curr_arg = NULL;
 				break;
 
 			case 't':
-				Ntpiles = atoi(curr_arg);
+				soft_thread_struct.Ntpiles = atoi(curr_arg);
 				curr_arg = NULL;
 				break;
 
@@ -199,17 +207,17 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 
 	/* Set parameters. */
 
-	if (!Same_suit && !King_only && !Stack) {
+	if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !Stack) {
 		set_param(FreecellBest);
-	} else if (!Same_suit && !King_only && Stack) {
+	} else if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && Stack) {
 		set_param(FreecellSpeed);
-	} else if (Same_suit && !King_only && !Stack) {
+	} else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !Stack) {
 		set_param(SeahavenBest);
-	} else if (Same_suit && !King_only && Stack) {
+	} else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && Stack) {
 		set_param(SeahavenSpeed);
-	} else if (Same_suit && King_only && !Stack) {
+	} else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && !Stack) {
 		set_param(SeahavenKing);
-	} else if (Same_suit && King_only && Stack) {
+	} else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && Stack) {
 		set_param(SeahavenKingSpeed);
 	} else {
 		set_param(0);   /* default */
@@ -309,10 +317,10 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 	if (Mem_remain < BLOCKSIZE * 2) {
 		fatalerr("-M too small.");
 	}
-	if (Nwpiles > MAXWPILES) {
+	if (soft_thread->Nwpiles > MAXWPILES) {
 		fatalerr("too many w piles (max %d)", MAXWPILES);
 	}
-	if (Ntpiles > MAXTPILES) {
+	if (soft_thread->Ntpiles > MAXTPILES) {
 		fatalerr("too many t piles (max %d)", MAXTPILES);
 	}
 
@@ -326,23 +334,23 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 
 	/* Initialize the suitable() macro variables. */
 
-	Suit_mask = PS_COLOR;
-	Suit_val = PS_COLOR;
-	if (Same_suit) {
-		Suit_mask = PS_SUIT;
-		Suit_val = 0;
+	soft_thread->Suit_mask = PS_COLOR;
+	soft_thread->Suit_val = PS_COLOR;
+	if (soft_thread_struct.Same_suit) {
+		soft_thread->Suit_mask = PS_SUIT;
+		soft_thread->Suit_val = 0;
 	}
 
 	/* Announce which variation this is. */
 
 	if (!Quiet) {
-		printf(Same_suit ? "Seahaven; " : "Freecell; ");
-		if (King_only) {
+		printf(soft_thread_struct.Same_suit ? "Seahaven; " : "Freecell; ");
+		if (soft_thread_struct.King_only) {
 			printf("only Kings are allowed to start a pile.\n");
 		} else {
 			printf("any card may start a pile.\n");
 		}
-		printf("%d work piles, %d temp cells.\n", Nwpiles, Ntpiles);
+		printf("%d work piles, %d temp cells.\n", soft_thread->Nwpiles, soft_thread->Ntpiles);
 	}
 
 #if DEBUG
@@ -352,9 +360,9 @@ Init_mem_remain = Mem_remain;
 
 		/* Read in the initial layout and play it. */
 
-		read_layout(infile);
+		read_layout(soft_thread, infile);
 		if (!Quiet) {
-			print_layout();
+			print_layout(soft_thread);
 		}
 		play(&soft_thread_struct);
 	} else {
@@ -364,7 +372,7 @@ Init_mem_remain = Mem_remain;
 		Interactive = FALSE;
 		for (gn = Sgame; gn < Egame; gn++) {
 			printf("#%ld\n", (long)gn);
-			msdeal(gn);
+			msdeal(soft_thread, gn);
 			play(&soft_thread_struct);
 			fflush(stdout);
 		}
@@ -377,7 +385,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 {
 	/* Initialize the hash tables. */
 
-	init_buckets();
+	init_buckets(soft_thread);
 	init_clusters();
 
 	/* Reset stats. */
@@ -421,7 +429,7 @@ if (Mem_remain != Init_mem_remain) {
 /* Read a layout file.  Format is one pile per line, bottom to top (visible
 card).  Temp cells and Out on the last two lines, if any. */
 
-void read_layout(FILE *infile)
+void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
 {
 	int w, i, total;
 	char buf[100];
@@ -438,22 +446,22 @@ void read_layout(FILE *infile)
 		Wlen[w] = i;
 		w++;
 		total += i;
-		if (w == Nwpiles) {
+		if (w == soft_thread->Nwpiles) {
 			break;
 		}
 	}
-	if (w != Nwpiles) {
+	if (w != soft_thread->Nwpiles) {
 		fatalerr("not enough piles in input file");
 	}
 
 	/* Temp cells may have some cards too. */
 
-	for (i = 0; i < Ntpiles; i++) {
+	for (i = 0; i < soft_thread->Ntpiles; i++) {
 		T[i] = NONE;
 	}
 	if (total != 52) {
 		fgets(buf, 100, infile);
-		total += parse_pile(buf, T, Ntpiles);
+		total += parse_pile(buf, T, soft_thread->Ntpiles);
 	}
 
 	/* Output piles, if any. */
@@ -518,17 +526,17 @@ void printcard(card_t card, FILE *outfile)
 	}
 }
 
-void print_layout()
+void print_layout(fc_solve_soft_thread_t * soft_thread)
 {
 	int i, t, w, o;
 
-	for (w = 0; w < Nwpiles; w++) {
+	for (w = 0; w < soft_thread->Nwpiles; w++) {
 		for (i = 0; i < Wlen[w]; i++) {
 			printcard(W[w][i], stderr);
 		}
 		fputc('\n', stderr);
 	}
-	for (t = 0; t < Ntpiles; t++) {
+	for (t = 0; t < soft_thread->Ntpiles; t++) {
 		printcard(T[t], stderr);
 	}
 	fputc('\n', stderr);
@@ -556,6 +564,6 @@ void print_move(MOVE *mp)
    }
    fputc('\n', stderr);
   }
-  print_layout();
+  print_layout(soft_thread);
 }
 #endif

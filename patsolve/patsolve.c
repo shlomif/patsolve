@@ -84,9 +84,9 @@ memset(Inq, 0, sizeof(Inq));
 	/* Queue the initial position to get started. */
 
 	hash_layout();
-	pilesort();
+	pilesort(soft_thread);
 	m.card = NONE;
-	pos = new_position(NULL, &m);
+	pos = new_position(soft_thread, NULL, &m);
 	if (pos == NULL) {
 		return;
 	}
@@ -129,7 +129,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 
 	/* Generate an array of all the moves we can make. */
 
-	if ((mp0 = get_moves(parent, &nmoves)) == NULL) {
+	if ((mp0 = get_moves(soft_thread, parent, &nmoves)) == NULL) {
 		return FALSE;
 	}
 	parent->nchild = nmoves;
@@ -142,11 +142,11 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 
 		/* Calculate indices for the new piles. */
 
-		pilesort();
+		pilesort(soft_thread);
 
 		/* See if this is a new position. */
 
-		if ((pos = new_position(parent, mp)) == NULL) {
+		if ((pos = new_position(soft_thread, parent, mp)) == NULL) {
 			undo_move(mp);
 			parent->nchild--;
 			continue;
@@ -311,7 +311,7 @@ static POSITION *dequeue_position(fc_solve_soft_thread_t * soft_thread)
 
 	/* Unpack the position into the work arrays. */
 
-	unpack_position(pos);
+	unpack_position(soft_thread, pos);
 
 #if DEBUG
 Clusternum[pos->cluster]--;
