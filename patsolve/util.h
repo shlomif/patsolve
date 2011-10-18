@@ -57,7 +57,7 @@ extern void free_clusters(void);
 extern void free_blocks(void);
 
 /* Error messages. */
-extern void msg(char *msg, ...);
+extern void fc_solve_msg(char *msg, ...);
 
 #ifdef  __cplusplus
 }

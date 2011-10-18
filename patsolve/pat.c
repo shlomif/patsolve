@@ -1282,7 +1282,7 @@ static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 
 	if (l == NULL) {
 		if (Pilenum == NPILES) {
-			msg("Ran out of pile numbers!");
+			fc_solve_msg("Ran out of pile numbers!");
 			return -1;
 		}
 		l = new(BUCKETLIST);

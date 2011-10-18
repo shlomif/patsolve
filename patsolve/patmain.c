@@ -38,7 +38,7 @@ char Usage[] =
   "-S speed mode; find a solution quickly, rather than a good solution\n"
   "-q quiet, -v verbose\n"
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
-#define USAGE() msg(Usage, Progname)
+#define USAGE() fc_solve_msg(Usage, Progname)
 
 int Interactive = TRUE; /* interactive mode. */
 int Noexit = FALSE;     /* -E means don't exit */
@@ -101,18 +101,18 @@ void quit(int sig)
 	c = 0;
 	for (i = 0; i <= 0xFFFF; i++) {
 		if (Clusternum[i]) {
-			msg("%04X: %6d", i, Clusternum[i]);
+			fc_solve_msg("%04X: %6d", i, Clusternum[i]);
 			c++;
 			if (c % 5 == 0) {
 				c = 0;
-				msg("\n");
+				fc_solve_msg("\n");
 			} else {
-				msg("\t");
+				fc_solve_msg("\t");
 			}
 		}
 	}
 	if (c != 0) {
-		msg("\n");
+		fc_solve_msg("\n");
 	}
 	print_layout(soft_thread);
 
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 	Progname = *argv;
 #if DEBUG
 	signal(SIGQUIT, quit);
-msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
+    fc_solve_msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 #endif
 
 	/* Parse args twice.  Once to get the operating mode, and the
@@ -317,7 +317,7 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 				break;
 
 			default:
-				msg("%s: unknown flag -%c\n", Progname, c);
+				fc_solve_msg("%s: unknown flag -%c\n", Progname, c);
 				USAGE();
 				exit(1);
 			}
@@ -439,7 +439,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 	}
 #if DEBUG
 if (Mem_remain != Init_mem_remain) {
- msg("Mem_remain = %ld\n", Mem_remain);
+ fc_solve_msg("Mem_remain = %ld\n", Mem_remain);
 }
 #endif
 }
@@ -569,16 +569,16 @@ void print_move(MOVE *mp)
 {
   printcard(mp->card, stderr);
   if (mp->totype == T_TYPE) {
-   msg("to temp (%d)\n", mp->pri);
+   fc_solve_msg("to temp (%d)\n", mp->pri);
   } else if (mp->totype == O_TYPE) {
-   msg("out (%d)\n", mp->pri);
+   fc_solve_msg("out (%d)\n", mp->pri);
   } else {
-   msg("to ");
+   fc_solve_msg("to ");
    if (mp->destcard == NONE) {
-    msg("empty pile (%d)", mp->pri);
+    fc_solve_msg("empty pile (%d)", mp->pri);
    } else {
     printcard(mp->destcard, stderr);
-    msg("(%d)", mp->pri);
+    fc_solve_msg("(%d)", mp->pri);
    }
    fputc('\n', stderr);
   }
