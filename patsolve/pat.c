@@ -998,23 +998,6 @@ void pilesort(fc_solve_soft_thread_t * soft_thread)
 		soft_thread->Widxi[soft_thread->Widx[i]] = i;
 	}
 }
-
-#define NBUCKETS 4093           /* the largest 12 bit prime */
-#define NPILES  4096            /* a 12 bit code */
-
-typedef struct bucketlist {
-	u_char *pile;           /* 0 terminated copy of the pile */
-	u_int32_t hash;         /* the pile's hash code */
-	int pilenum;            /* the unique id for this pile */
-	struct bucketlist *next;
-} BUCKETLIST;
-
-BUCKETLIST *Bucketlist[NBUCKETS];
-int Pilenum;                    /* the next pile number to be assigned */
-
-BUCKETLIST *Pilebucket[NPILES]; /* reverse lookup for unpack to get the bucket
-				   from the pile */
-
 /* Compact position representation.  The position is stored as an
 array with the following format:
 	pile0# pile1# ... pileN# (N = soft_thread->Nwpiles)
@@ -1023,8 +1006,6 @@ Positions in this format are unique can be compared with memcmp().  The soft_thr
 cells are encoded as a cluster number: no two positions with different
 cluster numbers can ever be the same, so we store different clusters in
 different trees.  */
-
-int Treebytes;
 
 TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
 {
@@ -1035,7 +1016,7 @@ TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
 	/* Allocate space and store the pile numbers.  The tree node
 	will get filled in later, by insert_node(). */
 
-	p = new_from_block(soft_thread, Treebytes);
+	p = new_from_block(soft_thread, soft_thread->Treebytes);
 	if (p == NULL) {
 		return NULL;
 	}
@@ -1128,7 +1109,7 @@ void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
 			break;
 		}
 		soft_thread->Wpilenum[w] = i;
-		l = Pilebucket[i];
+		l = soft_thread->Pilebucket[i];
 		i = strecpy(soft_thread->W[w], l->pile);
 		soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
 		soft_thread->Wlen[w] = i;
@@ -1224,9 +1205,9 @@ void init_buckets(fc_solve_soft_thread_t * soft_thread)
 	i += soft_thread->Nwpiles & 0x1;
 	soft_thread->Pilebytes = i;
 
-	memset(Bucketlist, 0, sizeof(Bucketlist));
-	Pilenum = 0;
-	Treebytes = sizeof(TREE) + soft_thread->Pilebytes;
+	memset(soft_thread->Bucketlist, 0, sizeof(soft_thread->Bucketlist));
+	soft_thread->Pilenum = 0;
+	soft_thread->Treebytes = sizeof(TREE) + soft_thread->Pilebytes;
 
 	/* In order to keep the TREE structure aligned, we need to add
 	up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
@@ -1236,9 +1217,9 @@ void init_buckets(fc_solve_soft_thread_t * soft_thread)
 
 //#define ALIGN_BITS 0x3
 #define ALIGN_BITS 0x7
-	if (Treebytes & ALIGN_BITS) {
-		Treebytes |= ALIGN_BITS;
-		Treebytes++;
+	if (soft_thread->Treebytes & ALIGN_BITS) {
+		soft_thread->Treebytes |= ALIGN_BITS;
+		soft_thread->Treebytes++;
 	}
 	soft_thread->Posbytes = sizeof(POSITION) + soft_thread->Ntpiles;
 	if (soft_thread->Posbytes & ALIGN_BITS) {
@@ -1262,12 +1243,12 @@ static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 	one, add it to the appropriate list and give it one.  First, get
 	the hash bucket. */
 
-	bucket = soft_thread->Whash[w] % NBUCKETS;
+	bucket = soft_thread->Whash[w] % FC_SOLVE_BUCKETLIST_NBUCKETS;
 
 	/* Look for the pile in this bucket. */
 
 	last = NULL;
-	for (l = Bucketlist[bucket]; l; l = l->next) {
+	for (l = soft_thread->Bucketlist[bucket]; l; l = l->next) {
 		if (l->hash == soft_thread->Whash[w] &&
 		    strncmp((const char *)l->pile, (const char *)soft_thread->W[w], soft_thread->Wlen[w]) == 0) {
 			break;
@@ -1278,7 +1259,7 @@ static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 	/* If we didn't find it, make a new one and add it to the list. */
 
 	if (l == NULL) {
-		if (Pilenum == NPILES) {
+		if (soft_thread->Pilenum == NPILES) {
 			fc_solve_msg("Ran out of pile numbers!");
 			return -1;
 		}
@@ -1297,14 +1278,14 @@ static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 
 		strncpy((char*)l->pile, (const char *)soft_thread->W[w], soft_thread->Wlen[w] + 1);
 		l->hash = soft_thread->Whash[w];
-		l->pilenum = pilenum = Pilenum++;
+		l->pilenum = pilenum = soft_thread->Pilenum++;
 		l->next = NULL;
 		if (last == NULL) {
-			Bucketlist[bucket] = l;
+			soft_thread->Bucketlist[bucket] = l;
 		} else {
 			last->next = l;
 		}
-		Pilebucket[pilenum] = l;
+		soft_thread->Pilebucket[pilenum] = l;
 	}
 
 	return l->pilenum;
@@ -1315,8 +1296,8 @@ void free_buckets(fc_solve_soft_thread_t * soft_thread)
 	int i, j;
 	BUCKETLIST *l, *n;
 
-	for (i = 0; i < NBUCKETS; i++) {
-		l = Bucketlist[i];
+	for (i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++) {
+		l = soft_thread->Bucketlist[i];
 		while (l) {
 			n = l->next;
 			j = strlen((const char *)l->pile);    /* @@@ use block? */

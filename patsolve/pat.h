@@ -138,6 +138,17 @@ typedef struct treelist {
 	struct treelist *next;
 } TREELIST;
 
+
+#define FC_SOLVE_BUCKETLIST_NBUCKETS 4093           /* the largest 12 bit prime */
+#define NPILES  4096            /* a 12 bit code */
+
+typedef struct bucketlist {
+	u_char *pile;           /* 0 terminated copy of the pile */
+	u_int32_t hash;         /* the pile's hash code */
+	int pilenum;            /* the unique id for this pile */
+	struct bucketlist *next;
+} BUCKETLIST;
+
 /* Statistics. */
 
 #define NQUEUES 100
@@ -194,6 +205,13 @@ struct fc_solve_soft_thread_struct
     int Xparam[NXPARAM];
     double Yparam[NYPARAM];
     int Posbytes;
+
+    BUCKETLIST *Bucketlist[FC_SOLVE_BUCKETLIST_NBUCKETS];
+    int Pilenum;                    /* the next pile number to be assigned */
+    /* reverse lookup for unpack to get the bucket
+                       from the pile */
+    BUCKETLIST *Pilebucket[NPILES]; 
+    int Treebytes;
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
