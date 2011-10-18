@@ -38,9 +38,9 @@ the cluster number, then locate its tree, creating it if necessary. */
 TREELIST *Treelist[NBUCKETS];
 
 static int insert_node(TREE *n, int d, TREE **tree, TREE **node);
-static TREELIST *cluster_tree(int cluster);
+static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
 static void give_back_block(u_char *p);
-static BLOCK *new_block(void);
+static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread);
 
 int Pilebytes;
 
@@ -68,7 +68,7 @@ int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **nod
 
 	/* Get the tree for this cluster. */
 
-	tl = cluster_tree(k);
+	tl = cluster_tree(soft_thread, k);
 	if (tl == NULL) {
 		return ERR;
 	}
@@ -148,13 +148,13 @@ BLOCK *Block;
 
 /* Clusters are also stored in a hashed array. */
 
-void init_clusters(void)
+void init_clusters(fc_solve_soft_thread_t * soft_thread)
 {
 	memset(Treelist, 0, sizeof(Treelist));
-	Block = new_block();                    /* @@@ */
+	Block = new_block(soft_thread);                    /* @@@ */
 }
 
-static TREELIST *cluster_tree(int cluster)
+static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
 {
 	int bucket;
 	TREELIST *tl, *last;
@@ -176,7 +176,7 @@ static TREELIST *cluster_tree(int cluster)
 	/* If we didn't find it, make a new one and add it to the list. */
 
 	if (tl == NULL) {
-		tl = new(TREELIST);
+		tl = new(soft_thread, TREELIST);
 		if (tl == NULL) {
 			return NULL;
 		}
@@ -195,17 +195,17 @@ static TREELIST *cluster_tree(int cluster)
 
 /* Block storage.  Reduces overhead, and can be freed quickly. */
 
-static BLOCK *new_block(void)
+static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread)
 {
 	BLOCK *b;
 
-	b = new(BLOCK);
+	b = new(soft_thread, BLOCK);
 	if (b == NULL) {
 		return NULL;
 	}
-	b->block = new_array(u_char, BLOCKSIZE);
+	b->block = new_array(soft_thread, u_char, BLOCKSIZE);
 	if (b->block == NULL) {
-		free_ptr(b, BLOCK);
+		free_ptr(soft_thread, b, BLOCK);
 		return NULL;
 	}
 	b->ptr = b->block;
@@ -217,14 +217,14 @@ static BLOCK *new_block(void)
 
 /* Like new(), only from the current block.  Make a new block if necessary. */
 
-u_char *new_from_block(size_t s)
+u_char *new_from_block(fc_solve_soft_thread_t * soft_thread, size_t s)
 {
 	u_char *p;
 	BLOCK *b;
 
 	b = Block;
 	if (s > b->remain) {
-		b = new_block();
+		b = new_block(soft_thread);
 		if (b == NULL) {
 			return NULL;
 		}
@@ -254,20 +254,20 @@ static void give_back_block(u_char *p)
 	b->remain += s;
 }
 
-void free_blocks(void)
+void free_blocks(fc_solve_soft_thread_t * soft_thread)
 {
 	BLOCK *b, *next;
 
 	b = Block;
 	while (b) {
 		next = b->next;
-		free_array(b->block, u_char, BLOCKSIZE);
-		free_ptr(b, BLOCK);
+		free_array(soft_thread, b->block, u_char, BLOCKSIZE);
+		free_ptr(soft_thread, b, BLOCK);
 		b = next;
 	}
 }
 
-void free_clusters(void)
+void free_clusters(fc_solve_soft_thread_t * soft_thread)
 {
 	int i;
 	TREELIST *l, *n;
@@ -276,7 +276,7 @@ void free_clusters(void)
 		l = Treelist[i];
 		while (l) {
 			n = l->next;
-			free_ptr(l, TREELIST);
+			free_ptr(soft_thread, l, TREELIST);
 			l = n;
 		}
 	}

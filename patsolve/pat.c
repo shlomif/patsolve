@@ -41,7 +41,7 @@ extern int Pilebytes;
 
 static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
 static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n);
-static void win(POSITION *pos);
+static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos);
 static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w);
 
 /* Hash a pile. */
@@ -513,7 +513,7 @@ MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves
 
 			/* Report the win. */
 
-			win(pos);
+			win(soft_thread, pos);
 
 			if (Noexit) {
 				Numsol++;
@@ -546,7 +546,7 @@ MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves
 	do the recursive solve() on them, but only after queueing the other
 	moves. */
 
-	mp = mp0 = new_array(MOVE, n);
+	mp = mp0 = new_array(soft_thread, MOVE, n);
 	if (mp == NULL) {
 		return NULL;
 	}
@@ -907,7 +907,7 @@ POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, M
 		p = (u_char *)soft_thread->Freepos;
 		soft_thread->Freepos = soft_thread->Freepos->queue;
 	} else {
-		p = new_from_block(Posbytes);
+		p = new_from_block(soft_thread, Posbytes);
 		if (p == NULL) {
 			return NULL;
 		}
@@ -1038,7 +1038,7 @@ TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
 	/* Allocate space and store the pile numbers.  The tree node
 	will get filled in later, by insert_node(). */
 
-	p = new_from_block(Treebytes);
+	p = new_from_block(soft_thread, Treebytes);
 	if (p == NULL) {
 		return NULL;
 	}
@@ -1150,7 +1150,7 @@ void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
 
 /* Win.  Print out the move stack. */
 
-static void win(POSITION *pos)
+static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
 {
 	int i, nmoves;
 	FILE *out;
@@ -1165,7 +1165,7 @@ static void win(POSITION *pos)
 		i++;
 	}
 	nmoves = i;
-	mpp0 = new_array(MOVE *, nmoves);
+	mpp0 = new_array(soft_thread, MOVE *, nmoves);
 	if (mpp0 == NULL) {
 		return; /* how sad, so close... */
 	}
@@ -1201,7 +1201,7 @@ static void win(POSITION *pos)
 		}
 	}
 	fclose(out);
-	free_array(mpp0, MOVE *, nmoves);
+	free_array(soft_thread, mpp0, MOVE *, nmoves);
 
 	if (!Quiet) {
 		printf("A winner.\n");
@@ -1285,13 +1285,13 @@ static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 			fc_solve_msg("Ran out of pile numbers!");
 			return -1;
 		}
-		l = new(BUCKETLIST);
+		l = new(soft_thread, BUCKETLIST);
 		if (l == NULL) {
 			return -1;
 		}
-		l->pile = new_array(u_char, soft_thread->Wlen[w] + 1);
+		l->pile = new_array(soft_thread, u_char, soft_thread->Wlen[w] + 1);
 		if (l->pile == NULL) {
-			free_ptr(l, BUCKETLIST);
+			free_ptr(soft_thread, l, BUCKETLIST);
 			return -1;
 		}
 
@@ -1313,7 +1313,7 @@ static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 	return l->pilenum;
 }
 
-void free_buckets(void)
+void free_buckets(fc_solve_soft_thread_t * soft_thread)
 {
 	int i, j;
 	BUCKETLIST *l, *n;
@@ -1323,8 +1323,8 @@ void free_buckets(void)
 		while (l) {
 			n = l->next;
 			j = strlen((const char *)l->pile);    /* @@@ use block? */
-			free_array(l->pile, u_char, j + 1);
-			free_ptr(l, BUCKETLIST);
+			free_array(soft_thread, l->pile, u_char, j + 1);
+			free_ptr(soft_thread, l, BUCKETLIST);
 			l = n;
 		}
 	}

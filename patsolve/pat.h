@@ -23,8 +23,12 @@
  */
 /* Solve Freecell and Seahaven type patience (solitaire) games. */
 
-#include "util.h"
+#ifndef FC_SOLVE_PATSOLVE_PAT_H
+#define FC_SOLVE_PATSOLVE_PAT_H
+
+#include <stdio.h>
 #include <sys/types.h>
+#include "util.h"
 #include "config.h"
 #include "tree.h"
 #include "param.h"
@@ -136,12 +140,11 @@ typedef struct treelist {
 
 /* Statistics. */
 
-extern long Mem_remain;
-
 #define NQUEUES 100
 
 struct fc_solve_soft_thread_struct
 {
+    long Mem_remain;
     POSITION *Qhead[NQUEUES]; /* separate queue for each priority */
     POSITION *Qtail[NQUEUES]; /* positions are added here */
     int Maxq;
@@ -207,7 +210,24 @@ extern POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *pa
 extern void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *);
 extern TREE *pack_position(fc_solve_soft_thread_t * soft_thread);
 extern void init_buckets(fc_solve_soft_thread_t * soft_thread);
-extern void init_clusters(void);
-extern u_char *new_from_block(size_t);
+extern void init_clusters(fc_solve_soft_thread_t * soft_thread);
+extern u_char *new_from_block(fc_solve_soft_thread_t * soft_thread, size_t);
 extern void pilesort(fc_solve_soft_thread_t * soft_thread);
 extern void msdeal(fc_solve_soft_thread_t * soft_thread, u_int64_t);
+
+/* A function and some macros for allocating memory. */
+
+extern void *new_(fc_solve_soft_thread_t * soft_thread, size_t s);
+
+#define new(soft_thread, type) (type *)new_(soft_thread, sizeof(type))
+#define free_ptr(soft_thread, ptr, type) free(ptr); (soft_thread)->Mem_remain += sizeof(type)
+
+#define new_array(soft_thread, type, size) (type *)new_(soft_thread, (size) * sizeof(type))
+#define free_array(soft_thread, ptr, type, size) free(ptr); \
+				    (soft_thread)->Mem_remain += (size) * sizeof(type)
+
+extern void free_buckets(fc_solve_soft_thread_t * soft_thread);
+extern void free_clusters(fc_solve_soft_thread_t * soft_thread);
+extern void free_blocks(fc_solve_soft_thread_t * soft_thread);
+
+#endif /* #ifndef FC_SOLVE_PATSOLVE_PAT_H */

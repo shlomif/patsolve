@@ -31,6 +31,8 @@
 #include <string.h>
 #include <math.h>
 
+#include "pat.h"
+
 #ifndef TRUE
 #define TRUE 1
 #define FALSE 0
@@ -39,23 +41,6 @@
 #ifdef  __cplusplus
 extern "C" {
 #endif
-
-/* A function and some macros for allocating memory. */
-
-extern void *new_(size_t s);
-extern long Mem_remain;
-
-#define new(type) (type *)new_(sizeof(type))
-#define free_ptr(ptr, type) free(ptr); Mem_remain += sizeof(type)
-
-#define new_array(type, size) (type *)new_((size) * sizeof(type))
-#define free_array(ptr, type, size) free(ptr); \
-				    Mem_remain += (size) * sizeof(type)
-
-extern void free_buckets(void);
-extern void free_clusters(void);
-extern void free_blocks(void);
-
 /* Error messages. */
 extern void fc_solve_msg(char *msg, ...);
 

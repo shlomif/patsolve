@@ -48,7 +48,6 @@ int Cutoff = 1;         /* switch between depth- and breadth-first */
 int Status;             /* win, lose, or fail */
 int Quiet = FALSE;      /* print entertaining messages, else exit(Status); */
 
-long Mem_remain = 50 * 1000 * 1000;
 #if DEBUG
 long Init_mem_remain;
 #endif
@@ -136,6 +135,7 @@ int main(int argc, char **argv)
 
     soft_thread = &soft_thread_struct;
 
+    soft_thread->Mem_remain = (50 * 1000 * 1000);
     soft_thread->Freepos = NULL;
     /* Default variation. */
     soft_thread_struct.Same_suit = SAME_SUIT;
@@ -266,7 +266,7 @@ int main(int argc, char **argv)
 				break;
 
 			case 'M':
-				Mem_remain = atol(curr_arg) * 1000000;
+				soft_thread->Mem_remain = atol(curr_arg) * 1000000;
 				curr_arg = NULL;
 				break;
 
@@ -327,7 +327,7 @@ int main(int argc, char **argv)
 	if (Stack && Noexit) {
 		fatalerr("-S and -E may not be used together.");
 	}
-	if (Mem_remain < BLOCKSIZE * 2) {
+	if (soft_thread->Mem_remain < BLOCKSIZE * 2) {
 		fatalerr("-M too small.");
 	}
 	if (soft_thread->Nwpiles > MAXWPILES) {
@@ -404,7 +404,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 	/* Initialize the hash tables. */
 
 	init_buckets(soft_thread);
-	init_clusters();
+	init_clusters(soft_thread);
 
 	/* Reset stats. */
 
@@ -432,9 +432,9 @@ void play(fc_solve_soft_thread_t * soft_thread)
 #endif
 	}
 	if (!Interactive) {
-		free_buckets();
-		free_clusters();
-		free_blocks();
+		free_buckets(soft_thread);
+		free_clusters(soft_thread);
+		free_blocks(soft_thread);
 		soft_thread->Freepos = NULL;
 	}
 #if DEBUG

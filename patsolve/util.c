@@ -42,11 +42,11 @@ void fc_solve_msg(char *msg, ...)
 
 /* Allocate some space and return a pointer to it.  See new() in util.h. */
 
-void *new_(size_t s)
+void *new_(fc_solve_soft_thread_t * soft_thread, size_t s)
 {
 	void *x;
 
-	if (s > Mem_remain) {
+	if (s > soft_thread->Mem_remain) {
 #if 0
 		POSITION *pos;
 
@@ -57,7 +57,7 @@ void *new_(size_t s)
 			free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
 			Freepos = pos;
 		}
-		if (s > Mem_remain) {
+		if (s > soft_thread->Mem_remain) {
 			Status = FAIL;
 			return NULL;
 		}
@@ -72,6 +72,6 @@ void *new_(size_t s)
 		return NULL;
 	}
 
-	Mem_remain -= s;
+	soft_thread->Mem_remain -= s;
 	return x;
 }

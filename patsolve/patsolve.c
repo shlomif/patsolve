@@ -171,7 +171,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 			q = TRUE;
 		}
 	}
-	free_array(mp0, MOVE, nmoves);
+	free_array(soft_thread, mp0, MOVE, nmoves);
 
 	/* Return true if this position needs to be kept around. */
 
