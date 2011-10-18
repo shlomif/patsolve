@@ -39,19 +39,6 @@ void msg(char *msg, ...)
 	va_end(ap);
 }
 
-/* Like strcpy() but return the length of the string. */
-
-int strecpy(u_char *dest, u_char *src)
-{
-	int i;
-
-	i = 0;
-	while ((*dest++ = *src++) != '\0') {
-		i++;
-	}
-
-	return i;
-}
 
 /* Allocate some space and return a pointer to it.  See new() in util.h. */
 

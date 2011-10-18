@@ -1073,6 +1073,19 @@ TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
 	return node;
 }
 
+/* Like strcpy() but return the length of the string. */
+static int strecpy(u_char *dest, u_char *src)
+{
+	int i;
+
+	i = 0;
+	while ((*dest++ = *src++) != '\0') {
+		i++;
+	}
+
+	return i;
+}
+
 /* Unpack a compact position rep.  soft_thread->T cells must be restored from the
 array following the POSITION struct. */
 

@@ -59,12 +59,6 @@ extern void free_blocks(void);
 /* Error messages. */
 extern void msg(char *msg, ...);
 
-/* Files. */
-
-/* Misc. */
-
-extern int strecpy(u_char *dest, u_char *src);
-
 #ifdef  __cplusplus
 }
 #endif
