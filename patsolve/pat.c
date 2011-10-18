@@ -1163,7 +1163,13 @@ static void win(POSITION *pos)
 
 	/* Now print them out in the correct order. */
 
-	out = fileopen("win", "w");
+	out = fopen("win", "w");
+
+    if (! out)
+    {
+        fprintf(stderr, "%s\n", "Cannot open 'win' for writing.");
+        exit(1);
+    }
 	for (i = 0, mpp = mpp0; i < nmoves; i++, mpp++) {
 		mp = *mpp;
 		printcard(mp->card, out);

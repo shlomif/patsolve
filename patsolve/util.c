@@ -23,27 +23,10 @@
  */
 /* Standard utilities. */
 
+#include <stdarg.h>
+
 #include "util.h"
 #include "pat.h"
-
-char *Progname = NULL;
-
-/* Print a message and exit. */
-
-void fatalerr(char *msg, ...)
-{
-	va_list ap;
-
-	if (Progname) {
-		fprintf(stderr, "%s: ", Progname);
-	}
-	va_start(ap, msg);
-	vfprintf(stderr, msg, ap);
-	va_end(ap);
-	fputc('\n', stderr);
-
-	exit(1);
-}
 
 /* Just print a message. */
 
@@ -54,18 +37,6 @@ void msg(char *msg, ...)
 	va_start(ap, msg);
 	vfprintf(stderr, msg, ap);
 	va_end(ap);
-}
-
-/* Open a file or exit on failure. */
-
-FILE *fileopen(char *name, char *mode)
-{
-	FILE *f;
-
-	if ((f = fopen(name, mode)) == NULL) {
-		fatalerr("can't %s '%s'", *mode == 'r' ? "open" : "write", name);
-	}
-	return f;
 }
 
 /* Like strcpy() but return the length of the string. */

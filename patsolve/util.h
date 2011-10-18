@@ -28,7 +28,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <math.h>
 
@@ -58,14 +57,9 @@ extern void free_clusters(void);
 extern void free_blocks(void);
 
 /* Error messages. */
-
-extern char *Progname;
-extern void fatalerr(char *msg, ...);
 extern void msg(char *msg, ...);
 
 /* Files. */
-
-extern FILE *fileopen(char *name, char *mode);
 
 /* Misc. */
 

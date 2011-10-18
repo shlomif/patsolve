@@ -25,6 +25,7 @@
 
 #include <ctype.h>
 #include <signal.h>
+#include <stdarg.h>
 #include "pat.h"
 #include "tree.h"
 
@@ -51,6 +52,25 @@ long Mem_remain = 50 * 1000 * 1000;
 #if DEBUG
 long Init_mem_remain;
 #endif
+
+static char *Progname = NULL;
+
+/* Print a message and exit. */
+static void fatalerr(char *msg, ...)
+{
+	va_list ap;
+
+	if (Progname) {
+		fprintf(stderr, "%s: ", Progname);
+	}
+	va_start(ap, msg);
+	vfprintf(stderr, msg, ap);
+	va_end(ap);
+	fputc('\n', stderr);
+
+	exit(1);
+}
+
 void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 {
 	const int *x;
@@ -322,7 +342,12 @@ msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 
 	infile = stdin;
 	if (argc && **argv != '-') {
-		infile = fileopen(*argv, "r");
+		infile = fopen(*argv, "r");
+
+        if (! infile)
+        {
+            fatalerr("Cannot open input file '%s' (for reading).", *argv);
+        }
 	}
 
 	/* Initialize the suitable() macro variables. */
