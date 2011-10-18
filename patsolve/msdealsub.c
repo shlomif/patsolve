@@ -44,35 +44,29 @@ typedef int CARD;
 
 #define NUM_CARDS 52
 
-static LONG seedx;
-
-static VOID srandp(UINT s)
+static VOID srandp(LONG * seedx_ptr, UINT s)
 {
-	seedx = (LONG) s;
+	*(seedx_ptr) = (LONG) s;
 }
 
-static UINT randp()
+static UINT randp(LONG * seedx_ptr)
 {
-	seedx = seedx * 214013L + 2531011L;
-	return (seedx >> 16) & 0xffff;
+	*(seedx_ptr) = *(seedx_ptr) * 214013L + 2531011L;
+	return (((*seedx_ptr) >> 16) & 0xffff);
 }
 
-static VOID srando(UINT s)
+#define srando(a,b) srandp(a,b)
+static UINT rando(LONG * seedx_ptr)
 {
-	seedx = (LONG) s;
-}
-
-static UINT rando()
-{
-	seedx = seedx * 214013L + 2531011L;
-	return (seedx >> 16) & 0x7fff;
+	*(seedx_ptr) = *(seedx_ptr) * 214013L + 2531011L;
+	return ((*seedx_ptr) >> 16) & 0x7fff;
 }
 
 #define PS_DIAMOND 0x00         /* red */
 #define PS_CLUB    0x10         /* black */
 #define PS_HEART   0x20         /* red */
 #define PS_SPADE   0x30         /* black */
-static int msdeal_Suit[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
+const static int msdeal_Suit[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
 
 void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 {
@@ -80,6 +74,7 @@ void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 	int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
 	CARD deck[NUM_CARDS];
 	CARD pos[MAXWPILES][NUM_CARDS+1];
+    LONG seedx;
 
 	memset(pos, 0, sizeof(pos));
 	for (i = 0; i < NUM_CARDS; i++) {
@@ -87,20 +82,20 @@ void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 	}
 
 	if (gnGameNumber < 0x100000000LL) {
-		srando((UINT) gnGameNumber);
+		srando(&seedx, (UINT) gnGameNumber);
 	} else {
-		srandp((UINT) (gnGameNumber - 0x100000000LL));
+		srandp(&seedx, (UINT) (gnGameNumber - 0x100000000LL));
 	}
 
 	for (i = 0; i < NUM_CARDS; i++) {
 		if (gnGameNumber < 0x100000000LL) {
 			if (gnGameNumber < 0x80000000) {
-				j = rando() % wLeft;
+				j = rando(&seedx) % wLeft;
 			} else {
-				j = (rando() | 0x8000) % wLeft;
+				j = (rando(&seedx) | 0x8000) % wLeft;
 			}
 		} else {
-			j = (randp() + 1) % wLeft;
+			j = (randp(&seedx) + 1) % wLeft;
 		}
 		pos[i % soft_thread->Nwpiles][i / soft_thread->Nwpiles] = deck[j];
 		deck[j] = deck[--wLeft];
