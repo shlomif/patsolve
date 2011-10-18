@@ -193,6 +193,7 @@ struct fc_solve_soft_thread_struct
 
     int Xparam[NXPARAM];
     double Yparam[NYPARAM];
+    int Posbytes;
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;

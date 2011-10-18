@@ -874,8 +874,6 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
 /* Test the current position to see if it's new (or better).  If it is, save
 it, along with the pointer to its parent and the move we used to get here. */
 
-int Posbytes;
-
 POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, MOVE *m)
 {
 	int i, t, depth, cluster;
@@ -906,7 +904,7 @@ POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, M
 		p = (u_char *)soft_thread->Freepos;
 		soft_thread->Freepos = soft_thread->Freepos->queue;
 	} else {
-		p = new_from_block(soft_thread, Posbytes);
+		p = new_from_block(soft_thread, soft_thread->Posbytes);
 		if (p == NULL) {
 			return NULL;
 		}
@@ -1242,10 +1240,10 @@ void init_buckets(fc_solve_soft_thread_t * soft_thread)
 		Treebytes |= ALIGN_BITS;
 		Treebytes++;
 	}
-	Posbytes = sizeof(POSITION) + soft_thread->Ntpiles;
-	if (Posbytes & ALIGN_BITS) {
-		Posbytes |= ALIGN_BITS;
-		Posbytes++;
+	soft_thread->Posbytes = sizeof(POSITION) + soft_thread->Ntpiles;
+	if (soft_thread->Posbytes & ALIGN_BITS) {
+		soft_thread->Posbytes |= ALIGN_BITS;
+	    soft_thread->Posbytes++;
 	}
 }
 
