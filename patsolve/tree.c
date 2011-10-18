@@ -37,16 +37,14 @@ the cluster number, then locate its tree, creating it if necessary. */
 
 TREELIST *Treelist[NBUCKETS];
 
-static int insert_node(TREE *n, int d, TREE **tree, TREE **node);
+static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node);
 static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
 static void give_back_block(u_char *p);
 static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread);
 
-int Pilebytes;
-
-static INLINE int CMP(u_char *a, u_char *b)
+static INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_char *b)
 {
-	return memcmp(a, b, Pilebytes);
+	return memcmp(a, b, soft_thread->Pilebytes);
 }
 
 /* Insert key into the tree unless it's already there.  Return true if
@@ -81,7 +79,7 @@ int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **nod
 	}
 	soft_thread->Total_generated++;
 
-	i = insert_node(new, d, &tl->tree, node);
+    i = insert_node(soft_thread, new, d, &tl->tree, node);
 
 	if (i != NEW) {
 		give_back_block((u_char *)new);
@@ -93,7 +91,7 @@ int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **nod
 /* Add it to the binary tree for this cluster.  The piles are stored
 following the TREE structure. */
 
-static int insert_node(TREE *n, int d, TREE **tree, TREE **node)
+static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node)
 {
 	int c;
 	u_char *key, *tkey;
@@ -110,7 +108,7 @@ static int insert_node(TREE *n, int d, TREE **tree, TREE **node)
 	}
 	while (1) {
 		tkey = (u_char *)t + sizeof(TREE);
-		c = CMP(key, tkey);
+		c = CMP(soft_thread, key, tkey);
 		if (c == 0) {
 			break;
 		}

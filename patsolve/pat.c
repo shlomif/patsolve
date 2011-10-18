@@ -37,7 +37,6 @@ const char Rank[] = " A23456789TJQK";
 const char Suit[] = "DCHS";
 
 const card_t Osuit[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
-extern int Pilebytes;
 
 static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
 static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n);
@@ -1225,11 +1224,11 @@ void init_buckets(fc_solve_soft_thread_t * soft_thread)
 	i = soft_thread->Nwpiles * 3;
 	i >>= 1;
 	i += soft_thread->Nwpiles & 0x1;
-	Pilebytes = i;
+	soft_thread->Pilebytes = i;
 
 	memset(Bucketlist, 0, sizeof(Bucketlist));
 	Pilenum = 0;
-	Treebytes = sizeof(TREE) + Pilebytes;
+	Treebytes = sizeof(TREE) + soft_thread->Pilebytes;
 
 	/* In order to keep the TREE structure aligned, we need to add
 	up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still

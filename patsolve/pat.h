@@ -145,6 +145,7 @@ typedef struct treelist {
 struct fc_solve_soft_thread_struct
 {
     long Mem_remain;
+    int Pilebytes;
     POSITION *Qhead[NQUEUES]; /* separate queue for each priority */
     POSITION *Qtail[NQUEUES]; /* positions are added here */
     int Maxq;
