@@ -112,8 +112,6 @@ enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
 /* Command line flags. */
 
 extern int Cutoff;
-extern int Numsol;
-extern int Stack;
 extern int Quiet;
 
 enum statuscode { FAIL = -1, WIN = 0, NOSOL = 1 };
@@ -212,6 +210,11 @@ struct fc_solve_soft_thread_struct
     int Treebytes;
     int Interactive; /* interactive mode. */
     int Noexit;     /* -E means don't exit */
+    int num_solutions;             /* number of solutions found in -E mode */
+    /* -S means stack, not queue, the moves to be done.
+     * Default should be FALSE.
+     * */
+    int to_stack;      
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;

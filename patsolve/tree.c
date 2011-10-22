@@ -132,7 +132,7 @@ static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TRE
 	so we can prune the original path. */
 
 	c = FOUND;
-	if (d < t->depth && !Stack) {
+	if (d < t->depth && !soft_thread->to_stack) {
 		t->depth = d;
 		c = FOUND_BETTER;
 		*node = t;

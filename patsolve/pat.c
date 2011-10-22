@@ -515,7 +515,7 @@ MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves
 			win(soft_thread, pos);
 
 			if (soft_thread->Noexit) {
-				Numsol++;
+				soft_thread->num_solutions++;
 				return NULL;
 			}
 			Status = WIN;

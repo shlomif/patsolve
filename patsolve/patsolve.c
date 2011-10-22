@@ -245,7 +245,7 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
 		soft_thread->Qhead[pri] = pos;
 		soft_thread->Qtail[pri] = pos;
 	} else {
-		if (Stack) {
+		if (soft_thread->to_stack) {
 			pos->queue = soft_thread->Qhead[pri];
 			soft_thread->Qhead[pri] = pos;
 		} else {

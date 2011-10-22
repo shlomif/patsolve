@@ -40,8 +40,6 @@ static const char Usage[] =
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 #define USAGE() fc_solve_msg(Usage, Progname)
 
-int Numsol;             /* number of solutions found in -E mode */
-int Stack = FALSE;      /* -S means stack, not queue, the moves to be done */
 int Cutoff = 1;         /* switch between depth- and breadth-first */
 int Status;             /* win, lose, or fail */
 int Quiet = FALSE;      /* print entertaining messages, else exit(Status); */
@@ -135,6 +133,7 @@ int main(int argc, char **argv)
 
     soft_thread->Interactive = TRUE;
     soft_thread->Noexit = FALSE;
+    soft_thread->to_stack = FALSE;
     soft_thread->Mem_remain = (50 * 1000 * 1000);
     soft_thread->Freepos = NULL;
     /* Default variation. */
@@ -187,7 +186,7 @@ int main(int argc, char **argv)
 				break;
 
 			case 'S':
-				Stack = TRUE;
+				soft_thread->to_stack = TRUE;
 				break;
 
 			case 'w':
@@ -220,17 +219,17 @@ int main(int argc, char **argv)
 
 	/* Set parameters. */
 
-	if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !Stack) {
+	if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !soft_thread->to_stack) {
 		set_param(soft_thread, FreecellBest);
-	} else if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && Stack) {
+	} else if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && soft_thread->to_stack) {
 		set_param(soft_thread, FreecellSpeed);
-	} else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !Stack) {
+	} else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !soft_thread->to_stack) {
 		set_param(soft_thread, SeahavenBest);
-	} else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && Stack) {
+	} else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && soft_thread->to_stack) {
 		set_param(soft_thread, SeahavenSpeed);
-	} else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && !Stack) {
+	} else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && !soft_thread->to_stack) {
 		set_param(soft_thread, SeahavenKing);
-	} else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && Stack) {
+	} else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && soft_thread->to_stack) {
 		set_param(soft_thread, SeahavenKingSpeed);
 	} else {
 		set_param(soft_thread, 0);   /* default */
@@ -324,7 +323,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (Stack && soft_thread->Noexit) {
+	if (soft_thread->to_stack && soft_thread->Noexit) {
 		fatalerr("-S and -E may not be used together.");
 	}
 	if (soft_thread->Mem_remain < BLOCKSIZE * 2) {
@@ -410,7 +409,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 
 	soft_thread->Total_positions = 0;
 	soft_thread->Total_generated = 0;
-	Numsol = 0;
+	soft_thread->num_solutions = 0;
 
 	Status = NOSOL;
 
@@ -420,7 +419,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 	if (Status != WIN && !Quiet) {
 		if (Status == FAIL) {
 			printf("Out of memory.\n");
-		} else if (soft_thread->Noexit && Numsol > 0) {
+		} else if (soft_thread->Noexit && soft_thread->num_solutions > 0) {
 			printf("No shorter solutions.\n");
 		} else {
 			printf("No solution.\n");
