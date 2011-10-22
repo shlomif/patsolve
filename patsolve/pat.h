@@ -112,7 +112,6 @@ enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
 /* Command line flags. */
 
 extern int Cutoff;
-extern int Interactive;
 extern int Noexit;
 extern int Numsol;
 extern int Stack;
@@ -212,6 +211,7 @@ struct fc_solve_soft_thread_struct
                        from the pile */
     BUCKETLIST *Pilebucket[NPILES]; 
     int Treebytes;
+    int Interactive; /* interactive mode. */
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;

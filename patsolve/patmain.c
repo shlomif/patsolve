@@ -40,7 +40,6 @@ static const char Usage[] =
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 #define USAGE() fc_solve_msg(Usage, Progname)
 
-int Interactive = TRUE; /* interactive mode. */
 int Noexit = FALSE;     /* -E means don't exit */
 int Numsol;             /* number of solutions found in -E mode */
 int Stack = FALSE;      /* -S means stack, not queue, the moves to be done */
@@ -135,6 +134,7 @@ int main(int argc, char **argv)
 
     soft_thread = &soft_thread_struct;
 
+    soft_thread->Interactive = TRUE;
     soft_thread->Mem_remain = (50 * 1000 * 1000);
     soft_thread->Freepos = NULL;
     /* Default variation. */
@@ -387,7 +387,7 @@ Init_mem_remain = Mem_remain;
 
 		/* Range mode.  Play lots of consecutive games. */
 
-		Interactive = FALSE;
+		soft_thread->Interactive = FALSE;
 		for (gn = Sgame; gn < Egame; gn++) {
 			printf("#%ld\n", (long)gn);
 			msdeal(soft_thread, gn);
@@ -431,7 +431,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 		printf("Mem_remain = %ld\n", Mem_remain);
 #endif
 	}
-	if (!Interactive) {
+	if (!soft_thread->Interactive) {
 		free_buckets(soft_thread);
 		free_clusters(soft_thread);
 		free_blocks(soft_thread);

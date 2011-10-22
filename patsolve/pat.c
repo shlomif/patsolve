@@ -520,7 +520,7 @@ MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves
 			}
 			Status = WIN;
 
-			if (Interactive) {
+			if (soft_thread->Interactive) {
 				exit(0);
 			}
 
