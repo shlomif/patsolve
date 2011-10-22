@@ -111,7 +111,6 @@ enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
 
 /* Command line flags. */
 
-extern int Cutoff;
 extern int Quiet;
 
 enum statuscode { FAIL = -1, WIN = 0, NOSOL = 1 };
@@ -216,6 +215,8 @@ struct fc_solve_soft_thread_struct
      * Default should be FALSE.
      * */
     int to_stack;
+    /* Switch between depth- and breadth-first. Default is "1".*/
+    int cutoff;
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;

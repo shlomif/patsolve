@@ -40,7 +40,6 @@ static const char Usage[] =
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 #define USAGE() fc_solve_msg(Usage, Progname)
 
-int Cutoff = 1;         /* switch between depth- and breadth-first */
 int Status;             /* win, lose, or fail */
 int Quiet = FALSE;      /* print entertaining messages, else exit(Status); */
 
@@ -77,7 +76,7 @@ void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 	for (i = 0; i < NXPARAM; i++) {
 		soft_thread->Xparam[i] = x[i];
 	}
-	Cutoff = soft_thread->Xparam[NXPARAM - 1];
+	soft_thread->cutoff = soft_thread->Xparam[NXPARAM - 1];
 	for (i = 0; i < NYPARAM; i++) {
 		soft_thread->Yparam[i] = y[i];
 	}
@@ -134,6 +133,7 @@ int main(int argc, char **argv)
     soft_thread->Interactive = TRUE;
     soft_thread->Noexit = FALSE;
     soft_thread->to_stack = FALSE;
+    soft_thread->cutoff = 1;
     soft_thread->Mem_remain = (50 * 1000 * 1000);
     soft_thread->Freepos = NULL;
     /* Default variation. */
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 				break;
 
 			case 'c':
-				Cutoff = atoi(curr_arg);
+				soft_thread->cutoff = atoi(curr_arg);
 				curr_arg = NULL;
 				break;
 

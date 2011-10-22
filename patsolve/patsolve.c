@@ -158,7 +158,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 		reduces the quality of solutions).  Otherwise, save it for
 		later. */
 
-		if (pos->cluster != parent->cluster || nmoves < Cutoff) {
+		if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
 			qq = solve(soft_thread, pos);
 			undo_move(soft_thread, mp);
 			if (!qq) {
