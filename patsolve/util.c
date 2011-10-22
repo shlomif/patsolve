@@ -30,7 +30,7 @@
 
 /* Just print a message. */
 
-void fc_solve_msg(char *msg, ...)
+void fc_solve_msg(const char *msg, ...)
 {
 	va_list ap;
 

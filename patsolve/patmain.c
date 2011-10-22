@@ -29,7 +29,7 @@
 #include "pat.h"
 #include "tree.h"
 
-char Usage[] =
+const char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
   "-s Seahaven (same suit), -f Freecell (red/black)\n"
   "-k only Kings start a pile, -a any card starts a pile\n"

@@ -42,7 +42,7 @@
 extern "C" {
 #endif
 /* Error messages. */
-extern void fc_solve_msg(char *msg, ...);
+extern void fc_solve_msg(const char *msg, ...);
 
 #ifdef  __cplusplus
 }
