@@ -514,7 +514,7 @@ MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves
 
 			win(soft_thread, pos);
 
-			if (Noexit) {
+			if (soft_thread->Noexit) {
 				Numsol++;
 				return NULL;
 			}

@@ -40,7 +40,6 @@ static const char Usage[] =
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 #define USAGE() fc_solve_msg(Usage, Progname)
 
-int Noexit = FALSE;     /* -E means don't exit */
 int Numsol;             /* number of solutions found in -E mode */
 int Stack = FALSE;      /* -S means stack, not queue, the moves to be done */
 int Cutoff = 1;         /* switch between depth- and breadth-first */
@@ -135,6 +134,7 @@ int main(int argc, char **argv)
     soft_thread = &soft_thread_struct;
 
     soft_thread->Interactive = TRUE;
+    soft_thread->Noexit = FALSE;
     soft_thread->Mem_remain = (50 * 1000 * 1000);
     soft_thread->Freepos = NULL;
     /* Default variation. */
@@ -257,7 +257,7 @@ int main(int argc, char **argv)
 				break;
 
 			case 'E':
-				Noexit = TRUE;
+				soft_thread->Noexit = TRUE;
 				break;
 
 			case 'c':
@@ -324,7 +324,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (Stack && Noexit) {
+	if (Stack && soft_thread->Noexit) {
 		fatalerr("-S and -E may not be used together.");
 	}
 	if (soft_thread->Mem_remain < BLOCKSIZE * 2) {
@@ -420,7 +420,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 	if (Status != WIN && !Quiet) {
 		if (Status == FAIL) {
 			printf("Out of memory.\n");
-		} else if (Noexit && Numsol > 0) {
+		} else if (soft_thread->Noexit && Numsol > 0) {
 			printf("No shorter solutions.\n");
 		} else {
 			printf("No solution.\n");
