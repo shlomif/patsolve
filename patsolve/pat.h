@@ -114,7 +114,6 @@ enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
 extern int Quiet;
 
 enum statuscode { FAIL = -1, WIN = 0, NOSOL = 1 };
-extern int Status;
 
 /* Memory. */
 
@@ -217,6 +216,8 @@ struct fc_solve_soft_thread_struct
     int to_stack;
     /* Switch between depth- and breadth-first. Default is "1".*/
     int cutoff;
+    /* win, lose, or fail */
+    int Status;
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;

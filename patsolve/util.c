@@ -62,13 +62,13 @@ void *new_(fc_solve_soft_thread_t * soft_thread, size_t s)
 			return NULL;
 		}
 #else
-		Status = FAIL;
+		soft_thread->Status = FAIL;
 		return NULL;
 #endif
 	}
 
 	if ((x = (void *)malloc(s)) == NULL) {
-		Status = FAIL;
+		soft_thread->Status = FAIL;
 		return NULL;
 	}
 

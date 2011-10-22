@@ -40,7 +40,6 @@ static const char Usage[] =
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 #define USAGE() fc_solve_msg(Usage, Progname)
 
-int Status;             /* win, lose, or fail */
 int Quiet = FALSE;      /* print entertaining messages, else exit(Status); */
 
 #if DEBUG
@@ -395,7 +394,7 @@ Init_mem_remain = Mem_remain;
 		}
 	}
 
-	return Status;
+	return soft_thread->Status;
 }
 
 void play(fc_solve_soft_thread_t * soft_thread)
@@ -411,13 +410,13 @@ void play(fc_solve_soft_thread_t * soft_thread)
 	soft_thread->Total_generated = 0;
 	soft_thread->num_solutions = 0;
 
-	Status = NOSOL;
+	soft_thread->Status = NOSOL;
 
 	/* Go to it. */
 
 	doit(soft_thread);
-	if (Status != WIN && !Quiet) {
-		if (Status == FAIL) {
+	if (soft_thread->Status != WIN && !Quiet) {
+		if (soft_thread->Status == FAIL) {
 			printf("Out of memory.\n");
 		} else if (soft_thread->Noexit && soft_thread->num_solutions > 0) {
 			printf("No shorter solutions.\n");

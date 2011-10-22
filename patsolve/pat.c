@@ -518,7 +518,7 @@ MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves
 				soft_thread->num_solutions++;
 				return NULL;
 			}
-			Status = WIN;
+			soft_thread->Status = WIN;
 
 			if (soft_thread->Interactive) {
 				exit(0);
