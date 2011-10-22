@@ -211,10 +211,11 @@ struct fc_solve_soft_thread_struct
     int Interactive; /* interactive mode. */
     int Noexit;     /* -E means don't exit */
     int num_solutions;             /* number of solutions found in -E mode */
-    /* -S means stack, not queue, the moves to be done.
+    /* -S means stack, not queue, the moves to be done. This is a boolean
+     * value.
      * Default should be FALSE.
      * */
-    int to_stack;      
+    int to_stack;
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
