@@ -25,6 +25,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "inline.h"
+
 #include "util.h"
 #include "pat.h"
 #include "tree.h"
@@ -42,7 +45,7 @@ static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
 static void give_back_block(u_char *p);
 static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread);
 
-static INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_char *b)
+static GCC_INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_char *b)
 {
 	return memcmp(a, b, soft_thread->Pilebytes);
 }

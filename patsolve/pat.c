@@ -27,6 +27,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+
+#include "inline.h"
+
 #include "pat.h"
 #include "fnv.h"
 #include "tree.h"
@@ -41,11 +44,11 @@ const card_t Osuit[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
 static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
 static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n);
 static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos);
-static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w);
+static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w);
 
 /* Hash a pile. */
 
-static INLINE void hashpile(fc_solve_soft_thread_t * soft_thread, int w)
+static GCC_INLINE void hashpile(fc_solve_soft_thread_t * soft_thread, int w)
 {
 	soft_thread->W[w][soft_thread->Wlen[w]] = 0;
 	soft_thread->Whash[w] = fnv_hash_str(soft_thread->W[w]);
@@ -179,7 +182,7 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, MOVE *mp)
 /* This utility routine is used to check if a card is ever moved in
 a sequence of moves. */
 
-static INLINE int cardmoved(card_t card, MOVE **mpp, int j)
+static GCC_INLINE int cardmoved(card_t card, MOVE **mpp, int j)
 {
 	int i;
 
@@ -194,7 +197,7 @@ static INLINE int cardmoved(card_t card, MOVE **mpp, int j)
 /* This utility routine is used to check if a card is ever used as a
 destination in a sequence of moves. */
 
-static INLINE int cardisdest(card_t card, MOVE **mpp, int j)
+static GCC_INLINE int cardisdest(card_t card, MOVE **mpp, int j)
 {
 	int i;
 
@@ -578,7 +581,7 @@ MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves
 
 /* Automove logic.  Freecell games must avoid certain types of automoves. */
 
-static INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o, int r)
+static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o, int r)
 {
 	int i;
 
@@ -934,7 +937,7 @@ POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, M
 
 /* Comparison function for sorting the soft_thread->W piles. */
 
-static INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
+static GCC_INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
 {
 	if (soft_thread->Xparam[9] < 0) {
 		return soft_thread->Wpilenum[b] - soft_thread->Wpilenum[a];       /* newer piles first */
@@ -944,7 +947,7 @@ static INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
 }
 
 #if 0
-static INLINE int wcmp(int a, int b)
+static GCC_INLINE int wcmp(int a, int b)
 {
 	if (soft_thread->Xparam[9] < 0) {
 		return soft_thread->Wlen[b] - soft_thread->Wlen[a];       /* longer piles first */
@@ -1234,7 +1237,7 @@ piles appear in any given game.  We'll use the pile's hash to find
 a hash bucket that contains a short list of piles, along with their
 identifiers. */
 
-static INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
+static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 {
 	int bucket, pilenum;
 	BUCKETLIST *l, *last;
