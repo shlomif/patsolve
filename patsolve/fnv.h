@@ -41,29 +41,29 @@ http://www.isthe.com/chongo/tech/comp/fnv/index.html */
 
 static GCC_INLINE u_int32_t fnv_hash_buf(u_char *s, int len)
 {
-	int i;
-	u_int32_t h;
+    int i;
+    u_int32_t h;
 
-	h = FNV1_32_INIT;
-	for (i = 0; i < len; i++) {
-		h = fnv_hash(*s++, h);
-	}
+    h = FNV1_32_INIT;
+    for (i = 0; i < len; i++) {
+        h = fnv_hash(*s++, h);
+    }
 
-	return h;
+    return h;
 }
 
 /* Hash a 0 terminated string. */
 
 static GCC_INLINE u_int32_t fnv_hash_str(u_char *s)
 {
-	u_int32_t h;
+    u_int32_t h;
 
-	h = FNV1_32_INIT;
-	while (*s) {
-		h = fnv_hash(*s++, h);
-	}
+    h = FNV1_32_INIT;
+    while (*s) {
+        h = fnv_hash(*s++, h);
+    }
 
-	return h;
+    return h;
 }
 
 #endif

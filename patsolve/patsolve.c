@@ -45,61 +45,61 @@ static POSITION *dequeue_position(fc_solve_soft_thread_t *);
 
 void print_queue(fc_solve_soft_thread_t * soft_thread)
 {
-	int i, n;
+    int i, n;
 
-	fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
-	n = 0;
-	for (i = 0; i <= soft_thread->Maxq; i++) {
-		if (soft_thread->Inq[i]) {
-			fc_solve_msg("Inq %2d %5d", i, soft_thread->Inq[i]);
-			if (n & 1) {
-				fc_solve_msg("\n");
-			} else {
-				fc_solve_msg("\t\t");
-			}
-			n++;
-		}
-	}
-	fc_solve_msg("\n");
+    fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
+    n = 0;
+    for (i = 0; i <= soft_thread->Maxq; i++) {
+        if (soft_thread->Inq[i]) {
+            fc_solve_msg("Inq %2d %5d", i, soft_thread->Inq[i]);
+            if (n & 1) {
+                fc_solve_msg("\n");
+            } else {
+                fc_solve_msg("\t\t");
+            }
+            n++;
+        }
+    }
+    fc_solve_msg("\n");
 }
 #endif
 
 void doit(fc_solve_soft_thread_t * soft_thread)
 {
-	int i, q;
-	POSITION *pos;
-	MOVE m;
+    int i, q;
+    POSITION *pos;
+    MOVE m;
 
-	/* Init the queues. */
+    /* Init the queues. */
 
-	for (i = 0; i < NQUEUES; i++) {
-	    soft_thread->Qhead[i] = NULL;
-	}
-	soft_thread->Maxq = 0;
+    for (i = 0; i < NQUEUES; i++) {
+        soft_thread->Qhead[i] = NULL;
+    }
+    soft_thread->Maxq = 0;
 #if DEBUG
 memset(soft_thread->Clusternum, 0, sizeof(soft_thread->Clusternum));
 memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 #endif
 
-	/* Queue the initial position to get started. */
+    /* Queue the initial position to get started. */
 
-	hash_layout(soft_thread);
-	pilesort(soft_thread);
-	m.card = NONE;
-	pos = new_position(soft_thread, NULL, &m);
-	if (pos == NULL) {
-		return;
-	}
-	queue_position(soft_thread, pos, 0);
+    hash_layout(soft_thread);
+    pilesort(soft_thread);
+    m.card = NONE;
+    pos = new_position(soft_thread, NULL, &m);
+    if (pos == NULL) {
+        return;
+    }
+    queue_position(soft_thread, pos, 0);
 
-	/* Solve it. */
+    /* Solve it. */
 
-	while ((pos = dequeue_position(soft_thread)) != NULL) {
-		q = solve(soft_thread, pos);
-		if (!q) {
-			free_position(soft_thread, pos, TRUE);
-		}
-	}
+    while ((pos = dequeue_position(soft_thread)) != NULL) {
+        q = solve(soft_thread, pos);
+        if (!q) {
+            free_position(soft_thread, pos, TRUE);
+        }
+    }
 }
 
 /* Generate all the successors to a position and either queue them or
@@ -108,74 +108,74 @@ descendents, were queued or not (if not, the position can be freed). */
 
 static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 {
-	int i, nmoves, q, qq;
-	MOVE *mp, *mp0;
-	POSITION *pos;
+    int i, nmoves, q, qq;
+    MOVE *mp, *mp0;
+    POSITION *pos;
 
-	/* If we've won already (or failed), we just go through the motions
-	but always return FALSE from any position.  This enables the cleanup
-	of the move stack and eventual destruction of the position store. */
+    /* If we've won already (or failed), we just go through the motions
+    but always return FALSE from any position.  This enables the cleanup
+    of the move stack and eventual destruction of the position store. */
 
-	if (soft_thread->Status != NOSOL) {
-		return FALSE;
-	}
+    if (soft_thread->Status != NOSOL) {
+        return FALSE;
+    }
 
-	/* If the position was found again in the tree by a shorter
-	path, prune this path. */
+    /* If the position was found again in the tree by a shorter
+    path, prune this path. */
 
-	if (parent->node->depth < parent->depth) {
-		return FALSE;
-	}
+    if (parent->node->depth < parent->depth) {
+        return FALSE;
+    }
 
-	/* Generate an array of all the moves we can make. */
+    /* Generate an array of all the moves we can make. */
 
-	if ((mp0 = get_moves(soft_thread, parent, &nmoves)) == NULL) {
-		return FALSE;
-	}
-	parent->nchild = nmoves;
+    if ((mp0 = get_moves(soft_thread, parent, &nmoves)) == NULL) {
+        return FALSE;
+    }
+    parent->nchild = nmoves;
 
-	/* Make each move and either solve or queue the result. */
+    /* Make each move and either solve or queue the result. */
 
-	q = FALSE;
-	for (i = 0, mp = mp0; i < nmoves; i++, mp++) {
-		make_move(soft_thread, mp);
+    q = FALSE;
+    for (i = 0, mp = mp0; i < nmoves; i++, mp++) {
+        make_move(soft_thread, mp);
 
-		/* Calculate indices for the new piles. */
+        /* Calculate indices for the new piles. */
 
-		pilesort(soft_thread);
+        pilesort(soft_thread);
 
-		/* See if this is a new position. */
+        /* See if this is a new position. */
 
-		if ((pos = new_position(soft_thread, parent, mp)) == NULL) {
-			undo_move(soft_thread, mp);
-			parent->nchild--;
-			continue;
-		}
+        if ((pos = new_position(soft_thread, parent, mp)) == NULL) {
+            undo_move(soft_thread, mp);
+            parent->nchild--;
+            continue;
+        }
 
-		/* If this position is in a new cluster, a card went out.
-		Don't queue it, just keep going.  A larger cutoff can also
-		force a recursive call, which can help speed things up (but
-		reduces the quality of solutions).  Otherwise, save it for
-		later. */
+        /* If this position is in a new cluster, a card went out.
+        Don't queue it, just keep going.  A larger cutoff can also
+        force a recursive call, which can help speed things up (but
+        reduces the quality of solutions).  Otherwise, save it for
+        later. */
 
-		if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
-			qq = solve(soft_thread, pos);
-			undo_move(soft_thread, mp);
-			if (!qq) {
-				free_position(soft_thread, pos, FALSE);
-			}
-			q |= qq;
-		} else {
-			queue_position(soft_thread, pos, mp->pri);
-			undo_move(soft_thread, mp);
-			q = TRUE;
-		}
-	}
-	free_array(soft_thread, mp0, MOVE, nmoves);
+        if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
+            qq = solve(soft_thread, pos);
+            undo_move(soft_thread, mp);
+            if (!qq) {
+                free_position(soft_thread, pos, FALSE);
+            }
+            q |= qq;
+        } else {
+            queue_position(soft_thread, pos, mp->pri);
+            undo_move(soft_thread, mp);
+            q = TRUE;
+        }
+    }
+    free_array(soft_thread, mp0, MOVE, nmoves);
 
-	/* Return true if this position needs to be kept around. */
+    /* Return true if this position needs to be kept around. */
 
-	return q;
+    return q;
 }
 
 /* We can't free the stored piles in the trees, but we can free some of the
@@ -187,24 +187,24 @@ recursively (rec == TRUE). */
 
 static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int rec)
 {
-	/* We don't really free anything here, we just push it onto a
-	freelist (using the queue member), so we can use it again later. */
+    /* We don't really free anything here, we just push it onto a
+    freelist (using the queue member), so we can use it again later. */
 
-	if (!rec) {
-		pos->queue = soft_thread->Freepos;
-		soft_thread->Freepos = pos;
-		pos->parent->nchild--;
-	} else {
-		do {
-			pos->queue = soft_thread->Freepos;
-			soft_thread->Freepos = pos;
-			pos = pos->parent;
-			if (pos == NULL) {
-				return;
-			}
-			pos->nchild--;
-		} while (pos->nchild == 0);
-	}
+    if (!rec) {
+        pos->queue = soft_thread->Freepos;
+        soft_thread->Freepos = pos;
+        pos->parent->nchild--;
+    } else {
+        do {
+            pos->queue = soft_thread->Freepos;
+            soft_thread->Freepos = pos;
+            pos = pos->parent;
+            if (pos == NULL) {
+                return;
+            }
+            pos->nchild--;
+        } while (pos->nchild == 0);
+    }
 }
 
 /* Save positions for consideration later.  pri is the priority of the move
@@ -213,46 +213,46 @@ having separate queues). */
 
 static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int pri)
 {
-	int nout;
-	double x;
+    int nout;
+    double x;
 
-	/* In addition to the priority of a move, a position gets an
-	additional priority depending on the number of cards out.  We use a
-	"queue squashing function" to map nout to priority.  */
+    /* In addition to the priority of a move, a position gets an
+    additional priority depending on the number of cards out.  We use a
+    "queue squashing function" to map nout to priority.  */
 
-	nout = soft_thread->O[0] + soft_thread->O[1] + soft_thread->O[2] + soft_thread->O[3];
+    nout = soft_thread->O[0] + soft_thread->O[1] + soft_thread->O[2] + soft_thread->O[3];
 
-	/* soft_thread->Yparam[0] * nout^2 + soft_thread->Yparam[1] * nout + soft_thread->Yparam[2] */
+    /* soft_thread->Yparam[0] * nout^2 + soft_thread->Yparam[1] * nout + soft_thread->Yparam[2] */
 
-	x = (soft_thread->Yparam[0] * nout + soft_thread->Yparam[1]) * nout + soft_thread->Yparam[2];
-	pri += (int)floor(x + .5);
+    x = (soft_thread->Yparam[0] * nout + soft_thread->Yparam[1]) * nout + soft_thread->Yparam[2];
+    pri += (int)floor(x + .5);
 
-	if (pri < 0) {
-		pri = 0;
-	} else if (pri >= NQUEUES) {
-		pri = NQUEUES - 1;
-	}
-	if (pri > soft_thread->Maxq) {
-		soft_thread->Maxq = pri;
-	}
+    if (pri < 0) {
+        pri = 0;
+    } else if (pri >= NQUEUES) {
+        pri = NQUEUES - 1;
+    }
+    if (pri > soft_thread->Maxq) {
+        soft_thread->Maxq = pri;
+    }
 
-	/* We always dequeue from the head.  Here we either stick the move
-	at the head or tail of the queue, depending on whether we're
-	pretending it's a stack or a queue. */
+    /* We always dequeue from the head.  Here we either stick the move
+    at the head or tail of the queue, depending on whether we're
+    pretending it's a stack or a queue. */
 
-	pos->queue = NULL;
-	if (soft_thread->Qhead[pri] == NULL) {
-		soft_thread->Qhead[pri] = pos;
-		soft_thread->Qtail[pri] = pos;
-	} else {
-		if (soft_thread->to_stack) {
-			pos->queue = soft_thread->Qhead[pri];
-			soft_thread->Qhead[pri] = pos;
-		} else {
-			soft_thread->Qtail[pri]->queue = pos;
-			soft_thread->Qtail[pri] = pos;
-		}
-	}
+    pos->queue = NULL;
+    if (soft_thread->Qhead[pri] == NULL) {
+        soft_thread->Qhead[pri] = pos;
+        soft_thread->Qtail[pri] = pos;
+    } else {
+        if (soft_thread->to_stack) {
+            pos->queue = soft_thread->Qhead[pri];
+            soft_thread->Qhead[pri] = pos;
+        } else {
+            soft_thread->Qtail[pri]->queue = pos;
+            soft_thread->Qtail[pri] = pos;
+        }
+    }
 #if DEBUG
 soft_thread->Inq[pri]++;
 soft_thread->Clusternum[pos->cluster]++;
@@ -263,58 +263,58 @@ soft_thread->Clusternum[pos->cluster]++;
 
 static POSITION *dequeue_position(fc_solve_soft_thread_t * soft_thread)
 {
-	int last;
-	POSITION *pos;
-	static int qpos = 0;
-	static int minpos = 0;
+    int last;
+    POSITION *pos;
+    static int qpos = 0;
+    static int minpos = 0;
 
-	/* This is a kind of prioritized round robin.  We make sweeps
-	through the queues, starting at the highest priority and
-	working downwards; each time through the sweeps get longer.
-	That way the highest priority queues get serviced the most,
-	but we still get lots of low priority action (instead of
-	ignoring it completely). */
+    /* This is a kind of prioritized round robin.  We make sweeps
+    through the queues, starting at the highest priority and
+    working downwards; each time through the sweeps get longer.
+    That way the highest priority queues get serviced the most,
+    but we still get lots of low priority action (instead of
+    ignoring it completely). */
 
-	last = FALSE;
-	do {
-		qpos--;
-		if (qpos < minpos) {
-			if (last) {
-				return NULL;
-			}
-			qpos = soft_thread->Maxq;
-			minpos--;
-			if (minpos < 0) {
-				minpos = soft_thread->Maxq;
-			}
-			if (minpos == 0) {
-				last = TRUE;
-			}
-		}
-	} while (soft_thread->Qhead[qpos] == NULL);
+    last = FALSE;
+    do {
+        qpos--;
+        if (qpos < minpos) {
+            if (last) {
+                return NULL;
+            }
+            qpos = soft_thread->Maxq;
+            minpos--;
+            if (minpos < 0) {
+                minpos = soft_thread->Maxq;
+            }
+            if (minpos == 0) {
+                last = TRUE;
+            }
+        }
+    } while (soft_thread->Qhead[qpos] == NULL);
 
-	pos = soft_thread->Qhead[qpos];
-	soft_thread->Qhead[qpos] = pos->queue;
+    pos = soft_thread->Qhead[qpos];
+    soft_thread->Qhead[qpos] = pos->queue;
 #if DEBUG
-	soft_thread->Inq[qpos]--;
+    soft_thread->Inq[qpos]--;
 #endif
 
-	/* Decrease soft_thread->Maxq if that queue emptied. */
+    /* Decrease soft_thread->Maxq if that queue emptied. */
 
-	while (soft_thread->Qhead[qpos] == NULL && qpos == soft_thread->Maxq && soft_thread->Maxq > 0) {
-		soft_thread->Maxq--;
-		qpos--;
-		if (qpos < minpos) {
-			minpos = qpos;
-		}
-	}
+    while (soft_thread->Qhead[qpos] == NULL && qpos == soft_thread->Maxq && soft_thread->Maxq > 0) {
+        soft_thread->Maxq--;
+        qpos--;
+        if (qpos < minpos) {
+            minpos = qpos;
+        }
+    }
 
-	/* Unpack the position into the work arrays. */
+    /* Unpack the position into the work arrays. */
 
-	unpack_position(soft_thread, pos);
+    unpack_position(soft_thread, pos);
 
 #if DEBUG
 soft_thread->Clusternum[pos->cluster]--;
 #endif
-	return pos;
+    return pos;
 }

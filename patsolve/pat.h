@@ -56,7 +56,7 @@ typedef u_char card_t;
 /* Some macros used in get_possible_moves(). */
 
 /* The following macro implements
-	(Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
+   (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
 */
 #define suitable(a, b) ((((a) ^ (b)) & soft_thread->Suit_mask) == soft_thread->Suit_val)
 
@@ -68,14 +68,14 @@ extern const char Suit[];
 /* Represent a move. */
 
 typedef struct {
-	card_t card;            /* the card we're moving */
-	u_char from;            /* from pile number */
-	u_char to;              /* to pile number */
-	u_char fromtype;        /* O, T, or W */
-	u_char totype;
-	card_t srccard;         /* card we're uncovering */
-	card_t destcard;        /* card we're moving to */
-	signed char pri;        /* move priority (low priority == low value) */
+    card_t card;            /* the card we're moving */
+    u_char from;            /* from pile number */
+    u_char to;              /* to pile number */
+    u_char fromtype;        /* O, T, or W */
+    u_char totype;
+    card_t srccard;         /* card we're uncovering */
+    card_t destcard;        /* card we're moving to */
+    signed char pri;        /* move priority (low priority == low value) */
 } MOVE;
 
 #define O_TYPE 1                /* pile types */
@@ -92,14 +92,14 @@ as a pointers back to the parent, and the btree of all positions examined so
 far. */
 
 typedef struct pos {
-	struct pos *queue;      /* next position in the queue */
-	struct pos *parent;     /* point back up the move stack */
-	TREE *node;             /* compact position rep.'s tree node */
-	MOVE move;              /* move that got us here from the parent */
-	unsigned short cluster; /* the cluster this node is in */
-	short depth;            /* number of moves so far */
-	u_char ntemp;           /* number of cards in T */
-	u_char nchild;          /* number of child nodes left */
+    struct pos *queue;      /* next position in the queue */
+    struct pos *parent;     /* point back up the move stack */
+    TREE *node;             /* compact position rep.'s tree node */
+    MOVE move;              /* move that got us here from the parent */
+    unsigned short cluster; /* the cluster this node is in */
+    short depth;            /* number of moves so far */
+    u_char ntemp;           /* number of cards in T */
+    u_char nchild;          /* number of child nodes left */
 } POSITION;
 extern const card_t Osuit[4];         /* suits of the output piles */
 
@@ -118,18 +118,18 @@ enum statuscode { FAIL = -1, WIN = 0, NOSOL = 1 };
 /* Memory. */
 
 typedef struct block {
-	u_char *block;
-	u_char *ptr;
-	int remain;
-	struct block *next;
+    u_char *block;
+    u_char *ptr;
+    int remain;
+    struct block *next;
 } BLOCK;
 
 #define BLOCKSIZE (32 * 4096)
 
 typedef struct treelist {
-	TREE *tree;
-	int cluster;
-	struct treelist *next;
+    TREE *tree;
+    int cluster;
+    struct treelist *next;
 } TREELIST;
 
 
@@ -137,10 +137,10 @@ typedef struct treelist {
 #define NPILES  4096            /* a 12 bit code */
 
 typedef struct bucketlist {
-	u_char *pile;           /* 0 terminated copy of the pile */
-	u_int32_t hash;         /* the pile's hash code */
-	int pilenum;            /* the unique id for this pile */
-	struct bucketlist *next;
+    u_char *pile;           /* 0 terminated copy of the pile */
+    u_int32_t hash;         /* the pile's hash code */
+    int pilenum;            /* the unique id for this pile */
+    struct bucketlist *next;
 } BUCKETLIST;
 
 /* Statistics. */
@@ -204,7 +204,7 @@ struct fc_solve_soft_thread_struct
     int Pilenum;                    /* the next pile number to be assigned */
     /* reverse lookup for unpack to get the bucket
                        from the pile */
-    BUCKETLIST *Pilebucket[NPILES]; 
+    BUCKETLIST *Pilebucket[NPILES];
     int Treebytes;
     int Interactive; /* interactive mode. */
     int Noexit;     /* -E means don't exit */
@@ -250,7 +250,7 @@ extern void *new_(fc_solve_soft_thread_t * soft_thread, size_t s);
 
 #define new_array(soft_thread, type, size) (type *)new_(soft_thread, (size) * sizeof(type))
 #define free_array(soft_thread, ptr, type, size) free(ptr); \
-				    (soft_thread)->Mem_remain += (size) * sizeof(type)
+           (soft_thread)->Mem_remain += (size) * sizeof(type)
 
 extern void free_buckets(fc_solve_soft_thread_t * soft_thread);
 extern void free_clusters(fc_solve_soft_thread_t * soft_thread);

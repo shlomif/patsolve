@@ -32,11 +32,11 @@
 
 void fc_solve_msg(const char *msg, ...)
 {
-	va_list ap;
+    va_list ap;
 
-	va_start(ap, msg);
-	vfprintf(stderr, msg, ap);
-	va_end(ap);
+    va_start(ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
 }
 
 
@@ -44,34 +44,34 @@ void fc_solve_msg(const char *msg, ...)
 
 void *new_(fc_solve_soft_thread_t * soft_thread, size_t s)
 {
-	void *x;
+    void *x;
 
-	if (s > soft_thread->Mem_remain) {
+    if (s > soft_thread->Mem_remain) {
 #if 0
-		POSITION *pos;
+        POSITION *pos;
 
-		/* Try to get some space back from the freelist. A vain hope. */
+        /* Try to get some space back from the freelist. A vain hope. */
 
-		while (Freepos) {
-			pos = Freepos->queue;
-			free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
-			Freepos = pos;
-		}
-		if (s > soft_thread->Mem_remain) {
-			Status = FAIL;
-			return NULL;
-		}
+        while (Freepos) {
+            pos = Freepos->queue;
+            free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
+            Freepos = pos;
+        }
+        if (s > soft_thread->Mem_remain) {
+            Status = FAIL;
+            return NULL;
+        }
 #else
-		soft_thread->Status = FAIL;
-		return NULL;
+        soft_thread->Status = FAIL;
+        return NULL;
 #endif
-	}
+    }
 
-	if ((x = (void *)malloc(s)) == NULL) {
-		soft_thread->Status = FAIL;
-		return NULL;
-	}
+    if ((x = (void *)malloc(s)) == NULL) {
+        soft_thread->Status = FAIL;
+        return NULL;
+    }
 
-	soft_thread->Mem_remain -= s;
-	return x;
+    soft_thread->Mem_remain -= s;
+    return x;
 }

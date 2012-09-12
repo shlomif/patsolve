@@ -7,8 +7,8 @@
 #define NYPARAM 3
 
 typedef struct {
-	int x[NXPARAM];
-	double y[NYPARAM];
+    int x[NXPARAM];
+    double y[NYPARAM];
 } XYparam_t;
 
 extern const XYparam_t XYparam[];
