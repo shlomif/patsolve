@@ -7,6 +7,12 @@ use Test::More tests => 16;
 
 use Test::Trap qw( trap $trap :flow:stderr(systemsafe):stdout(systemsafe):warn );
 
+use File::Basename qw(dirname);
+use File::Spec;
+
+my $base_dir = dirname(__FILE__);
+my $data_dir = File::Spec->catdir($base_dir, 'data');
+
 sub _slurp
 {
     my $filename = shift;
@@ -28,7 +34,7 @@ unlink("win");
 {
     trap
     {
-        system("./patsolve", "./t/data/24.board");
+        system("./patsolve", File::Spec->catfile($data_dir, '24.board'));
     };
 
     # TEST
@@ -157,7 +163,7 @@ EOF
 {
     trap
     {
-        system("./patsolve", "-S", "./t/data/24.board");
+        system("./patsolve", "-S", File::Spec->catfile($data_dir, '24.board'));
     };
 
     # TEST
@@ -366,7 +372,9 @@ EOF
 {
     trap
     {
-        system("./patsolve", "-s", "./t/data/1.seahaven.board");
+        system("./patsolve", "-s",
+            File::Spec->catfile($data_dir, "1.seahaven.board"),
+        );
     };
 
     # TEST
@@ -482,7 +490,9 @@ EOF
 {
     trap
     {
-        system("./patsolve", "-s", "-S", "./t/data/1.seahaven.board");
+        system("./patsolve", "-s", "-S",
+            File::Spec->catfile($data_dir, "1.seahaven.board"),
+        );
     };
 
     # TEST
