@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 	u_int64_t gn;
 	FILE *infile;
     int Sgame = -1;         /* for range solving */
-    int Egame;
+    int Egame = -1;
 
     fc_solve_soft_thread_t soft_thread_struct;
     fc_solve_soft_thread_t * soft_thread;
