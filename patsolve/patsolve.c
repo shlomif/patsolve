@@ -34,6 +34,7 @@ search. */
 #include <math.h>
 #include "pat.h"
 #include "fnv.h"
+#include "util.h"
 
 static int solve(fc_solve_soft_thread_t *, POSITION *);
 static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int);
@@ -42,24 +43,24 @@ static POSITION *dequeue_position(fc_solve_soft_thread_t *);
 
 #if DEBUG
 
-void print_queue(void)
+void print_queue(fc_solve_soft_thread_t * soft_thread)
 {
 	int i, n;
 
-	msg("Maxq %d\n", soft_thread->Maxq);
+	fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
 	n = 0;
 	for (i = 0; i <= soft_thread->Maxq; i++) {
-		if (Inq[i]) {
-			msg("Inq %2d %5d", i, Inq[i]);
+		if (soft_thread->Inq[i]) {
+			fc_solve_msg("Inq %2d %5d", i, soft_thread->Inq[i]);
 			if (n & 1) {
-				msg("\n");
+				fc_solve_msg("\n");
 			} else {
-				msg("\t\t");
+				fc_solve_msg("\t\t");
 			}
 			n++;
 		}
 	}
-	msg("\n");
+	fc_solve_msg("\n");
 }
 #endif
 
@@ -68,7 +69,6 @@ void doit(fc_solve_soft_thread_t * soft_thread)
 	int i, q;
 	POSITION *pos;
 	MOVE m;
-	extern void hash_layout(void);
 
 	/* Init the queues. */
 
@@ -77,13 +77,13 @@ void doit(fc_solve_soft_thread_t * soft_thread)
 	}
 	soft_thread->Maxq = 0;
 #if DEBUG
-memset(Clusternum, 0, sizeof(Clusternum));
-memset(Inq, 0, sizeof(Inq));
+memset(soft_thread->Clusternum, 0, sizeof(soft_thread->Clusternum));
+memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 #endif
 
 	/* Queue the initial position to get started. */
 
-	hash_layout();
+	hash_layout(soft_thread);
 	pilesort(soft_thread);
 	m.card = NONE;
 	pos = new_position(soft_thread, NULL, &m);
@@ -254,8 +254,8 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
 		}
 	}
 #if DEBUG
-Inq[pri]++;
-Clusternum[pos->cluster]++;
+soft_thread->Inq[pri]++;
+soft_thread->Clusternum[pos->cluster]++;
 #endif
 }
 
@@ -296,7 +296,7 @@ static POSITION *dequeue_position(fc_solve_soft_thread_t * soft_thread)
 	pos = soft_thread->Qhead[qpos];
 	soft_thread->Qhead[qpos] = pos->queue;
 #if DEBUG
-	Inq[qpos]--;
+	soft_thread->Inq[qpos]--;
 #endif
 
 	/* Decrease soft_thread->Maxq if that queue emptied. */
@@ -314,7 +314,7 @@ static POSITION *dequeue_position(fc_solve_soft_thread_t * soft_thread)
 	unpack_position(soft_thread, pos);
 
 #if DEBUG
-Clusternum[pos->cluster]--;
+soft_thread->Clusternum[pos->cluster]--;
 #endif
 	return pos;
 }

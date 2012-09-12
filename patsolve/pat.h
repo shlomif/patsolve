@@ -255,5 +255,6 @@ extern void *new_(fc_solve_soft_thread_t * soft_thread, size_t s);
 extern void free_buckets(fc_solve_soft_thread_t * soft_thread);
 extern void free_clusters(fc_solve_soft_thread_t * soft_thread);
 extern void free_blocks(fc_solve_soft_thread_t * soft_thread);
+extern void hash_layout(fc_solve_soft_thread_t * soft_thread);
 
 #endif /* #ifndef FC_SOLVE_PATSOLVE_PAT_H */

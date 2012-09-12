@@ -84,17 +84,16 @@ void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 #if DEBUG
 extern int Clusternum[];
 
-void quit(int sig)
+void quit(fc_solve_soft_thread_t * soft_thread, int sig)
 {
 	int i, c;
-	extern void print_queue(void);
-	extern int Clusternum[];
+	extern void print_queue(fc_solve_soft_thread_t * soft_thread);
 
-	print_queue();
+	print_queue(soft_thread);
 	c = 0;
 	for (i = 0; i <= 0xFFFF; i++) {
-		if (Clusternum[i]) {
-			fc_solve_msg("%04X: %6d", i, Clusternum[i]);
+		if (soft_thread->Clusternum[i]) {
+			fc_solve_msg("%04X: %6d", i, soft_thread->Clusternum[i]);
 			c++;
 			if (c % 5 == 0) {
 				c = 0;
@@ -109,7 +108,9 @@ void quit(int sig)
 	}
 	print_layout(soft_thread);
 
+#if 0
 	signal(SIGQUIT, quit);
+#endif
 }
 #endif
 
@@ -144,7 +145,9 @@ int main(int argc, char **argv)
 
 	Progname = *argv;
 #if DEBUG
+#if 0
 	signal(SIGQUIT, quit);
+#endif
     fc_solve_msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 #endif
 
@@ -370,7 +373,7 @@ int main(int argc, char **argv)
 	}
 
 #if DEBUG
-Init_mem_remain = Mem_remain;
+Init_mem_remain = soft_thread->Mem_remain;
 #endif
 	if (Sgame < 0) {
 
@@ -426,7 +429,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 #if DEBUG
 		printf("%d positions generated.\n", soft_thread->Total_generated);
 		printf("%d unique positions.\n", soft_thread->Total_positions);
-		printf("Mem_remain = %ld\n", Mem_remain);
+		printf("Mem_remain = %ld\n", soft_thread->Mem_remain);
 #endif
 	}
 	if (!soft_thread->Interactive) {
@@ -436,8 +439,8 @@ void play(fc_solve_soft_thread_t * soft_thread)
 		soft_thread->Freepos = NULL;
 	}
 #if DEBUG
-if (Mem_remain != Init_mem_remain) {
- fc_solve_msg("Mem_remain = %ld\n", Mem_remain);
+if (soft_thread->Mem_remain != Init_mem_remain) {
+ fc_solve_msg("Mem_remain = %ld\n", soft_thread->Mem_remain);
 }
 #endif
 }
