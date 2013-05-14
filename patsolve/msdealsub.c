@@ -28,117 +28,101 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <string.h>
+#include "pat.h"
 
 #ifdef WIN32
 typedef void VOID;
 typedef unsigned __int64 LONG;
 typedef unsigned __int32 UINT;
 typedef int CARD;
-typedef unsigned char card_t;
 #else
 typedef void VOID;
 typedef u_int64_t LONG;
 typedef u_int32_t UINT;
 typedef int CARD;
-typedef u_char card_t;
 #endif
 
 #define NUM_CARDS 52
 
-static LONG seedx;
-
-static VOID srandp(UINT s)
+static VOID srandp(LONG * seedx_ptr, UINT s)
 {
-	seedx = (LONG) s;
+    *(seedx_ptr) = (LONG) s;
 }
 
-static UINT randp()
+static UINT randp(LONG * seedx_ptr)
 {
-	seedx = seedx * 214013L + 2531011L;
-	return (seedx >> 16) & 0xffff;
+    *(seedx_ptr) = *(seedx_ptr) * 214013L + 2531011L;
+    return (((*seedx_ptr) >> 16) & 0xffff);
 }
 
-static VOID srando(UINT s)
+#define srando(a,b) srandp(a,b)
+static UINT rando(LONG * seedx_ptr)
 {
-	seedx = (LONG) s;
-}
-
-static UINT rando()
-{
-	seedx = seedx * 214013L + 2531011L;
-	return (seedx >> 16) & 0x7fff;
+    *(seedx_ptr) = *(seedx_ptr) * 214013L + 2531011L;
+    return ((*seedx_ptr) >> 16) & 0x7fff;
 }
 
 #define PS_DIAMOND 0x00         /* red */
 #define PS_CLUB    0x10         /* black */
 #define PS_HEART   0x20         /* red */
 #define PS_SPADE   0x30         /* black */
-static int Suit[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
+const static int msdeal_Suit[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
 
-#define MAXTPILES       8       /* max number of piles */
-#define MAXWPILES      13
-extern card_t W[MAXWPILES][52]; /* the workspace */
-extern card_t *Wp[MAXWPILES];   /* point to the top card of each work pile */
-extern int Wlen[MAXWPILES];     /* the number of cards in each pile */
-extern card_t T[MAXTPILES];     /* one card in each temp cell */
-extern card_t O[4];             /* output piles store only the rank or NONE */
-
-extern int Nwpiles;
-
-void msdeal(LONG gnGameNumber)
+void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 {
-	int i, j, c;
-	int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
-	CARD deck[NUM_CARDS];
-	CARD pos[MAXWPILES][NUM_CARDS+1];
+    int i, j, c;
+    int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
+    CARD deck[NUM_CARDS];
+    CARD pos[MAXWPILES][NUM_CARDS+1];
+    LONG seedx;
 
-	memset(pos, 0, sizeof(pos));
-	for (i = 0; i < NUM_CARDS; i++) {
-		deck[i] = i + 1;
-	}
+    memset(pos, 0, sizeof(pos));
+    for (i = 0; i < NUM_CARDS; i++) {
+        deck[i] = i + 1;
+    }
 
-	if (gnGameNumber < 0x100000000LL) {
-		srando((UINT) gnGameNumber);
-	} else {
-		srandp((UINT) (gnGameNumber - 0x100000000LL));
-	}
+    if (gnGameNumber < 0x100000000LL) {
+        srando(&seedx, (UINT) gnGameNumber);
+    } else {
+        srandp(&seedx, (UINT) (gnGameNumber - 0x100000000LL));
+    }
 
-	for (i = 0; i < NUM_CARDS; i++) {
-		if (gnGameNumber < 0x100000000LL) {
-			if (gnGameNumber < 0x80000000) {
-				j = rando() % wLeft;
-			} else {
-				j = (rando() | 0x8000) % wLeft;
-			}
-		} else {
-			j = (randp() + 1) % wLeft;
-		}
-		pos[i % Nwpiles][i / Nwpiles] = deck[j];
-		deck[j] = deck[--wLeft];
-		if (Nwpiles == 10 && i == 49) {
-			break;
-		}
-	}
-	for (i = 0; i < Nwpiles; i++) {
-		j = 0;
-		while (pos[i][j]) {
-			c = pos[i][j] - 1;
-			W[i][j] = Suit[c % 4] + (c / 4) + 1;
-			j++;
-		}
-		Wp[i] = &W[i][j - 1];
-		Wlen[i] = j;
-	}
-	/* leftover cards to temp */
-	for (i = 0; i < MAXTPILES; i++) {
-		T[i] = 0;
-		if (wLeft) {
-			j = --wLeft;
-			c = deck[j] - 1;
-			T[i] = Suit[c % 4] + (c / 4) + 1;
-		}
-	}
-	for (i = 0; i < 4; i++) {
-		O[i] = 0;
-	}
+    for (i = 0; i < NUM_CARDS; i++) {
+        if (gnGameNumber < 0x100000000LL) {
+            if (gnGameNumber < 0x80000000) {
+                j = rando(&seedx) % wLeft;
+            } else {
+                j = (rando(&seedx) | 0x8000) % wLeft;
+            }
+        } else {
+            j = (randp(&seedx) + 1) % wLeft;
+        }
+        pos[i % soft_thread->Nwpiles][i / soft_thread->Nwpiles] = deck[j];
+        deck[j] = deck[--wLeft];
+        if (soft_thread->Nwpiles == 10 && i == 49) {
+            break;
+        }
+    }
+    for (i = 0; i < soft_thread->Nwpiles; i++) {
+        j = 0;
+        while (pos[i][j]) {
+            c = pos[i][j] - 1;
+            soft_thread->W[i][j] = msdeal_Suit[c % 4] + (c / 4) + 1;
+            j++;
+        }
+        soft_thread->Wp[i] = &soft_thread->W[i][j - 1];
+        soft_thread->Wlen[i] = j;
+    }
+    /* leftover cards to temp */
+    for (i = 0; i < MAXTPILES; i++) {
+        soft_thread->T[i] = 0;
+        if (wLeft) {
+            j = --wLeft;
+            c = deck[j] - 1;
+            soft_thread->T[i] = msdeal_Suit[c % 4] + (c / 4) + 1;
+        }
+    }
+    for (i = 0; i < 4; i++) {
+        soft_thread->O[i] = 0;
+    }
 }

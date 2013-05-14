@@ -108,47 +108,47 @@ so-- that's why the only change I made is to restrict to odd seeds. */
 
 void seedMT(uint32 seed)
 {
-	register uint32 x = (seed | 1U) & 0xFFFFFFFFU, *s = state;
-	register int j;
+    register uint32 x = (seed | 1U) & 0xFFFFFFFFU, *s = state;
+    register int j;
 
-	left = 0;
-	for (*s++ = x, j = N; --j; *s++ = (x *= 69069U) & 0xFFFFFFFFU) {
-	}
+    left = 0;
+    for (*s++ = x, j = N; --j; *s++ = (x *= 69069U) & 0xFFFFFFFFU) {
+    }
 }
 
 static uint32 reloadMT(void)
 {
-	register uint32 *p0 = state, *p2 = state + 2, *pM = state + M, s0, s1;
-	register int j;
+    register uint32 *p0 = state, *p2 = state + 2, *pM = state + M, s0, s1;
+    register int j;
 
-	left = N - 1;
-	next = state + 1;
+    left = N - 1;
+    next = state + 1;
 
-	for (s0 = state[0], s1 = state[1], j = L; --j; s0 = s1, s1 = *p2++) {
-		*p0++ = *pM++ ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
-	}
-	for (pM = state, j = M; --j; s0 = s1, s1 = *p2++) {
-		*p0++ = *pM++ ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
-	}
-	s1 = state[0];
-	*p0 = *pM ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
+    for (s0 = state[0], s1 = state[1], j = L; --j; s0 = s1, s1 = *p2++) {
+        *p0++ = *pM++ ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
+    }
+    for (pM = state, j = M; --j; s0 = s1, s1 = *p2++) {
+        *p0++ = *pM++ ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
+    }
+    s1 = state[0];
+    *p0 = *pM ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
 
-	s1 ^= (s1 >> 11);
-	s1 ^= (s1 <<  7) & K2;
-	s1 ^= (s1 << 15) & K3;
-	return (s1 ^ (s1 >> 18));
+    s1 ^= (s1 >> 11);
+    s1 ^= (s1 <<  7) & K2;
+    s1 ^= (s1 << 15) & K3;
+    return (s1 ^ (s1 >> 18));
 }
 
 uint32 randomMT(void)
 {
-	uint32 y;
+    uint32 y;
 
-	if (--left < 0) {
-		return (reloadMT());
-	}
-	y  = *next++;
-	y ^= (y >> 11);
-	y ^= (y <<  7) & K2;
-	y ^= (y << 15) & K3;
-	return (y ^ (y >> 18));
+    if (--left < 0) {
+        return (reloadMT());
+    }
+    y  = *next++;
+    y ^= (y >> 11);
+    y ^= (y <<  7) & K2;
+    y ^= (y << 15) & K3;
+    return (y ^ (y >> 18));
 }
