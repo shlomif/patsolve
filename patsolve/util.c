@@ -23,97 +23,55 @@
  */
 /* Standard utilities. */
 
+#include <stdarg.h>
+
 #include "util.h"
 #include "pat.h"
 
-char *Progname = NULL;
-
-/* Print a message and exit. */
-
-void fatalerr(char *msg, ...)
-{
-	va_list ap;
-
-	if (Progname) {
-		fprintf(stderr, "%s: ", Progname);
-	}
-	va_start(ap, msg);
-	vfprintf(stderr, msg, ap);
-	va_end(ap);
-	fputc('\n', stderr);
-
-	exit(1);
-}
-
 /* Just print a message. */
 
-void msg(char *msg, ...)
+void fc_solve_msg(const char *msg, ...)
 {
-	va_list ap;
+    va_list ap;
 
-	va_start(ap, msg);
-	vfprintf(stderr, msg, ap);
-	va_end(ap);
+    va_start(ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
 }
 
-/* Open a file or exit on failure. */
-
-FILE *fileopen(char *name, char *mode)
-{
-	FILE *f;
-
-	if ((f = fopen(name, mode)) == NULL) {
-		fatalerr("can't %s '%s'", *mode == 'r' ? "open" : "write", name);
-	}
-	return f;
-}
-
-/* Like strcpy() but return the length of the string. */
-
-int strecpy(u_char *dest, u_char *src)
-{
-	int i;
-
-	i = 0;
-	while ((*dest++ = *src++) != '\0') {
-		i++;
-	}
-
-	return i;
-}
 
 /* Allocate some space and return a pointer to it.  See new() in util.h. */
 
-void *new_(size_t s)
+void *new_(fc_solve_soft_thread_t * soft_thread, size_t s)
 {
-	void *x;
+    void *x;
 
-	if (s > Mem_remain) {
+    if (s > soft_thread->Mem_remain) {
 #if 0
-		POSITION *pos;
+        POSITION *pos;
 
-		/* Try to get some space back from the freelist. A vain hope. */
+        /* Try to get some space back from the freelist. A vain hope. */
 
-		while (Freepos) {
-			pos = Freepos->queue;
-			free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
-			Freepos = pos;
-		}
-		if (s > Mem_remain) {
-			Status = FAIL;
-			return NULL;
-		}
+        while (Freepos) {
+            pos = Freepos->queue;
+            free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
+            Freepos = pos;
+        }
+        if (s > soft_thread->Mem_remain) {
+            Status = FAIL;
+            return NULL;
+        }
 #else
-		Status = FAIL;
-		return NULL;
+        soft_thread->Status = FAIL;
+        return NULL;
 #endif
-	}
+    }
 
-	if ((x = (void *)malloc(s)) == NULL) {
-		Status = FAIL;
-		return NULL;
-	}
+    if ((x = (void *)malloc(s)) == NULL) {
+        soft_thread->Status = FAIL;
+        return NULL;
+    }
 
-	Mem_remain -= s;
-	return x;
+    soft_thread->Mem_remain -= s;
+    return x;
 }

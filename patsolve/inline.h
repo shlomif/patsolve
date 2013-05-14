@@ -1,4 +1,4 @@
-/* Copyright (c) 2002 Tom Holroyd
+/* Copyright (c) 2000 Shlomi Fish
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -21,49 +21,24 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-/* This is a 32 bit FNV hash.  For more information, see
-http://www.isthe.com/chongo/tech/comp/fnv/index.html */
+/*
+ * inline.h - the purpose of this file is to define the GCC_INLINE
+ * macro.
+ *
+ */
 
-#ifndef FNV_H
-#define FNV_H
+#ifndef FC_SOLVE__INLINE_H
+#define FC_SOLVE__INLINE_H
 
-#include <sys/types.h>
 #include "config.h"
 
-#include "inline.h"
+#if defined(HAVE_C_INLINE)
+#define GCC_INLINE FCS_INLINE_KEYWORD
+#elif defined(__GNUC__)
+#define GCC_INLINE inline
+#else
+#define GCC_INLINE
+#endif
 
-#define FNV1_32_INIT 0x811C9DC5
-#define FNV_32_PRIME 0x01000193
-
-#define fnv_hash(x, hash) (((hash) * FNV_32_PRIME) ^ (x))
-
-/* Hash a buffer. */
-
-static GCC_INLINE u_int32_t fnv_hash_buf(u_char *s, int len)
-{
-    int i;
-    u_int32_t h;
-
-    h = FNV1_32_INIT;
-    for (i = 0; i < len; i++) {
-        h = fnv_hash(*s++, h);
-    }
-
-    return h;
-}
-
-/* Hash a 0 terminated string. */
-
-static GCC_INLINE u_int32_t fnv_hash_str(u_char *s)
-{
-    u_int32_t h;
-
-    h = FNV1_32_INIT;
-    while (*s) {
-        h = fnv_hash(*s++, h);
-    }
-
-    return h;
-}
 
 #endif

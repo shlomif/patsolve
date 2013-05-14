@@ -25,11 +25,11 @@
 
 #include <ctype.h>
 #include <signal.h>
+#include <stdarg.h>
 #include "pat.h"
 #include "tree.h"
-#include "param.h"
 
-char Usage[] =
+static const char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
   "-s Seahaven (same suit), -f Freecell (red/black)\n"
   "-k only Kings start a pile, -a any card starts a pile\n"
@@ -38,380 +38,409 @@ char Usage[] =
   "-S speed mode; find a solution quickly, rather than a good solution\n"
   "-q quiet, -v verbose\n"
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
-#define USAGE() msg(Usage, Progname)
+#define USAGE() fc_solve_msg(Usage, Progname)
 
-int Interactive = TRUE; /* interactive mode. */
-int Noexit = FALSE;     /* -E means don't exit */
-int Numsol;             /* number of solutions found in -E mode */
-int Stack = FALSE;      /* -S means stack, not queue, the moves to be done */
-int Cutoff = 1;         /* switch between depth- and breadth-first */
-int Status;             /* win, lose, or fail */
 int Quiet = FALSE;      /* print entertaining messages, else exit(Status); */
 
-long Mem_remain = 50 * 1000 * 1000;
 #if DEBUG
 long Init_mem_remain;
 #endif
 
-int Sgame = -1;         /* for range solving */
-int Egame;
-extern void msdeal(u_int64_t);
+static char *Progname = NULL;
 
-/* Statistics. */
-
-int Total_positions;
-int Total_generated;
-
-int Xparam[NXPARAM];
-double Yparam[NYPARAM];
-
-void set_param(int pnum)
+/* Print a message and exit. */
+static void fatalerr(char *msg, ...)
 {
-	int i, *x;
-	double *y;
+    va_list ap;
 
-	x = XYparam[pnum].x;
-	y = XYparam[pnum].y;
-	for (i = 0; i < NXPARAM; i++) {
-		Xparam[i] = x[i];
-	}
-	Cutoff = Xparam[NXPARAM - 1];
-	for (i = 0; i < NYPARAM; i++) {
-		Yparam[i] = y[i];
-	}
+    if (Progname) {
+        fprintf(stderr, "%s: ", Progname);
+    }
+    va_start(ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
+    fputc('\n', stderr);
+
+    exit(1);
+}
+
+void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
+{
+    const int *x;
+    const double *y;
+    int i;
+
+    x = XYparam[pnum].x;
+    y = XYparam[pnum].y;
+    for (i = 0; i < NXPARAM; i++) {
+        soft_thread->Xparam[i] = x[i];
+    }
+    soft_thread->cutoff = soft_thread->Xparam[NXPARAM - 1];
+    for (i = 0; i < NYPARAM; i++) {
+        soft_thread->Yparam[i] = y[i];
+    }
 }
 
 #if DEBUG
 extern int Clusternum[];
 
-void quit(int sig)
+void quit(fc_solve_soft_thread_t * soft_thread, int sig)
 {
-	int i, c;
-	extern void print_queue(void);
-	extern int Clusternum[];
+    int i, c;
+    extern void print_queue(fc_solve_soft_thread_t * soft_thread);
 
-	print_queue();
-	c = 0;
-	for (i = 0; i <= 0xFFFF; i++) {
-		if (Clusternum[i]) {
-			msg("%04X: %6d", i, Clusternum[i]);
-			c++;
-			if (c % 5 == 0) {
-				c = 0;
-				msg("\n");
-			} else {
-				msg("\t");
-			}
-		}
-	}
-	if (c != 0) {
-		msg("\n");
-	}
-	print_layout();
+    print_queue(soft_thread);
+    c = 0;
+    for (i = 0; i <= 0xFFFF; i++) {
+        if (soft_thread->Clusternum[i]) {
+            fc_solve_msg("%04X: %6d", i, soft_thread->Clusternum[i]);
+            c++;
+            if (c % 5 == 0) {
+                c = 0;
+                fc_solve_msg("\n");
+            } else {
+                fc_solve_msg("\t");
+            }
+        }
+    }
+    if (c != 0) {
+        fc_solve_msg("\n");
+    }
+    print_layout(soft_thread);
 
-	signal(SIGQUIT, quit);
+#if 0
+    signal(SIGQUIT, quit);
+#endif
 }
 #endif
+
+void play(fc_solve_soft_thread_t * soft_thread);
 
 int main(int argc, char **argv)
 {
-	int i, c, argc0;
-	char *curr_arg, **argv0;
-	u_int64_t gn;
-	FILE *infile;
-	void play(void);
+    int i, c, argc0;
+    char *curr_arg, **argv0;
+    u_int64_t gn;
+    FILE *infile;
+    int Sgame = -1;         /* for range solving */
+    int Egame = -1;
 
-	Progname = *argv;
+    fc_solve_soft_thread_t soft_thread_struct;
+    fc_solve_soft_thread_t * soft_thread;
+
+    soft_thread = &soft_thread_struct;
+
+    soft_thread->Interactive = TRUE;
+    soft_thread->Noexit = FALSE;
+    soft_thread->to_stack = FALSE;
+    soft_thread->cutoff = 1;
+    soft_thread->Mem_remain = (50 * 1000 * 1000);
+    soft_thread->Freepos = NULL;
+    /* Default variation. */
+    soft_thread_struct.Same_suit = SAME_SUIT;
+    soft_thread_struct.King_only = KING_ONLY;
+    soft_thread_struct.Nwpiles = NWPILES;
+    soft_thread_struct.Ntpiles = NTPILES;
+
+
+    Progname = *argv;
 #if DEBUG
-	signal(SIGQUIT, quit);
-msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
+#if 0
+    signal(SIGQUIT, quit);
+#endif
+    fc_solve_msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 #endif
 
-	/* Parse args twice.  Once to get the operating mode, and the
-	next for other options. */
+    /* Parse args twice.  Once to get the operating mode, and the
+    next for other options. */
 
-	argc0 = argc;
-	argv0 = argv;
-	while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv)) {
+    argc0 = argc;
+    argv0 = argv;
+    while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv)) {
 
-		/* Scan current argument until a flag indicates that the rest
-		of the argument isn't flags (curr_arg = NULL), or until
-		the end of the argument is reached (if it is all flags). */
+        /* Scan current argument until a flag indicates that the rest
+        of the argument isn't flags (curr_arg = NULL), or until
+        the end of the argument is reached (if it is all flags). */
 
-		while (curr_arg != NULL && (c = *curr_arg++) != '\0') {
-			switch (c) {
+        while (curr_arg != NULL && (c = *curr_arg++) != '\0') {
+            switch (c) {
 
-			case 's':
-				Same_suit = TRUE;
-				King_only = FALSE;
-				Nwpiles = 10;
-				Ntpiles = 4;
-				break;
+            case 's':
+                soft_thread_struct.Same_suit = TRUE;
+                soft_thread_struct.King_only = FALSE;
+                soft_thread_struct.Nwpiles = 10;
+                soft_thread_struct.Ntpiles = 4;
+                break;
 
-			case 'f':
-				Same_suit = FALSE;
-				King_only = FALSE;
-				Nwpiles = 8;
-				Ntpiles = 4;
-				break;
+            case 'f':
+                soft_thread_struct.Same_suit = FALSE;
+                soft_thread_struct.King_only = FALSE;
+                soft_thread_struct.Nwpiles = 8;
+                soft_thread_struct.Ntpiles = 4;
+                break;
 
-			case 'k':
-				King_only = TRUE;
-				break;
+            case 'k':
+                soft_thread_struct.King_only = TRUE;
+                break;
 
-			case 'a':
-				King_only = FALSE;
-				break;
+            case 'a':
+                soft_thread_struct.King_only = FALSE;
+                break;
 
-			case 'S':
-				Stack = TRUE;
-				break;
+            case 'S':
+                soft_thread->to_stack = TRUE;
+                break;
 
-			case 'w':
-				Nwpiles = atoi(curr_arg);
-				curr_arg = NULL;
-				break;
+            case 'w':
+                soft_thread_struct.Nwpiles = atoi(curr_arg);
+                curr_arg = NULL;
+                break;
 
-			case 't':
-				Ntpiles = atoi(curr_arg);
-				curr_arg = NULL;
-				break;
+            case 't':
+                soft_thread_struct.Ntpiles = atoi(curr_arg);
+                curr_arg = NULL;
+                break;
 
-			case 'X':
-				argv += NXPARAM - 1;
-				argc -= NXPARAM - 1;
-				curr_arg = NULL;
-				break;
+            case 'X':
+                argv += NXPARAM - 1;
+                argc -= NXPARAM - 1;
+                curr_arg = NULL;
+                break;
 
-			case 'Y':
-				argv += NYPARAM;
-				argc -= NYPARAM;
-				curr_arg = NULL;
-				break;
+            case 'Y':
+                argv += NYPARAM;
+                argc -= NYPARAM;
+                curr_arg = NULL;
+                break;
 
-			default:
-				break;
-			}
-		}
-	}
+            default:
+                break;
+            }
+        }
+    }
 
-	/* Set parameters. */
+    /* Set parameters. */
 
-	if (!Same_suit && !King_only && !Stack) {
-		set_param(FreecellBest);
-	} else if (!Same_suit && !King_only && Stack) {
-		set_param(FreecellSpeed);
-	} else if (Same_suit && !King_only && !Stack) {
-		set_param(SeahavenBest);
-	} else if (Same_suit && !King_only && Stack) {
-		set_param(SeahavenSpeed);
-	} else if (Same_suit && King_only && !Stack) {
-		set_param(SeahavenKing);
-	} else if (Same_suit && King_only && Stack) {
-		set_param(SeahavenKingSpeed);
-	} else {
-		set_param(0);   /* default */
-	}
+    if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !soft_thread->to_stack) {
+        set_param(soft_thread, FreecellBest);
+    } else if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && soft_thread->to_stack) {
+        set_param(soft_thread, FreecellSpeed);
+    } else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !soft_thread->to_stack) {
+        set_param(soft_thread, SeahavenBest);
+    } else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && soft_thread->to_stack) {
+        set_param(soft_thread, SeahavenSpeed);
+    } else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && !soft_thread->to_stack) {
+        set_param(soft_thread, SeahavenKing);
+    } else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && soft_thread->to_stack) {
+        set_param(soft_thread, SeahavenKingSpeed);
+    } else {
+        set_param(soft_thread, 0);   /* default */
+    }
 
-	/* Now get the other args, and allow overriding the parameters. */
+    /* Now get the other args, and allow overriding the parameters. */
 
-	argc = argc0;
-	argv = argv0;
-	while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv)) {
-		while (curr_arg != NULL && (c = *curr_arg++) != '\0') {
-			switch (c) {
+    argc = argc0;
+    argv = argv0;
+    while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv)) {
+        while (curr_arg != NULL && (c = *curr_arg++) != '\0') {
+            switch (c) {
 
-			case 's':
-			case 'f':
-			case 'k':
-			case 'a':
-			case 'S':
-				break;
+            case 's':
+            case 'f':
+            case 'k':
+            case 'a':
+            case 'S':
+                break;
 
-			case 'w':
-			case 't':
-				curr_arg = NULL;
-				break;
+            case 'w':
+            case 't':
+                curr_arg = NULL;
+                break;
 
-			case 'E':
-				Noexit = TRUE;
-				break;
+            case 'E':
+                soft_thread->Noexit = TRUE;
+                break;
 
-			case 'c':
-				Cutoff = atoi(curr_arg);
-				curr_arg = NULL;
-				break;
+            case 'c':
+                soft_thread->cutoff = atoi(curr_arg);
+                curr_arg = NULL;
+                break;
 
-			case 'M':
-				Mem_remain = atol(curr_arg) * 1000000;
-				curr_arg = NULL;
-				break;
+            case 'M':
+                soft_thread->Mem_remain = atol(curr_arg) * 1000000;
+                curr_arg = NULL;
+                break;
 
-			case 'v':
-				Quiet = FALSE;
-				break;
+            case 'v':
+                Quiet = FALSE;
+                break;
 
-			case 'q':
-				Quiet = TRUE;
-				break;
+            case 'q':
+                Quiet = TRUE;
+                break;
 
-			case 'N':
-				Sgame = atoi(curr_arg);
-				Egame = atoi(argv[1]);
-				curr_arg = NULL;
-				argv++;
-				argc--;
-				break;
+            case 'N':
+                Sgame = atoi(curr_arg);
+                Egame = atoi(argv[1]);
+                curr_arg = NULL;
+                argv++;
+                argc--;
+                break;
 
-			case 'X':
+            case 'X':
 
-				/* use -c for the last X param */
+                /* use -c for the last X param */
 
-				for (i = 0; i < NXPARAM - 1; i++) {
-					Xparam[i] = atoi(argv[i + 1]);
-				}
-				argv += NXPARAM - 1;
-				argc -= NXPARAM - 1;
-				curr_arg = NULL;
-				break;
+                for (i = 0; i < NXPARAM - 1; i++) {
+                    soft_thread->Xparam[i] = atoi(argv[i + 1]);
+                }
+                argv += NXPARAM - 1;
+                argc -= NXPARAM - 1;
+                curr_arg = NULL;
+                break;
 
-			case 'Y':
-				for (i = 0; i < NYPARAM; i++) {
-					Yparam[i] = atof(argv[i + 1]);
-				}
-				argv += NYPARAM;
-				argc -= NYPARAM;
-				curr_arg = NULL;
-				break;
+            case 'Y':
+                for (i = 0; i < NYPARAM; i++) {
+                    soft_thread->Yparam[i] = atof(argv[i + 1]);
+                }
+                argv += NYPARAM;
+                argc -= NYPARAM;
+                curr_arg = NULL;
+                break;
 
-			case 'P':
-				i = atoi(curr_arg);
-				if (i < 0 || i > LastParam) {
-					fatalerr("invalid parameter code");
-				}
-				set_param(i);
-				curr_arg = NULL;
-				break;
+            case 'P':
+                i = atoi(curr_arg);
+                if (i < 0 || i > LastParam) {
+                    fatalerr("invalid parameter code");
+                }
+                set_param(soft_thread, i);
+                curr_arg = NULL;
+                break;
 
-			default:
-				msg("%s: unknown flag -%c\n", Progname, c);
-				USAGE();
-				exit(1);
-			}
-		}
-	}
+            default:
+                fc_solve_msg("%s: unknown flag -%c\n", Progname, c);
+                USAGE();
+                exit(1);
+            }
+        }
+    }
 
-	if (Stack && Noexit) {
-		fatalerr("-S and -E may not be used together.");
-	}
-	if (Mem_remain < BLOCKSIZE * 2) {
-		fatalerr("-M too small.");
-	}
-	if (Nwpiles > MAXWPILES) {
-		fatalerr("too many w piles (max %d)", MAXWPILES);
-	}
-	if (Ntpiles > MAXTPILES) {
-		fatalerr("too many t piles (max %d)", MAXTPILES);
-	}
+    if (soft_thread->to_stack && soft_thread->Noexit) {
+        fatalerr("-S and -E may not be used together.");
+    }
+    if (soft_thread->Mem_remain < BLOCKSIZE * 2) {
+        fatalerr("-M too small.");
+    }
+    if (soft_thread->Nwpiles > MAXWPILES) {
+        fatalerr("too many w piles (max %d)", MAXWPILES);
+    }
+    if (soft_thread->Ntpiles > MAXTPILES) {
+        fatalerr("too many t piles (max %d)", MAXTPILES);
+    }
 
-	/* Process the named file, or stdin if no file given.
-	The name '-' also specifies stdin. */
+    /* Process the named file, or stdin if no file given.
+    The name '-' also specifies stdin. */
 
-	infile = stdin;
-	if (argc && **argv != '-') {
-		infile = fileopen(*argv, "r");
-	}
+    infile = stdin;
+    if (argc && **argv != '-') {
+        infile = fopen(*argv, "r");
 
-	/* Initialize the suitable() macro variables. */
+        if (! infile)
+        {
+            fatalerr("Cannot open input file '%s' (for reading).", *argv);
+        }
+    }
 
-	Suit_mask = PS_COLOR;
-	Suit_val = PS_COLOR;
-	if (Same_suit) {
-		Suit_mask = PS_SUIT;
-		Suit_val = 0;
-	}
+    /* Initialize the suitable() macro variables. */
 
-	/* Announce which variation this is. */
+    soft_thread->Suit_mask = PS_COLOR;
+    soft_thread->Suit_val = PS_COLOR;
+    if (soft_thread_struct.Same_suit) {
+        soft_thread->Suit_mask = PS_SUIT;
+        soft_thread->Suit_val = 0;
+    }
 
-	if (!Quiet) {
-		printf(Same_suit ? "Seahaven; " : "Freecell; ");
-		if (King_only) {
-			printf("only Kings are allowed to start a pile.\n");
-		} else {
-			printf("any card may start a pile.\n");
-		}
-		printf("%d work piles, %d temp cells.\n", Nwpiles, Ntpiles);
-	}
+    /* Announce which variation this is. */
+
+    if (!Quiet) {
+        printf(soft_thread_struct.Same_suit ? "Seahaven; " : "Freecell; ");
+        if (soft_thread_struct.King_only) {
+            printf("only Kings are allowed to start a pile.\n");
+        } else {
+            printf("any card may start a pile.\n");
+        }
+        printf("%d work piles, %d temp cells.\n", soft_thread->Nwpiles, soft_thread->Ntpiles);
+    }
 
 #if DEBUG
-Init_mem_remain = Mem_remain;
+Init_mem_remain = soft_thread->Mem_remain;
 #endif
-	if (Sgame < 0) {
+    if (Sgame < 0) {
 
-		/* Read in the initial layout and play it. */
+        /* Read in the initial layout and play it. */
 
-		read_layout(infile);
-		if (!Quiet) {
-			print_layout();
-		}
-		play();
-	} else {
+        read_layout(soft_thread, infile);
+        if (!Quiet) {
+            print_layout(soft_thread);
+        }
+        play(&soft_thread_struct);
+    } else {
 
-		/* Range mode.  Play lots of consecutive games. */
+        /* Range mode.  Play lots of consecutive games. */
 
-		Interactive = FALSE;
-		for (gn = Sgame; gn < Egame; gn++) {
-			printf("#%ld\n", (long)gn);
-			msdeal(gn);
-			play();
-			fflush(stdout);
-		}
-	}
+        soft_thread->Interactive = FALSE;
+        for (gn = Sgame; gn < Egame; gn++) {
+            printf("#%ld\n", (long)gn);
+            msdeal(soft_thread, gn);
+            play(&soft_thread_struct);
+            fflush(stdout);
+        }
+    }
 
-	return Status;
+    return soft_thread->Status;
 }
 
-void play(void)
+void play(fc_solve_soft_thread_t * soft_thread)
 {
-	/* Initialize the hash tables. */
+    /* Initialize the hash tables. */
 
-	init_buckets();
-	init_clusters();
+    init_buckets(soft_thread);
+    init_clusters(soft_thread);
 
-	/* Reset stats. */
+    /* Reset stats. */
 
-	Total_positions = 0;
-	Total_generated = 0;
-	Numsol = 0;
+    soft_thread->Total_positions = 0;
+    soft_thread->Total_generated = 0;
+    soft_thread->num_solutions = 0;
 
-	Status = NOSOL;
+    soft_thread->Status = NOSOL;
 
-	/* Go to it. */
+    /* Go to it. */
 
-	doit();
-	if (Status != WIN && !Quiet) {
-		if (Status == FAIL) {
-			printf("Out of memory.\n");
-		} else if (Noexit && Numsol > 0) {
-			printf("No shorter solutions.\n");
-		} else {
-			printf("No solution.\n");
-		}
+    doit(soft_thread);
+    if (soft_thread->Status != WIN && !Quiet) {
+        if (soft_thread->Status == FAIL) {
+            printf("Out of memory.\n");
+        } else if (soft_thread->Noexit && soft_thread->num_solutions > 0) {
+            printf("No shorter solutions.\n");
+        } else {
+            printf("No solution.\n");
+        }
 #if DEBUG
-		printf("%d positions generated.\n", Total_generated);
-		printf("%d unique positions.\n", Total_positions);
-		printf("Mem_remain = %ld\n", Mem_remain);
+        printf("%d positions generated.\n", soft_thread->Total_generated);
+        printf("%d unique positions.\n", soft_thread->Total_positions);
+        printf("Mem_remain = %ld\n", soft_thread->Mem_remain);
 #endif
-	}
-	if (!Interactive) {
-		free_buckets();
-		free_clusters();
-		free_blocks();
-		Freepos = NULL;
-	}
+    }
+    if (!soft_thread->Interactive) {
+        free_buckets(soft_thread);
+        free_clusters(soft_thread);
+        free_blocks(soft_thread);
+        soft_thread->Freepos = NULL;
+    }
 #if DEBUG
-if (Mem_remain != Init_mem_remain) {
- msg("Mem_remain = %ld\n", Mem_remain);
+if (soft_thread->Mem_remain != Init_mem_remain) {
+ fc_solve_msg("Mem_remain = %ld\n", soft_thread->Mem_remain);
 }
 #endif
 }
@@ -419,121 +448,121 @@ if (Mem_remain != Init_mem_remain) {
 /* Read a layout file.  Format is one pile per line, bottom to top (visible
 card).  Temp cells and Out on the last two lines, if any. */
 
-void read_layout(FILE *infile)
+void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
 {
-	int w, i, total;
-	char buf[100];
-	card_t out[4];
-	int parse_pile(char *s, card_t *w, int size);
+    int w, i, total;
+    char buf[100];
+    card_t out[4];
+    int parse_pile(char *s, card_t *w, int size);
 
-	/* Read the workspace. */
+    /* Read the workspace. */
 
-	w = 0;
-	total = 0;
-	while (fgets(buf, 100, infile)) {
-		i = parse_pile(buf, W[w], 52);
-		Wp[w] = &W[w][i - 1];
-		Wlen[w] = i;
-		w++;
-		total += i;
-		if (w == Nwpiles) {
-			break;
-		}
-	}
-	if (w != Nwpiles) {
-		fatalerr("not enough piles in input file");
-	}
+    w = 0;
+    total = 0;
+    while (fgets(buf, 100, infile)) {
+        i = parse_pile(buf, soft_thread->W[w], 52);
+        soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
+        soft_thread->Wlen[w] = i;
+        w++;
+        total += i;
+        if (w == soft_thread->Nwpiles) {
+            break;
+        }
+    }
+    if (w != soft_thread->Nwpiles) {
+        fatalerr("not enough piles in input file");
+    }
 
-	/* Temp cells may have some cards too. */
+    /* Temp cells may have some cards too. */
 
-	for (i = 0; i < Ntpiles; i++) {
-		T[i] = NONE;
-	}
-	if (total != 52) {
-		fgets(buf, 100, infile);
-		total += parse_pile(buf, T, Ntpiles);
-	}
+    for (i = 0; i < soft_thread->Ntpiles; i++) {
+        soft_thread->T[i] = NONE;
+    }
+    if (total != 52) {
+        fgets(buf, 100, infile);
+        total += parse_pile(buf, soft_thread->T, soft_thread->Ntpiles);
+    }
 
-	/* Output piles, if any. */
+    /* Output piles, if any. */
 
-	for (i = 0; i < 4; i++) {
-		O[i] = out[i] = NONE;
-	}
-	if (total != 52) {
-		fgets(buf, 100, infile);
-		parse_pile(buf, out, 4);
-		for (i = 0; i < 4; i++) {
-			if (out[i] != NONE) {
-				O[suit(out[i])] = rank(out[i]);
-				total += rank(out[i]);
-			}
-		}
-	}
+    for (i = 0; i < 4; i++) {
+        soft_thread->O[i] = out[i] = NONE;
+    }
+    if (total != 52) {
+        fgets(buf, 100, infile);
+        parse_pile(buf, out, 4);
+        for (i = 0; i < 4; i++) {
+            if (out[i] != NONE) {
+                soft_thread->O[suit(out[i])] = rank(out[i]);
+                total += rank(out[i]);
+            }
+        }
+    }
 
-	if (total != 52) {
-		fatalerr("not enough cards");
-	}
+    if (total != 52) {
+        fatalerr("not enough cards");
+    }
 }
 
 int parse_pile(char *s, card_t *w, int size)
 {
-	int i;
-	card_t rank, suit;
+    int i;
+    card_t rank, suit;
 
-	i = 0;
-	rank = suit = NONE;
-	while (i < size && *s && *s != '\n' && *s != '\r') {
-		while (*s == ' ') s++;
-		*s = toupper(*s);
-		if (*s == 'A') rank = 1;
-		else if (*s >= '2' && *s <= '9') rank = *s - '0';
-		else if (*s == 'T') rank = 10;
-		else if (*s == 'J') rank = 11;
-		else if (*s == 'Q') rank = 12;
-		else if (*s == 'K') rank = 13;
-		else fatalerr("bad card %c%c\n", s[0], s[1]);
-		s++;
-		*s = toupper(*s);
-		if (*s == 'C') suit = PS_CLUB;
-		else if (*s == 'D') suit = PS_DIAMOND;
-		else if (*s == 'H') suit = PS_HEART;
-		else if (*s == 'S') suit = PS_SPADE;
-		else fatalerr("bad card %c%c\n", s[-1], s[0]);
-		s++;
-		*w++ = suit + rank;
-		i++;
-		while (*s == ' ') s++;
-	}
-	return i;
+    i = 0;
+    rank = suit = NONE;
+    while (i < size && *s && *s != '\n' && *s != '\r') {
+        while (*s == ' ') s++;
+        *s = toupper(*s);
+        if (*s == 'A') rank = 1;
+        else if (*s >= '2' && *s <= '9') rank = *s - '0';
+        else if (*s == 'T') rank = 10;
+        else if (*s == 'J') rank = 11;
+        else if (*s == 'Q') rank = 12;
+        else if (*s == 'K') rank = 13;
+        else fatalerr("bad card %c%c\n", s[0], s[1]);
+        s++;
+        *s = toupper(*s);
+        if (*s == 'C') suit = PS_CLUB;
+        else if (*s == 'D') suit = PS_DIAMOND;
+        else if (*s == 'H') suit = PS_HEART;
+        else if (*s == 'S') suit = PS_SPADE;
+        else fatalerr("bad card %c%c\n", s[-1], s[0]);
+        s++;
+        *w++ = suit + rank;
+        i++;
+        while (*s == ' ') s++;
+    }
+    return i;
 }
 
 void printcard(card_t card, FILE *outfile)
 {
-	if (rank(card) == NONE) {
-		fprintf(outfile, "   ");
-	} else {
-		fprintf(outfile, "%c%c ", Rank[rank(card)], Suit[suit(card)]);
-	}
+    if (rank(card) == NONE) {
+        fprintf(outfile, "   ");
+    } else {
+        fprintf(outfile, "%c%c ", Rank[rank(card)], Suit[suit(card)]);
+    }
 }
 
-void print_layout()
+void print_layout(fc_solve_soft_thread_t * soft_thread)
 {
-	int i, t, w, o;
+    int i, t, w, o;
 
-	for (w = 0; w < Nwpiles; w++) {
-		for (i = 0; i < Wlen[w]; i++) {
-			printcard(W[w][i], stderr);
-		}
-		fputc('\n', stderr);
-	}
-	for (t = 0; t < Ntpiles; t++) {
-		printcard(T[t], stderr);
-	}
-	fputc('\n', stderr);
-	for (o = 0; o < 4; o++) {
-		printcard(O[o] + Osuit[o], stderr);
-	}
-	fprintf(stderr, "\n---\n");
+    for (w = 0; w < soft_thread->Nwpiles; w++) {
+        for (i = 0; i < soft_thread->Wlen[w]; i++) {
+            printcard(soft_thread->W[w][i], stderr);
+        }
+        fputc('\n', stderr);
+    }
+    for (t = 0; t < soft_thread->Ntpiles; t++) {
+        printcard(soft_thread->T[t], stderr);
+    }
+    fputc('\n', stderr);
+    for (o = 0; o < 4; o++) {
+        printcard(soft_thread->O[o] + Osuit[o], stderr);
+    }
+    fprintf(stderr, "\n---\n");
 }
 
 #if 0
@@ -541,19 +570,19 @@ void print_move(MOVE *mp)
 {
   printcard(mp->card, stderr);
   if (mp->totype == T_TYPE) {
-   msg("to temp (%d)\n", mp->pri);
+   fc_solve_msg("to temp (%d)\n", mp->pri);
   } else if (mp->totype == O_TYPE) {
-   msg("out (%d)\n", mp->pri);
+   fc_solve_msg("out (%d)\n", mp->pri);
   } else {
-   msg("to ");
+   fc_solve_msg("to ");
    if (mp->destcard == NONE) {
-    msg("empty pile (%d)", mp->pri);
+    fc_solve_msg("empty pile (%d)", mp->pri);
    } else {
     printcard(mp->destcard, stderr);
-    msg("(%d)", mp->pri);
+    fc_solve_msg("(%d)", mp->pri);
    }
    fputc('\n', stderr);
   }
-  print_layout();
+  print_layout(soft_thread);
 }
 #endif

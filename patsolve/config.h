@@ -20,13 +20,9 @@ to only allow kings on empty work piles (see the Makefile). */
 #define NTPILES 4       /* number of T cells */
 #endif
 
-#ifdef __GNUC__
-#define INLINE inline
-#else
-#define INLINE
-#endif
-
+#ifndef DEBUG
 #define DEBUG 0
+#endif
 
 #ifdef WIN32
 typedef unsigned char u_char;
