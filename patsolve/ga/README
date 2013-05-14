@@ -1,0 +1,9 @@
+This isn't quite all here, there's also some code you need to find the
+-Y parameters.  I can't distribute that code for license reasons but
+you can easily solve the equation yourself.  The "move squashing" function
+is a cubic given by three values at 0, 25, and 50; the -Y flag takes the
+coefficients a, b, and c for the equation a * x * x + b * x + c.  Email
+me if you want to know more.  Other bits of ga.py are fairly easy to
+figure out.  Note that actually running this program to generate a new
+set of parameters takes days or even weeks.  I can generate parameters on
+request, too.

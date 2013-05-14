@@ -1,0 +1,29 @@
+# Parameters for the different modes.  Modes are numbered, and the
+# parameters are set during argument parsing using these numbers.  For
+# convenience, the modes have names here that get #defined (see param.h).
+# A user can also request a specific mode by using the -P flag along with
+# the mode's number (not name).  Specific parameter sets that are not
+# defined here can be tried using the -X and -Y arguments, and the default
+# mode (0) can be specified with just '-P'.
+
+# This file is translated into param.[ch] by param.py.
+
+# -fS
+FreecellSpeed 4 1 8 -1 7 11 4 2 2 1 2 0.0032 0.32 -3.0
+# -f
+FreecellBest 3 4 7 -4 -2 1 0 -4 4 -1 1 -0.0008 0.14 -1.0
+# -f (faster, uses less memory)
+FreecellBestA 2 4 7 -2 -2 1 0 -5 4 -1 1 -0.0024 0.22 0.0
+# -s
+SeahavenBest 1 3 2 2 2 3 -2 2 2 -1 1 0.0008 0.02 -4.0
+# -s (faster, uses less memory)
+SeahavenBestA 2 2 4 0 1 2 1 1 2 -1 1 -0.0008 0.18 -5.0
+# -sS
+SeahavenSpeed 1 1 6 -2 -1 -2 -2 -3 0 -1 2 0.0 0.08 2.0
+# -sk
+SeahavenKing 2 6 2 0 -5 -9 -5 -11 3 1 1 -0.0056 0.42 -5.0
+# -skS
+SeahavenKingSpeed 2 2 5 -3 -1 -3 -3 -4 4 1 3 -0.0032 0.24 2.0
+
+# Modes for -fk and -fkS don't exist.  Feel free to ask the author,
+# or generate them yourself, or use -P1 for -fk and -P7 for -fkS.

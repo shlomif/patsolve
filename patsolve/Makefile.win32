@@ -1,0 +1,31 @@
+all: patsolve.exe
+
+CC = cl
+OFLAGS = /Og2 /DWIN32
+INCLUDES = config.h pat.h tree.h util.h param.h fnv.h
+OBJECTS = patmain.obj param.obj pat.obj patsolve.obj tree.obj util.obj msdealsub.obj
+
+patmain.obj: patmain.c $(INCLUDES)
+	$(CC) /c /Fopatmain.obj $(OFLAGS) patmain.c
+
+param.obj: param.c $(INCLUDES)
+	$(CC) /c /Foparam.obj $(OFLAGS) param.c
+
+pat.obj: pat.c $(INCLUDES)
+	$(CC) /c /Fopat.obj $(OFLAGS) pat.c
+
+patsolve.obj: patsolve.c $(INCLUDES)
+	$(CC) /c /Fopatsolve.obj $(OFLAGS) patsolve.c
+
+tree.obj: tree.c $(INCLUDES)
+	$(CC) /c /Fotree.obj $(OFLAGS) tree.c
+
+util.obj: util.c $(INCLUDES)
+	$(CC) /c /Foutil.obj $(OFLAGS) util.c
+
+msdealsub.obj: msdealsub.c $(INCLUDES)
+	$(CC) /c /Fomsdealsub.obj $(OFLAGS) msdealsub.c
+
+patsolve.exe: $(OBJECTS)
+	$(CC) /Fepatsolve.exe $(OBJECTS)
+

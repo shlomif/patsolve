@@ -1,0 +1,30 @@
+#! /usr/bin/env tcl
+
+# Read the position information dumped from PalmOS Patience/Tower games.
+# 2 temp, 10 work piles
+
+#system {pilot-xfer -f PatGame}
+system {dd if=PatGame.pdb bs=88 skip=1 of=/tmp/moo}
+set hand [read [open "/tmp/moo" "r"]]
+
+set npiles 10
+
+for {set pile 0} {$pile < $npiles} {incr pile} {
+	set p ""
+	set ncards 5
+	for {set card 0} {$card < $ncards} {incr card} {
+		set idx [expr {$card + $pile * $ncards + 2}]
+		set c [lindex $hand $idx]
+		append p $c
+		if {$card != [expr {$ncards - 1}]} {
+			append p " "
+		}
+	}
+	echo $p
+}
+
+# Temp cells:
+set p "[lindex $hand 0] "
+append p [lindex $hand 1]
+echo $p
+
