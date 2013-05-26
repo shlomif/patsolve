@@ -1,2 +1,3 @@
 patsolve/build
 patsolve/B
+patsolve/cmake/Shlomif_Common.cmake
