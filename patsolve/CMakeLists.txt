@@ -115,7 +115,7 @@ SET(CPACK_PACKAGE_EXECUTABLES
 
 ### This is to set the RPATH correctly, so when installed under a prefix
 ### the executables will find the libraries.
-### 
+###
 ### See:
 ###
 ### http://www.cmake.org/Wiki/CMake_RPATH_handling
@@ -127,7 +127,7 @@ SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
 # when building, don't use the install RPATH already
 # (but later on when installing)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 # the RPATH to be used when installing
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
@@ -138,7 +138,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 INCLUDE(CPack)
 
-ADD_EXECUTABLE(patsolve 
+ADD_EXECUTABLE(patsolve
     patmain.c param.c pat.c patsolve.c tree.c util.c msdealsub.c
     )
 
