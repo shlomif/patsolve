@@ -8,6 +8,8 @@ SHLOMIF_COMMON_SETUP("${private_mod_path}")
 
 INCLUDE(CheckCCompilerFlag)
 
+SET (FCS_WITH_TEST_SUITE "1" CACHE BOOL "Also build and run the test suite.")
+
 SET(COMPILER_FLAGS_TO_CHECK
     "-Wall" "-Werror=implicit-function-declaration" "-fvisibility=hidden"
 )
@@ -165,3 +167,17 @@ ADD_DEFINITIONS("-DSAME_SUIT=0")
 ADD_DEFINITIONS("-DNWPILES=8")
 
 TARGET_LINK_LIBRARIES (patsolve "m")
+
+IF (FCS_WITH_TEST_SUITE)
+
+    ADD_CUSTOM_TARGET(
+        "test"
+        "perl" "${CMAKE_CURRENT_SOURCE_DIR}/run-tests.pl"
+    )
+
+    ADD_DEPENDENCIES(
+        "test"
+        "all"
+    )
+
+ENDIF(FCS_WITH_TEST_SUITE)
