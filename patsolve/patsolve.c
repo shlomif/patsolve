@@ -138,7 +138,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 
     q = FALSE;
     for (i = 0, mp = mp0; i < nmoves; i++, mp++) {
-        make_move(soft_thread, mp);
+        freecell_solver_pats__make_move(soft_thread, mp);
 
         /* Calculate indices for the new piles. */
 
