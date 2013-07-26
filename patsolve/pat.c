@@ -71,7 +71,7 @@ void hash_layout(fc_solve_soft_thread_t * soft_thread)
 
 /* These two routines make and unmake moves. */
 
-void make_move(fc_solve_soft_thread_t * soft_thread, MOVE *m)
+void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *m)
 {
     int from, to;
     card_t card;
