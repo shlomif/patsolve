@@ -736,6 +736,8 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
         }
     }
 
+    const card_t Suit_mask = soft_thread->Suit_mask;
+    const card_t Suit_val = soft_thread->Suit_val;
     /* Check for moves from soft_thread->W to non-empty soft_thread->W cells. */
 
     for (i = 0; i < soft_thread->Nwpiles; i++) {
@@ -747,7 +749,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
                 }
                 if (soft_thread->Wlen[w] > 0 &&
                     (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
-                     fcs_pats_is_suitable(card, *soft_thread->Wp[w]))) {
+                     fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), Suit_mask, Suit_val))) {
                     mp->card = card;
                     mp->from = i;
                     mp->fromtype = W_TYPE;
@@ -774,7 +776,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
             for (w = 0; w < soft_thread->Nwpiles; w++) {
                 if (soft_thread->Wlen[w] > 0 &&
                     (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
-                     fcs_pats_is_suitable(card, *soft_thread->Wp[w]))) {
+                     fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), Suit_mask, Suit_val))) {
                     mp->card = card;
                     mp->from = t;
                     mp->fromtype = T_TYPE;
@@ -850,6 +852,9 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
     card_t card, srccard;
     MOVE *mp;
 
+    const card_t Suit_mask = soft_thread->Suit_mask;
+    const card_t Suit_val = soft_thread->Suit_val;
+
     for (i = 0, mp = soft_thread->Possible; i < n; i++, mp++) {
         irr = FALSE;
         if (mp->totype == O_TYPE) {
@@ -859,7 +864,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
             if (srccard != NONE) {
                 card = mp->card;
                 if (fcs_pats_card_rank(card) != fcs_pats_card_rank(srccard) - 1 ||
-                    !fcs_pats_is_suitable(card, srccard)) {
+                    !fcs_pats_is_suitable(card, srccard, Suit_mask, Suit_val)) {
                     irr = TRUE;
                 }
             } else if (soft_thread->King_only && mp->card != PS_KING) {
