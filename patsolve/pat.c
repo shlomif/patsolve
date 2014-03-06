@@ -36,7 +36,7 @@
 
 /* Names of the cards.  The ordering is defined in pat.h. */
 
-const card_t Osuit[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
+const card_t fc_solve_pats__output_suits[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
 
 static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
 static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n);
@@ -118,7 +118,7 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *m)
         soft_thread->Wlen[to]--;
         hashpile(soft_thread, to);
     } else {
-        card = soft_thread->O[to] + Osuit[to];
+        card = soft_thread->O[to] + fc_solve_pats__output_suits[to];
         soft_thread->O[to]--;
     }
 
@@ -394,9 +394,9 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
     for (s = 0; s < 4; s++) {
         need[s] = NONE;
         if (soft_thread->O[s] == NONE) {
-            need[s] = Osuit[s] + PS_ACE;
+            need[s] = fc_solve_pats__output_suits[s] + PS_ACE;
         } else if (soft_thread->O[s] != PS_KING) {
-            need[s] = Osuit[s] + soft_thread->O[s] + 1;
+            need[s] = fc_solve_pats__output_suits[s] + soft_thread->O[s] + 1;
         }
     }
 
