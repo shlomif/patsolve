@@ -38,12 +38,26 @@ the cluster number, then locate its tree, creating it if necessary. */
 
 static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node);
 static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
-static void give_back_block(u_char *p);
 static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread);
 
 static GCC_INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_char *b)
 {
     return memcmp(a, b, soft_thread->Pilebytes);
+}
+
+/* Return the previous result of new_from_block() to the block.  This
+can ONLY be called once, immediately after the call to new_from_block().
+That is, no other calls to new_from_block() are allowed. */
+
+static GCC_INLINE void give_back_block(fc_solve_soft_thread_t * const soft_thread, u_char *p)
+{
+    size_t s;
+    BLOCK *b;
+
+    b = soft_thread->my_block;
+    s = b->ptr - p;
+    b->ptr -= s;
+    b->remain += s;
 }
 
 /* Insert key into the tree unless it's already there.  Return true if
@@ -81,7 +95,7 @@ int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **nod
     i = insert_node(soft_thread, new, d, &tl->tree, node);
 
     if (i != NEW) {
-        give_back_block((u_char *)new);
+        give_back_block(soft_thread, (u_char *)new);
     }
 
     return i;
@@ -139,17 +153,12 @@ static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TRE
     return c;
 }
 
-/* @@@ This goes somewhere else. */
-
-BLOCK *my_block;
-
 /* Clusters are also stored in a hashed array. */
 
 void init_clusters(fc_solve_soft_thread_t * soft_thread)
 {
     memset(soft_thread->tree_list, 0, sizeof(soft_thread->tree_list));
-    /* TODO : See what this my_block thingy is. */
-    my_block = new_block(soft_thread);                    /* @@@ */
+    soft_thread->my_block = new_block(soft_thread);
 }
 
 static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
@@ -220,14 +229,14 @@ u_char *new_from_block(fc_solve_soft_thread_t * soft_thread, size_t s)
     u_char *p;
     BLOCK *b;
 
-    b = my_block;
+    b = soft_thread->my_block;
     if (s > b->remain) {
         b = new_block(soft_thread);
         if (b == NULL) {
             return NULL;
         }
-        b->next = my_block;
-        my_block = b;
+        b->next = soft_thread->my_block;
+        soft_thread->my_block = b;
     }
 
     p = b->ptr;
@@ -237,26 +246,12 @@ u_char *new_from_block(fc_solve_soft_thread_t * soft_thread, size_t s)
     return p;
 }
 
-/* Return the previous result of new_from_block() to the block.  This
-can ONLY be called once, immediately after the call to new_from_block().
-That is, no other calls to new_from_block() are allowed. */
-
-static void give_back_block(u_char *p)
-{
-    size_t s;
-    BLOCK *b;
-
-    b = my_block;
-    s = b->ptr - p;
-    b->ptr -= s;
-    b->remain += s;
-}
 
 void free_blocks(fc_solve_soft_thread_t * soft_thread)
 {
     BLOCK *b, *next;
 
-    b = my_block;
+    b = soft_thread->my_block;
     while (b) {
         next = b->next;
         free_array(soft_thread, b->block, u_char, BLOCKSIZE);
