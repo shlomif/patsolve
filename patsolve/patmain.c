@@ -64,6 +64,25 @@ static void fatalerr(char *msg, ...)
     exit(1);
 }
 
+static void print_layout(fc_solve_soft_thread_t * soft_thread)
+{
+    int i, t, w, o;
+
+    for (w = 0; w < soft_thread->Nwpiles; w++) {
+        for (i = 0; i < soft_thread->Wlen[w]; i++) {
+            printcard(soft_thread->W[w][i], stderr);
+        }
+        fputc('\n', stderr);
+    }
+    for (t = 0; t < soft_thread->Ntpiles; t++) {
+        printcard(soft_thread->T[t], stderr);
+    }
+    fputc('\n', stderr);
+    for (o = 0; o < 4; o++) {
+        printcard(soft_thread->O[o] + Osuit[o], stderr);
+    }
+    fprintf(stderr, "\n---\n");
+}
 void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 {
     const int *x;
@@ -553,25 +572,6 @@ void printcard(card_t card, FILE *outfile)
     }
 }
 
-void print_layout(fc_solve_soft_thread_t * soft_thread)
-{
-    int i, t, w, o;
-
-    for (w = 0; w < soft_thread->Nwpiles; w++) {
-        for (i = 0; i < soft_thread->Wlen[w]; i++) {
-            printcard(soft_thread->W[w][i], stderr);
-        }
-        fputc('\n', stderr);
-    }
-    for (t = 0; t < soft_thread->Ntpiles; t++) {
-        printcard(soft_thread->T[t], stderr);
-    }
-    fputc('\n', stderr);
-    for (o = 0; o < 4; o++) {
-        printcard(soft_thread->O[o] + Osuit[o], stderr);
-    }
-    fprintf(stderr, "\n---\n");
-}
 
 #if 0
 void print_move(MOVE *mp)
