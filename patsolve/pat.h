@@ -117,7 +117,9 @@ typedef struct pos {
     u_char ntemp;           /* number of cards in T */
     u_char nchild;          /* number of child nodes left */
 } POSITION;
-extern const card_t Osuit[4];         /* suits of the output piles */
+
+/* suits of the output piles */
+extern const card_t fc_solve_pats__output_suits[4];
 
 /* Temp storage for possible moves. */
 

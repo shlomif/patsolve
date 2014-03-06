@@ -80,7 +80,8 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
     }
     fputc('\n', stderr);
     for (o = 0; o < 4; o++) {
-        fc_solve_pats__print_card(soft_thread->O[o] + Osuit[o], stderr);
+        fc_solve_pats__print_card(soft_thread->O[o] +
+            fc_solve_pats__output_suits[o], stderr);
     }
     fprintf(stderr, "\n---\n");
 }
