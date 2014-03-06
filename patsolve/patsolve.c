@@ -36,6 +36,8 @@ search. */
 #include "fnv.h"
 #include "util.h"
 
+#include "inline.h"
+
 static int solve(fc_solve_soft_thread_t *, POSITION *);
 static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int);
 static void queue_position(fc_solve_soft_thread_t *, POSITION *, int);

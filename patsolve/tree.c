@@ -111,6 +111,59 @@ static GCC_INLINE int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n,
     return c;
 }
 
+/* Compact position representation.  The position is stored as an
+array with the following format:
+    pile0# pile1# ... pileN# (N = soft_thread->Nwpiles)
+where each pile number is packed into 12 bits (so 2 piles take 3 bytes).
+Positions in this format are unique can be compared with memcmp().  The soft_thread->O
+cells are encoded as a cluster number: no two positions with different
+cluster numbers can ever be the same, so we store different clusters in
+different trees.  */
+
+static GCC_INLINE TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
+{
+    int j, k, w;
+    u_char *p;
+    TREE *node;
+
+    /* Allocate space and store the pile numbers.  The tree node
+    will get filled in later, by insert_node(). */
+
+    p = fc_solve_pats__new_from_block(soft_thread, soft_thread->Treebytes);
+    if (p == NULL) {
+        return NULL;
+    }
+    node = (TREE *)p;
+    p += sizeof(TREE);
+
+    /* Pack the pile numers j into bytes p.
+               j             j
+        +--------+----:----+--------+
+        |76543210|7654:3210|76543210|
+        +--------+----:----+--------+
+            p         p         p
+    */
+
+    k = 0;
+    for (w = 0; w < soft_thread->Nwpiles; w++) {
+        j = soft_thread->Wpilenum[soft_thread->Widx[w]];
+        switch (k) {
+        case 0:
+            *p++ = j >> 4;
+            *p = (j & 0xF) << 4;
+            k = 1;
+            break;
+        case 1:
+            *p++ |= j >> 8;         /* j is positive */
+            *p++ = j & 0xFF;
+            k = 0;
+            break;
+        }
+    }
+
+    return node;
+}
+
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
