@@ -37,7 +37,7 @@ clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
 static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node);
-static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
+static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
 static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread);
 
 static GCC_INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_char *b)
@@ -67,7 +67,7 @@ int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **nod
 {
     int i, k;
     TREE *new;
-    TREELIST *tl;
+    fcs_pats__treelist_t *tl;
 
     /* Get the cluster number from the Out cell contents. */
 
@@ -161,10 +161,10 @@ void init_clusters(fc_solve_soft_thread_t * soft_thread)
     soft_thread->my_block = new_block(soft_thread);
 }
 
-static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
+static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
 {
     int bucket;
-    TREELIST *tl, *last;
+    fcs_pats__treelist_t *tl, *last;
 
     /* Pick a bucket, any bucket. */
 
@@ -183,7 +183,7 @@ static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
     /* If we didn't find it, make a new one and add it to the list. */
 
     if (tl == NULL) {
-        tl = new(soft_thread, TREELIST);
+        tl = new(soft_thread, fcs_pats__treelist_t);
         if (tl == NULL) {
             return NULL;
         }
@@ -263,13 +263,13 @@ void free_blocks(fc_solve_soft_thread_t * soft_thread)
 void free_clusters(fc_solve_soft_thread_t * soft_thread)
 {
     int i;
-    TREELIST *l, *n;
+    fcs_pats__treelist_t *l, *n;
 
     for (i = 0; i < FCS_PATS__TREE_LIST_NUM_BUCKETS; i++) {
         l = soft_thread->tree_list[i];
         while (l) {
             n = l->next;
-            free_ptr(soft_thread, l, TREELIST);
+            free_ptr(soft_thread, l, fcs_pats__treelist_t);
             l = n;
         }
     }
