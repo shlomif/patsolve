@@ -539,14 +539,17 @@ int parse_pile(char *s, card_t *w, int size)
     return i;
 }
 
+static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
+static const char * const fc_solve_pats__Suits_string = "DCHS";
+
 void printcard(card_t card, FILE *outfile)
 {
     if (fcs_pats_card_rank(card) == NONE) {
         fprintf(outfile, "   ");
     } else {
         fprintf(outfile, "%c%c ",
-            Rank[fcs_pats_card_rank(card)],
-            Suit[fcs_pats_card_suit(card)]);
+            fc_solve_pats__Ranks_string[fcs_pats_card_rank(card)],
+            fc_solve_pats__Suits_string[fcs_pats_card_suit(card)]);
     }
 }
 

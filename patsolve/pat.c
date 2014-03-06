@@ -36,9 +36,6 @@
 
 /* Names of the cards.  The ordering is defined in pat.h. */
 
-const char Rank[] = " A23456789TJQK";
-const char Suit[] = "DCHS";
-
 const card_t Osuit[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
 
 static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);

@@ -62,9 +62,6 @@ typedef u_char card_t;
 
 #define fcs_pats_is_king_only(card) (!soft_thread->King_only || fcs_pats_card_rank(card) == PS_KING)
 
-extern const char Rank[];
-extern const char Suit[];
-
 /* Represent a move. */
 
 typedef struct {
