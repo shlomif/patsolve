@@ -880,67 +880,6 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
     }
 }
 
-/* Test the current position to see if it's new (or better).  If it is, save
-it, along with the pointer to its parent and the move we used to get here. */
-
-POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, MOVE *m)
-{
-    int i, t, depth, cluster;
-    u_char *p;
-    POSITION *pos;
-    TREE *node;
-
-    /* Search the list of stored positions.  If this position is found,
-    then ignore it and return (unless this position is better). */
-
-    if (parent == NULL) {
-        depth = 0;
-    } else {
-        depth = parent->depth + 1;
-    }
-    i = fc_solve_pats__insert(soft_thread, &cluster, depth, &node);
-    if (i == NEW) {
-        soft_thread->Total_positions++;
-    } else if (i != FOUND_BETTER) {
-        return NULL;
-    }
-
-    /* A new or better position.  fc_solve_pats__insert() already stashed it in the
-    tree, we just have to wrap a POSITION struct around it, and link it
-    into the move stack.  Store the temp cells after the POSITION. */
-
-    if (soft_thread->Freepos) {
-        p = (u_char *)soft_thread->Freepos;
-        soft_thread->Freepos = soft_thread->Freepos->queue;
-    } else {
-        p = new_from_block(soft_thread, soft_thread->Posbytes);
-        if (p == NULL) {
-            return NULL;
-        }
-    }
-
-    pos = (POSITION *)p;
-    pos->queue = NULL;
-    pos->parent = parent;
-    pos->node = node;
-    pos->move = *m;                 /* struct copy */
-    pos->cluster = cluster;
-    pos->depth = depth;
-    pos->nchild = 0;
-
-    p += sizeof(POSITION);
-    i = 0;
-    for (t = 0; t < soft_thread->Ntpiles; t++) {
-        *p++ = soft_thread->T[t];
-        if (soft_thread->T[t] != NONE) {
-            i++;
-        }
-    }
-    pos->ntemp = i;
-
-    return pos;
-}
-
 /* Comparison function for sorting the soft_thread->W piles. */
 
 static GCC_INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
