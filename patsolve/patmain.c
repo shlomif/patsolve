@@ -487,7 +487,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 {
     /* Initialize the hash tables. */
 
-    init_buckets(soft_thread);
+    fc_solve_pats__init_buckets(soft_thread);
     init_clusters(soft_thread);
 
     /* Reset stats. */
