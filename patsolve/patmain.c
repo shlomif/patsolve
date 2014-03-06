@@ -72,16 +72,16 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
 
     for (w = 0; w < soft_thread->Nwpiles; w++) {
         for (i = 0; i < soft_thread->Wlen[w]; i++) {
-            printcard(soft_thread->W[w][i], stderr);
+            fc_solve_pats__print_card(soft_thread->W[w][i], stderr);
         }
         fputc('\n', stderr);
     }
     for (t = 0; t < soft_thread->Ntpiles; t++) {
-        printcard(soft_thread->T[t], stderr);
+        fc_solve_pats__print_card(soft_thread->T[t], stderr);
     }
     fputc('\n', stderr);
     for (o = 0; o < 4; o++) {
-        printcard(soft_thread->O[o] + Osuit[o], stderr);
+        fc_solve_pats__print_card(soft_thread->O[o] + Osuit[o], stderr);
     }
     fprintf(stderr, "\n---\n");
 }
@@ -564,7 +564,7 @@ int parse_pile(char *s, card_t *w, int size)
 static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
 static const char * const fc_solve_pats__Suits_string = "DCHS";
 
-void printcard(card_t card, FILE *outfile)
+void fc_solve_pats__print_card(card_t card, FILE *outfile)
 {
     if (fcs_pats_card_rank(card) == NONE) {
         fprintf(outfile, "   ");
@@ -579,7 +579,7 @@ void printcard(card_t card, FILE *outfile)
 #if 0
 void print_move(MOVE *mp)
 {
-  printcard(mp->card, stderr);
+  fc_solve_pats__print_card(mp->card, stderr);
   if (mp->totype == T_TYPE) {
    fc_solve_msg("to temp (%d)\n", mp->pri);
   } else if (mp->totype == O_TYPE) {
@@ -589,7 +589,7 @@ void print_move(MOVE *mp)
    if (mp->destcard == NONE) {
     fc_solve_msg("empty pile (%d)", mp->pri);
    } else {
-    printcard(mp->destcard, stderr);
+    fc_solve_pats__print_card(mp->destcard, stderr);
     fc_solve_msg("(%d)", mp->pri);
    }
    fputc('\n', stderr);

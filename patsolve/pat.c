@@ -1172,7 +1172,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
     }
     for (i = 0, mpp = mpp0; i < nmoves; i++, mpp++) {
         mp = *mpp;
-        printcard(mp->card, out);
+        fc_solve_pats__print_card(mp->card, out);
         if (mp->totype == T_TYPE) {
             fprintf(out, "to temp\n");
         } else if (mp->totype == O_TYPE) {
@@ -1182,7 +1182,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
             if (mp->destcard == NONE) {
                 fprintf(out, "empty pile");
             } else {
-                printcard(mp->destcard, out);
+                fc_solve_pats__print_card(mp->destcard, out);
             }
             fputc('\n', out);
         }
