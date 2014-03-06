@@ -708,6 +708,8 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
     /* Check for moves from non-singleton soft_thread->W cells to one of any
     empty soft_thread->W cells. */
 
+    const fcs_bool_t not_King_only = (! (soft_thread->King_only));
+
     emptyw = -1;
     for (w = 0; w < soft_thread->Nwpiles; w++) {
         if (soft_thread->Wlen[w] == 0) {
@@ -720,7 +722,8 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
             if (i == emptyw) {
                 continue;
             }
-            if (soft_thread->Wlen[i] > 1 && fcs_pats_is_king_only(*soft_thread->Wp[i])) {
+            if (soft_thread->Wlen[i] > 1 &&
+                fcs_pats_is_king_only(not_King_only, *(soft_thread->Wp[i]))) {
                 card = *soft_thread->Wp[i];
                 mp->card = card;
                 mp->from = i;
@@ -797,7 +800,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
     if (emptyw >= 0) {
         for (t = 0; t < soft_thread->Ntpiles; t++) {
             card = soft_thread->T[t];
-            if (card != NONE && fcs_pats_is_king_only(card)) {
+            if (card != NONE && fcs_pats_is_king_only(not_King_only, card)) {
                 mp->card = card;
                 mp->from = t;
                 mp->fromtype = T_TYPE;
