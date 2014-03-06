@@ -114,7 +114,7 @@ static GCC_INLINE int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n,
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
-int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node)
+int fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node)
 {
     int i, k;
     TREE *new;
