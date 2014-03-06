@@ -250,7 +250,6 @@ extern void fc_solve_pats__print_card(card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
-extern void init_buckets(fc_solve_soft_thread_t * soft_thread);
 extern void init_clusters(fc_solve_soft_thread_t * soft_thread);
 extern u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t);
 extern void pilesort(fc_solve_soft_thread_t * soft_thread);
@@ -259,6 +258,42 @@ extern void msdeal(fc_solve_soft_thread_t * soft_thread, u_int64_t);
 /* A function and some macros for allocating memory. */
 
 extern void *new_(fc_solve_soft_thread_t * soft_thread, size_t s);
+
+/* Initialize the hash buckets. */
+
+static GCC_INLINE void init_buckets(fc_solve_soft_thread_t * soft_thread)
+{
+    int i;
+
+    /* Packed positions need 3 bytes for every 2 piles. */
+
+    i = soft_thread->Nwpiles * 3;
+    i >>= 1;
+    i += soft_thread->Nwpiles & 0x1;
+    soft_thread->Pilebytes = i;
+
+    memset(soft_thread->Bucketlist, 0, sizeof(soft_thread->Bucketlist));
+    soft_thread->Pilenum = 0;
+    soft_thread->Treebytes = sizeof(TREE) + soft_thread->Pilebytes;
+
+    /* In order to keep the TREE structure aligned, we need to add
+    up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
+    better than storing the TREE nodes and keys separately, as that
+    requires a pointer.  On Intel for -f Treebytes winds up being
+    a multiple of 8 currently anyway so it doesn't matter. */
+
+//#define ALIGN_BITS 0x3
+#define ALIGN_BITS 0x7
+    if (soft_thread->Treebytes & ALIGN_BITS) {
+        soft_thread->Treebytes |= ALIGN_BITS;
+        soft_thread->Treebytes++;
+    }
+    soft_thread->Posbytes = sizeof(POSITION) + soft_thread->Ntpiles;
+    if (soft_thread->Posbytes & ALIGN_BITS) {
+        soft_thread->Posbytes |= ALIGN_BITS;
+        soft_thread->Posbytes++;
+    }
+}
 
 #define new(soft_thread, type) (type *)new_(soft_thread, sizeof(type))
 #define free_ptr(soft_thread, ptr, type) free(ptr); (soft_thread)->Mem_remain += sizeof(type)
