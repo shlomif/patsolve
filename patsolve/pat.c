@@ -723,7 +723,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
             if (i == emptyw) {
                 continue;
             }
-            if (soft_thread->Wlen[i] > 1 && king_only(*soft_thread->Wp[i])) {
+            if (soft_thread->Wlen[i] > 1 && fcs_pats_is_king_only(*soft_thread->Wp[i])) {
                 card = *soft_thread->Wp[i];
                 mp->card = card;
                 mp->from = i;
@@ -750,7 +750,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
                 }
                 if (soft_thread->Wlen[w] > 0 &&
                     (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
-                     suitable(card, *soft_thread->Wp[w]))) {
+                     fcs_pats_is_suitable(card, *soft_thread->Wp[w]))) {
                     mp->card = card;
                     mp->from = i;
                     mp->fromtype = W_TYPE;
@@ -777,7 +777,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
             for (w = 0; w < soft_thread->Nwpiles; w++) {
                 if (soft_thread->Wlen[w] > 0 &&
                     (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
-                     suitable(card, *soft_thread->Wp[w]))) {
+                     fcs_pats_is_suitable(card, *soft_thread->Wp[w]))) {
                     mp->card = card;
                     mp->from = t;
                     mp->fromtype = T_TYPE;
@@ -798,7 +798,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
     if (emptyw >= 0) {
         for (t = 0; t < soft_thread->Ntpiles; t++) {
             card = soft_thread->T[t];
-            if (card != NONE && king_only(card)) {
+            if (card != NONE && fcs_pats_is_king_only(card)) {
                 mp->card = card;
                 mp->from = t;
                 mp->fromtype = T_TYPE;
@@ -862,7 +862,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
             if (srccard != NONE) {
                 card = mp->card;
                 if (fcs_pats_card_rank(card) != fcs_pats_card_rank(srccard) - 1 ||
-                    !suitable(card, srccard)) {
+                    !fcs_pats_is_suitable(card, srccard)) {
                     irr = TRUE;
                 }
             } else if (soft_thread->King_only && mp->card != PS_KING) {
