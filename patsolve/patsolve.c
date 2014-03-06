@@ -97,7 +97,7 @@ static POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *pa
         p = (u_char *)soft_thread->Freepos;
         soft_thread->Freepos = soft_thread->Freepos->queue;
     } else {
-        p = new_from_block(soft_thread, soft_thread->Posbytes);
+        p = fc_solve_pats__new_from_block(soft_thread, soft_thread->Posbytes);
         if (p == NULL) {
             return NULL;
         }

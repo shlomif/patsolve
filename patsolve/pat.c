@@ -964,7 +964,7 @@ TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
     /* Allocate space and store the pile numbers.  The tree node
     will get filled in later, by insert_node(). */
 
-    p = new_from_block(soft_thread, soft_thread->Treebytes);
+    p = fc_solve_pats__new_from_block(soft_thread, soft_thread->Treebytes);
     if (p == NULL) {
         return NULL;
     }
