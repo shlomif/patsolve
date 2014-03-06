@@ -208,7 +208,7 @@ int fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, in
 
 /* Clusters are also stored in a hashed array. */
 
-void init_clusters(fc_solve_soft_thread_t * soft_thread)
+void fc_solve_pats__init_clusters(fc_solve_soft_thread_t * soft_thread)
 {
     memset(soft_thread->tree_list, 0, sizeof(soft_thread->tree_list));
     soft_thread->my_block = new_block(soft_thread);
