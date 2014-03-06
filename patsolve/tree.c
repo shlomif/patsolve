@@ -141,15 +141,15 @@ static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TRE
 
 /* @@@ This goes somewhere else. */
 
-BLOCK *Block;
+BLOCK *my_block;
 
 /* Clusters are also stored in a hashed array. */
 
 void init_clusters(fc_solve_soft_thread_t * soft_thread)
 {
     memset(soft_thread->tree_list, 0, sizeof(soft_thread->tree_list));
-    /* TODO : See what this Block thingy is. */
-    Block = new_block(soft_thread);                    /* @@@ */
+    /* TODO : See what this my_block thingy is. */
+    my_block = new_block(soft_thread);                    /* @@@ */
 }
 
 static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
@@ -191,7 +191,7 @@ static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
     return tl;
 }
 
-/* Block storage.  Reduces overhead, and can be freed quickly. */
+/* my_block storage.  Reduces overhead, and can be freed quickly. */
 
 static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread)
 {
@@ -220,14 +220,14 @@ u_char *new_from_block(fc_solve_soft_thread_t * soft_thread, size_t s)
     u_char *p;
     BLOCK *b;
 
-    b = Block;
+    b = my_block;
     if (s > b->remain) {
         b = new_block(soft_thread);
         if (b == NULL) {
             return NULL;
         }
-        b->next = Block;
-        Block = b;
+        b->next = my_block;
+        my_block = b;
     }
 
     p = b->ptr;
@@ -246,7 +246,7 @@ static void give_back_block(u_char *p)
     size_t s;
     BLOCK *b;
 
-    b = Block;
+    b = my_block;
     s = b->ptr - p;
     b->ptr -= s;
     b->remain += s;
@@ -256,7 +256,7 @@ void free_blocks(fc_solve_soft_thread_t * soft_thread)
 {
     BLOCK *b, *next;
 
-    b = Block;
+    b = my_block;
     while (b) {
         next = b->next;
         free_array(soft_thread, b->block, u_char, BLOCKSIZE);
