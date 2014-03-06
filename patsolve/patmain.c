@@ -436,7 +436,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 
     /* Go to it. */
 
-    doit(soft_thread);
+    fc_solve_pats__do_it(soft_thread);
     if (soft_thread->Status != WIN && !Quiet) {
         if (soft_thread->Status == FAIL) {
             printf("Out of memory.\n");
