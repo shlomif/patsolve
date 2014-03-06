@@ -64,7 +64,7 @@ void print_queue(fc_solve_soft_thread_t * soft_thread)
 }
 #endif
 
-void doit(fc_solve_soft_thread_t * soft_thread)
+void fc_solve_pats__do_it(fc_solve_soft_thread_t * soft_thread)
 {
     int i, q;
     POSITION *pos;
