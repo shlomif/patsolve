@@ -320,6 +320,81 @@ soft_thread->Clusternum[pos->cluster]++;
 #endif
 }
 
+/* Like strcpy() but return the length of the string. */
+static GCC_INLINE int strecpy(u_char *dest, u_char *src)
+{
+    int i;
+
+    i = 0;
+    while ((*dest++ = *src++) != '\0') {
+        i++;
+    }
+
+    return i;
+}
+
+/* Unpack a compact position rep.  soft_thread->T cells must be restored from the
+array following the POSITION struct. */
+
+static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
+{
+    int i, k, w;
+    u_char c, *p;
+    BUCKETLIST *l;
+
+    /* Get the Out cells from the cluster number. */
+
+    k = pos->cluster;
+    soft_thread->O[0] = k & 0xF;
+    k >>= 4;
+    soft_thread->O[1] = k & 0xF;
+    k >>= 4;
+    soft_thread->O[2] = k & 0xF;
+    k >>= 4;
+    soft_thread->O[3] = k & 0xF;
+
+    /* Unpack bytes p into pile numbers j.
+            p         p         p
+        +--------+----:----+--------+
+        |76543210|7654:3210|76543210|
+        +--------+----:----+--------+
+               j             j
+    */
+
+    k = w = i = c = 0;
+    p = (u_char *)(pos->node) + sizeof(TREE);
+    while (w < soft_thread->Nwpiles) {
+        switch (k) {
+        case 0:
+            i = *p++ << 4;
+            c = *p++;
+            i |= (c >> 4) & 0xF;
+            k = 1;
+            break;
+        case 1:
+            i = (c & 0xF) << 8;
+            i |= *p++;
+            k = 0;
+            break;
+        }
+        soft_thread->Wpilenum[w] = i;
+        l = soft_thread->Pilebucket[i];
+        i = strecpy(soft_thread->W[w], l->pile);
+        soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
+        soft_thread->Wlen[w] = i;
+        soft_thread->Whash[w] = l->hash;
+        w++;
+    }
+
+    /* soft_thread->T cells. */
+
+    p = (u_char *)pos;
+    p += sizeof(POSITION);
+    for (i = 0; i < soft_thread->Ntpiles; i++) {
+        soft_thread->T[i] = *p++;
+    }
+}
+
 /* Return the position on the head of the queue, or NULL if there isn't one. */
 
 static POSITION *dequeue_position(fc_solve_soft_thread_t * soft_thread)
