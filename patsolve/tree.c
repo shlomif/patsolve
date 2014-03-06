@@ -44,9 +44,9 @@ static GCC_INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_cha
     return memcmp(a, b, soft_thread->Pilebytes);
 }
 
-/* Return the previous result of new_from_block() to the block.  This
-can ONLY be called once, immediately after the call to new_from_block().
-That is, no other calls to new_from_block() are allowed. */
+/* Return the previous result of fc_solve_pats__new_from_block() to the block.  This
+can ONLY be called once, immediately after the call to fc_solve_pats__new_from_block().
+That is, no other calls to give_back_block() are allowed. */
 
 static GCC_INLINE void give_back_block(fc_solve_soft_thread_t * const soft_thread, u_char *p)
 {
@@ -224,7 +224,7 @@ static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread)
 
 /* Like new(), only from the current block.  Make a new block if necessary. */
 
-u_char *new_from_block(fc_solve_soft_thread_t * soft_thread, size_t s)
+u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t s)
 {
     u_char *p;
     BLOCK *b;
