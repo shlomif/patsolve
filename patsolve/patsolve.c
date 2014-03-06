@@ -129,7 +129,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 
     /* Generate an array of all the moves we can make. */
 
-    if ((mp0 = get_moves(soft_thread, parent, &nmoves)) == NULL) {
+    if (!(mp0 = fc_solve_pats__get_moves(soft_thread, parent, &nmoves))) {
         return FALSE;
     }
     parent->nchild = nmoves;

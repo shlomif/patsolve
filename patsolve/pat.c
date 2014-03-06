@@ -464,7 +464,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
 
 /* Generate an array of the moves we can make from this position. */
 
-MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves)
+MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves)
 {
     int i, n, alln, o, a, numout;
     MOVE *mp, *mp0;
