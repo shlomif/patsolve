@@ -235,8 +235,8 @@ struct fc_solve_soft_thread_struct
     /* win, lose, or fail */
     int Status;
 
-    #define NBUCKETS 499    /* a prime */
-    TREELIST *Treelist[NBUCKETS];
+    #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499    /* a prime */
+    TREELIST *Treelist[FCS_PATS__TREE_LIST_NUM_BUCKETS];
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;

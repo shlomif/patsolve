@@ -158,7 +158,7 @@ static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
 
     /* Pick a bucket, any bucket. */
 
-    bucket = cluster % NBUCKETS;
+    bucket = cluster % FCS_PATS__TREE_LIST_NUM_BUCKETS;
 
     /* Find the tree in this bucket with that cluster number. */
 
@@ -269,7 +269,7 @@ void free_clusters(fc_solve_soft_thread_t * soft_thread)
     int i;
     TREELIST *l, *n;
 
-    for (i = 0; i < NBUCKETS; i++) {
+    for (i = 0; i < FCS_PATS__TREE_LIST_NUM_BUCKETS; i++) {
         l = soft_thread->Treelist[i];
         while (l) {
             n = l->next;
