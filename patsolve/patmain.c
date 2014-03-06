@@ -42,7 +42,6 @@ static const char Usage[] =
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 #define USAGE() fc_solve_msg(Usage, Progname)
 
-int Quiet = FALSE;      /* print entertaining messages, else exit(Status); */
 
 #if DEBUG
 long Init_mem_remain;
@@ -213,6 +212,7 @@ int main(int argc, char **argv)
 
     soft_thread = &soft_thread_struct;
 
+    soft_thread->is_quiet = FALSE;      /* print entertaining messages, else exit(Status); */
     soft_thread->Interactive = TRUE;
     soft_thread->Noexit = FALSE;
     soft_thread->to_stack = FALSE;
@@ -355,11 +355,11 @@ int main(int argc, char **argv)
                 break;
 
             case 'v':
-                Quiet = FALSE;
+                soft_thread->is_quiet = FALSE;
                 break;
 
             case 'q':
-                Quiet = TRUE;
+                soft_thread->is_quiet = TRUE;
                 break;
 
             case 'N':
@@ -445,7 +445,7 @@ int main(int argc, char **argv)
 
     /* Announce which variation this is. */
 
-    if (!Quiet) {
+    if (!soft_thread->is_quiet) {
         printf(soft_thread_struct.Same_suit ? "Seahaven; " : "Freecell; ");
         if (soft_thread_struct.King_only) {
             printf("only Kings are allowed to start a pile.\n");
@@ -463,7 +463,7 @@ Init_mem_remain = soft_thread->Mem_remain;
         /* Read in the initial layout and play it. */
 
         read_layout(soft_thread, infile);
-        if (!Quiet) {
+        if (!soft_thread->is_quiet) {
             print_layout(soft_thread);
         }
         play(&soft_thread_struct);
@@ -501,7 +501,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
     /* Go to it. */
 
     fc_solve_pats__do_it(soft_thread);
-    if (soft_thread->Status != WIN && !Quiet) {
+    if (soft_thread->Status != WIN && !soft_thread->is_quiet) {
         if (soft_thread->Status == FAIL) {
             printf("Out of memory.\n");
         } else if (soft_thread->Noexit && soft_thread->num_solutions > 0) {
