@@ -29,6 +29,8 @@
 #include "pat.h"
 #include "tree.h"
 
+#include "inline.h"
+
 static const char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
   "-s Seahaven (same suit), -f Freecell (red/black)\n"
@@ -134,6 +136,68 @@ void quit(fc_solve_soft_thread_t * soft_thread, int sig)
 #endif
 
 void play(fc_solve_soft_thread_t * soft_thread);
+
+/* Read a layout file.  Format is one pile per line, bottom to top (visible
+card).  Temp cells and Out on the last two lines, if any. */
+
+static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
+{
+    int w, i, total;
+    char buf[100];
+    card_t out[4];
+    int parse_pile(char *s, card_t *w, int size);
+
+    /* Read the workspace. */
+
+    w = 0;
+    total = 0;
+    while (fgets(buf, 100, infile)) {
+        i = parse_pile(buf, soft_thread->W[w], 52);
+        soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
+        soft_thread->Wlen[w] = i;
+        w++;
+        total += i;
+        if (w == soft_thread->Nwpiles) {
+            break;
+        }
+    }
+    if (w != soft_thread->Nwpiles) {
+        fatalerr("not enough piles in input file");
+    }
+
+    /* Temp cells may have some cards too. */
+
+    for (i = 0; i < soft_thread->Ntpiles; i++) {
+        soft_thread->T[i] = NONE;
+    }
+    if (total != 52) {
+        fgets(buf, 100, infile);
+        total += parse_pile(buf, soft_thread->T, soft_thread->Ntpiles);
+    }
+
+    /* Output piles, if any. */
+
+    for (i = 0; i < 4; i++) {
+        soft_thread->O[i] = out[i] = NONE;
+    }
+    if (total != 52) {
+        fgets(buf, 100, infile);
+        parse_pile(buf, out, 4);
+        for (i = 0; i < 4; i++) {
+            if (out[i] != NONE) {
+                total +=
+                    (
+                        soft_thread->O[fcs_pats_card_suit(out[i])]
+                            = fcs_pats_card_rank(out[i])
+                    );
+            }
+        }
+    }
+
+    if (total != 52) {
+        fatalerr("not enough cards");
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -464,67 +528,6 @@ if (soft_thread->Mem_remain != Init_mem_remain) {
 #endif
 }
 
-/* Read a layout file.  Format is one pile per line, bottom to top (visible
-card).  Temp cells and Out on the last two lines, if any. */
-
-void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
-{
-    int w, i, total;
-    char buf[100];
-    card_t out[4];
-    int parse_pile(char *s, card_t *w, int size);
-
-    /* Read the workspace. */
-
-    w = 0;
-    total = 0;
-    while (fgets(buf, 100, infile)) {
-        i = parse_pile(buf, soft_thread->W[w], 52);
-        soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
-        soft_thread->Wlen[w] = i;
-        w++;
-        total += i;
-        if (w == soft_thread->Nwpiles) {
-            break;
-        }
-    }
-    if (w != soft_thread->Nwpiles) {
-        fatalerr("not enough piles in input file");
-    }
-
-    /* Temp cells may have some cards too. */
-
-    for (i = 0; i < soft_thread->Ntpiles; i++) {
-        soft_thread->T[i] = NONE;
-    }
-    if (total != 52) {
-        fgets(buf, 100, infile);
-        total += parse_pile(buf, soft_thread->T, soft_thread->Ntpiles);
-    }
-
-    /* Output piles, if any. */
-
-    for (i = 0; i < 4; i++) {
-        soft_thread->O[i] = out[i] = NONE;
-    }
-    if (total != 52) {
-        fgets(buf, 100, infile);
-        parse_pile(buf, out, 4);
-        for (i = 0; i < 4; i++) {
-            if (out[i] != NONE) {
-                total +=
-                    (
-                        soft_thread->O[fcs_pats_card_suit(out[i])]
-                            = fcs_pats_card_rank(out[i])
-                    );
-            }
-        }
-    }
-
-    if (total != 52) {
-        fatalerr("not enough cards");
-    }
-}
 
 int parse_pile(char *s, card_t *w, int size)
 {
