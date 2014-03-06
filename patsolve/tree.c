@@ -147,7 +147,8 @@ BLOCK *Block;
 
 void init_clusters(fc_solve_soft_thread_t * soft_thread)
 {
-    memset(soft_thread->Treelist, 0, sizeof(soft_thread->Treelist));
+    memset(soft_thread->tree_list, 0, sizeof(soft_thread->tree_list));
+    /* TODO : See what this Block thingy is. */
     Block = new_block(soft_thread);                    /* @@@ */
 }
 
@@ -163,7 +164,7 @@ static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
     /* Find the tree in this bucket with that cluster number. */
 
     last = NULL;
-    for (tl = soft_thread->Treelist[bucket]; tl; tl = tl->next) {
+    for (tl = soft_thread->tree_list[bucket]; tl; tl = tl->next) {
         if (tl->cluster == cluster) {
             break;
         }
@@ -181,7 +182,7 @@ static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
         tl->cluster = cluster;
         tl->next = NULL;
         if (last == NULL) {
-            soft_thread->Treelist[bucket] = tl;
+            soft_thread->tree_list[bucket] = tl;
         } else {
             last->next = tl;
         }
@@ -270,7 +271,7 @@ void free_clusters(fc_solve_soft_thread_t * soft_thread)
     TREELIST *l, *n;
 
     for (i = 0; i < FCS_PATS__TREE_LIST_NUM_BUCKETS; i++) {
-        l = soft_thread->Treelist[i];
+        l = soft_thread->tree_list[i];
         while (l) {
             n = l->next;
             free_ptr(soft_thread, l, TREELIST);
