@@ -247,7 +247,7 @@ extern void printcard(card_t card, FILE *);
 extern void print_layout(fc_solve_soft_thread_t * soft_thread);
 extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern void undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
-extern MOVE *get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
+extern MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
 extern POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, MOVE *m);
 extern void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *);
 extern TREE *pack_position(fc_solve_soft_thread_t * soft_thread);
