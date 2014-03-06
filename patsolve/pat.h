@@ -76,7 +76,10 @@ static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(card_t a, card_t b, card_t Sui
     return (((a ^ b) & Suit_mask) == Suit_val);
 }
 
-#define fcs_pats_is_king_only(card) (!soft_thread->King_only || fcs_pats_card_rank(card) == PS_KING)
+static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(fcs_bool_t not_King_only, card_t card)
+{
+    return (not_King_only || fcs_pats_card_rank(card) == PS_KING);
+}
 
 /* Represent a move. */
 
@@ -173,7 +176,7 @@ struct fc_solve_soft_thread_struct
 #endif
     /* game parameters */
     int Same_suit;
-    int King_only;
+    fcs_bool_t King_only;
     /* the numbers we're actually using */
     int Nwpiles;
     int Ntpiles;
