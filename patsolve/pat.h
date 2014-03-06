@@ -142,11 +142,11 @@ typedef struct block {
 
 #define BLOCKSIZE (32 * 4096)
 
-typedef struct treelist {
+typedef struct fcs_pats__treelist_struct {
     TREE *tree;
     int cluster;
-    struct treelist *next;
-} TREELIST;
+    struct fcs_pats__treelist_struct *next;
+} fcs_pats__treelist_t;
 
 
 #define FC_SOLVE_BUCKETLIST_NBUCKETS 4093           /* the largest 12 bit prime */
@@ -236,7 +236,7 @@ struct fc_solve_soft_thread_struct
     int Status;
 
     #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499    /* a prime */
-    TREELIST *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
+    fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
     BLOCK *my_block;
 };
 
