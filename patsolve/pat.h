@@ -58,9 +58,9 @@ typedef u_char card_t;
 /* The following macro implements
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
 */
-#define suitable(a, b) ((((a) ^ (b)) & soft_thread->Suit_mask) == soft_thread->Suit_val)
+#define fcs_pats_is_suitable(a, b) ((((a) ^ (b)) & soft_thread->Suit_mask) == soft_thread->Suit_val)
 
-#define king_only(card) (!soft_thread->King_only || fcs_pats_card_rank(card) == PS_KING)
+#define fcs_pats_is_king_only(card) (!soft_thread->King_only || fcs_pats_card_rank(card) == PS_KING)
 
 extern const char Rank[];
 extern const char Suit[];
