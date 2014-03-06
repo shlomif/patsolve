@@ -32,6 +32,7 @@
 #include "config.h"
 #include "tree.h"
 #include "param.h"
+#include "inline.h"
 
 /* A card is represented as (suit << 4) + rank. */
 
@@ -49,9 +50,20 @@ typedef u_char card_t;
 #define PS_ACE  1
 #define PS_KING 13
 
-#define fcs_pats_card_rank(card) ((card) & 0xF)
-#define fcs_pats_card_suit(card) ((card) >> 4)
-#define fcs_pats_card_color(card) ((card) & PS_COLOR)
+static GCC_INLINE card_t fcs_pats_card_rank(card_t card)
+{
+    return (card & 0xF);
+}
+
+static GCC_INLINE card_t fcs_pats_card_suit(card_t card)
+{
+    return (card >> 4);
+}
+
+static GCC_INLINE card_t fcs_pats_card_color(card_t card)
+{
+    return (card & PS_COLOR);
+}
 
 /* Some macros used in get_possible_moves(). */
 
