@@ -493,8 +493,11 @@ void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
         parse_pile(buf, out, 4);
         for (i = 0; i < 4; i++) {
             if (out[i] != NONE) {
-                soft_thread->O[suit(out[i])] = rank(out[i]);
-                total += rank(out[i]);
+                total +=
+                    (
+                        soft_thread->O[fcs_pats_card_suit(out[i])]
+                            = fcs_pats_card_rank(out[i])
+                    );
             }
         }
     }
@@ -538,10 +541,12 @@ int parse_pile(char *s, card_t *w, int size)
 
 void printcard(card_t card, FILE *outfile)
 {
-    if (rank(card) == NONE) {
+    if (fcs_pats_card_rank(card) == NONE) {
         fprintf(outfile, "   ");
     } else {
-        fprintf(outfile, "%c%c ", Rank[rank(card)], Suit[suit(card)]);
+        fprintf(outfile, "%c%c ",
+            Rank[fcs_pats_card_rank(card)],
+            Suit[fcs_pats_card_suit(card)]);
     }
 }
 
