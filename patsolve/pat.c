@@ -100,7 +100,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE 
     }
 }
 
-void undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *m)
+void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *m)
 {
     int from, to;
     card_t card;
