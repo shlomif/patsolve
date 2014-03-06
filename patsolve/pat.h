@@ -244,7 +244,7 @@ typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
 
 /* Prototypes. */
 
-extern int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node);
+extern int fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node);
 extern void doit(fc_solve_soft_thread_t *);
 extern void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *);
 extern void printcard(card_t card, FILE *);

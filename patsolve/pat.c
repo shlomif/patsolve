@@ -898,14 +898,14 @@ POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, M
     } else {
         depth = parent->depth + 1;
     }
-    i = insert(soft_thread, &cluster, depth, &node);
+    i = fc_solve_pats__insert(soft_thread, &cluster, depth, &node);
     if (i == NEW) {
         soft_thread->Total_positions++;
     } else if (i != FOUND_BETTER) {
         return NULL;
     }
 
-    /* A new or better position.  insert() already stashed it in the
+    /* A new or better position.  fc_solve_pats__insert() already stashed it in the
     tree, we just have to wrap a POSITION struct around it, and link it
     into the move stack.  Store the temp cells after the POSITION. */
 
