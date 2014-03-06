@@ -246,7 +246,7 @@ typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
 
 extern int fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node);
 extern void fc_solve_pats__do_it(fc_solve_soft_thread_t *);
-extern void printcard(card_t card, FILE *);
+extern void fc_solve_pats__print_card(card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern void undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
