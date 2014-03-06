@@ -261,7 +261,7 @@ extern void *new_(fc_solve_soft_thread_t * soft_thread, size_t s);
 
 /* Initialize the hash buckets. */
 
-static GCC_INLINE void init_buckets(fc_solve_soft_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft_thread)
 {
     int i;
 
