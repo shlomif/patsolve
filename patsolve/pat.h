@@ -234,6 +234,9 @@ struct fc_solve_soft_thread_struct
     int cutoff;
     /* win, lose, or fail */
     int Status;
+
+    #define NBUCKETS 499    /* a prime */
+    TREELIST *Treelist[NBUCKETS];
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
