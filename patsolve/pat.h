@@ -250,7 +250,6 @@ extern void fc_solve_pats__print_card(card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
-extern TREE *pack_position(fc_solve_soft_thread_t * soft_thread);
 extern void init_buckets(fc_solve_soft_thread_t * soft_thread);
 extern void init_clusters(fc_solve_soft_thread_t * soft_thread);
 extern u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t);
