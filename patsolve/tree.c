@@ -36,10 +36,6 @@
 clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
-#define NBUCKETS 499    /* a prime */
-
-TREELIST *Treelist[NBUCKETS];
-
 static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node);
 static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
 static void give_back_block(u_char *p);
@@ -151,7 +147,7 @@ BLOCK *Block;
 
 void init_clusters(fc_solve_soft_thread_t * soft_thread)
 {
-    memset(Treelist, 0, sizeof(Treelist));
+    memset(soft_thread->Treelist, 0, sizeof(soft_thread->Treelist));
     Block = new_block(soft_thread);                    /* @@@ */
 }
 
@@ -167,7 +163,7 @@ static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
     /* Find the tree in this bucket with that cluster number. */
 
     last = NULL;
-    for (tl = Treelist[bucket]; tl; tl = tl->next) {
+    for (tl = soft_thread->Treelist[bucket]; tl; tl = tl->next) {
         if (tl->cluster == cluster) {
             break;
         }
@@ -185,7 +181,7 @@ static TREELIST *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
         tl->cluster = cluster;
         tl->next = NULL;
         if (last == NULL) {
-            Treelist[bucket] = tl;
+            soft_thread->Treelist[bucket] = tl;
         } else {
             last->next = tl;
         }
@@ -274,7 +270,7 @@ void free_clusters(fc_solve_soft_thread_t * soft_thread)
     TREELIST *l, *n;
 
     for (i = 0; i < NBUCKETS; i++) {
-        l = Treelist[i];
+        l = soft_thread->Treelist[i];
         while (l) {
             n = l->next;
             free_ptr(soft_thread, l, TREELIST);
