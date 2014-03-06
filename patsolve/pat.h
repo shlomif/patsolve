@@ -49,9 +49,9 @@ typedef u_char card_t;
 #define PS_ACE  1
 #define PS_KING 13
 
-#define rank(card) ((card) & 0xF)
-#define suit(card) ((card) >> 4)
-#define color(card) ((card) & PS_COLOR)
+#define fcs_pats_card_rank(card) ((card) & 0xF)
+#define fcs_pats_card_suit(card) ((card) >> 4)
+#define fcs_pats_card_color(card) ((card) & PS_COLOR)
 
 /* Some macros used in get_possible_moves(). */
 
@@ -60,7 +60,7 @@ typedef u_char card_t;
 */
 #define suitable(a, b) ((((a) ^ (b)) & soft_thread->Suit_mask) == soft_thread->Suit_val)
 
-#define king_only(card) (!soft_thread->King_only || rank(card) == PS_KING)
+#define king_only(card) (!soft_thread->King_only || fcs_pats_card_rank(card) == PS_KING)
 
 extern const char Rank[];
 extern const char Suit[];

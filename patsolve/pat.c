@@ -154,10 +154,10 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, MOVE *mp)
     /* Count the number of cards below this card. */
 
     j = 0;
-    r = rank(mp->card) + 1;
-    s = suit(mp->card);
+    r = fcs_pats_card_rank(mp->card) + 1;
+    s = fcs_pats_card_suit(mp->card);
     for (i = soft_thread->Wlen[w] - 1; i >= 0; i--) {
-        if (suit(soft_thread->W[w][i]) == s && rank(soft_thread->W[w][i]) == r + j) {
+        if (fcs_pats_card_suit(soft_thread->W[w][i]) == s && fcs_pats_card_rank(soft_thread->W[w][i]) == r + j) {
             j++;
         }
     }
@@ -171,7 +171,8 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, MOVE *mp)
     j = soft_thread->Wlen[w];
     r -= 1;
     for (i = 0; i < j; i++) {
-        if (suit(soft_thread->W[w][i]) == s && rank(soft_thread->W[w][i]) < r) {
+        if ( (fcs_pats_card_suit(soft_thread->W[w][i]) == s)
+            && (fcs_pats_card_rank(soft_thread->W[w][i]) < r) ) {
             return TRUE;
         }
     }
@@ -410,7 +411,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
         j = soft_thread->Wlen[w];
         for (i = 0; i < j; i++) {
             card = soft_thread->W[w][i];
-            s = suit(card);
+            s = fcs_pats_card_suit(card);
 
             /* Save the locations of the piles containing
             not only the card we need next, but the card
@@ -636,10 +637,10 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
     for (w = 0; w < soft_thread->Nwpiles; w++) {
         if (soft_thread->Wlen[w] > 0) {
             card = *soft_thread->Wp[w];
-            o = suit(card);
+            o = fcs_pats_card_suit(card);
             empty = (soft_thread->O[o] == NONE);
-            if ((empty && (rank(card) == PS_ACE)) ||
-                (!empty && (rank(card) == soft_thread->O[o] + 1))) {
+            if ((empty && (fcs_pats_card_rank(card) == PS_ACE)) ||
+                (!empty && (fcs_pats_card_rank(card) == soft_thread->O[o] + 1))) {
                 mp->card = card;
                 mp->from = w;
                 mp->fromtype = W_TYPE;
@@ -656,7 +657,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
 
                 /* If it's an automove, just do it. */
 
-                if (good_automove(soft_thread, o, rank(card))) {
+                if (good_automove(soft_thread, o, fcs_pats_card_rank(card))) {
                     *a = TRUE;
                     if (n != 1) {
                         soft_thread->Possible[0] = mp[-1];
@@ -673,10 +674,10 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
     for (t = 0; t < soft_thread->Ntpiles; t++) {
         if (soft_thread->T[t] != NONE) {
             card = soft_thread->T[t];
-            o = suit(card);
+            o = fcs_pats_card_suit(card);
             empty = (soft_thread->O[o] == NONE);
-            if ((empty && (rank(card) == PS_ACE)) ||
-                (!empty && (rank(card) == soft_thread->O[o] + 1))) {
+            if ((empty && (fcs_pats_card_rank(card) == PS_ACE)) ||
+                (!empty && (fcs_pats_card_rank(card) == soft_thread->O[o] + 1))) {
                 mp->card = card;
                 mp->from = t;
                 mp->fromtype = T_TYPE;
@@ -690,7 +691,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
 
                 /* If it's an automove, just do it. */
 
-                if (good_automove(soft_thread, o, rank(card))) {
+                if (good_automove(soft_thread, o, fcs_pats_card_rank(card))) {
                     *a = TRUE;
                     if (n != 1) {
                         soft_thread->Possible[0] = mp[-1];
@@ -748,7 +749,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
                     continue;
                 }
                 if (soft_thread->Wlen[w] > 0 &&
-                    (rank(card) == rank(*soft_thread->Wp[w]) - 1 &&
+                    (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
                      suitable(card, *soft_thread->Wp[w]))) {
                     mp->card = card;
                     mp->from = i;
@@ -775,7 +776,7 @@ static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int 
         if (card != NONE) {
             for (w = 0; w < soft_thread->Nwpiles; w++) {
                 if (soft_thread->Wlen[w] > 0 &&
-                    (rank(card) == rank(*soft_thread->Wp[w]) - 1 &&
+                    (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
                      suitable(card, *soft_thread->Wp[w]))) {
                     mp->card = card;
                     mp->from = t;
@@ -860,7 +861,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
             srccard = mp->srccard;
             if (srccard != NONE) {
                 card = mp->card;
-                if (rank(card) != rank(srccard) - 1 ||
+                if (fcs_pats_card_rank(card) != fcs_pats_card_rank(srccard) - 1 ||
                     !suitable(card, srccard)) {
                     irr = TRUE;
                 }
