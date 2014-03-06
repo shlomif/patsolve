@@ -1002,7 +1002,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
     fclose(out);
     free_array(soft_thread, mpp0, MOVE *, nmoves);
 
-    if (!Quiet) {
+    if (!soft_thread->is_quiet) {
         printf("A winner.\n");
         printf("%d moves.\n", nmoves);
 #if DEBUG

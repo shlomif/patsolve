@@ -126,9 +126,6 @@ extern const card_t Osuit[4];         /* suits of the output piles */
 enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
 
 /* Command line flags. */
-
-extern int Quiet;
-
 enum statuscode { FAIL = -1, WIN = 0, NOSOL = 1 };
 
 /* Memory. */
@@ -238,6 +235,8 @@ struct fc_solve_soft_thread_struct
     #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499    /* a prime */
     fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
     BLOCK *my_block;
+
+    fcs_bool_t is_quiet;
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
