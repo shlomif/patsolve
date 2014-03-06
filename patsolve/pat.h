@@ -237,6 +237,7 @@ struct fc_solve_soft_thread_struct
 
     #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499    /* a prime */
     TREELIST *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
+    BLOCK *my_block;
 };
 
 typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
