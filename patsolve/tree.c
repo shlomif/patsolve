@@ -36,7 +36,6 @@
 clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
-static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node);
 static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
 static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread);
 
@@ -60,51 +59,10 @@ static GCC_INLINE void give_back_block(fc_solve_soft_thread_t * const soft_threa
     b->remain += s;
 }
 
-/* Insert key into the tree unless it's already there.  Return true if
-it was new. */
-
-int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node)
-{
-    int i, k;
-    TREE *new;
-    fcs_pats__treelist_t *tl;
-
-    /* Get the cluster number from the Out cell contents. */
-
-    i = soft_thread->O[0] + (soft_thread->O[1] << 4);
-    k = i;
-    i = soft_thread->O[2] + (soft_thread->O[3] << 4);
-    k |= i << 8;
-    *cluster = k;
-
-    /* Get the tree for this cluster. */
-
-    tl = cluster_tree(soft_thread, k);
-    if (tl == NULL) {
-        return ERR;
-    }
-
-    /* Create a compact position representation. */
-
-    new = pack_position(soft_thread);
-    if (new == NULL) {
-        return ERR;
-    }
-    soft_thread->Total_generated++;
-
-    i = insert_node(soft_thread, new, d, &tl->tree, node);
-
-    if (i != NEW) {
-        give_back_block(soft_thread, (u_char *)new);
-    }
-
-    return i;
-}
-
 /* Add it to the binary tree for this cluster.  The piles are stored
 following the TREE structure. */
 
-static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node)
+static GCC_INLINE int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node)
 {
     int c;
     u_char *key, *tkey;
@@ -152,6 +110,48 @@ static int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TRE
     }
     return c;
 }
+
+/* Insert key into the tree unless it's already there.  Return true if
+it was new. */
+
+int insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node)
+{
+    int i, k;
+    TREE *new;
+    fcs_pats__treelist_t *tl;
+
+    /* Get the cluster number from the Out cell contents. */
+
+    i = soft_thread->O[0] + (soft_thread->O[1] << 4);
+    k = i;
+    i = soft_thread->O[2] + (soft_thread->O[3] << 4);
+    k |= i << 8;
+    *cluster = k;
+
+    /* Get the tree for this cluster. */
+
+    tl = cluster_tree(soft_thread, k);
+    if (tl == NULL) {
+        return ERR;
+    }
+
+    /* Create a compact position representation. */
+
+    new = pack_position(soft_thread);
+    if (new == NULL) {
+        return ERR;
+    }
+    soft_thread->Total_generated++;
+
+    i = insert_node(soft_thread, new, d, &tl->tree, node);
+
+    if (i != NEW) {
+        give_back_block(soft_thread, (u_char *)new);
+    }
+
+    return i;
+}
+
 
 /* Clusters are also stored in a hashed array. */
 
