@@ -147,7 +147,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
         /* See if this is a new position. */
 
         if ((pos = new_position(soft_thread, parent, mp)) == NULL) {
-            undo_move(soft_thread, mp);
+            fc_solve_pats__undo_move(soft_thread, mp);
             parent->nchild--;
             continue;
         }
@@ -160,14 +160,14 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 
         if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
             qq = solve(soft_thread, pos);
-            undo_move(soft_thread, mp);
+            fc_solve_pats__undo_move(soft_thread, mp);
             if (!qq) {
                 free_position(soft_thread, pos, FALSE);
             }
             q |= qq;
         } else {
             queue_position(soft_thread, pos, mp->pri);
-            undo_move(soft_thread, mp);
+            fc_solve_pats__undo_move(soft_thread, mp);
             q = TRUE;
         }
     }
