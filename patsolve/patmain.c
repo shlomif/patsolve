@@ -225,7 +225,7 @@ int main(int argc, char **argv)
     soft_thread->Noexit = FALSE;
     soft_thread->to_stack = FALSE;
     soft_thread->cutoff = 1;
-    soft_thread->Mem_remain = (50 * 1000 * 1000);
+    soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->Freepos = NULL;
     /* Default variation. */
     soft_thread_struct.Same_suit = SAME_SUIT;
@@ -358,7 +358,7 @@ int main(int argc, char **argv)
                 break;
 
             case 'M':
-                soft_thread->Mem_remain = atol(curr_arg) * 1000000;
+                soft_thread->remaining_memory = atol(curr_arg) * 1000000;
                 curr_arg = NULL;
                 break;
 
@@ -419,7 +419,7 @@ int main(int argc, char **argv)
     if (soft_thread->to_stack && soft_thread->Noexit) {
         fatalerr("-S and -E may not be used together.");
     }
-    if (soft_thread->Mem_remain < BLOCKSIZE * 2) {
+    if (soft_thread->remaining_memory < BLOCKSIZE * 2) {
         fatalerr("-M too small.");
     }
     if (soft_thread->Nwpiles > MAXWPILES) {
@@ -464,7 +464,7 @@ int main(int argc, char **argv)
     }
 
 #if DEBUG
-Init_mem_remain = soft_thread->Mem_remain;
+Init_mem_remain = soft_thread->remaining_memory;
 #endif
     if (Sgame < 0) {
 
@@ -526,7 +526,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 #if DEBUG
         printf("%d positions generated.\n", soft_thread->Total_generated);
         printf("%d unique positions.\n", soft_thread->Total_positions);
-        printf("Mem_remain = %ld\n", soft_thread->Mem_remain);
+        printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
 #endif
     }
     if (!soft_thread->Interactive) {
@@ -536,8 +536,8 @@ void play(fc_solve_soft_thread_t * soft_thread)
         soft_thread->Freepos = NULL;
     }
 #if DEBUG
-if (soft_thread->Mem_remain != Init_mem_remain) {
- fc_solve_msg("Mem_remain = %ld\n", soft_thread->Mem_remain);
+if (soft_thread->remaining_memory != Init_mem_remain) {
+ fc_solve_msg("remaining_memory = %ld\n", soft_thread->remaining_memory);
 }
 #endif
 }

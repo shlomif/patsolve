@@ -1008,7 +1008,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
 #if DEBUG
         printf("%d positions generated.\n", soft_thread->Total_generated);
         printf("%d unique positions.\n", soft_thread->Total_positions);
-        printf("Mem_remain = %ld\n", soft_thread->Mem_remain);
+        printf("remaining_memory = %ld\n", soft_thread->Mem_remain);
 #endif
     }
 }
