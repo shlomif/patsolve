@@ -361,4 +361,28 @@ static GCC_INLINE void fc_solve_pats__free_clusters(fc_solve_soft_thread_t * sof
         }
     }
 }
+
+extern void fc_solve_msg(const char *msg, ...);
+
+#if DEBUG
+static GCC_INLINE void fc_solve_pats__print_queue(fc_solve_soft_thread_t * soft_thread)
+{
+    fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
+    int n = 0;
+    for (int i = 0; i <= soft_thread->Maxq; i++) {
+        if (soft_thread->Inq[i]) {
+            fc_solve_msg("Inq %2d %5d", i, soft_thread->Inq[i]);
+            if (n & 1) {
+                fc_solve_msg("\n");
+            } else {
+                fc_solve_msg("\t\t");
+            }
+            n++;
+        }
+    }
+    fc_solve_msg("\n");
+}
+
+#endif
+
 #endif /* #ifndef FC_SOLVE_PATSOLVE_PAT_H */

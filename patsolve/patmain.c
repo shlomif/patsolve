@@ -49,10 +49,12 @@ static const char Usage[] =
 long Init_mem_remain;
 #endif
 
+static int parse_pile(char *s, card_t *w, int size);
+
 static char *Progname = NULL;
 
 /* Print a message and exit. */
-static void fatalerr(char *msg, ...)
+static void fatalerr(const char *msg, ...)
 {
     va_list ap;
 
@@ -87,7 +89,8 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
     }
     fprintf(stderr, "\n---\n");
 }
-void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
+
+static void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 {
     const int *x;
     const double *y;
@@ -104,15 +107,16 @@ void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
     }
 }
 
+
 #if DEBUG
 extern int Clusternum[];
 
-void quit(fc_solve_soft_thread_t * soft_thread, int sig)
+#ifdef HANDLE_SIG_QUIT
+static void quit(fc_solve_soft_thread_t * soft_thread, int sig)
 {
     int i, c;
-    extern void print_queue(fc_solve_soft_thread_t * soft_thread);
 
-    print_queue(soft_thread);
+    fc_solve_pats__print_queue(soft_thread);
     c = 0;
     for (i = 0; i <= 0xFFFF; i++) {
         if (soft_thread->Clusternum[i]) {
@@ -131,10 +135,12 @@ void quit(fc_solve_soft_thread_t * soft_thread, int sig)
     }
     print_layout(soft_thread);
 
-#if 0
+#ifdef HANDLE_SIG_QUIT
     signal(SIGQUIT, quit);
 #endif
 }
+#endif
+
 #endif
 
 void play(fc_solve_soft_thread_t * soft_thread);
@@ -147,7 +153,6 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
     int w, i, total;
     char buf[100];
     card_t out[4];
-    int parse_pile(char *s, card_t *w, int size);
 
     /* Read the workspace. */
 
@@ -231,7 +236,7 @@ int main(int argc, char **argv)
 
     Progname = *argv;
 #if DEBUG
-#if 0
+#ifdef HANDLE_SIG_QUIT
     signal(SIGQUIT, quit);
 #endif
     fc_solve_msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
@@ -538,7 +543,7 @@ if (soft_thread->Mem_remain != Init_mem_remain) {
 }
 
 
-int parse_pile(char *s, card_t *w, int size)
+static int parse_pile(char *s, card_t *w, int size)
 {
     int i;
     card_t rank, suit;

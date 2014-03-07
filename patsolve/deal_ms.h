@@ -55,7 +55,6 @@ static GCC_INLINE UINT fc_solve_pats__rand(LONG * seedx_ptr)
     return (((*seedx_ptr) >> 16) & 0xffff);
 }
 
-const static int fc_solve_pats__msdeal_suits[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
 
 static GCC_INLINE UINT fc_solve_pats__game_num_rand(LONG * seedx_ptr, LONG gnGameNumber)
 {
@@ -79,6 +78,7 @@ static GCC_INLINE UINT fc_solve_pats__game_num_rand(LONG * seedx_ptr, LONG gnGam
 
 static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 {
+    static const int fc_solve_pats__msdeal_suits[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
     int i, j, c;
     int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
     CARD deck[NUM_CARDS];
