@@ -141,7 +141,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 INCLUDE(CPack)
 
 ADD_EXECUTABLE(patsolve
-    patmain.c param.c pat.c patsolve.c tree.c util.c msdealsub.c
+    patmain.c param.c pat.c patsolve.c tree.c util.c
     )
 
 SET(COMPILER_FLAGS_TO_CHECK "-Wall" "-Werror=implicit-function-declaration")

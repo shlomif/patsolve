@@ -26,10 +26,12 @@
 #include <ctype.h>
 #include <signal.h>
 #include <stdarg.h>
-#include "pat.h"
-#include "tree.h"
 
 #include "inline.h"
+
+#include "pat.h"
+#include "tree.h"
+#include "deal_ms.h"
 
 static const char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
@@ -475,8 +477,8 @@ Init_mem_remain = soft_thread->Mem_remain;
         soft_thread->Interactive = FALSE;
         for (gn = Sgame; gn < Egame; gn++) {
             printf("#%ld\n", (long)gn);
-            msdeal(soft_thread, gn);
-            play(&soft_thread_struct);
+            fc_solve_pats__deal_ms(soft_thread, gn);
+            play(soft_thread);
             fflush(stdout);
         }
     }
