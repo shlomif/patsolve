@@ -236,7 +236,7 @@ static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, 
     /* If we didn't find it, make a new one and add it to the list. */
 
     if (tl == NULL) {
-        tl = new(soft_thread, fcs_pats__treelist_t);
+        tl = fc_solve_pats__new(soft_thread, fcs_pats__treelist_t);
         if (tl == NULL) {
             return NULL;
         }
@@ -257,9 +257,7 @@ static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, 
 
 static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread)
 {
-    BLOCK *b;
-
-    b = new(soft_thread, BLOCK);
+    BLOCK * b = fc_solve_pats__new(soft_thread, BLOCK);
     if (b == NULL) {
         return NULL;
     }

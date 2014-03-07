@@ -1048,7 +1048,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
             fc_solve_msg("Ran out of pile numbers!");
             return -1;
         }
-        l = new(soft_thread, BUCKETLIST);
+        l = fc_solve_pats__new(soft_thread, BUCKETLIST);
         if (l == NULL) {
             return -1;
         }
