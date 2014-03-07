@@ -146,7 +146,7 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 
     /* Queue the initial position to get started. */
 
-    hash_layout(soft_thread);
+    fc_solve_pats__hash_layout(soft_thread);
     fc_solve_pats__sort_piles(soft_thread);
     m.card = NONE;
     pos = new_position(soft_thread, NULL, &m);
