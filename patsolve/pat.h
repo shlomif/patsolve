@@ -253,7 +253,7 @@ extern void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, MOVE 
 extern MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
 extern void fc_solve_pats__init_clusters(fc_solve_soft_thread_t * soft_thread);
 extern u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t);
-extern void pilesort(fc_solve_soft_thread_t * soft_thread);
+extern void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread);
 extern void msdeal(fc_solve_soft_thread_t * soft_thread, u_int64_t);
 
 /* A function and some macros for allocating memory. */

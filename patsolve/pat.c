@@ -905,7 +905,7 @@ static GCC_INLINE int wcmp(int a, int b)
 /* Sort the piles, to remove the physical differences between logically
 equivalent layouts.  Assume it's already mostly sorted.  */
 
-void pilesort(fc_solve_soft_thread_t * soft_thread)
+void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
 {
     int w, i, j;
 
