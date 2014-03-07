@@ -43,29 +43,6 @@ static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, i
 static void queue_position(fc_solve_soft_thread_t *, POSITION *, int);
 static POSITION *dequeue_position(fc_solve_soft_thread_t *);
 
-#if DEBUG
-
-void print_queue(fc_solve_soft_thread_t * soft_thread)
-{
-    int i, n;
-
-    fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
-    n = 0;
-    for (i = 0; i <= soft_thread->Maxq; i++) {
-        if (soft_thread->Inq[i]) {
-            fc_solve_msg("Inq %2d %5d", i, soft_thread->Inq[i]);
-            if (n & 1) {
-                fc_solve_msg("\n");
-            } else {
-                fc_solve_msg("\t\t");
-            }
-            n++;
-        }
-    }
-    fc_solve_msg("\n");
-}
-#endif
-
 /* Test the current position to see if it's new (or better).  If it is, save
 it, along with the pointer to its parent and the move we used to get here. */
 
@@ -288,7 +265,15 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
     /* soft_thread->Yparam[0] * nout^2 + soft_thread->Yparam[1] * nout + soft_thread->Yparam[2] */
 
     x = (soft_thread->Yparam[0] * nout + soft_thread->Yparam[1]) * nout + soft_thread->Yparam[2];
-    pri += (int)floor(x + .5);
+    {
+        /*
+         * GCC gives a warning with some flags if we cast the result
+         * of floor to an int directly. As a result, we need to use
+         * an intermediate variable.
+         * */
+        double rounded_x = (floor(x + .5));
+        pri += (int)rounded_x;
+    }
 
     if (pri < 0) {
         pri = 0;
