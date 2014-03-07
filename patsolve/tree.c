@@ -298,16 +298,4 @@ u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size
 }
 
 
-void free_blocks(fc_solve_soft_thread_t * soft_thread)
-{
-    BLOCK *b, *next;
-
-    b = soft_thread->my_block;
-    while (b) {
-        next = b->next;
-        fc_solve_pats__free_array(soft_thread, b->block, u_char, BLOCKSIZE);
-        fc_solve_pats__free_ptr(soft_thread, b, BLOCK);
-        b = next;
-    }
-}
 
