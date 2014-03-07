@@ -327,8 +327,21 @@ static GCC_INLINE void fc_solve_pats__free_buckets(fc_solve_soft_thread_t * soft
     }
 }
 
-extern void free_clusters(fc_solve_soft_thread_t * soft_thread);
 extern void free_blocks(fc_solve_soft_thread_t * soft_thread);
 extern void hash_layout(fc_solve_soft_thread_t * soft_thread);
 
+static GCC_INLINE void fc_solve_pats__free_clusters(fc_solve_soft_thread_t * soft_thread)
+{
+    int i;
+    fcs_pats__treelist_t *l, *n;
+
+    for (i = 0; i < FCS_PATS__TREE_LIST_NUM_BUCKETS; i++) {
+        l = soft_thread->tree_list[i];
+        while (l) {
+            n = l->next;
+            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__treelist_t);
+            l = n;
+        }
+    }
+}
 #endif /* #ifndef FC_SOLVE_PATSOLVE_PAT_H */
