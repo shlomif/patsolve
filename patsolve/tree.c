@@ -263,7 +263,7 @@ static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread)
     }
     b->block = new_array(soft_thread, u_char, BLOCKSIZE);
     if (b->block == NULL) {
-        free_ptr(soft_thread, b, BLOCK);
+        fc_solve_pats__free_ptr(soft_thread, b, BLOCK);
         return NULL;
     }
     b->ptr = b->block;
@@ -306,7 +306,7 @@ void free_blocks(fc_solve_soft_thread_t * soft_thread)
     while (b) {
         next = b->next;
         free_array(soft_thread, b->block, u_char, BLOCKSIZE);
-        free_ptr(soft_thread, b, BLOCK);
+        fc_solve_pats__free_ptr(soft_thread, b, BLOCK);
         b = next;
     }
 }
@@ -320,7 +320,7 @@ void free_clusters(fc_solve_soft_thread_t * soft_thread)
         l = soft_thread->tree_list[i];
         while (l) {
             n = l->next;
-            free_ptr(soft_thread, l, fcs_pats__treelist_t);
+            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__treelist_t);
             l = n;
         }
     }

@@ -1054,7 +1054,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
         }
         l->pile = new_array(soft_thread, u_char, soft_thread->Wlen[w] + 1);
         if (l->pile == NULL) {
-            free_ptr(soft_thread, l, BUCKETLIST);
+            fc_solve_pats__free_ptr(soft_thread, l, BUCKETLIST);
             return -1;
         }
 
@@ -1087,7 +1087,7 @@ void free_buckets(fc_solve_soft_thread_t * soft_thread)
             n = l->next;
             j = strlen((const char *)l->pile);    /* @@@ use block? */
             free_array(soft_thread, l->pile, u_char, j + 1);
-            free_ptr(soft_thread, l, BUCKETLIST);
+            fc_solve_pats__free_ptr(soft_thread, l, BUCKETLIST);
             l = n;
         }
     }
