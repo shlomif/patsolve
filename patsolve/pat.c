@@ -1000,7 +1000,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
         }
     }
     fclose(out);
-    free_array(soft_thread, mpp0, MOVE *, nmoves);
+    fc_solve_pats__free_array(soft_thread, mpp0, MOVE *, nmoves);
 
     if (!soft_thread->is_quiet) {
         printf("A winner.\n");
@@ -1086,7 +1086,7 @@ void free_buckets(fc_solve_soft_thread_t * soft_thread)
         while (l) {
             n = l->next;
             j = strlen((const char *)l->pile);    /* @@@ use block? */
-            free_array(soft_thread, l->pile, u_char, j + 1);
+            fc_solve_pats__free_array(soft_thread, l->pile, u_char, j + 1);
             fc_solve_pats__free_ptr(soft_thread, l, BUCKETLIST);
             l = n;
         }
