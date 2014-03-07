@@ -58,17 +58,17 @@ void * fc_solve_pats__malloc(fc_solve_soft_thread_t * soft_thread, size_t s)
             Freepos = pos;
         }
         if (s > soft_thread->Mem_remain) {
-            Status = FAIL;
+            soft_thread->Status = FAIL;
             return NULL;
         }
 #else
-        soft_thread->Status = FAIL;
+        soft_thread->status = FAIL;
         return NULL;
 #endif
     }
 
     if ((x = (void *)malloc(s)) == NULL) {
-        soft_thread->Status = FAIL;
+        soft_thread->status = FAIL;
         return NULL;
     }
 
