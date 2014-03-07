@@ -1076,19 +1076,3 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
     return l->pilenum;
 }
 
-void free_buckets(fc_solve_soft_thread_t * soft_thread)
-{
-    int i, j;
-    BUCKETLIST *l, *n;
-
-    for (i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++) {
-        l = soft_thread->Bucketlist[i];
-        while (l) {
-            n = l->next;
-            j = strlen((const char *)l->pile);    /* @@@ use block? */
-            fc_solve_pats__free_array(soft_thread, l->pile, u_char, j + 1);
-            fc_solve_pats__free_ptr(soft_thread, l, BUCKETLIST);
-            l = n;
-        }
-    }
-}

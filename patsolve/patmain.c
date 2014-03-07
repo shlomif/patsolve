@@ -519,7 +519,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 #endif
     }
     if (!soft_thread->Interactive) {
-        free_buckets(soft_thread);
+        fc_solve_pats__free_buckets(soft_thread);
         free_clusters(soft_thread);
         free_blocks(soft_thread);
         soft_thread->Freepos = NULL;

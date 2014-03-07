@@ -310,7 +310,23 @@ static GCC_INLINE void fc_solve_pats__release(fc_solve_soft_thread_t * const sof
 #define fc_solve_pats__new_array(soft_thread, type, size) ((type *)fc_solve_pats__malloc(soft_thread, (size) * sizeof(type)))
 #define fc_solve_pats__free_array(soft_thread, ptr, type, size) fc_solve_pats__release((soft_thread), (ptr), ((size)*sizeof(type)))
 
-extern void free_buckets(fc_solve_soft_thread_t * soft_thread);
+static GCC_INLINE void fc_solve_pats__free_buckets(fc_solve_soft_thread_t * soft_thread)
+{
+    int i, j;
+    BUCKETLIST *l, *n;
+
+    for (i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++) {
+        l = soft_thread->Bucketlist[i];
+        while (l) {
+            n = l->next;
+            j = strlen((const char *)l->pile);    /* @@@ use block? */
+            fc_solve_pats__free_array(soft_thread, l->pile, u_char, j + 1);
+            fc_solve_pats__free_ptr(soft_thread, l, BUCKETLIST);
+            l = n;
+        }
+    }
+}
+
 extern void free_clusters(fc_solve_soft_thread_t * soft_thread);
 extern void free_blocks(fc_solve_soft_thread_t * soft_thread);
 extern void hash_layout(fc_solve_soft_thread_t * soft_thread);
