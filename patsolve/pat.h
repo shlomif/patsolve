@@ -127,8 +127,13 @@ extern const card_t fc_solve_pats__output_suits[4];
 
 enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
 
-/* Command line flags. */
-enum statuscode { FAIL = -1, WIN = 0, NOSOL = 1 };
+enum fc_solve_pats__status_code_enum {
+    FAIL = -1,
+    WIN = 0,
+    NOSOL = 1
+};
+
+typedef enum fc_solve_pats__status_code_enum fc_solve_pats__status_code_t;
 
 /* Memory. */
 
@@ -232,7 +237,7 @@ struct fc_solve_soft_thread_struct
     /* Switch between depth- and breadth-first. Default is "1".*/
     int cutoff;
     /* win, lose, or fail */
-    int Status;
+    fc_solve_pats__status_code_t status;
 
     #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499    /* a prime */
     fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];

@@ -519,7 +519,7 @@ MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *p
                 soft_thread->num_solutions++;
                 return NULL;
             }
-            soft_thread->Status = WIN;
+            soft_thread->status = WIN;
 
             if (soft_thread->Interactive) {
                 exit(0);

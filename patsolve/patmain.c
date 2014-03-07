@@ -483,7 +483,7 @@ Init_mem_remain = soft_thread->Mem_remain;
         }
     }
 
-    return soft_thread->Status;
+    return ((int)(soft_thread->status));
 }
 
 void play(fc_solve_soft_thread_t * soft_thread)
@@ -499,17 +499,23 @@ void play(fc_solve_soft_thread_t * soft_thread)
     soft_thread->Total_generated = 0;
     soft_thread->num_solutions = 0;
 
-    soft_thread->Status = NOSOL;
+    soft_thread->status = NOSOL;
 
     /* Go to it. */
 
     fc_solve_pats__do_it(soft_thread);
-    if (soft_thread->Status != WIN && !soft_thread->is_quiet) {
-        if (soft_thread->Status == FAIL) {
+    if (soft_thread->status != WIN && !soft_thread->is_quiet)
+    {
+        if (soft_thread->status == FAIL)
+        {
             printf("Out of memory.\n");
-        } else if (soft_thread->Noexit && soft_thread->num_solutions > 0) {
+        }
+        else if (soft_thread->Noexit && soft_thread->num_solutions > 0)
+        {
             printf("No shorter solutions.\n");
-        } else {
+        }
+        else
+        {
             printf("No solution.\n");
         }
 #if DEBUG
