@@ -255,9 +255,6 @@ extern void fc_solve_pats__init_clusters(fc_solve_soft_thread_t * soft_thread);
 extern u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t);
 extern void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread);
 
-/* A function and some macros for allocating memory. */
-
-extern void *new_(fc_solve_soft_thread_t * soft_thread, size_t s);
 
 /* Initialize the hash buckets. */
 
@@ -295,10 +292,14 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
     }
 }
 
-#define new(soft_thread, type) (type *)new_(soft_thread, sizeof(type))
+/* A function and some macros for allocating memory. */
+
+extern void * fc_solve_pats__malloc(fc_solve_soft_thread_t * soft_thread, size_t s);
+
+#define new(soft_thread, type) (type *)fc_solve_pats__malloc(soft_thread, sizeof(type))
 #define free_ptr(soft_thread, ptr, type) free(ptr); (soft_thread)->Mem_remain += sizeof(type)
 
-#define new_array(soft_thread, type, size) (type *)new_(soft_thread, (size) * sizeof(type))
+#define new_array(soft_thread, type, size) (type *)fc_solve_pats__malloc(soft_thread, (size) * sizeof(type))
 #define free_array(soft_thread, ptr, type, size) free(ptr); \
            (soft_thread)->Mem_remain += (size) * sizeof(type)
 
