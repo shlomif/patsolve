@@ -169,7 +169,7 @@ typedef struct bucketlist {
 
 struct fc_solve_soft_thread_struct
 {
-    long Mem_remain;
+    long remaining_memory;
     int Pilebytes;
     POSITION *Qhead[NQUEUES]; /* separate queue for each priority */
     POSITION *Qtail[NQUEUES]; /* positions are added here */
@@ -307,7 +307,7 @@ static GCC_INLINE void fc_solve_pats__release(fc_solve_soft_thread_t * const sof
 {
     free(ptr);
 
-    soft_thread->Mem_remain += count_freed;
+    soft_thread->remaining_memory += count_freed;
 }
 
 #define fc_solve_pats__free_ptr(soft_thread, ptr, type) fc_solve_pats__release((soft_thread), (ptr), sizeof(type))

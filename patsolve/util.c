@@ -46,7 +46,7 @@ void * fc_solve_pats__malloc(fc_solve_soft_thread_t * soft_thread, size_t s)
 {
     void *x;
 
-    if (s > soft_thread->Mem_remain) {
+    if (s > soft_thread->remaining_memory) {
 #if 0
         POSITION *pos;
 
@@ -57,7 +57,7 @@ void * fc_solve_pats__malloc(fc_solve_soft_thread_t * soft_thread, size_t s)
             free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
             Freepos = pos;
         }
-        if (s > soft_thread->Mem_remain) {
+        if (s > soft_thread->remaining_memory) {
             soft_thread->Status = FAIL;
             return NULL;
         }
@@ -72,6 +72,6 @@ void * fc_solve_pats__malloc(fc_solve_soft_thread_t * soft_thread, size_t s)
         return NULL;
     }
 
-    soft_thread->Mem_remain -= s;
+    soft_thread->remaining_memory -= s;
     return x;
 }
