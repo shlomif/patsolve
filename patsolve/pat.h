@@ -298,7 +298,14 @@ extern void * fc_solve_pats__malloc(fc_solve_soft_thread_t * soft_thread, size_t
 
 #define fc_solve_pats__new(soft_thread, type) ((type *)fc_solve_pats__malloc(soft_thread, sizeof(type)))
 
-#define free_ptr(soft_thread, ptr, type) free(ptr); (soft_thread)->Mem_remain += sizeof(type)
+static GCC_INLINE void fc_solve_pats__release(fc_solve_soft_thread_t * const soft_thread, void * const ptr, const size_t count_freed)
+{
+    free(ptr);
+
+    soft_thread->Mem_remain += count_freed;
+}
+
+#define fc_solve_pats__free_ptr(soft_thread, ptr, type) fc_solve_pats__release((soft_thread), (ptr), sizeof(type))
 
 #define new_array(soft_thread, type, size) (type *)fc_solve_pats__malloc(soft_thread, (size) * sizeof(type))
 #define free_array(soft_thread, ptr, type, size) free(ptr); \
