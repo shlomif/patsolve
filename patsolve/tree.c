@@ -305,7 +305,7 @@ void free_blocks(fc_solve_soft_thread_t * soft_thread)
     b = soft_thread->my_block;
     while (b) {
         next = b->next;
-        free_array(soft_thread, b->block, u_char, BLOCKSIZE);
+        fc_solve_pats__free_array(soft_thread, b->block, u_char, BLOCKSIZE);
         fc_solve_pats__free_ptr(soft_thread, b, BLOCK);
         b = next;
     }
