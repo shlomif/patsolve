@@ -546,7 +546,7 @@ MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *p
     do the recursive solve() on them, but only after queueing the other
     moves. */
 
-    mp = mp0 = new_array(soft_thread, MOVE, n);
+    mp = mp0 = fc_solve_pats__new_array(soft_thread, MOVE, n);
     if (mp == NULL) {
         return NULL;
     }
@@ -964,7 +964,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
         i++;
     }
     nmoves = i;
-    mpp0 = new_array(soft_thread, MOVE *, nmoves);
+    mpp0 = fc_solve_pats__new_array(soft_thread, MOVE *, nmoves);
     if (mpp0 == NULL) {
         return; /* how sad, so close... */
     }
@@ -1052,7 +1052,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
         if (l == NULL) {
             return -1;
         }
-        l->pile = new_array(soft_thread, u_char, soft_thread->Wlen[w] + 1);
+        l->pile = fc_solve_pats__new_array(soft_thread, u_char, soft_thread->Wlen[w] + 1);
         if (l->pile == NULL) {
             fc_solve_pats__free_ptr(soft_thread, l, BUCKETLIST);
             return -1;

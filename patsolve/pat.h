@@ -307,7 +307,7 @@ static GCC_INLINE void fc_solve_pats__release(fc_solve_soft_thread_t * const sof
 
 #define fc_solve_pats__free_ptr(soft_thread, ptr, type) fc_solve_pats__release((soft_thread), (ptr), sizeof(type))
 
-#define new_array(soft_thread, type, size) (type *)fc_solve_pats__malloc(soft_thread, (size) * sizeof(type))
+#define fc_solve_pats__new_array(soft_thread, type, size) ((type *)fc_solve_pats__malloc(soft_thread, (size) * sizeof(type)))
 #define free_array(soft_thread, ptr, type, size) free(ptr); \
            (soft_thread)->Mem_remain += (size) * sizeof(type)
 

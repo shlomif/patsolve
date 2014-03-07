@@ -261,7 +261,7 @@ static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread)
     if (b == NULL) {
         return NULL;
     }
-    b->block = new_array(soft_thread, u_char, BLOCKSIZE);
+    b->block = fc_solve_pats__new_array(soft_thread, u_char, BLOCKSIZE);
     if (b->block == NULL) {
         fc_solve_pats__free_ptr(soft_thread, b, BLOCK);
         return NULL;
