@@ -57,7 +57,7 @@ static GCC_INLINE void hashpile(fc_solve_soft_thread_t * soft_thread, int w)
 
 /* Hash the whole layout.  This is called once, at the start. */
 
-void hash_layout(fc_solve_soft_thread_t * soft_thread)
+void fc_solve_pats__hash_layout(fc_solve_soft_thread_t * soft_thread)
 {
     int w;
 
