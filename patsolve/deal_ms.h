@@ -22,21 +22,21 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 /*
- * TODO : Add a description of this file.
+ * Deal Microsoft Freecell Cards.
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <string.h>
+
+#ifndef FC_SOLVE_PATSOLVE__DEAL_MS_H
+#define FC_SOLVE_PATSOLVE__DEAL_MS_H
+
 #include "pat.h"
 
+#include "inline.h"
+
 #ifdef WIN32
-typedef void VOID;
 typedef unsigned __int64 LONG;
 typedef unsigned __int32 UINT;
 typedef int CARD;
 #else
-typedef void VOID;
 typedef u_int64_t LONG;
 typedef u_int32_t UINT;
 typedef int CARD;
@@ -44,31 +44,40 @@ typedef int CARD;
 
 #define NUM_CARDS 52
 
-static VOID srandp(LONG * seedx_ptr, UINT s)
+static GCC_INLINE void fc_solve_pats__srand(LONG * seedx_ptr, UINT s)
 {
     *(seedx_ptr) = (LONG) s;
 }
 
-static UINT randp(LONG * seedx_ptr)
+static GCC_INLINE UINT fc_solve_pats__rand(LONG * seedx_ptr)
 {
     *(seedx_ptr) = *(seedx_ptr) * 214013L + 2531011L;
     return (((*seedx_ptr) >> 16) & 0xffff);
 }
 
-#define srando(a,b) srandp(a,b)
-static UINT rando(LONG * seedx_ptr)
+const static int fc_solve_pats__msdeal_suits[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
+
+static GCC_INLINE UINT fc_solve_pats__game_num_rand(LONG * seedx_ptr, LONG gnGameNumber)
 {
-    *(seedx_ptr) = *(seedx_ptr) * 214013L + 2531011L;
-    return ((*seedx_ptr) >> 16) & 0x7fff;
+    UINT ret = fc_solve_pats__rand(seedx_ptr);
+    if (gnGameNumber < 0x100000000LL)
+    {
+        if (gnGameNumber < 0x80000000)
+        {
+            return ret;
+        }
+        else
+        {
+            return (ret | 0x8000);
+        }
+    }
+    else
+    {
+        return ret + 1;
+    }
 }
 
-#define PS_DIAMOND 0x00         /* red */
-#define PS_CLUB    0x10         /* black */
-#define PS_HEART   0x20         /* red */
-#define PS_SPADE   0x30         /* black */
-const static int msdeal_Suit[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
-
-void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
+static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 {
     int i, j, c;
     int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
@@ -82,21 +91,13 @@ void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
     }
 
     if (gnGameNumber < 0x100000000LL) {
-        srando(&seedx, (UINT) gnGameNumber);
+        fc_solve_pats__srand(&seedx, (UINT) gnGameNumber);
     } else {
-        srandp(&seedx, (UINT) (gnGameNumber - 0x100000000LL));
+        fc_solve_pats__srand(&seedx, (UINT) (gnGameNumber - 0x100000000LL));
     }
 
     for (i = 0; i < NUM_CARDS; i++) {
-        if (gnGameNumber < 0x100000000LL) {
-            if (gnGameNumber < 0x80000000) {
-                j = rando(&seedx) % wLeft;
-            } else {
-                j = (rando(&seedx) | 0x8000) % wLeft;
-            }
-        } else {
-            j = (randp(&seedx) + 1) % wLeft;
-        }
+        j = fc_solve_pats__game_num_rand(&seedx, gnGameNumber) % wLeft;
         pos[i % soft_thread->Nwpiles][i / soft_thread->Nwpiles] = deck[j];
         deck[j] = deck[--wLeft];
         if (soft_thread->Nwpiles == 10 && i == 49) {
@@ -107,7 +108,7 @@ void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
         j = 0;
         while (pos[i][j]) {
             c = pos[i][j] - 1;
-            soft_thread->W[i][j] = msdeal_Suit[c % 4] + (c / 4) + 1;
+            soft_thread->W[i][j] = fc_solve_pats__msdeal_suits[c % 4] + (c / 4) + 1;
             j++;
         }
         soft_thread->Wp[i] = &soft_thread->W[i][j - 1];
@@ -119,10 +120,12 @@ void msdeal(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
         if (wLeft) {
             j = --wLeft;
             c = deck[j] - 1;
-            soft_thread->T[i] = msdeal_Suit[c % 4] + (c / 4) + 1;
+            soft_thread->T[i] = fc_solve_pats__msdeal_suits[c % 4] + (c / 4) + 1;
         }
     }
     for (i = 0; i < 4; i++) {
         soft_thread->O[i] = 0;
     }
 }
+
+#endif /*  FC_SOLVE_PATSOLVE__DEAL_MS_H  */
