@@ -113,7 +113,7 @@ void fc_solve_pats__do_it(fc_solve_soft_thread_t * soft_thread)
     /* Init the queues. */
 
     for (i = 0; i < NQUEUES; i++) {
-        soft_thread->Qhead[i] = NULL;
+        soft_thread->queue_head[i] = NULL;
     }
     soft_thread->Maxq = 0;
 #if DEBUG
@@ -289,13 +289,13 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
     pretending it's a stack or a queue. */
 
     pos->queue = NULL;
-    if (soft_thread->Qhead[pri] == NULL) {
-        soft_thread->Qhead[pri] = pos;
+    if (soft_thread->queue_head[pri] == NULL) {
+        soft_thread->queue_head[pri] = pos;
         soft_thread->Qtail[pri] = pos;
     } else {
         if (soft_thread->to_stack) {
-            pos->queue = soft_thread->Qhead[pri];
-            soft_thread->Qhead[pri] = pos;
+            pos->queue = soft_thread->queue_head[pri];
+            soft_thread->queue_head[pri] = pos;
         } else {
             soft_thread->Qtail[pri]->queue = pos;
             soft_thread->Qtail[pri] = pos;
@@ -414,17 +414,17 @@ static POSITION *dequeue_position(fc_solve_soft_thread_t * soft_thread)
                 last = TRUE;
             }
         }
-    } while (soft_thread->Qhead[qpos] == NULL);
+    } while (soft_thread->queue_head[qpos] == NULL);
 
-    pos = soft_thread->Qhead[qpos];
-    soft_thread->Qhead[qpos] = pos->queue;
+    pos = soft_thread->queue_head[qpos];
+    soft_thread->queue_head[qpos] = pos->queue;
 #if DEBUG
     soft_thread->Inq[qpos]--;
 #endif
 
     /* Decrease soft_thread->Maxq if that queue emptied. */
 
-    while (soft_thread->Qhead[qpos] == NULL && qpos == soft_thread->Maxq && soft_thread->Maxq > 0) {
+    while (soft_thread->queue_head[qpos] == NULL && qpos == soft_thread->Maxq && soft_thread->Maxq > 0) {
         soft_thread->Maxq--;
         qpos--;
         if (qpos < minpos) {

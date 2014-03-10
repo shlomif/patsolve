@@ -171,7 +171,7 @@ struct fc_solve_soft_thread_struct
 {
     long remaining_memory;
     int Pilebytes;
-    POSITION *Qhead[NQUEUES]; /* separate queue for each priority */
+    POSITION *queue_head[NQUEUES]; /* separate queue for each priority */
     POSITION *Qtail[NQUEUES]; /* positions are added here */
     int Maxq;
 #if DEBUG
