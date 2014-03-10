@@ -271,7 +271,7 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
          * of floor to an int directly. As a result, we need to use
          * an intermediate variable.
          * */
-        double rounded_x = (floor(x + .5));
+        const double rounded_x = (floor(x + .5));
         pri += (int)rounded_x;
     }
 
