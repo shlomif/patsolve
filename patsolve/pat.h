@@ -172,7 +172,7 @@ struct fc_solve_soft_thread_struct
     long remaining_memory;
     int Pilebytes;
     POSITION *queue_head[NQUEUES]; /* separate queue for each priority */
-    POSITION *Qtail[NQUEUES]; /* positions are added here */
+    POSITION *queue_tail[NQUEUES]; /* positions are added here */
     int Maxq;
 #if DEBUG
     int Clusternum[0x10000];
