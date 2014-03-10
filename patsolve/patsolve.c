@@ -291,14 +291,14 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
     pos->queue = NULL;
     if (soft_thread->queue_head[pri] == NULL) {
         soft_thread->queue_head[pri] = pos;
-        soft_thread->Qtail[pri] = pos;
+        soft_thread->queue_tail[pri] = pos;
     } else {
         if (soft_thread->to_stack) {
             pos->queue = soft_thread->queue_head[pri];
             soft_thread->queue_head[pri] = pos;
         } else {
-            soft_thread->Qtail[pri]->queue = pos;
-            soft_thread->Qtail[pri] = pos;
+            soft_thread->queue_tail[pri]->queue = pos;
+            soft_thread->queue_tail[pri] = pos;
         }
     }
 #if DEBUG
