@@ -110,7 +110,7 @@ far. */
 typedef struct fc_solve_pats__struct {
     struct fc_solve_pats__struct *queue;      /* next position in the queue */
     struct fc_solve_pats__struct *parent;     /* point back up the move stack */
-    TREE *node;             /* compact position rep.'s tree node */
+    fcs_pats__tree_t *node;             /* compact position rep.'s tree node */
     MOVE move;              /* move that got us here from the parent */
     unsigned short cluster; /* the cluster this node is in */
     short depth;            /* number of moves so far */
@@ -155,7 +155,7 @@ typedef struct fcs_pats__block_struct {
 #define BLOCKSIZE (32 * 4096)
 
 typedef struct fcs_pats__treelist_struct {
-    TREE *tree;
+    fcs_pats__tree_t *tree;
     int cluster;
     struct fcs_pats__treelist_struct *next;
 } fcs_pats__treelist_t;
@@ -259,7 +259,7 @@ typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
 
 /* Prototypes. */
 
-extern fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node);
+extern fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node);
 extern void fc_solve_pats__do_it(fc_solve_soft_thread_t *);
 extern void fc_solve_pats__print_card(card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
@@ -285,11 +285,11 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
 
     memset(soft_thread->Bucketlist, 0, sizeof(soft_thread->Bucketlist));
     soft_thread->Pilenum = 0;
-    soft_thread->Treebytes = sizeof(TREE) + soft_thread->bytes_per_pile;
+    soft_thread->Treebytes = sizeof(fcs_pats__tree_t) + soft_thread->bytes_per_pile;
 
-    /* In order to keep the TREE structure aligned, we need to add
+    /* In order to keep the fcs_pats__tree_t structure aligned, we need to add
     up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
-    better than storing the TREE nodes and keys separately, as that
+    better than storing the fcs_pats__tree_t nodes and keys separately, as that
     requires a pointer.  On Intel for -f Treebytes winds up being
     a multiple of 8 currently anyway so it doesn't matter. */
 

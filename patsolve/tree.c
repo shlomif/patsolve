@@ -60,14 +60,14 @@ static GCC_INLINE void give_back_block(fc_solve_soft_thread_t * const soft_threa
 }
 
 /* Add it to the binary tree for this cluster.  The piles are stored
-following the TREE structure. */
+following the fcs_pats__tree_t structure. */
 
-static GCC_INLINE fcs_pats__insert_code_t insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node)
+static GCC_INLINE fcs_pats__insert_code_t insert_node(fc_solve_soft_thread_t * soft_thread, fcs_pats__tree_t *n, int d, fcs_pats__tree_t **tree, fcs_pats__tree_t **node)
 {
     u_char *key, *tkey;
-    TREE *t;
+    fcs_pats__tree_t *t;
 
-    key = (u_char *)n + sizeof(TREE);
+    key = (u_char *)n + sizeof(fcs_pats__tree_t);
     n->depth = d;
     n->left = n->right = NULL;
     *node = n;
@@ -77,7 +77,7 @@ static GCC_INLINE fcs_pats__insert_code_t insert_node(fc_solve_soft_thread_t * s
         return FCS_PATS__INSERT_CODE_NEW;
     }
     while (1) {
-        tkey = (u_char *)t + sizeof(TREE);
+        tkey = (u_char *)t + sizeof(fcs_pats__tree_t);
         const int c = CMP(soft_thread, key, tkey);
         if (c == 0) {
             break;
@@ -122,11 +122,11 @@ cells are encoded as a cluster number: no two positions with different
 cluster numbers can ever be the same, so we store different clusters in
 different trees.  */
 
-static GCC_INLINE TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
+static GCC_INLINE fcs_pats__tree_t *pack_position(fc_solve_soft_thread_t * soft_thread)
 {
     int j, k, w;
     u_char *p;
-    TREE *node;
+    fcs_pats__tree_t *node;
 
     /* Allocate space and store the pile numbers.  The tree node
     will get filled in later, by insert_node(). */
@@ -135,8 +135,8 @@ static GCC_INLINE TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
     if (p == NULL) {
         return NULL;
     }
-    node = (TREE *)p;
-    p += sizeof(TREE);
+    node = (fcs_pats__tree_t *)p;
+    p += sizeof(fcs_pats__tree_t);
 
     /* Pack the pile numers j into bytes p.
                j             j
@@ -169,10 +169,10 @@ static GCC_INLINE TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
-fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node)
+fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node)
 {
     int i, k;
-    TREE *new;
+    fcs_pats__tree_t *new;
     fcs_pats__treelist_t *tl;
 
     /* Get the cluster number from the Out cell contents. */

@@ -48,19 +48,15 @@ it, along with the pointer to its parent and the move we used to get here. */
 
 static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent, MOVE *m)
 {
-    int t, depth, cluster;
+    int t, cluster;
     u_char *p;
     fcs_pats_position_t *pos;
-    TREE *node;
 
     /* Search the list of stored positions.  If this position is found,
     then ignore it and return (unless this position is better). */
+    const int depth = (parent ? (parent->depth + 1) : 0);
 
-    if (parent == NULL) {
-        depth = 0;
-    } else {
-        depth = parent->depth + 1;
-    }
+    fcs_pats__tree_t *node;
     const fcs_pats__insert_code_t verdict = fc_solve_pats__insert(soft_thread, &cluster, depth, &node);
     if (verdict == FCS_PATS__INSERT_CODE_NEW)
     {
@@ -352,7 +348,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
     */
 
     k = w = i = c = 0;
-    p = (u_char *)(pos->node) + sizeof(TREE);
+    p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
     while (w < soft_thread->Nwpiles) {
         switch (k) {
         case 0:
