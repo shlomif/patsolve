@@ -328,14 +328,14 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
     /* Get the Out cells from the cluster number. */
 
     {
-        int k = pos->cluster;
-        soft_thread->O[0] = k & 0xF;
-        k >>= 4;
-        soft_thread->O[1] = k & 0xF;
-        k >>= 4;
-        soft_thread->O[2] = k & 0xF;
-        k >>= 4;
-        soft_thread->O[3] = k & 0xF;
+        int packed_foundations = pos->cluster;
+        soft_thread->O[0] = packed_foundations & 0xF;
+        packed_foundations >>= 4;
+        soft_thread->O[1] = packed_foundations & 0xF;
+        packed_foundations >>= 4;
+        soft_thread->O[2] = packed_foundations & 0xF;
+        packed_foundations >>= 4;
+        soft_thread->O[3] = packed_foundations & 0xF;
     }
 
     int i, k, w;
