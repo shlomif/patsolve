@@ -326,7 +326,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
 {
     int i, k, w;
     u_char c, *p;
-    BUCKETLIST *l;
+    fcs_pats__bucket_list_t *l;
 
     /* Get the Out cells from the cluster number. */
 

@@ -1022,7 +1022,7 @@ identifiers. */
 static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 {
     int pilenum;
-    BUCKETLIST *l, *last;
+    fcs_pats__bucket_list_t *l, *last;
 
     /* For a given pile, get its unique pile id.  If it doesn't have
     one, add it to the appropriate list and give it one.  First, get
@@ -1048,13 +1048,13 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
             fc_solve_msg("Ran out of pile numbers!");
             return -1;
         }
-        l = fc_solve_pats__new(soft_thread, BUCKETLIST);
+        l = fc_solve_pats__new(soft_thread, fcs_pats__bucket_list_t);
         if (l == NULL) {
             return -1;
         }
         l->pile = fc_solve_pats__new_array(soft_thread, u_char, soft_thread->columns_lens[w] + 1);
         if (l->pile == NULL) {
-            fc_solve_pats__free_ptr(soft_thread, l, BUCKETLIST);
+            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
             return -1;
         }
 

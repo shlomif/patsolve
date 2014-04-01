@@ -169,7 +169,7 @@ typedef struct fcs_pats__bucket_list_struct {
     u_int32_t hash;         /* the pile's hash code */
     int pilenum;            /* the unique id for this pile */
     struct fcs_pats__bucket_list_struct *next;
-} BUCKETLIST;
+} fcs_pats__bucket_list_t;
 
 /* Statistics. */
 
@@ -229,11 +229,11 @@ struct fc_solve_soft_thread_struct
     double Yparam[NYPARAM];
     int Posbytes;
 
-    BUCKETLIST *Bucketlist[FC_SOLVE_BUCKETLIST_NBUCKETS];
+    fcs_pats__bucket_list_t *Bucketlist[FC_SOLVE_BUCKETLIST_NBUCKETS];
     int Pilenum;                    /* the next pile number to be assigned */
     /* reverse lookup for unpack to get the bucket
                        from the pile */
-    BUCKETLIST *Pilebucket[FC_SOLVE__MAX_NUM_PILES];
+    fcs_pats__bucket_list_t *Pilebucket[FC_SOLVE__MAX_NUM_PILES];
     int Treebytes;
     int Interactive; /* interactive mode. */
     int Noexit;     /* -E means don't exit */
@@ -327,7 +327,7 @@ static GCC_INLINE void fc_solve_pats__release(fc_solve_soft_thread_t * const sof
 static GCC_INLINE void fc_solve_pats__free_buckets(fc_solve_soft_thread_t * soft_thread)
 {
     int i, j;
-    BUCKETLIST *l, *n;
+    fcs_pats__bucket_list_t *l, *n;
 
     for (i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++) {
         l = soft_thread->Bucketlist[i];
@@ -335,7 +335,7 @@ static GCC_INLINE void fc_solve_pats__free_buckets(fc_solve_soft_thread_t * soft
             n = l->next;
             j = strlen((const char *)l->pile);    /* @@@ use block? */
             fc_solve_pats__free_array(soft_thread, l->pile, u_char, j + 1);
-            fc_solve_pats__free_ptr(soft_thread, l, BUCKETLIST);
+            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
             l = n;
         }
     }
