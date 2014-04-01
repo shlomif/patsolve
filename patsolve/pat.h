@@ -195,7 +195,8 @@ struct fc_solve_soft_thread_struct
     card_t T[MAXTPILES];     /* one card in each temp cell */
     card_t W[MAXWPILES][52]; /* the workspace */
     card_t *Wp[MAXWPILES];   /* point to the top card of each work pile */
-    int Wlen[MAXWPILES];     /* the number of cards in each pile */
+    /* The number of cards in each column. */
+    int columns_lens[MAXWPILES];
     int Widx[MAXWPILES];     /* used to keep the piles sorted */
     int Widxi[MAXWPILES];    /* inverse of the above */
 
