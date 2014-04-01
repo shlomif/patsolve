@@ -38,7 +38,7 @@
 
 const card_t fc_solve_pats__output_suits[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
 
-static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
+static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
 static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n);
 static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos);
 static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w);
@@ -621,7 +621,7 @@ static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o,
 
 /* Get the possible moves from a position, and store them in soft_thread->Possible[]. */
 
-static int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int *numout)
+static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int *numout)
 {
     int i, n, t, w, o, empty, emptyw;
     card_t card;
