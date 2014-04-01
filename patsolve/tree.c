@@ -62,9 +62,8 @@ static GCC_INLINE void give_back_block(fc_solve_soft_thread_t * const soft_threa
 /* Add it to the binary tree for this cluster.  The piles are stored
 following the TREE structure. */
 
-static GCC_INLINE int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node)
+static GCC_INLINE fcs_pats__insert_code_t insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n, int d, TREE **tree, TREE **node)
 {
-    int c;
     u_char *key, *tkey;
     TREE *t;
 
@@ -75,24 +74,27 @@ static GCC_INLINE int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n,
     t = *tree;
     if (t == NULL) {
         *tree = n;
-        return NEW;
+        return FCS_PATS__INSERT_CODE_NEW;
     }
     while (1) {
         tkey = (u_char *)t + sizeof(TREE);
-        c = CMP(soft_thread, key, tkey);
+        const int c = CMP(soft_thread, key, tkey);
         if (c == 0) {
             break;
         }
-        if (c < 0) {
+        if (c < 0)
+        {
             if (t->left == NULL) {
                 t->left = n;
-                return NEW;
+                return FCS_PATS__INSERT_CODE_NEW;
             }
             t = t->left;
-        } else {
+        }
+        else
+        {
             if (t->right == NULL) {
                 t->right = n;
-                return NEW;
+                return FCS_PATS__INSERT_CODE_NEW;
             }
             t = t->right;
         }
@@ -102,13 +104,13 @@ static GCC_INLINE int insert_node(fc_solve_soft_thread_t * soft_thread, TREE *n,
     If the new path to this position was shorter, record the new depth
     so we can prune the original path. */
 
-    c = FOUND;
+    fcs_pats__insert_code_t ret_code = FCS_PATS__INSERT_CODE_FOUND;
     if (d < t->depth && !soft_thread->to_stack) {
         t->depth = d;
-        c = FOUND_BETTER;
+        ret_code = FCS_PATS__INSERT_CODE_FOUND_BETTER;
         *node = t;
     }
-    return c;
+    return ret_code;
 }
 
 /* Compact position representation.  The position is stored as an
@@ -167,7 +169,7 @@ static GCC_INLINE TREE *pack_position(fc_solve_soft_thread_t * soft_thread)
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
-int fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node)
+fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node)
 {
     int i, k;
     TREE *new;
@@ -185,24 +187,25 @@ int fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, in
 
     tl = cluster_tree(soft_thread, k);
     if (tl == NULL) {
-        return ERR;
+        return FCS_PATS__INSERT_CODE_ERR;
     }
 
     /* Create a compact position representation. */
 
     new = pack_position(soft_thread);
     if (new == NULL) {
-        return ERR;
+        return FCS_PATS__INSERT_CODE_ERR;
     }
     soft_thread->Total_generated++;
 
-    i = insert_node(soft_thread, new, d, &tl->tree, node);
+    const fcs_pats__insert_code_t verdict = insert_node(soft_thread, new, d, &tl->tree, node);
 
-    if (i != NEW) {
+    if (verdict != FCS_PATS__INSERT_CODE_NEW)
+    {
         give_back_block(soft_thread, (u_char *)new);
     }
 
-    return i;
+    return verdict;
 }
 
 

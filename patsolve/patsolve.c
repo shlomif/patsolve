@@ -48,7 +48,7 @@ it, along with the pointer to its parent and the move we used to get here. */
 
 static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent, MOVE *m)
 {
-    int i, t, depth, cluster;
+    int t, depth, cluster;
     u_char *p;
     fcs_pats_position_t *pos;
     TREE *node;
@@ -61,10 +61,13 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     } else {
         depth = parent->depth + 1;
     }
-    i = fc_solve_pats__insert(soft_thread, &cluster, depth, &node);
-    if (i == NEW) {
+    const fcs_pats__insert_code_t verdict = fc_solve_pats__insert(soft_thread, &cluster, depth, &node);
+    if (verdict == FCS_PATS__INSERT_CODE_NEW)
+    {
         soft_thread->Total_positions++;
-    } else if (i != FOUND_BETTER) {
+    }
+    else if (verdict != FCS_PATS__INSERT_CODE_FOUND_BETTER)
+    {
         return NULL;
     }
 
@@ -92,7 +95,7 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     pos->nchild = 0;
 
     p += sizeof(fcs_pats_position_t);
-    i = 0;
+    int i = 0;
     for (t = 0; t < soft_thread->Ntpiles; t++) {
         *p++ = soft_thread->T[t];
         if (soft_thread->T[t] != NONE) {
