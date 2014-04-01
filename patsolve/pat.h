@@ -107,9 +107,9 @@ We also store the move that led to this position from the parent, as well
 as a pointers back to the parent, and the btree of all positions examined so
 far. */
 
-typedef struct pos {
-    struct pos *queue;      /* next position in the queue */
-    struct pos *parent;     /* point back up the move stack */
+typedef struct fc_solve_pats__struct {
+    struct fc_solve_pats__struct *queue;      /* next position in the queue */
+    struct fc_solve_pats__struct *parent;     /* point back up the move stack */
     TREE *node;             /* compact position rep.'s tree node */
     MOVE move;              /* move that got us here from the parent */
     unsigned short cluster; /* the cluster this node is in */
