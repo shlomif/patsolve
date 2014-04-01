@@ -41,7 +41,7 @@ static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread);
 
 static GCC_INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_char *b)
 {
-    return memcmp(a, b, soft_thread->Pilebytes);
+    return memcmp(a, b, soft_thread->bytes_per_pile);
 }
 
 /* Return the previous result of fc_solve_pats__new_from_block() to the block.  This
