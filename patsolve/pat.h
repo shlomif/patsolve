@@ -145,11 +145,11 @@ typedef enum fc_solve_pats__status_code_enum fc_solve_pats__status_code_t;
 
 /* Memory. */
 
-typedef struct block {
+typedef struct fcs_pats__block_struct {
     u_char *block;
     u_char *ptr;
     int remain;
-    struct block *next;
+    struct fcs_pats__block_struct *next;
 } BLOCK;
 
 #define BLOCKSIZE (32 * 4096)
