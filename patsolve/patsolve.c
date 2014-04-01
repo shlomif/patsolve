@@ -38,19 +38,19 @@ search. */
 
 #include "inline.h"
 
-static int solve(fc_solve_soft_thread_t *, POSITION *);
-static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int);
-static void queue_position(fc_solve_soft_thread_t *, POSITION *, int);
-static POSITION *dequeue_position(fc_solve_soft_thread_t *);
+static int solve(fc_solve_soft_thread_t *, fcs_pats_position_t *);
+static void free_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int);
+static void queue_position(fc_solve_soft_thread_t *, fcs_pats_position_t *, int);
+static fcs_pats_position_t *dequeue_position(fc_solve_soft_thread_t *);
 
 /* Test the current position to see if it's new (or better).  If it is, save
 it, along with the pointer to its parent and the move we used to get here. */
 
-static POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *parent, MOVE *m)
+static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent, MOVE *m)
 {
     int i, t, depth, cluster;
     u_char *p;
-    POSITION *pos;
+    fcs_pats_position_t *pos;
     TREE *node;
 
     /* Search the list of stored positions.  If this position is found,
@@ -69,8 +69,8 @@ static POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *pa
     }
 
     /* A new or better position.  fc_solve_pats__insert() already stashed it in the
-    tree, we just have to wrap a POSITION struct around it, and link it
-    into the move stack.  Store the temp cells after the POSITION. */
+    tree, we just have to wrap a fcs_pats_position_t struct around it, and link it
+    into the move stack.  Store the temp cells after the fcs_pats_position_t. */
 
     if (soft_thread->Freepos) {
         p = (u_char *)soft_thread->Freepos;
@@ -82,7 +82,7 @@ static POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *pa
         }
     }
 
-    pos = (POSITION *)p;
+    pos = (fcs_pats_position_t *)p;
     pos->queue = NULL;
     pos->parent = parent;
     pos->node = node;
@@ -91,7 +91,7 @@ static POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *pa
     pos->depth = depth;
     pos->nchild = 0;
 
-    p += sizeof(POSITION);
+    p += sizeof(fcs_pats_position_t);
     i = 0;
     for (t = 0; t < soft_thread->Ntpiles; t++) {
         *p++ = soft_thread->T[t];
@@ -107,7 +107,7 @@ static POSITION *new_position(fc_solve_soft_thread_t * soft_thread, POSITION *pa
 void fc_solve_pats__do_it(fc_solve_soft_thread_t * soft_thread)
 {
     int i, q;
-    POSITION *pos;
+    fcs_pats_position_t *pos;
     MOVE m;
 
     /* Init the queues. */
@@ -146,11 +146,11 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
 
-static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
+static int solve(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent)
 {
     int i, nmoves, q, qq;
     MOVE *mp, *mp0;
-    POSITION *pos;
+    fcs_pats_position_t *pos;
 
     /* If we've won already (or failed), we just go through the motions
     but always return FALSE from any position.  This enables the cleanup
@@ -219,13 +219,13 @@ static int solve(fc_solve_soft_thread_t * soft_thread, POSITION *parent)
 }
 
 /* We can't free the stored piles in the trees, but we can free some of the
-POSITION structs.  We have to be careful, though, because there are many
+fcs_pats_position_t structs.  We have to be careful, though, because there are many
 threads running through the game tree starting from the queued positions.
 The nchild element keeps track of descendents, and when there are none left
 in the parent we can free it too after solve() returns and we get called
 recursively (rec == TRUE). */
 
-static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int rec)
+static void free_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int rec)
 {
     /* We don't really free anything here, we just push it onto a
     freelist (using the queue member), so we can use it again later. */
@@ -251,7 +251,7 @@ static void free_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, i
 that got us here.  The work queue is kept sorted by priority (simply by
 having separate queues). */
 
-static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int pri)
+static void queue_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int pri)
 {
     int nout;
     double x;
@@ -320,10 +320,10 @@ static GCC_INLINE int strecpy(u_char *dest, u_char *src)
     return i;
 }
 
-/* Unpack a compact position rep.  soft_thread->T cells must be restored from the
-array following the POSITION struct. */
+/* Unpack a compact position rep.  soft_thread->T cells must be restored from
+ * the array following the fcs_pats_position_t struct. */
 
-static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
+static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
 {
     int i, k, w;
     u_char c, *p;
@@ -376,7 +376,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, POS
     /* soft_thread->T cells. */
 
     p = (u_char *)pos;
-    p += sizeof(POSITION);
+    p += sizeof(fcs_pats_position_t);
     for (i = 0; i < soft_thread->Ntpiles; i++) {
         soft_thread->T[i] = *p++;
     }
@@ -384,10 +384,10 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, POS
 
 /* Return the position on the head of the queue, or NULL if there isn't one. */
 
-static POSITION *dequeue_position(fc_solve_soft_thread_t * soft_thread)
+static fcs_pats_position_t *dequeue_position(fc_solve_soft_thread_t * soft_thread)
 {
     int last;
-    POSITION *pos;
+    fcs_pats_position_t *pos;
     static int qpos = 0;
     static int minpos = 0;
 
