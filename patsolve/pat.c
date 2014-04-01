@@ -1021,14 +1021,14 @@ identifiers. */
 
 static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 {
-    int bucket, pilenum;
+    int pilenum;
     BUCKETLIST *l, *last;
 
     /* For a given pile, get its unique pile id.  If it doesn't have
     one, add it to the appropriate list and give it one.  First, get
     the hash bucket. */
 
-    bucket = soft_thread->Whash[w] % FC_SOLVE_BUCKETLIST_NBUCKETS;
+    const int bucket = soft_thread->Whash[w] % FC_SOLVE_BUCKETLIST_NBUCKETS;
 
     /* Look for the pile in this bucket. */
 
