@@ -40,7 +40,7 @@ const card_t fc_solve_pats__output_suits[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, P
 
 static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
 static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n);
-static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos);
+static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos);
 static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w);
 
 /* Hash a pile. */
@@ -211,12 +211,12 @@ static GCC_INLINE int cardisdest(card_t card, MOVE **mpp, int j)
 
 #define MAXPREVMOVE 4   /* Increasing this beyond 4 doesn't do much. */
 
-static int prune_redundant(fc_solve_soft_thread_t * soft_thread, MOVE *mp, POSITION *pos0)
+static int prune_redundant(fc_solve_soft_thread_t * soft_thread, MOVE *mp, fcs_pats_position_t *pos0)
 {
     int i, j;
     int zerot;
     MOVE *m, *prev[MAXPREVMOVE];
-    POSITION *pos;
+    fcs_pats_position_t *pos;
 
     /* Don't move the same card twice in a row. */
 
@@ -464,7 +464,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
 
 /* Generate an array of the moves we can make from this position. */
 
-MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *pos, int *nmoves)
+MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int *nmoves)
 {
     int i, n, alln, o, a, numout;
     MOVE *mp, *mp0;
@@ -949,11 +949,11 @@ void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
 
 /* Win.  Print out the move stack. */
 
-static void win(fc_solve_soft_thread_t * soft_thread, POSITION *pos)
+static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
 {
     int i, nmoves;
     FILE *out;
-    POSITION *p;
+    fcs_pats_position_t *p;
     MOVE *mp, **mpp, **mpp0;
 
     /* Go back up the chain of parents and store the moves

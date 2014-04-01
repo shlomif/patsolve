@@ -116,7 +116,7 @@ typedef struct fc_solve_pats__struct {
     short depth;            /* number of moves so far */
     u_char ntemp;           /* number of cards in T */
     u_char nchild;          /* number of child nodes left */
-} POSITION;
+} fcs_pats_position_t;
 
 /* suits of the output piles */
 extern const card_t fc_solve_pats__output_suits[4];
@@ -171,8 +171,8 @@ struct fc_solve_soft_thread_struct
 {
     long remaining_memory;
     int bytes_per_pile;
-    POSITION *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
-    POSITION *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
+    fcs_pats_position_t *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
+    fcs_pats_position_t *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
     int Maxq;
 #if DEBUG
     int Clusternum[0x10000];
@@ -188,7 +188,7 @@ struct fc_solve_soft_thread_struct
     card_t Suit_mask;
     card_t Suit_val;
 
-    POSITION *Freepos;       /* position freelist */
+    fcs_pats_position_t *Freepos;       /* position freelist */
 
     /* Work arrays. */
 
@@ -256,7 +256,7 @@ extern void fc_solve_pats__do_it(fc_solve_soft_thread_t *);
 extern void fc_solve_pats__print_card(card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
 extern void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
-extern MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, POSITION *, int *);
+extern MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *, int *);
 extern void fc_solve_pats__init_clusters(fc_solve_soft_thread_t * soft_thread);
 extern u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t);
 extern void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread);
@@ -291,7 +291,7 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
         soft_thread->Treebytes |= ALIGN_BITS;
         soft_thread->Treebytes++;
     }
-    soft_thread->Posbytes = sizeof(POSITION) + soft_thread->Ntpiles;
+    soft_thread->Posbytes = sizeof(fcs_pats_position_t) + soft_thread->Ntpiles;
     if (soft_thread->Posbytes & ALIGN_BITS) {
         soft_thread->Posbytes |= ALIGN_BITS;
         soft_thread->Posbytes++;
