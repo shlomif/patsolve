@@ -33,11 +33,11 @@
 
 /* A splay tree. */
 
-typedef struct tree_node TREE;
+typedef struct fcs_pats__tree_node_struct fcs_pats__tree_t;
 
-struct tree_node {
-    TREE *left;
-    TREE *right;
+struct fcs_pats__tree_node_struct {
+    fcs_pats__tree_t *left;
+    fcs_pats__tree_t *right;
     short depth;
 };
 
