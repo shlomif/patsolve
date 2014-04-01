@@ -37,7 +37,7 @@ clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
 static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
-static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread);
+static fcs_pats__block_t *new_block(fc_solve_soft_thread_t * soft_thread);
 
 static GCC_INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_char *b)
 {
@@ -51,7 +51,7 @@ That is, no other calls to give_back_block() are allowed. */
 static GCC_INLINE void give_back_block(fc_solve_soft_thread_t * const soft_thread, u_char *p)
 {
     size_t s;
-    BLOCK *b;
+    fcs_pats__block_t *b;
 
     b = soft_thread->my_block;
     s = b->ptr - p;
@@ -258,15 +258,15 @@ static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, 
 
 /* my_block storage.  Reduces overhead, and can be freed quickly. */
 
-static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread)
+static fcs_pats__block_t *new_block(fc_solve_soft_thread_t * soft_thread)
 {
-    BLOCK * b = fc_solve_pats__new(soft_thread, BLOCK);
+    fcs_pats__block_t * b = fc_solve_pats__new(soft_thread, fcs_pats__block_t);
     if (b == NULL) {
         return NULL;
     }
     b->block = fc_solve_pats__new_array(soft_thread, u_char, BLOCKSIZE);
     if (b->block == NULL) {
-        fc_solve_pats__free_ptr(soft_thread, b, BLOCK);
+        fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
         return NULL;
     }
     b->ptr = b->block;
@@ -281,7 +281,7 @@ static BLOCK *new_block(fc_solve_soft_thread_t * soft_thread)
 u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t s)
 {
     u_char *p;
-    BLOCK *b;
+    fcs_pats__block_t *b;
 
     b = soft_thread->my_block;
     if (s > b->remain) {

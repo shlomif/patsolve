@@ -150,7 +150,7 @@ typedef struct fcs_pats__block_struct {
     u_char *ptr;
     int remain;
     struct fcs_pats__block_struct *next;
-} BLOCK;
+} fcs_pats__block_t;
 
 #define BLOCKSIZE (32 * 4096)
 
@@ -250,7 +250,7 @@ struct fc_solve_soft_thread_struct
 
     #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499    /* a prime */
     fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
-    BLOCK *my_block;
+    fcs_pats__block_t *my_block;
 
     fcs_bool_t is_quiet;
 };
@@ -343,13 +343,13 @@ static GCC_INLINE void fc_solve_pats__free_buckets(fc_solve_soft_thread_t * soft
 
 static GCC_INLINE void fc_solve_pats__free_blocks(fc_solve_soft_thread_t * soft_thread)
 {
-    BLOCK *b, *next;
+    fcs_pats__block_t *b, *next;
 
     b = soft_thread->my_block;
     while (b) {
         next = b->next;
         fc_solve_pats__free_array(soft_thread, b->block, u_char, BLOCKSIZE);
-        fc_solve_pats__free_ptr(soft_thread, b, BLOCK);
+        fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
         b = next;
     }
 }
