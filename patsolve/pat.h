@@ -126,7 +126,14 @@ extern const card_t fc_solve_pats__output_suits[4];
 /* > max # moves from any position */
 #define FCS_PATS__MAX_NUM_MOVES 64
 
-enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
+enum fcs_pats__insert_code_enum {
+    FCS_PATS__INSERT_CODE_NEW,
+    FCS_PATS__INSERT_CODE_FOUND,
+    FCS_PATS__INSERT_CODE_FOUND_BETTER,
+    FCS_PATS__INSERT_CODE_ERR
+};
+
+typedef enum fcs_pats__insert_code_enum fcs_pats__insert_code_t;
 
 enum fc_solve_pats__status_code_enum {
     FAIL = -1,
@@ -252,7 +259,7 @@ typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
 
 /* Prototypes. */
 
-extern int fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node);
+extern fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, TREE **node);
 extern void fc_solve_pats__do_it(fc_solve_soft_thread_t *);
 extern void fc_solve_pats__print_card(card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *);
