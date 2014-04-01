@@ -339,7 +339,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
         O[3] = packed_foundations & 0xF;
     }
 
-    int i, k, w;
+    int i, w;
     u_char c, *p;
     fcs_pats__bucket_list_t *l;
 
@@ -351,22 +351,22 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
                j             j
     */
 
-    k = w = i = c = 0;
+    w = i = c = 0;
     p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
+    fcs_bool_t k = FALSE;
     while (w < soft_thread->Nwpiles) {
-        switch (k) {
-        case 0:
+        if (k)
+        {
+            i = (c & 0xF) << 8;
+            i |= *p++;
+        }
+        else
+        {
             i = *p++ << 4;
             c = *p++;
             i |= (c >> 4) & 0xF;
-            k = 1;
-            break;
-        case 1:
-            i = (c & 0xF) << 8;
-            i |= *p++;
-            k = 0;
-            break;
         }
+        k = !k;
         soft_thread->Wpilenum[w] = i;
         l = soft_thread->Pilebucket[i];
         i = strecpy(soft_thread->W[w], l->pile);
