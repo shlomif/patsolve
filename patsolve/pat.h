@@ -71,14 +71,14 @@ static GCC_INLINE card_t fcs_pats_card_color(card_t card)
 /* The following macro implements
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
 */
-static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(card_t a, card_t b, card_t Suit_mask, card_t Suit_val)
+static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(card_t a, card_t b, card_t suit_mask, card_t suit_val)
 {
-    return (((a ^ b) & Suit_mask) == Suit_val);
+    return (((a ^ b) & suit_mask) == suit_val);
 }
 
-static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(fcs_bool_t not_King_only, card_t card)
+static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(fcs_bool_t not_king_only, card_t card)
 {
-    return (not_King_only || fcs_pats_card_rank(card) == PS_KING);
+    return (not_king_only || fcs_pats_card_rank(card) == PS_KING);
 }
 
 /* Represent a move. */
