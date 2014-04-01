@@ -123,7 +123,8 @@ extern const card_t fc_solve_pats__output_suits[4];
 
 /* Temp storage for possible moves. */
 
-#define MAXMOVES 64             /* > max # moves from any position */
+/* > max # moves from any position */
+#define FCS_PATS__MAX_NUM_MOVES 64
 
 enum inscode { NEW, FOUND, FOUND_BETTER, ERR };
 
@@ -209,7 +210,7 @@ struct fc_solve_soft_thread_struct
 
     /* Temp storage for possible moves. */
 
-    MOVE Possible[MAXMOVES];
+    MOVE Possible[FCS_PATS__MAX_NUM_MOVES];
 
 
     /* Statistics. */
