@@ -46,7 +46,7 @@ static fcs_pats_position_t *dequeue_position(fc_solve_soft_thread_t *);
 /* Test the current position to see if it's new (or better).  If it is, save
 it, along with the pointer to its parent and the move we used to get here. */
 
-static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent, MOVE *m)
+static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent, fcs_pats__move_t *m)
 {
     int t, cluster;
     u_char *p;
@@ -107,7 +107,7 @@ void fc_solve_pats__do_it(fc_solve_soft_thread_t * soft_thread)
 {
     int i, q;
     fcs_pats_position_t *pos;
-    MOVE m;
+    fcs_pats__move_t m;
 
     /* Init the queues. */
 
@@ -148,7 +148,7 @@ descendents, were queued or not (if not, the position can be freed). */
 static int solve(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent)
 {
     int i, nmoves, q, qq;
-    MOVE *mp, *mp0;
+    fcs_pats__move_t *mp, *mp0;
     fcs_pats_position_t *pos;
 
     /* If we've won already (or failed), we just go through the motions
@@ -210,7 +210,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pare
             q = TRUE;
         }
     }
-    fc_solve_pats__free_array(soft_thread, mp0, MOVE, nmoves);
+    fc_solve_pats__free_array(soft_thread, mp0, fcs_pats__move_t, nmoves);
 
     /* Return true if this position needs to be kept around. */
 

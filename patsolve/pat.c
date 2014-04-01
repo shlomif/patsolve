@@ -68,7 +68,7 @@ void fc_solve_pats__hash_layout(fc_solve_soft_thread_t * soft_thread)
 
 /* These two routines make and unmake moves. */
 
-void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE *m)
+void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m)
 {
     int from, to;
     card_t card;
@@ -100,7 +100,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, MOVE 
     }
 }
 
-void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, MOVE *m)
+void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m)
 {
     int from, to;
     card_t card;
@@ -139,7 +139,7 @@ a row, and if there is a smaller card of the same suit below the run, then
 the position is unsolvable.  This cuts out a lot of useless searching, so
 it's worth checking.  */
 
-static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, MOVE *mp)
+static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp)
 {
     int i, j, w, r, s;
 
@@ -180,7 +180,7 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, MOVE *mp)
 /* This utility routine is used to check if a card is ever moved in
 a sequence of moves. */
 
-static GCC_INLINE int cardmoved(card_t card, MOVE **mpp, int j)
+static GCC_INLINE int cardmoved(card_t card, fcs_pats__move_t **mpp, int j)
 {
     int i;
 
@@ -195,7 +195,7 @@ static GCC_INLINE int cardmoved(card_t card, MOVE **mpp, int j)
 /* This utility routine is used to check if a card is ever used as a
 destination in a sequence of moves. */
 
-static GCC_INLINE int cardisdest(card_t card, MOVE **mpp, int j)
+static GCC_INLINE int cardisdest(card_t card, fcs_pats__move_t **mpp, int j)
 {
     int i;
 
@@ -211,11 +211,11 @@ static GCC_INLINE int cardisdest(card_t card, MOVE **mpp, int j)
 
 #define MAXPREVMOVE 4   /* Increasing this beyond 4 doesn't do much. */
 
-static int prune_redundant(fc_solve_soft_thread_t * soft_thread, MOVE *mp, fcs_pats_position_t *pos0)
+static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp, fcs_pats_position_t *pos0)
 {
     int i, j;
     int zerot;
-    MOVE *m, *prev[MAXPREVMOVE];
+    fcs_pats__move_t *m, *prev[MAXPREVMOVE];
     fcs_pats_position_t *pos;
 
     /* Don't move the same card twice in a row. */
@@ -376,11 +376,11 @@ positions when they are added to the queue. */
 
 #define NNEED 8
 
-static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
+static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp0, int n)
 {
     int i, j, s, w, pile[NNEED], npile;
     card_t card, need[4];
-    MOVE *mp;
+    fcs_pats__move_t *mp;
 
     /* There are 4 cards that we "need": the next cards to go out.  We
     give higher priority to the moves that remove cards from the piles
@@ -464,10 +464,10 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, MOVE *mp0, int n)
 
 /* Generate an array of the moves we can make from this position. */
 
-MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int *nmoves)
+fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int *nmoves)
 {
     int i, n, alln, o, a, numout;
-    MOVE *mp, *mp0;
+    fcs_pats__move_t *mp, *mp0;
 
     /* Fill in the soft_thread->Possible array. */
 
@@ -546,7 +546,7 @@ MOVE *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, fcs_pats_po
     do the recursive solve() on them, but only after queueing the other
     moves. */
 
-    mp = mp0 = fc_solve_pats__new_array(soft_thread, MOVE, n);
+    mp = mp0 = fc_solve_pats__new_array(soft_thread, fcs_pats__move_t, n);
     if (mp == NULL) {
         return NULL;
     }
@@ -625,7 +625,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 {
     int i, n, t, w, o, empty, emptyw;
     card_t card;
-    MOVE *mp;
+    fcs_pats__move_t *mp;
 
     /* Check for moves from soft_thread->W to soft_thread->O. */
 
@@ -853,7 +853,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
 {
     int i, irr;
     card_t card, srccard;
-    MOVE *mp;
+    fcs_pats__move_t *mp;
 
     const card_t Suit_mask = soft_thread->Suit_mask;
     const card_t Suit_val = soft_thread->Suit_val;
@@ -954,7 +954,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
     int i, nmoves;
     FILE *out;
     fcs_pats_position_t *p;
-    MOVE *mp, **mpp, **mpp0;
+    fcs_pats__move_t *mp, **mpp, **mpp0;
 
     /* Go back up the chain of parents and store the moves
     in reverse order. */
@@ -964,7 +964,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
         i++;
     }
     nmoves = i;
-    mpp0 = fc_solve_pats__new_array(soft_thread, MOVE *, nmoves);
+    mpp0 = fc_solve_pats__new_array(soft_thread, fcs_pats__move_t *, nmoves);
     if (mpp0 == NULL) {
         return; /* how sad, so close... */
     }
@@ -1000,7 +1000,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
         }
     }
     fclose(out);
-    fc_solve_pats__free_array(soft_thread, mpp0, MOVE *, nmoves);
+    fc_solve_pats__free_array(soft_thread, mpp0, fcs_pats__move_t *, nmoves);
 
     if (!soft_thread->is_quiet) {
         printf("A winner.\n");
