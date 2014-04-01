@@ -340,7 +340,6 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
     }
 
     {
-        int w;
         u_char c;
         u_char *p;
         fcs_pats__bucket_list_t *l;
@@ -353,11 +352,12 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
            j             j
            */
 
-        w = c = 0;
+        c = 0;
         p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
         fcs_bool_t k = FALSE;
         const typeof(soft_thread->Nwpiles) Nwpiles = soft_thread->Nwpiles;
-        while (w < Nwpiles) {
+        for (int w = 0; w < Nwpiles ; w++)
+        {
             int i;
             if (k)
             {
@@ -377,7 +377,6 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
             soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
             soft_thread->columns_lens[w] = i;
             soft_thread->Whash[w] = l->hash;
-            w++;
         }
     }
 
