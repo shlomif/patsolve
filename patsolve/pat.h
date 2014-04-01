@@ -164,11 +164,11 @@ typedef struct fcs_pats__treelist_struct {
 #define FC_SOLVE_BUCKETLIST_NBUCKETS 4093           /* the largest 12 bit prime */
 #define FC_SOLVE__MAX_NUM_PILES  4096            /* a 12 bit code */
 
-typedef struct bucketlist {
+typedef struct fcs_pats__bucket_list_struct {
     u_char *pile;           /* 0 terminated copy of the pile */
     u_int32_t hash;         /* the pile's hash code */
     int pilenum;            /* the unique id for this pile */
-    struct bucketlist *next;
+    struct fcs_pats__bucket_list_struct *next;
 } BUCKETLIST;
 
 /* Statistics. */
