@@ -1044,7 +1044,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
     /* If we didn't find it, make a new one and add it to the list. */
 
     if (l == NULL) {
-        if (soft_thread->Pilenum == NPILES) {
+        if (soft_thread->Pilenum == FC_SOLVE__MAX_NUM_PILES) {
             fc_solve_msg("Ran out of pile numbers!");
             return -1;
         }

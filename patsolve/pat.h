@@ -162,7 +162,7 @@ typedef struct fcs_pats__treelist_struct {
 
 
 #define FC_SOLVE_BUCKETLIST_NBUCKETS 4093           /* the largest 12 bit prime */
-#define NPILES  4096            /* a 12 bit code */
+#define FC_SOLVE__MAX_NUM_PILES  4096            /* a 12 bit code */
 
 typedef struct bucketlist {
     u_char *pile;           /* 0 terminated copy of the pile */
@@ -233,7 +233,7 @@ struct fc_solve_soft_thread_struct
     int Pilenum;                    /* the next pile number to be assigned */
     /* reverse lookup for unpack to get the bucket
                        from the pile */
-    BUCKETLIST *Pilebucket[NPILES];
+    BUCKETLIST *Pilebucket[FC_SOLVE__MAX_NUM_PILES];
     int Treebytes;
     int Interactive; /* interactive mode. */
     int Noexit;     /* -E means don't exit */
