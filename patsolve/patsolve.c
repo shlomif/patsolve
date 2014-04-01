@@ -368,7 +368,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, POS
         l = soft_thread->Pilebucket[i];
         i = strecpy(soft_thread->W[w], l->pile);
         soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
-        soft_thread->Wlen[w] = i;
+        soft_thread->columns_lens[w] = i;
         soft_thread->Whash[w] = l->hash;
         w++;
     }
