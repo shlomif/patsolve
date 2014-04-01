@@ -340,7 +340,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
     }
 
     {
-        int i, w;
+        int w;
         u_char c;
         u_char *p;
         fcs_pats__bucket_list_t *l;
@@ -353,10 +353,11 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
            j             j
            */
 
-        w = i = c = 0;
+        w = c = 0;
         p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
         fcs_bool_t k = FALSE;
         while (w < soft_thread->Nwpiles) {
+            int i;
             if (k)
             {
                 i = (c & 0xF) << 8;
