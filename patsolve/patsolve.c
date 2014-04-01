@@ -339,49 +339,55 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
         O[3] = packed_foundations & 0xF;
     }
 
-    int i, w;
-    u_char c, *p;
-    fcs_pats__bucket_list_t *l;
+    {
+        int i, w;
+        u_char c;
+        u_char *p;
+        fcs_pats__bucket_list_t *l;
 
-    /* Unpack bytes p into pile numbers j.
-            p         p         p
-        +--------+----:----+--------+
-        |76543210|7654:3210|76543210|
-        +--------+----:----+--------+
-               j             j
-    */
+        /* Unpack bytes p into pile numbers j.
+           p         p         p
+           +--------+----:----+--------+
+           |76543210|7654:3210|76543210|
+           +--------+----:----+--------+
+           j             j
+           */
 
-    w = i = c = 0;
-    p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
-    fcs_bool_t k = FALSE;
-    while (w < soft_thread->Nwpiles) {
-        if (k)
-        {
-            i = (c & 0xF) << 8;
-            i |= *p++;
+        w = i = c = 0;
+        p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
+        fcs_bool_t k = FALSE;
+        while (w < soft_thread->Nwpiles) {
+            if (k)
+            {
+                i = (c & 0xF) << 8;
+                i |= *p++;
+            }
+            else
+            {
+                i = *p++ << 4;
+                c = *p++;
+                i |= (c >> 4) & 0xF;
+            }
+            k = !k;
+            soft_thread->Wpilenum[w] = i;
+            l = soft_thread->Pilebucket[i];
+            i = strecpy(soft_thread->W[w], l->pile);
+            soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
+            soft_thread->columns_lens[w] = i;
+            soft_thread->Whash[w] = l->hash;
+            w++;
         }
-        else
-        {
-            i = *p++ << 4;
-            c = *p++;
-            i |= (c >> 4) & 0xF;
-        }
-        k = !k;
-        soft_thread->Wpilenum[w] = i;
-        l = soft_thread->Pilebucket[i];
-        i = strecpy(soft_thread->W[w], l->pile);
-        soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
-        soft_thread->columns_lens[w] = i;
-        soft_thread->Whash[w] = l->hash;
-        w++;
     }
 
     /* soft_thread->T cells. */
 
-    p = (u_char *)pos;
-    p += sizeof(fcs_pats_position_t);
-    for (i = 0; i < soft_thread->Ntpiles; i++) {
-        soft_thread->T[i] = *p++;
+    {
+        u_char * p = (u_char *)pos;
+        p += sizeof(fcs_pats_position_t);
+        const typeof(soft_thread->Ntpiles) Ntpiles = soft_thread->Ntpiles;
+        for (int i = 0; i < Ntpiles; i++) {
+            soft_thread->T[i] = *p++;
+        }
     }
 }
 
