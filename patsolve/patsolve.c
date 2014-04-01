@@ -329,13 +329,14 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
 
     {
         int packed_foundations = pos->cluster;
-        soft_thread->O[0] = packed_foundations & 0xF;
+        typeof(soft_thread->O[0]) * const O = soft_thread->O;
+        O[0] = packed_foundations & 0xF;
         packed_foundations >>= 4;
-        soft_thread->O[1] = packed_foundations & 0xF;
+        O[1] = packed_foundations & 0xF;
         packed_foundations >>= 4;
-        soft_thread->O[2] = packed_foundations & 0xF;
+        O[2] = packed_foundations & 0xF;
         packed_foundations >>= 4;
-        soft_thread->O[3] = packed_foundations & 0xF;
+        O[3] = packed_foundations & 0xF;
     }
 
     int i, k, w;
