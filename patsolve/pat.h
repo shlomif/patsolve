@@ -165,18 +165,18 @@ typedef struct bucketlist {
 
 /* Statistics. */
 
-#define NQUEUES 100
+#define FC_SOLVE_PATS__NUM_QUEUES 100
 
 struct fc_solve_soft_thread_struct
 {
     long remaining_memory;
     int bytes_per_pile;
-    POSITION *queue_head[NQUEUES]; /* separate queue for each priority */
-    POSITION *queue_tail[NQUEUES]; /* positions are added here */
+    POSITION *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
+    POSITION *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
     int Maxq;
 #if DEBUG
     int Clusternum[0x10000];
-    int Inq[NQUEUES];
+    int Inq[FC_SOLVE_PATS__NUM_QUEUES];
 #endif
     /* game parameters */
     int Same_suit;

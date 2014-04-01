@@ -112,7 +112,7 @@ void fc_solve_pats__do_it(fc_solve_soft_thread_t * soft_thread)
 
     /* Init the queues. */
 
-    for (i = 0; i < NQUEUES; i++) {
+    for (i = 0; i < FC_SOLVE_PATS__NUM_QUEUES; i++) {
         soft_thread->queue_head[i] = NULL;
     }
     soft_thread->Maxq = 0;
@@ -277,8 +277,8 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, POSITION *pos, 
 
     if (pri < 0) {
         pri = 0;
-    } else if (pri >= NQUEUES) {
-        pri = NQUEUES - 1;
+    } else if (pri >= FC_SOLVE_PATS__NUM_QUEUES) {
+        pri = FC_SOLVE_PATS__NUM_QUEUES - 1;
     }
     if (pri > soft_thread->Maxq) {
         soft_thread->Maxq = pri;
