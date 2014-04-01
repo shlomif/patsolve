@@ -170,7 +170,7 @@ typedef struct bucketlist {
 struct fc_solve_soft_thread_struct
 {
     long remaining_memory;
-    int Pilebytes;
+    int bytes_per_pile;
     POSITION *queue_head[NQUEUES]; /* separate queue for each priority */
     POSITION *queue_tail[NQUEUES]; /* positions are added here */
     int Maxq;
@@ -273,11 +273,11 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
     i = soft_thread->Nwpiles * 3;
     i >>= 1;
     i += soft_thread->Nwpiles & 0x1;
-    soft_thread->Pilebytes = i;
+    soft_thread->bytes_per_pile = i;
 
     memset(soft_thread->Bucketlist, 0, sizeof(soft_thread->Bucketlist));
     soft_thread->Pilenum = 0;
-    soft_thread->Treebytes = sizeof(TREE) + soft_thread->Pilebytes;
+    soft_thread->Treebytes = sizeof(TREE) + soft_thread->bytes_per_pile;
 
     /* In order to keep the TREE structure aligned, we need to add
     up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
