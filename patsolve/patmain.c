@@ -462,7 +462,7 @@ int main(int argc, char **argv)
     }
 
 #if DEBUG
-Init_mem_remain = soft_thread->remaining_memory;
+    Init_mem_remain = soft_thread->remaining_memory;
 #endif
     if (Sgame < 0) {
 
