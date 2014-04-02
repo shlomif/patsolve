@@ -114,7 +114,7 @@ void fc_solve_pats__do_it(fc_solve_soft_thread_t * soft_thread)
     for (i = 0; i < FC_SOLVE_PATS__NUM_QUEUES; i++) {
         soft_thread->queue_head[i] = NULL;
     }
-    soft_thread->Maxq = 0;
+    soft_thread->max_queue_idx = 0;
 #if DEBUG
 memset(soft_thread->Clusternum, 0, sizeof(soft_thread->Clusternum));
 memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
@@ -279,8 +279,8 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_positi
     } else if (pri >= FC_SOLVE_PATS__NUM_QUEUES) {
         pri = FC_SOLVE_PATS__NUM_QUEUES - 1;
     }
-    if (pri > soft_thread->Maxq) {
-        soft_thread->Maxq = pri;
+    if (pri > soft_thread->max_queue_idx) {
+        soft_thread->max_queue_idx = pri;
     }
 
     /* We always dequeue from the head.  Here we either stick the move
@@ -415,10 +415,10 @@ static fcs_pats_position_t *dequeue_position(fc_solve_soft_thread_t * soft_threa
             if (last) {
                 return NULL;
             }
-            qpos = soft_thread->Maxq;
+            qpos = soft_thread->max_queue_idx;
             minpos--;
             if (minpos < 0) {
-                minpos = soft_thread->Maxq;
+                minpos = soft_thread->max_queue_idx;
             }
             if (minpos == 0) {
                 last = TRUE;
@@ -432,10 +432,10 @@ static fcs_pats_position_t *dequeue_position(fc_solve_soft_thread_t * soft_threa
     soft_thread->Inq[qpos]--;
 #endif
 
-    /* Decrease soft_thread->Maxq if that queue emptied. */
+    /* Decrease soft_thread->max_queue_idx if that queue emptied. */
 
-    while (soft_thread->queue_head[qpos] == NULL && qpos == soft_thread->Maxq && soft_thread->Maxq > 0) {
-        soft_thread->Maxq--;
+    while (soft_thread->queue_head[qpos] == NULL && qpos == soft_thread->max_queue_idx && soft_thread->max_queue_idx > 0) {
+        soft_thread->max_queue_idx--;
         qpos--;
         if (qpos < minpos) {
             minpos = qpos;

@@ -181,7 +181,7 @@ struct fc_solve_soft_thread_struct
     int bytes_per_pile;
     fcs_pats_position_t *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
     fcs_pats_position_t *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
-    int Maxq;
+    int max_queue_idx;
 #if DEBUG
     int Clusternum[0x10000];
     int Inq[FC_SOLVE_PATS__NUM_QUEUES];
