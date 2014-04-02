@@ -452,11 +452,11 @@ int main(int argc, char **argv)
     /* Announce which variation this is. */
 
     if (!soft_thread->is_quiet) {
-        printf(soft_thread_struct.Same_suit ? "Seahaven; " : "Freecell; ");
+        printf("%s", soft_thread_struct.Same_suit ? "Seahaven; " : "Freecell; ");
         if (soft_thread_struct.King_only) {
-            printf("only Kings are allowed to start a pile.\n");
+            printf("%s", "only Kings are allowed to start a pile.\n");
         } else {
-            printf("any card may start a pile.\n");
+            printf("%s", "any card may start a pile.\n");
         }
         printf("%d work piles, %d temp cells.\n", soft_thread->Nwpiles, soft_thread->Ntpiles);
     }
