@@ -109,8 +109,6 @@ static void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 
 
 #if DEBUG
-extern int Clusternum[];
-
 #ifdef HANDLE_SIG_QUIT
 static void quit(fc_solve_soft_thread_t * soft_thread, int sig)
 {
