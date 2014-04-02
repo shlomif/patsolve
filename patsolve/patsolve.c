@@ -116,7 +116,7 @@ void fc_solve_pats__do_it(fc_solve_soft_thread_t * soft_thread)
     }
     soft_thread->max_queue_idx = 0;
 #if DEBUG
-memset(soft_thread->Clusternum, 0, sizeof(soft_thread->Clusternum));
+memset(soft_thread->num_positions_in_clusters, 0, sizeof(soft_thread->num_positions_in_clusters));
 memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 #endif
 
@@ -302,7 +302,7 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_positi
     }
 #if DEBUG
 soft_thread->Inq[pri]++;
-soft_thread->Clusternum[pos->cluster]++;
+soft_thread->num_positions_in_clusters[pos->cluster]++;
 #endif
 }
 
@@ -447,7 +447,7 @@ static fcs_pats_position_t *dequeue_position(fc_solve_soft_thread_t * soft_threa
     unpack_position(soft_thread, pos);
 
 #if DEBUG
-soft_thread->Clusternum[pos->cluster]--;
+soft_thread->num_positions_in_clusters[pos->cluster]--;
 #endif
     return pos;
 }
