@@ -183,7 +183,7 @@ struct fc_solve_soft_thread_struct
     fcs_pats_position_t *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
     int max_queue_idx;
 #if DEBUG
-    int Clusternum[0x10000];
+    int num_positions_in_clusters[0x10000];
     int Inq[FC_SOLVE_PATS__NUM_QUEUES];
 #endif
     /* game parameters */

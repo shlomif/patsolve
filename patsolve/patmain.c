@@ -117,8 +117,8 @@ static void quit(fc_solve_soft_thread_t * soft_thread, int sig)
     fc_solve_pats__print_queue(soft_thread);
     c = 0;
     for (i = 0; i <= 0xFFFF; i++) {
-        if (soft_thread->Clusternum[i]) {
-            fc_solve_msg("%04X: %6d", i, soft_thread->Clusternum[i]);
+        if (soft_thread->num_positions_in_clusters[i]) {
+            fc_solve_msg("%04X: %6d", i, soft_thread->num_positions_in_clusters[i]);
             c++;
             if (c % 5 == 0) {
                 c = 0;
