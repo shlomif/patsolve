@@ -226,7 +226,7 @@ int main(int argc, char **argv)
     soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->Freepos = NULL;
     /* Default variation. */
-    soft_thread_struct.Same_suit = SAME_SUIT;
+    soft_thread_struct.Same_suit = TRUE;
     soft_thread_struct.King_only = KING_ONLY;
     soft_thread_struct.Nwpiles = NWPILES;
     soft_thread_struct.Ntpiles = NTPILES;

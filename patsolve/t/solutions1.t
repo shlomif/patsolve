@@ -34,7 +34,7 @@ unlink("win");
 {
     trap
     {
-        system("./patsolve", File::Spec->catfile($data_dir, '24.board'));
+        system("./patsolve", "-f", File::Spec->catfile($data_dir, '24.board'));
     };
 
     # TEST
@@ -163,7 +163,7 @@ EOF
 {
     trap
     {
-        system("./patsolve", "-S", File::Spec->catfile($data_dir, '24.board'));
+        system("./patsolve", "-f", "-S", File::Spec->catfile($data_dir, '24.board'));
     };
 
     # TEST

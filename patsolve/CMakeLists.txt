@@ -170,7 +170,6 @@ ENDFOREACH(CFLAG_TO_CHECK)
 
 # Settings for Freecell
 # TODO: allow customisations.
-ADD_DEFINITIONS("-DSAME_SUIT=0")
 ADD_DEFINITIONS("-DNWPILES=8")
 
 TARGET_LINK_LIBRARIES (patsolve "m")
