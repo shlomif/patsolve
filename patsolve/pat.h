@@ -196,7 +196,7 @@ struct fc_solve_soft_thread_struct
     card_t Suit_mask;
     card_t Suit_val;
 
-    fcs_pats_position_t *Freepos;       /* position freelist */
+    fcs_pats_position_t *freed_positions;       /* position freelist */
 
     /* Work arrays. */
 
