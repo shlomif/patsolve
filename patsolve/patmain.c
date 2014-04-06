@@ -420,11 +420,11 @@ int main(int argc, char **argv)
     if (soft_thread->remaining_memory < BLOCKSIZE * 2) {
         fatalerr("-M too small.");
     }
-    if (soft_thread->Nwpiles > MAXWPILES) {
-        fatalerr("too many w piles (max %d)", MAXWPILES);
+    if (soft_thread->Nwpiles > MAX_NUM_STACKS) {
+        fatalerr("too many w piles (max %d)", MAX_NUM_STACKS);
     }
-    if (soft_thread->Ntpiles > MAXTPILES) {
-        fatalerr("too many t piles (max %d)", MAXTPILES);
+    if (soft_thread->Ntpiles > MAX_NUM_FREECELLS) {
+        fatalerr("too many t piles (max %d)", MAX_NUM_FREECELLS);
     }
 
     /* Process the named file, or stdin if no file given.
