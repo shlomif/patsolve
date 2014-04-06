@@ -739,8 +739,8 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         }
     }
 
-    const card_t Suit_mask = soft_thread->Suit_mask;
-    const card_t Suit_val = soft_thread->Suit_val;
+    const card_t game_variant_suit_mask = soft_thread->game_variant_suit_mask;
+    const card_t game_variant_desired_suit_value = soft_thread->game_variant_desired_suit_value;
     /* Check for moves from soft_thread->W to non-empty soft_thread->W cells. */
 
     for (i = 0; i < soft_thread->Nwpiles; i++) {
@@ -752,7 +752,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 }
                 if (soft_thread->columns_lens[w] > 0 &&
                     (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
-                     fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), Suit_mask, Suit_val))) {
+                     fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
                     mp->card = card;
                     mp->from = i;
                     mp->fromtype = W_TYPE;
@@ -779,7 +779,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
             for (w = 0; w < soft_thread->Nwpiles; w++) {
                 if (soft_thread->columns_lens[w] > 0 &&
                     (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
-                     fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), Suit_mask, Suit_val))) {
+                     fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
                     mp->card = card;
                     mp->from = t;
                     mp->fromtype = T_TYPE;
@@ -855,8 +855,8 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
     card_t card, srccard;
     fcs_pats__move_t *mp;
 
-    const card_t Suit_mask = soft_thread->Suit_mask;
-    const card_t Suit_val = soft_thread->Suit_val;
+    const card_t game_variant_suit_mask = soft_thread->game_variant_suit_mask;
+    const card_t game_variant_desired_suit_value = soft_thread->game_variant_desired_suit_value;
 
     for (i = 0, mp = soft_thread->Possible; i < n; i++, mp++) {
         irr = FALSE;
@@ -867,7 +867,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
             if (srccard != NONE) {
                 card = mp->card;
                 if (fcs_pats_card_rank(card) != fcs_pats_card_rank(srccard) - 1 ||
-                    !fcs_pats_is_suitable(card, srccard, Suit_mask, Suit_val)) {
+                    !fcs_pats_is_suitable(card, srccard, game_variant_suit_mask, game_variant_desired_suit_value)) {
                     irr = TRUE;
                 }
             } else if (soft_thread->King_only && mp->card != PS_KING) {

@@ -193,8 +193,8 @@ struct fc_solve_soft_thread_struct
     int Nwpiles;
     int Ntpiles;
 
-    card_t Suit_mask;
-    card_t Suit_val;
+    card_t game_variant_suit_mask;
+    card_t game_variant_desired_suit_value;
 
     fcs_pats_position_t *freed_positions;       /* position freelist */
 

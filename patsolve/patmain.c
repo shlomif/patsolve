@@ -442,11 +442,11 @@ int main(int argc, char **argv)
 
     /* Initialize the suitable() macro variables. */
 
-    soft_thread->Suit_mask = PS_COLOR;
-    soft_thread->Suit_val = PS_COLOR;
+    soft_thread->game_variant_suit_mask = PS_COLOR;
+    soft_thread->game_variant_desired_suit_value = PS_COLOR;
     if (soft_thread_struct.Same_suit) {
-        soft_thread->Suit_mask = PS_SUIT;
-        soft_thread->Suit_val = 0;
+        soft_thread->game_variant_suit_mask = PS_SUIT;
+        soft_thread->game_variant_desired_suit_value = 0;
     }
 
     /* Announce which variation this is. */
