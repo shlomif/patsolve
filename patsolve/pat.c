@@ -78,7 +78,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
 
     /* Remove from pile. */
 
-    if (m->fromtype == T_TYPE) {
+    if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
         card = soft_thread->T[from];
         soft_thread->T[from] = NONE;
     } else {
@@ -89,9 +89,9 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
 
     /* Add to pile. */
 
-    if (m->totype == T_TYPE) {
+    if (m->totype == FCS_PATS__TYPE_FREECELL) {
         soft_thread->T[to] = card;
-    } else if (m->totype == W_TYPE) {
+    } else if (m->totype == FCS_PATS__TYPE_WASTE) {
         *++soft_thread->Wp[to] = card;
         soft_thread->columns_lens[to]++;
         hashpile(soft_thread, to);
@@ -110,10 +110,10 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
 
     /* Remove from 'to' pile. */
 
-    if (m->totype == T_TYPE) {
+    if (m->totype == FCS_PATS__TYPE_FREECELL) {
         card = soft_thread->T[to];
         soft_thread->T[to] = NONE;
-    } else if (m->totype == W_TYPE) {
+    } else if (m->totype == FCS_PATS__TYPE_WASTE) {
         card = *soft_thread->Wp[to]--;
         soft_thread->columns_lens[to]--;
         hashpile(soft_thread, to);
@@ -124,7 +124,7 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
 
     /* Add to 'from' pile. */
 
-    if (m->fromtype == T_TYPE) {
+    if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
         soft_thread->T[from] = card;
     } else {
         *++soft_thread->Wp[from] = card;
@@ -143,7 +143,7 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t
 {
     int i, j, w, r, s;
 
-    if (!soft_thread->Same_suit || !soft_thread->King_only || mp->totype != W_TYPE) {
+    if (!soft_thread->Same_suit || !soft_thread->King_only || mp->totype != FCS_PATS__TYPE_WASTE) {
         return FALSE;
     }
     w = mp->to;
@@ -285,8 +285,8 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
 
     /* soft_thread->T -> soft_thread->W, ..., soft_thread->W -> soft_thread->T */
 
-    if (m->fromtype == T_TYPE && m->totype == W_TYPE &&
-        mp->fromtype == W_TYPE && mp->totype == T_TYPE) {
+    if (m->fromtype == FCS_PATS__TYPE_FREECELL && m->totype == FCS_PATS__TYPE_WASTE &&
+        mp->fromtype == FCS_PATS__TYPE_WASTE && mp->totype == FCS_PATS__TYPE_FREECELL) {
 
         /* If the number of soft_thread->T cells goes to zero, we have a soft_thread->T
         dependency, and we can't prune. */
@@ -308,10 +308,10 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
     /* soft_thread->W -> soft_thread->T, ..., soft_thread->T -> soft_thread->W */
     /* soft_thread->W -> soft_thread->W, ..., soft_thread->W -> soft_thread->W */
 
-    if ((m->fromtype == W_TYPE && m->totype == T_TYPE &&
-         mp->fromtype == T_TYPE && mp->totype == W_TYPE) ||
-        (m->fromtype == W_TYPE && m->totype == W_TYPE &&
-         mp->fromtype == W_TYPE && mp->totype == W_TYPE)) {
+    if ((m->fromtype == FCS_PATS__TYPE_WASTE && m->totype == FCS_PATS__TYPE_FREECELL &&
+         mp->fromtype == FCS_PATS__TYPE_FREECELL && mp->totype == FCS_PATS__TYPE_WASTE) ||
+        (m->fromtype == FCS_PATS__TYPE_WASTE && m->totype == FCS_PATS__TYPE_WASTE &&
+         mp->fromtype == FCS_PATS__TYPE_WASTE && mp->totype == FCS_PATS__TYPE_WASTE)) {
 
         /* If we're not putting the card back where we found it,
         it's not an inverse. */
@@ -336,8 +336,8 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
 
     /* soft_thread->W -> soft_thread->W, ..., soft_thread->W -> soft_thread->T */
 
-    if (m->fromtype == W_TYPE && m->totype == W_TYPE &&
-        mp->fromtype == W_TYPE && mp->totype == T_TYPE) {
+    if (m->fromtype == FCS_PATS__TYPE_WASTE && m->totype == FCS_PATS__TYPE_WASTE &&
+        mp->fromtype == FCS_PATS__TYPE_WASTE && mp->totype == FCS_PATS__TYPE_FREECELL) {
 
         /* If we could have moved the card to soft_thread->T on the
         first move, prune.  There are other cases, but they
@@ -352,8 +352,8 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
 
     /* soft_thread->T -> soft_thread->W, ..., soft_thread->W -> soft_thread->W */
 
-    if (m->fromtype == T_TYPE && m->totype == W_TYPE &&
-        mp->fromtype == W_TYPE && mp->totype == W_TYPE) {
+    if (m->fromtype == FCS_PATS__TYPE_FREECELL && m->totype == FCS_PATS__TYPE_WASTE &&
+        mp->fromtype == FCS_PATS__TYPE_WASTE && mp->totype == FCS_PATS__TYPE_WASTE) {
 
         /* We can prune these moves as long as the intervening
         moves don't touch mp->destcard. */
@@ -434,7 +434,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
 
     for (i = 0, mp = mp0; i < n; i++, mp++) {
         if (mp->card != NONE) {
-            if (mp->fromtype == W_TYPE) {
+            if (mp->fromtype == FCS_PATS__TYPE_WASTE) {
                 w = mp->from;
                 for (j = 0; j < npile; j++) {
                     if (w == pile[j]) {
@@ -451,7 +451,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
                     }
                 }
             }
-            if (mp->totype == W_TYPE) {
+            if (mp->totype == FCS_PATS__TYPE_WASTE) {
                 for (j = 0; j < npile; j++) {
                     if (mp->to == pile[j]) {
                         mp->pri -= soft_thread->Xparam[2];
@@ -640,9 +640,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 (!empty && (fcs_pats_card_rank(card) == soft_thread->O[o] + 1))) {
                 mp->card = card;
                 mp->from = w;
-                mp->fromtype = W_TYPE;
+                mp->fromtype = FCS_PATS__TYPE_WASTE;
                 mp->to = o;
-                mp->totype = O_TYPE;
+                mp->totype = FCS_PATS__TYPE_FOUNDATION;
                 mp->srccard = NONE;
                 if (soft_thread->columns_lens[w] > 1) {
                     mp->srccard = soft_thread->Wp[w][-1];
@@ -677,9 +677,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 (!empty && (fcs_pats_card_rank(card) == soft_thread->O[o] + 1))) {
                 mp->card = card;
                 mp->from = t;
-                mp->fromtype = T_TYPE;
+                mp->fromtype = FCS_PATS__TYPE_FREECELL;
                 mp->to = o;
-                mp->totype = O_TYPE;
+                mp->totype = FCS_PATS__TYPE_FOUNDATION;
                 mp->srccard = NONE;
                 mp->destcard = NONE;
                 mp->pri = 0;    /* unused */
@@ -727,9 +727,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 card = *soft_thread->Wp[i];
                 mp->card = card;
                 mp->from = i;
-                mp->fromtype = W_TYPE;
+                mp->fromtype = FCS_PATS__TYPE_WASTE;
                 mp->to = emptyw;
-                mp->totype = W_TYPE;
+                mp->totype = FCS_PATS__TYPE_WASTE;
                 mp->srccard = soft_thread->Wp[i][-1];
                 mp->destcard = NONE;
                 mp->pri = soft_thread->Xparam[3];
@@ -755,9 +755,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                      fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
                     mp->card = card;
                     mp->from = i;
-                    mp->fromtype = W_TYPE;
+                    mp->fromtype = FCS_PATS__TYPE_WASTE;
                     mp->to = w;
-                    mp->totype = W_TYPE;
+                    mp->totype = FCS_PATS__TYPE_WASTE;
                     mp->srccard = NONE;
                     if (soft_thread->columns_lens[i] > 1) {
                         mp->srccard = soft_thread->Wp[i][-1];
@@ -782,9 +782,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                      fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
                     mp->card = card;
                     mp->from = t;
-                    mp->fromtype = T_TYPE;
+                    mp->fromtype = FCS_PATS__TYPE_FREECELL;
                     mp->to = w;
-                    mp->totype = W_TYPE;
+                    mp->totype = FCS_PATS__TYPE_WASTE;
                     mp->srccard = NONE;
                     mp->destcard = *soft_thread->Wp[w];
                     mp->pri = soft_thread->Xparam[5];
@@ -803,9 +803,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
             if (card != NONE && fcs_pats_is_king_only(not_King_only, card)) {
                 mp->card = card;
                 mp->from = t;
-                mp->fromtype = T_TYPE;
+                mp->fromtype = FCS_PATS__TYPE_FREECELL;
                 mp->to = emptyw;
-                mp->totype = W_TYPE;
+                mp->totype = FCS_PATS__TYPE_WASTE;
                 mp->srccard = NONE;
                 mp->destcard = NONE;
                 mp->pri = soft_thread->Xparam[6];
@@ -828,9 +828,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 card = *soft_thread->Wp[w];
                 mp->card = card;
                 mp->from = w;
-                mp->fromtype = W_TYPE;
+                mp->fromtype = FCS_PATS__TYPE_WASTE;
                 mp->to = t;
-                mp->totype = T_TYPE;
+                mp->totype = FCS_PATS__TYPE_FREECELL;
                 mp->srccard = NONE;
                 if (soft_thread->columns_lens[w] > 1) {
                     mp->srccard = soft_thread->Wp[w][-1];
@@ -856,11 +856,11 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
     const fcs_pats__move_t * const mp
 )
 {
-    if (mp->totype == O_TYPE)
+    if (mp->totype == FCS_PATS__TYPE_FOUNDATION)
     {
         return TRUE;
     }
-    else if (mp->fromtype == W_TYPE)
+    else if (mp->fromtype == FCS_PATS__TYPE_WASTE)
     {
         const card_t srccard = mp->srccard;
         if (srccard != NONE)
@@ -1018,9 +1018,9 @@ static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
     for (i = 0, mpp = mpp0; i < nmoves; i++, mpp++) {
         mp = *mpp;
         fc_solve_pats__print_card(mp->card, out);
-        if (mp->totype == T_TYPE) {
+        if (mp->totype == FCS_PATS__TYPE_FREECELL) {
             fprintf(out, "to temp\n");
-        } else if (mp->totype == O_TYPE) {
+        } else if (mp->totype == FCS_PATS__TYPE_FOUNDATION) {
             fprintf(out, "out\n");
         } else {
             fprintf(out, "to ");
