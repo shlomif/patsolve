@@ -71,9 +71,9 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     tree, we just have to wrap a fcs_pats_position_t struct around it, and link it
     into the move stack.  Store the temp cells after the fcs_pats_position_t. */
 
-    if (soft_thread->Freepos) {
-        p = (u_char *)soft_thread->Freepos;
-        soft_thread->Freepos = soft_thread->Freepos->queue;
+    if (soft_thread->freed_positions) {
+        p = (u_char *)soft_thread->freed_positions;
+        soft_thread->freed_positions = soft_thread->freed_positions->queue;
     } else {
         p = fc_solve_pats__new_from_block(soft_thread, soft_thread->Posbytes);
         if (p == NULL) {
@@ -230,13 +230,13 @@ static void free_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_positio
     freelist (using the queue member), so we can use it again later. */
 
     if (!rec) {
-        pos->queue = soft_thread->Freepos;
-        soft_thread->Freepos = pos;
+        pos->queue = soft_thread->freed_positions;
+        soft_thread->freed_positions = pos;
         pos->parent->nchild--;
     } else {
         do {
-            pos->queue = soft_thread->Freepos;
-            soft_thread->Freepos = pos;
+            pos->queue = soft_thread->freed_positions;
+            soft_thread->freed_positions = pos;
             pos = pos->parent;
             if (pos == NULL) {
                 return;

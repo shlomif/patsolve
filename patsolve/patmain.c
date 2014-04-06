@@ -224,7 +224,7 @@ int main(int argc, char **argv)
     soft_thread->to_stack = FALSE;
     soft_thread->cutoff = 1;
     soft_thread->remaining_memory = (50 * 1000 * 1000);
-    soft_thread->Freepos = NULL;
+    soft_thread->freed_positions = NULL;
     /* Default variation. */
     soft_thread_struct.Same_suit = TRUE;
     soft_thread_struct.King_only = KING_ONLY;
@@ -531,7 +531,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
         fc_solve_pats__free_buckets(soft_thread);
         fc_solve_pats__free_clusters(soft_thread);
         fc_solve_pats__free_blocks(soft_thread);
-        soft_thread->Freepos = NULL;
+        soft_thread->freed_positions = NULL;
     }
 #if DEBUG
 if (soft_thread->remaining_memory != Init_mem_remain) {
