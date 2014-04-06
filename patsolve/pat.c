@@ -849,33 +849,66 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 /* Moves that can't be undone get slightly higher priority, since it means
 we are moving a card for the first time. */
 
-static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n)
+static GCC_INLINE fcs_bool_t is_irreversible_move(
+    const card_t game_variant_suit_mask,
+    const card_t game_variant_desired_suit_value,
+    const fcs_bool_t King_only,
+    const fcs_pats__move_t * const mp
+)
 {
-    int i, irr;
-    card_t card, srccard;
+    if (mp->totype == O_TYPE)
+    {
+        return TRUE;
+    }
+    else if (mp->fromtype == W_TYPE)
+    {
+        const card_t srccard = mp->srccard;
+        if (srccard != NONE)
+        {
+            const card_t card = mp->card;
+            if (
+                ( fcs_pats_card_rank(card) !=
+                  fcs_pats_card_rank(srccard) - 1
+                )
+                ||
+                !fcs_pats_is_suitable(card, srccard,
+                    game_variant_suit_mask,
+                    game_variant_desired_suit_value
+                )
+            ) {
+                return TRUE;
+            }
+        }
+        /* TODO : This is probably a bug because mp->card probably cannot be
+         * PS_KING - only PS_KING bitwise-ORed with some other value.
+         * */
+        else if (King_only && mp->card != PS_KING)
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
+{
+    int i;
     fcs_pats__move_t *mp;
 
     const card_t game_variant_suit_mask = soft_thread->game_variant_suit_mask;
     const card_t game_variant_desired_suit_value = soft_thread->game_variant_desired_suit_value;
+    const fcs_bool_t King_only = soft_thread->King_only;
+    const typeof(soft_thread->Xparam[8]) Xparam_8 = soft_thread->Xparam[8];
 
     for (i = 0, mp = soft_thread->Possible; i < n; i++, mp++) {
-        irr = FALSE;
-        if (mp->totype == O_TYPE) {
-            irr = TRUE;
-        } else if (mp->fromtype == W_TYPE) {
-            srccard = mp->srccard;
-            if (srccard != NONE) {
-                card = mp->card;
-                if (fcs_pats_card_rank(card) != fcs_pats_card_rank(srccard) - 1 ||
-                    !fcs_pats_is_suitable(card, srccard, game_variant_suit_mask, game_variant_desired_suit_value)) {
-                    irr = TRUE;
-                }
-            } else if (soft_thread->King_only && mp->card != PS_KING) {
-                irr = TRUE;
-            }
-        }
-        if (irr) {
-            mp->pri += soft_thread->Xparam[8];
+        if (is_irreversible_move(
+                game_variant_suit_mask,
+                game_variant_desired_suit_value,
+                King_only,
+                mp))
+        {
+            mp->pri += Xparam_8;
         }
     }
 }
