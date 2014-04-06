@@ -99,8 +99,9 @@ typedef struct {
 #define FCS_PATS__TYPE_FREECELL 2
 #define FCS_PATS__TYPE_WASTE 3
 
-#define MAXTPILES       8       /* max number of piles */
-#define MAXWPILES      13
+/* Max number of piles */
+#define MAX_NUM_FREECELLS       8
+#define MAX_NUM_STACKS      13
 
 /* Position information.  We store a compact representation of the position;
 Temp cells are stored separately since they don't have to be compared.
@@ -201,20 +202,20 @@ struct fc_solve_soft_thread_struct
 
     /* Work arrays. */
 
-    card_t T[MAXTPILES];     /* one card in each temp cell */
-    card_t W[MAXWPILES][52]; /* the workspace */
-    card_t *Wp[MAXWPILES];   /* point to the top card of each work pile */
+    card_t T[MAX_NUM_FREECELLS];     /* one card in each temp cell */
+    card_t W[MAX_NUM_STACKS][52]; /* the workspace */
+    card_t *Wp[MAX_NUM_STACKS];   /* point to the top card of each work pile */
     /* The number of cards in each column. */
-    int columns_lens[MAXWPILES];
-    int Widx[MAXWPILES];     /* used to keep the piles sorted */
-    int Widxi[MAXWPILES];    /* inverse of the above */
+    int columns_lens[MAX_NUM_STACKS];
+    int Widx[MAX_NUM_STACKS];     /* used to keep the piles sorted */
+    int Widxi[MAX_NUM_STACKS];    /* inverse of the above */
 
     card_t O[4];             /* output piles store only the rank or NONE */
 
     /* Every different pile has a hash and a unique id. */
 
-    u_int32_t Whash[MAXWPILES];
-    int Wpilenum[MAXWPILES];
+    u_int32_t Whash[MAX_NUM_STACKS];
+    int Wpilenum[MAX_NUM_STACKS];
 
     /* Temp storage for possible moves. */
 

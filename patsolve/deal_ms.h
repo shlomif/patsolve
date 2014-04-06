@@ -82,7 +82,7 @@ static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thre
     int i, j, c;
     int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
     CARD deck[NUM_CARDS];
-    CARD pos[MAXWPILES][NUM_CARDS+1];
+    CARD pos[MAX_NUM_STACKS][NUM_CARDS+1];
     LONG seedx;
 
     memset(pos, 0, sizeof(pos));
@@ -115,7 +115,7 @@ static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thre
         soft_thread->columns_lens[i] = j;
     }
     /* leftover cards to temp */
-    for (i = 0; i < MAXTPILES; i++) {
+    for (i = 0; i < MAX_NUM_FREECELLS; i++) {
         soft_thread->T[i] = 0;
         if (wLeft) {
             j = --wLeft;
