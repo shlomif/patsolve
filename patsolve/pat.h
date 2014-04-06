@@ -94,9 +94,10 @@ typedef struct {
     signed char pri;        /* move priority (low priority == low value) */
 } fcs_pats__move_t;
 
-#define O_TYPE 1                /* pile types */
-#define T_TYPE 2
-#define W_TYPE 3
+/* Pile types */
+#define FCS_PATS__TYPE_FOUNDATION 1
+#define FCS_PATS__TYPE_FREECELL 2
+#define FCS_PATS__TYPE_WASTE 3
 
 #define MAXTPILES       8       /* max number of piles */
 #define MAXWPILES      13
