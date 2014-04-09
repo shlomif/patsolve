@@ -92,7 +92,7 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
 
 static void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 {
-    soft_thread->pats_solve_params = XYparam[pnum];
+    soft_thread->pats_solve_params = freecell_solver_pats__x_y_params_preset[pnum];
     soft_thread->cutoff = soft_thread->pats_solve_params.x[NXPARAM - 1];
 }
 
