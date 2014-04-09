@@ -124,7 +124,7 @@ static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thre
         }
     }
     for (i = 0; i < 4; i++) {
-        soft_thread->O[i] = 0;
+        soft_thread->current_pos.foundations[i] = 0;
     }
 }
 

@@ -84,7 +84,7 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
     }
     fputc('\n', stderr);
     for (o = 0; o < 4; o++) {
-        fc_solve_pats__print_card(soft_thread->O[o] +
+        fc_solve_pats__print_card(soft_thread->current_pos.foundations[o] +
             fc_solve_pats__output_suits[o], stderr);
     }
     fprintf(stderr, "\n---\n");
@@ -183,7 +183,7 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
     /* Output piles, if any. */
 
     for (i = 0; i < 4; i++) {
-        soft_thread->O[i] = out[i] = NONE;
+        soft_thread->current_pos.foundations[i] = out[i] = NONE;
     }
     if (total != 52) {
         fgets(buf, 100, infile);
@@ -192,7 +192,7 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
             if (out[i] != NONE) {
                 total +=
                     (
-                        soft_thread->O[fcs_pats_card_suit(out[i])]
+                        soft_thread->current_pos.foundations[fcs_pats_card_suit(out[i])]
                             = fcs_pats_card_rank(out[i])
                     );
             }

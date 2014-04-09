@@ -259,7 +259,7 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_positi
     additional priority depending on the number of cards out.  We use a
     "queue squashing function" to map nout to priority.  */
 
-    nout = soft_thread->O[0] + soft_thread->O[1] + soft_thread->O[2] + soft_thread->O[3];
+    nout = soft_thread->current_pos.foundations[0] + soft_thread->current_pos.foundations[1] + soft_thread->current_pos.foundations[2] + soft_thread->current_pos.foundations[3];
 
     /* soft_thread->Yparam[0] * nout^2 + soft_thread->Yparam[1] * nout + soft_thread->Yparam[2] */
 
@@ -329,14 +329,14 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
 
     {
         int packed_foundations = pos->cluster;
-        typeof(soft_thread->O[0]) * const O = soft_thread->O;
-        O[0] = packed_foundations & 0xF;
+        typeof(soft_thread->current_pos.foundations[0]) * const founds = soft_thread->current_pos.foundations;
+        founds[0] = packed_foundations & 0xF;
         packed_foundations >>= 4;
-        O[1] = packed_foundations & 0xF;
+        founds[1] = packed_foundations & 0xF;
         packed_foundations >>= 4;
-        O[2] = packed_foundations & 0xF;
+        founds[2] = packed_foundations & 0xF;
         packed_foundations >>= 4;
-        O[3] = packed_foundations & 0xF;
+        founds[3] = packed_foundations & 0xF;
     }
 
     {

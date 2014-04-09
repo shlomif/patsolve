@@ -96,7 +96,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
         soft_thread->current_pos.columns_lens[to]++;
         hashpile(soft_thread, to);
     } else {
-        soft_thread->O[to]++;
+        soft_thread->current_pos.foundations[to]++;
     }
 }
 
@@ -118,8 +118,8 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
         soft_thread->current_pos.columns_lens[to]--;
         hashpile(soft_thread, to);
     } else {
-        card = soft_thread->O[to] + fc_solve_pats__output_suits[to];
-        soft_thread->O[to]--;
+        card = soft_thread->current_pos.foundations[to] + fc_solve_pats__output_suits[to];
+        soft_thread->current_pos.foundations[to]--;
     }
 
     /* Add to 'from' pile. */
@@ -394,10 +394,10 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
 
     for (s = 0; s < 4; s++) {
         need[s] = NONE;
-        if (soft_thread->O[s] == NONE) {
+        if (soft_thread->current_pos.foundations[s] == NONE) {
             need[s] = fc_solve_pats__output_suits[s] + PS_ACE;
-        } else if (soft_thread->O[s] != PS_KING) {
-            need[s] = fc_solve_pats__output_suits[s] + soft_thread->O[s] + 1;
+        } else if (soft_thread->current_pos.foundations[s] != PS_KING) {
+            need[s] = fc_solve_pats__output_suits[s] + soft_thread->current_pos.foundations[s] + 1;
         }
     }
 
@@ -505,7 +505,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
 
     if (n == 0) {
         for (o = 0; o < 4; o++) {
-            if (soft_thread->O[o] != PS_KING) {
+            if (soft_thread->current_pos.foundations[o] != PS_KING) {
                 break;
             }
         }
@@ -591,7 +591,7 @@ static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o,
     /* Check the Out piles of opposite color. */
 
     for (i = 1 - (o & 1); i < 4; i += 2) {
-        if (soft_thread->O[i] < r - 1) {
+        if (soft_thread->current_pos.foundations[i] < r - 1) {
 
 #if 1   /* Raymond's Rule */
             /* Not all the N-1's of opposite color are out
@@ -602,11 +602,11 @@ static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o,
             make it back to the outer loop. */
 
             for (i = 1 - (o & 1); i < 4; i += 2) {
-                if (soft_thread->O[i] < r - 2) {
+                if (soft_thread->current_pos.foundations[i] < r - 2) {
                     return FALSE;
                 }
             }
-            if (soft_thread->O[(o + 2) & 3] < r - 3) {
+            if (soft_thread->current_pos.foundations[(o + 2) & 3] < r - 3) {
                 return FALSE;
             }
 
@@ -628,7 +628,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     card_t card;
     fcs_pats__move_t *mp;
 
-    /* Check for moves from soft_thread->current_pos.stacks to soft_thread->O. */
+    /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
 
     n = 0;
     mp = soft_thread->Possible;
@@ -636,9 +636,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         if (soft_thread->current_pos.columns_lens[w] > 0) {
             card = *soft_thread->current_pos.stack_ptrs[w];
             o = fcs_pats_card_suit(card);
-            empty = (soft_thread->O[o] == NONE);
+            empty = (soft_thread->current_pos.foundations[o] == NONE);
             if ((empty && (fcs_pats_card_rank(card) == PS_ACE)) ||
-                (!empty && (fcs_pats_card_rank(card) == soft_thread->O[o] + 1))) {
+                (!empty && (fcs_pats_card_rank(card) == soft_thread->current_pos.foundations[o] + 1))) {
                 mp->card = card;
                 mp->from = w;
                 mp->fromtype = FCS_PATS__TYPE_WASTE;
@@ -667,15 +667,15 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         }
     }
 
-    /* Check for moves from soft_thread->current_pos.freecells to soft_thread->O. */
+    /* Check for moves from soft_thread->current_pos.freecells to soft_thread->current_pos.foundations. */
 
     for (t = 0; t < soft_thread->Ntpiles; t++) {
         if (soft_thread->current_pos.freecells[t] != NONE) {
             card = soft_thread->current_pos.freecells[t];
             o = fcs_pats_card_suit(card);
-            empty = (soft_thread->O[o] == NONE);
+            empty = (soft_thread->current_pos.foundations[o] == NONE);
             if ((empty && (fcs_pats_card_rank(card) == PS_ACE)) ||
-                (!empty && (fcs_pats_card_rank(card) == soft_thread->O[o] + 1))) {
+                (!empty && (fcs_pats_card_rank(card) == soft_thread->current_pos.foundations[o] + 1))) {
                 mp->card = card;
                 mp->from = t;
                 mp->fromtype = FCS_PATS__TYPE_FREECELL;
