@@ -956,17 +956,19 @@ void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
 
     /* Sort them. */
 
-    soft_thread->Widx[0] = 0;
+    /* TODO : Add a temp pointer to column_idxs */
+
+    soft_thread->current_pos.column_idxs[0] = 0;
     w = 0;
     for (i = 1; i < soft_thread->Nwpiles; i++) {
-        if (wcmp(soft_thread, soft_thread->Widx[w], i) < 0) {
+        if (wcmp(soft_thread, soft_thread->current_pos.column_idxs[w], i) < 0) {
             w++;
-            soft_thread->Widx[w] = i;
+            soft_thread->current_pos.column_idxs[w] = i;
         } else {
             for (j = w; j >= 0; --j) {
-                soft_thread->Widx[j + 1] = soft_thread->Widx[j];
-                if (j == 0 || wcmp(soft_thread, soft_thread->Widx[j - 1], i) < 0) {
-                    soft_thread->Widx[j] = i;
+                soft_thread->current_pos.column_idxs[j + 1] = soft_thread->current_pos.column_idxs[j];
+                if (j == 0 || wcmp(soft_thread, soft_thread->current_pos.column_idxs[j - 1], i) < 0) {
+                    soft_thread->current_pos.column_idxs[j] = i;
                     break;
                 }
             }
@@ -977,7 +979,7 @@ void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
     /* Compute the inverse. */
 
     for (i = 0; i < soft_thread->Nwpiles; i++) {
-        soft_thread->Widxi[soft_thread->Widx[i]] = i;
+        soft_thread->Widxi[soft_thread->current_pos.column_idxs[i]] = i;
     }
 }
 
