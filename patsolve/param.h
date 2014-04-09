@@ -11,9 +11,8 @@ typedef struct {
     double y[NYPARAM];
 } fcs_pats_xy_param_t;
 
-extern const fcs_pats_xy_param_t XYparam[];
+extern const fcs_pats_xy_param_t freecell_solver_pats__x_y_params_preset[];
 
-#endif /* PATSOLVE_PARAM_H */
 #define FreecellSpeed 0
 #define FreecellBest 1
 #define FreecellBestA 2
@@ -23,3 +22,5 @@ extern const fcs_pats_xy_param_t XYparam[];
 #define SeahavenKing 6
 #define SeahavenKingSpeed 7
 #define LastParam 7
+
+#endif /* PATSOLVE_PARAM_H */
