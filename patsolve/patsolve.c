@@ -60,7 +60,7 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     const fcs_pats__insert_code_t verdict = fc_solve_pats__insert(soft_thread, &cluster, depth, &node);
     if (verdict == FCS_PATS__INSERT_CODE_NEW)
     {
-        soft_thread->Total_positions++;
+        soft_thread->num_checked_states++;
     }
     else if (verdict != FCS_PATS__INSERT_CODE_FOUND_BETTER)
     {

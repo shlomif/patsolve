@@ -230,7 +230,7 @@ struct fc_solve_soft_thread_struct
 
     /* Statistics. */
 
-    int Total_positions;
+    int num_checked_states;
     int Total_generated;
 
     int Xparam[NXPARAM];

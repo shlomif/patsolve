@@ -498,7 +498,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
 
     /* Reset stats. */
 
-    soft_thread->Total_positions = 0;
+    soft_thread->num_checked_states = 0;
     soft_thread->Total_generated = 0;
     soft_thread->num_solutions = 0;
 
@@ -523,7 +523,7 @@ void play(fc_solve_soft_thread_t * soft_thread)
         }
 #if DEBUG
         printf("%d positions generated.\n", soft_thread->Total_generated);
-        printf("%d unique positions.\n", soft_thread->Total_positions);
+        printf("%d unique positions.\n", soft_thread->num_checked_states);
         printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
 #endif
     }
