@@ -93,8 +93,8 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     p += sizeof(fcs_pats_position_t);
     int i = 0;
     for (t = 0; t < soft_thread->Ntpiles; t++) {
-        *p++ = soft_thread->T[t];
-        if (soft_thread->T[t] != NONE) {
+        *p++ = soft_thread->current_pos.freecells[t];
+        if (soft_thread->current_pos.freecells[t] != NONE) {
             i++;
         }
     }
@@ -319,7 +319,7 @@ static GCC_INLINE int strecpy(u_char *dest, u_char *src)
     return i;
 }
 
-/* Unpack a compact position rep.  soft_thread->T cells must be restored from
+/* Unpack a compact position rep.  soft_thread->current_pos.freecells cells must be restored from
  * the array following the fcs_pats_position_t struct. */
 
 static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
@@ -380,14 +380,14 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
         }
     }
 
-    /* soft_thread->T cells. */
+    /* soft_thread->current_pos.freecells cells. */
 
     {
         u_char * p = (u_char *)pos;
         p += sizeof(fcs_pats_position_t);
         const typeof(soft_thread->Ntpiles) Ntpiles = soft_thread->Ntpiles;
         for (int i = 0; i < Ntpiles; i++) {
-            soft_thread->T[i] = *p++;
+            soft_thread->current_pos.freecells[i] = *p++;
         }
     }
 }
