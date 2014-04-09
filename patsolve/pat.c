@@ -1044,7 +1044,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
         printf("A winner.\n");
         printf("%d moves.\n", nmoves);
 #if DEBUG
-        printf("%d positions generated.\n", soft_thread->Total_generated);
+        printf("%d positions generated.\n", soft_thread->num_states_in_collection);
         printf("%d unique positions.\n", soft_thread->num_checked_states);
         printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
 #endif

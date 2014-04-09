@@ -196,7 +196,7 @@ fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thre
     if (new == NULL) {
         return FCS_PATS__INSERT_CODE_ERR;
     }
-    soft_thread->Total_generated++;
+    soft_thread->num_states_in_collection++;
 
     const fcs_pats__insert_code_t verdict = insert_node(soft_thread, new, d, &tl->tree, node);
 
