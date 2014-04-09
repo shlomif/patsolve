@@ -231,7 +231,7 @@ struct fc_solve_soft_thread_struct
     /* Statistics. */
 
     int num_checked_states;
-    int Total_generated;
+    int num_states_in_collection;
 
     int Xparam[NXPARAM];
     double Yparam[NYPARAM];
