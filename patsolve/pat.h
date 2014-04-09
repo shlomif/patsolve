@@ -223,10 +223,6 @@ struct fc_solve_soft_thread_struct
         int stack_ids[MAX_NUM_STACKS];
     } current_pos;
 
-
-
-
-
     /* Temp storage for possible moves. */
 
     fcs_pats__move_t Possible[FCS_PATS__MAX_NUM_MOVES];
