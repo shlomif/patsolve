@@ -209,9 +209,10 @@ struct fc_solve_soft_thread_struct
         card_t *stack_ptrs[MAX_NUM_STACKS];   /* point to the top card of each work pile */
         /* The number of cards in each column. */
         int columns_lens[MAX_NUM_STACKS];
+        /* used to keep the piles sorted */
+        int column_idxs[MAX_NUM_STACKS];
     } current_pos;
 
-    int Widx[MAX_NUM_STACKS];     /* used to keep the piles sorted */
     int Widxi[MAX_NUM_STACKS];    /* inverse of the above */
 
     card_t O[4];             /* output piles store only the rank or NONE */
