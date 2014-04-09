@@ -202,11 +202,12 @@ struct fc_solve_soft_thread_struct
 
     /* Work arrays. */
 
-    struct {
+    struct
+    {
         card_t freecells[MAX_NUM_FREECELLS];     /* one card in each temp cell */
+        card_t stacks[MAX_NUM_STACKS][52]; /* the workspace */
     } current_pos;
 
-    card_t W[MAX_NUM_STACKS][52]; /* the workspace */
     card_t *Wp[MAX_NUM_STACKS];   /* point to the top card of each work pile */
     /* The number of cards in each column. */
     int columns_lens[MAX_NUM_STACKS];

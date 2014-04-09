@@ -75,7 +75,7 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
 
     for (w = 0; w < soft_thread->Nwpiles; w++) {
         for (i = 0; i < soft_thread->columns_lens[w]; i++) {
-            fc_solve_pats__print_card(soft_thread->W[w][i], stderr);
+            fc_solve_pats__print_card(soft_thread->current_pos.stacks[w][i], stderr);
         }
         fputc('\n', stderr);
     }
@@ -157,8 +157,8 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
     w = 0;
     total = 0;
     while (fgets(buf, 100, infile)) {
-        i = parse_pile(buf, soft_thread->W[w], 52);
-        soft_thread->Wp[w] = &soft_thread->W[w][i - 1];
+        i = parse_pile(buf, soft_thread->current_pos.stacks[w], 52);
+        soft_thread->Wp[w] = &soft_thread->current_pos.stacks[w][i - 1];
         soft_thread->columns_lens[w] = i;
         w++;
         total += i;

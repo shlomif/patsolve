@@ -108,10 +108,10 @@ static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thre
         j = 0;
         while (pos[i][j]) {
             c = pos[i][j] - 1;
-            soft_thread->W[i][j] = fc_solve_pats__msdeal_suits[c % 4] + (c / 4) + 1;
+            soft_thread->current_pos.stacks[i][j] = fc_solve_pats__msdeal_suits[c % 4] + (c / 4) + 1;
             j++;
         }
-        soft_thread->Wp[i] = &soft_thread->W[i][j - 1];
+        soft_thread->Wp[i] = &soft_thread->current_pos.stacks[i][j - 1];
         soft_thread->columns_lens[i] = j;
     }
     /* leftover cards to temp */
