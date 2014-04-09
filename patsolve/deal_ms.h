@@ -112,7 +112,7 @@ static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thre
             j++;
         }
         soft_thread->current_pos.stack_ptrs[i] = &soft_thread->current_pos.stacks[i][j - 1];
-        soft_thread->columns_lens[i] = j;
+        soft_thread->current_pos.columns_lens[i] = j;
     }
     /* leftover cards to temp */
     for (i = 0; i < MAX_NUM_FREECELLS; i++) {
