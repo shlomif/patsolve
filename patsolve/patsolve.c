@@ -261,9 +261,12 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_positi
 
     nout = soft_thread->current_pos.foundations[0] + soft_thread->current_pos.foundations[1] + soft_thread->current_pos.foundations[2] + soft_thread->current_pos.foundations[3];
 
-    /* soft_thread->Yparam[0] * nout^2 + soft_thread->Yparam[1] * nout + soft_thread->Yparam[2] */
+    /* y_param[0] * nout^2 + y_param[1] * nout + y_param[2] */
 
-    x = (soft_thread->Yparam[0] * nout + soft_thread->Yparam[1]) * nout + soft_thread->Yparam[2];
+    const typeof(soft_thread->pats_solve_params.y[0]) * const y_param
+        = soft_thread->pats_solve_params.y;
+
+    x = (y_param[0] * nout + y_param[1]) * nout + y_param[2];
     {
         /*
          * GCC gives a warning with some flags if we cast the result
