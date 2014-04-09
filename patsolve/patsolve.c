@@ -371,7 +371,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
                 i |= (c >> 4) & 0xF;
             }
             k = !k;
-            soft_thread->Wpilenum[w] = i;
+            soft_thread->current_pos.stack_ids[w] = i;
             l = soft_thread->Pilebucket[i];
             i = strecpy(soft_thread->current_pos.stacks[w], l->pile);
             soft_thread->current_pos.stack_ptrs[w] = &soft_thread->current_pos.stacks[w][i - 1];

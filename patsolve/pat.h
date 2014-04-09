@@ -220,12 +220,12 @@ struct fc_solve_soft_thread_struct
         card_t foundations[4];
         /* Every different pile has a hash and a unique id. */
         u_int32_t stack_hashes[MAX_NUM_STACKS];
+        int stack_ids[MAX_NUM_STACKS];
     } current_pos;
 
 
 
 
-    int Wpilenum[MAX_NUM_STACKS];
 
     /* Temp storage for possible moves. */
 
