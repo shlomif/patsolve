@@ -82,7 +82,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
         card = soft_thread->current_pos.freecells[from];
         soft_thread->current_pos.freecells[from] = NONE;
     } else {
-        card = *soft_thread->Wp[from]--;
+        card = *soft_thread->current_pos.stack_ptrs[from]--;
         soft_thread->columns_lens[from]--;
         hashpile(soft_thread, from);
     }
@@ -92,7 +92,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
     if (m->totype == FCS_PATS__TYPE_FREECELL) {
         soft_thread->current_pos.freecells[to] = card;
     } else if (m->totype == FCS_PATS__TYPE_WASTE) {
-        *++soft_thread->Wp[to] = card;
+        *++soft_thread->current_pos.stack_ptrs[to] = card;
         soft_thread->columns_lens[to]++;
         hashpile(soft_thread, to);
     } else {
@@ -114,7 +114,7 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
         card = soft_thread->current_pos.freecells[to];
         soft_thread->current_pos.freecells[to] = NONE;
     } else if (m->totype == FCS_PATS__TYPE_WASTE) {
-        card = *soft_thread->Wp[to]--;
+        card = *soft_thread->current_pos.stack_ptrs[to]--;
         soft_thread->columns_lens[to]--;
         hashpile(soft_thread, to);
     } else {
@@ -127,7 +127,7 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
     if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
         soft_thread->current_pos.freecells[from] = card;
     } else {
-        *++soft_thread->Wp[from] = card;
+        *++soft_thread->current_pos.stack_ptrs[from] = card;
         soft_thread->columns_lens[from]++;
         hashpile(soft_thread, from);
     }
@@ -634,7 +634,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     mp = soft_thread->Possible;
     for (w = 0; w < soft_thread->Nwpiles; w++) {
         if (soft_thread->columns_lens[w] > 0) {
-            card = *soft_thread->Wp[w];
+            card = *soft_thread->current_pos.stack_ptrs[w];
             o = fcs_pats_card_suit(card);
             empty = (soft_thread->O[o] == NONE);
             if ((empty && (fcs_pats_card_rank(card) == PS_ACE)) ||
@@ -646,7 +646,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 mp->totype = FCS_PATS__TYPE_FOUNDATION;
                 mp->srccard = NONE;
                 if (soft_thread->columns_lens[w] > 1) {
-                    mp->srccard = soft_thread->Wp[w][-1];
+                    mp->srccard = soft_thread->current_pos.stack_ptrs[w][-1];
                 }
                 mp->destcard = NONE;
                 mp->pri = 0;    /* unused */
@@ -724,14 +724,14 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 continue;
             }
             if (soft_thread->columns_lens[i] > 1 &&
-                fcs_pats_is_king_only(not_King_only, *(soft_thread->Wp[i]))) {
-                card = *soft_thread->Wp[i];
+                fcs_pats_is_king_only(not_King_only, *(soft_thread->current_pos.stack_ptrs[i]))) {
+                card = *soft_thread->current_pos.stack_ptrs[i];
                 mp->card = card;
                 mp->from = i;
                 mp->fromtype = FCS_PATS__TYPE_WASTE;
                 mp->to = emptyw;
                 mp->totype = FCS_PATS__TYPE_WASTE;
-                mp->srccard = soft_thread->Wp[i][-1];
+                mp->srccard = soft_thread->current_pos.stack_ptrs[i][-1];
                 mp->destcard = NONE;
                 mp->pri = soft_thread->Xparam[3];
                 n++;
@@ -746,14 +746,14 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
     for (i = 0; i < soft_thread->Nwpiles; i++) {
         if (soft_thread->columns_lens[i] > 0) {
-            card = *soft_thread->Wp[i];
+            card = *soft_thread->current_pos.stack_ptrs[i];
             for (w = 0; w < soft_thread->Nwpiles; w++) {
                 if (i == w) {
                     continue;
                 }
                 if (soft_thread->columns_lens[w] > 0 &&
-                    (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
-                     fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
+                    (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
+                     fcs_pats_is_suitable(card, *(soft_thread->current_pos.stack_ptrs[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
                     mp->card = card;
                     mp->from = i;
                     mp->fromtype = FCS_PATS__TYPE_WASTE;
@@ -761,9 +761,9 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                     mp->totype = FCS_PATS__TYPE_WASTE;
                     mp->srccard = NONE;
                     if (soft_thread->columns_lens[i] > 1) {
-                        mp->srccard = soft_thread->Wp[i][-1];
+                        mp->srccard = soft_thread->current_pos.stack_ptrs[i][-1];
                     }
-                    mp->destcard = *soft_thread->Wp[w];
+                    mp->destcard = *soft_thread->current_pos.stack_ptrs[w];
                     mp->pri = soft_thread->Xparam[4];
                     n++;
                     mp++;
@@ -779,15 +779,15 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         if (card != NONE) {
             for (w = 0; w < soft_thread->Nwpiles; w++) {
                 if (soft_thread->columns_lens[w] > 0 &&
-                    (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->Wp[w]) - 1 &&
-                     fcs_pats_is_suitable(card, *(soft_thread->Wp[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
+                    (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
+                     fcs_pats_is_suitable(card, *(soft_thread->current_pos.stack_ptrs[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
                     mp->card = card;
                     mp->from = t;
                     mp->fromtype = FCS_PATS__TYPE_FREECELL;
                     mp->to = w;
                     mp->totype = FCS_PATS__TYPE_WASTE;
                     mp->srccard = NONE;
-                    mp->destcard = *soft_thread->Wp[w];
+                    mp->destcard = *soft_thread->current_pos.stack_ptrs[w];
                     mp->pri = soft_thread->Xparam[5];
                     n++;
                     mp++;
@@ -826,7 +826,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     if (t < soft_thread->Ntpiles) {
         for (w = 0; w < soft_thread->Nwpiles; w++) {
             if (soft_thread->columns_lens[w] > 0) {
-                card = *soft_thread->Wp[w];
+                card = *soft_thread->current_pos.stack_ptrs[w];
                 mp->card = card;
                 mp->from = w;
                 mp->fromtype = FCS_PATS__TYPE_WASTE;
@@ -834,7 +834,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 mp->totype = FCS_PATS__TYPE_FREECELL;
                 mp->srccard = NONE;
                 if (soft_thread->columns_lens[w] > 1) {
-                    mp->srccard = soft_thread->Wp[w][-1];
+                    mp->srccard = soft_thread->current_pos.stack_ptrs[w][-1];
                 }
                 mp->destcard = NONE;
                 mp->pri = soft_thread->Xparam[7];

@@ -158,7 +158,7 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
     total = 0;
     while (fgets(buf, 100, infile)) {
         i = parse_pile(buf, soft_thread->current_pos.stacks[w], 52);
-        soft_thread->Wp[w] = &soft_thread->current_pos.stacks[w][i - 1];
+        soft_thread->current_pos.stack_ptrs[w] = &soft_thread->current_pos.stacks[w][i - 1];
         soft_thread->columns_lens[w] = i;
         w++;
         total += i;
