@@ -211,9 +211,13 @@ struct fc_solve_soft_thread_struct
         int columns_lens[MAX_NUM_STACKS];
         /* used to keep the piles sorted */
         int column_idxs[MAX_NUM_STACKS];
+        /* column_inv_idxs are not needed or used. */
+#if 0
+        /* Inverse of column_idxs */
+        int column_inv_idxs[MAX_NUM_STACKS];
+#endif
     } current_pos;
 
-    int Widxi[MAX_NUM_STACKS];    /* inverse of the above */
 
     card_t O[4];             /* output piles store only the rank or NONE */
 
