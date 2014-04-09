@@ -52,7 +52,7 @@ static GCC_INLINE void hashpile(fc_solve_soft_thread_t * soft_thread, int w)
 
     /* Invalidate this pile's id.  We'll calculate it later. */
 
-    soft_thread->Wpilenum[w] = -1;
+    soft_thread->current_pos.stack_ids[w] = -1;
 }
 
 /* Hash the whole layout.  This is called once, at the start. */
@@ -919,9 +919,9 @@ static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
 static GCC_INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
 {
     if (soft_thread->Xparam[9] < 0) {
-        return soft_thread->Wpilenum[b] - soft_thread->Wpilenum[a];       /* newer piles first */
+        return soft_thread->current_pos.stack_ids[b] - soft_thread->current_pos.stack_ids[a];       /* newer piles first */
     } else {
-        return soft_thread->Wpilenum[a] - soft_thread->Wpilenum[b];       /* older piles first */
+        return soft_thread->current_pos.stack_ids[a] - soft_thread->current_pos.stack_ids[b];       /* older piles first */
     }
 }
 
@@ -946,9 +946,9 @@ void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
     /* Make sure all the piles have id numbers. */
 
     for (w = 0; w < soft_thread->Nwpiles; w++) {
-        if (soft_thread->Wpilenum[w] < 0) {
-            soft_thread->Wpilenum[w] = get_pilenum(soft_thread, w);
-            if (soft_thread->Wpilenum[w] < 0) {
+        if (soft_thread->current_pos.stack_ids[w] < 0) {
+            soft_thread->current_pos.stack_ids[w] = get_pilenum(soft_thread, w);
+            if (soft_thread->current_pos.stack_ids[w] < 0) {
                 return;
             }
         }

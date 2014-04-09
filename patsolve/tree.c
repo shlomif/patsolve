@@ -148,7 +148,7 @@ static GCC_INLINE fcs_pats__tree_t *pack_position(fc_solve_soft_thread_t * soft_
 
     k = 0;
     for (w = 0; w < soft_thread->Nwpiles; w++) {
-        j = soft_thread->Wpilenum[soft_thread->current_pos.column_idxs[w]];
+        j = soft_thread->current_pos.stack_ids[soft_thread->current_pos.column_idxs[w]];
         switch (k) {
         case 0:
             *p++ = j >> 4;
