@@ -116,11 +116,11 @@ static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thre
     }
     /* leftover cards to temp */
     for (i = 0; i < MAX_NUM_FREECELLS; i++) {
-        soft_thread->T[i] = 0;
+        soft_thread->current_pos.freecells[i] = 0;
         if (wLeft) {
             j = --wLeft;
             c = deck[j] - 1;
-            soft_thread->T[i] = fc_solve_pats__msdeal_suits[c % 4] + (c / 4) + 1;
+            soft_thread->current_pos.freecells[i] = fc_solve_pats__msdeal_suits[c % 4] + (c / 4) + 1;
         }
     }
     for (i = 0; i < 4; i++) {

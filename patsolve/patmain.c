@@ -80,7 +80,7 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
         fputc('\n', stderr);
     }
     for (t = 0; t < soft_thread->Ntpiles; t++) {
-        fc_solve_pats__print_card(soft_thread->T[t], stderr);
+        fc_solve_pats__print_card(soft_thread->current_pos.freecells[t], stderr);
     }
     fputc('\n', stderr);
     for (o = 0; o < 4; o++) {
@@ -173,11 +173,11 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
     /* Temp cells may have some cards too. */
 
     for (i = 0; i < soft_thread->Ntpiles; i++) {
-        soft_thread->T[i] = NONE;
+        soft_thread->current_pos.freecells[i] = NONE;
     }
     if (total != 52) {
         fgets(buf, 100, infile);
-        total += parse_pile(buf, soft_thread->T, soft_thread->Ntpiles);
+        total += parse_pile(buf, soft_thread->current_pos.freecells, soft_thread->Ntpiles);
     }
 
     /* Output piles, if any. */

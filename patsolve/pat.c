@@ -79,8 +79,8 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
     /* Remove from pile. */
 
     if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
-        card = soft_thread->T[from];
-        soft_thread->T[from] = NONE;
+        card = soft_thread->current_pos.freecells[from];
+        soft_thread->current_pos.freecells[from] = NONE;
     } else {
         card = *soft_thread->Wp[from]--;
         soft_thread->columns_lens[from]--;
@@ -90,7 +90,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
     /* Add to pile. */
 
     if (m->totype == FCS_PATS__TYPE_FREECELL) {
-        soft_thread->T[to] = card;
+        soft_thread->current_pos.freecells[to] = card;
     } else if (m->totype == FCS_PATS__TYPE_WASTE) {
         *++soft_thread->Wp[to] = card;
         soft_thread->columns_lens[to]++;
@@ -111,8 +111,8 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
     /* Remove from 'to' pile. */
 
     if (m->totype == FCS_PATS__TYPE_FREECELL) {
-        card = soft_thread->T[to];
-        soft_thread->T[to] = NONE;
+        card = soft_thread->current_pos.freecells[to];
+        soft_thread->current_pos.freecells[to] = NONE;
     } else if (m->totype == FCS_PATS__TYPE_WASTE) {
         card = *soft_thread->Wp[to]--;
         soft_thread->columns_lens[to]--;
@@ -125,7 +125,7 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
     /* Add to 'from' pile. */
 
     if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
-        soft_thread->T[from] = card;
+        soft_thread->current_pos.freecells[from] = card;
     } else {
         *++soft_thread->Wp[from] = card;
         soft_thread->columns_lens[from]++;
@@ -268,9 +268,10 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
         return FALSE;
     }
 
-    /* If the number of empty soft_thread->T cells ever goes to zero, from prev[0] to
+    /* If the number of empty soft_thread->current_pos.freecells cells
+     * ever goes to zero, from prev[0] to
     prev[j-1], there may be a dependency.  We also want to know if there
-    were any empty soft_thread->T cells on move prev[j]. */
+    were any empty soft_thread->current_pos.freecells cells on move prev[j]. */
 
     zerot = 0;
     pos = pos0;
@@ -283,12 +284,12 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
     move.  See if the current move inverts that move.  There are several
     cases. */
 
-    /* soft_thread->T -> soft_thread->W, ..., soft_thread->W -> soft_thread->T */
+    /* soft_thread->current_pos.freecells -> soft_thread->W, ..., soft_thread->W -> soft_thread->current_pos.freecells */
 
     if (m->fromtype == FCS_PATS__TYPE_FREECELL && m->totype == FCS_PATS__TYPE_WASTE &&
         mp->fromtype == FCS_PATS__TYPE_WASTE && mp->totype == FCS_PATS__TYPE_FREECELL) {
 
-        /* If the number of soft_thread->T cells goes to zero, we have a soft_thread->T
+        /* If the number of soft_thread->current_pos.freecells cells goes to zero, we have a soft_thread->current_pos.freecells
         dependency, and we can't prune. */
 
         if (zerot) {
@@ -305,7 +306,7 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
         return TRUE;
     }
 
-    /* soft_thread->W -> soft_thread->T, ..., soft_thread->T -> soft_thread->W */
+    /* soft_thread->W -> soft_thread->current_pos.freecells, ..., soft_thread->current_pos.freecells -> soft_thread->W */
     /* soft_thread->W -> soft_thread->W, ..., soft_thread->W -> soft_thread->W */
 
     if ((m->fromtype == FCS_PATS__TYPE_WASTE && m->totype == FCS_PATS__TYPE_FREECELL &&
@@ -334,12 +335,12 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
 
     /* These are not inverse prunes, we're taking a shortcut. */
 
-    /* soft_thread->W -> soft_thread->W, ..., soft_thread->W -> soft_thread->T */
+    /* soft_thread->W -> soft_thread->W, ..., soft_thread->W -> soft_thread->current_pos.freecells */
 
     if (m->fromtype == FCS_PATS__TYPE_WASTE && m->totype == FCS_PATS__TYPE_WASTE &&
         mp->fromtype == FCS_PATS__TYPE_WASTE && mp->totype == FCS_PATS__TYPE_FREECELL) {
 
-        /* If we could have moved the card to soft_thread->T on the
+        /* If we could have moved the card to soft_thread->current_pos.freecells on the
         first move, prune.  There are other cases, but they
         are more complicated. */
 
@@ -350,7 +351,7 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
         return FALSE;
     }
 
-    /* soft_thread->T -> soft_thread->W, ..., soft_thread->W -> soft_thread->W */
+    /* soft_thread->current_pos.freecells -> soft_thread->W, ..., soft_thread->W -> soft_thread->W */
 
     if (m->fromtype == FCS_PATS__TYPE_FREECELL && m->totype == FCS_PATS__TYPE_WASTE &&
         mp->fromtype == FCS_PATS__TYPE_WASTE && mp->totype == FCS_PATS__TYPE_WASTE) {
@@ -666,11 +667,11 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         }
     }
 
-    /* Check for moves from soft_thread->T to soft_thread->O. */
+    /* Check for moves from soft_thread->current_pos.freecells to soft_thread->O. */
 
     for (t = 0; t < soft_thread->Ntpiles; t++) {
-        if (soft_thread->T[t] != NONE) {
-            card = soft_thread->T[t];
+        if (soft_thread->current_pos.freecells[t] != NONE) {
+            card = soft_thread->current_pos.freecells[t];
             o = fcs_pats_card_suit(card);
             empty = (soft_thread->O[o] == NONE);
             if ((empty && (fcs_pats_card_rank(card) == PS_ACE)) ||
@@ -771,10 +772,10 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         }
     }
 
-    /* Check for moves from soft_thread->T to non-empty soft_thread->W cells. */
+    /* Check for moves from soft_thread->current_pos.freecells to non-empty soft_thread->W cells. */
 
     for (t = 0; t < soft_thread->Ntpiles; t++) {
-        card = soft_thread->T[t];
+        card = soft_thread->current_pos.freecells[t];
         if (card != NONE) {
             for (w = 0; w < soft_thread->Nwpiles; w++) {
                 if (soft_thread->columns_lens[w] > 0 &&
@@ -795,11 +796,11 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         }
     }
 
-    /* Check for moves from soft_thread->T to one of any empty soft_thread->W cells. */
+    /* Check for moves from soft_thread->current_pos.freecells to one of any empty soft_thread->W cells. */
 
     if (emptyw >= 0) {
         for (t = 0; t < soft_thread->Ntpiles; t++) {
-            card = soft_thread->T[t];
+            card = soft_thread->current_pos.freecells[t];
             if (card != NONE && fcs_pats_is_king_only(not_King_only, card)) {
                 mp->card = card;
                 mp->from = t;
@@ -815,10 +816,10 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         }
     }
 
-    /* Check for moves from soft_thread->W to one of any empty soft_thread->T cells. */
+    /* Check for moves from soft_thread->W to one of any empty soft_thread->current_pos.freecells cells. */
 
     for (t = 0; t < soft_thread->Ntpiles; t++) {
-        if (soft_thread->T[t] == NONE) {
+        if (soft_thread->current_pos.freecells[t] == NONE) {
             break;
         }
     }
