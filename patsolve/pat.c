@@ -48,7 +48,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w);
 static GCC_INLINE void hashpile(fc_solve_soft_thread_t * soft_thread, int w)
 {
     soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w]] = 0;
-    soft_thread->Whash[w] = fnv_hash_str(soft_thread->current_pos.stacks[w]);
+    soft_thread->current_pos.stack_hashes[w] = fnv_hash_str(soft_thread->current_pos.stacks[w]);
 
     /* Invalidate this pile's id.  We'll calculate it later. */
 
@@ -1066,13 +1066,13 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
     one, add it to the appropriate list and give it one.  First, get
     the hash bucket. */
 
-    const int bucket = soft_thread->Whash[w] % FC_SOLVE_BUCKETLIST_NBUCKETS;
+    const int bucket = soft_thread->current_pos.stack_hashes[w] % FC_SOLVE_BUCKETLIST_NBUCKETS;
 
     /* Look for the pile in this bucket. */
 
     last = NULL;
     for (l = soft_thread->Bucketlist[bucket]; l; l = l->next) {
-        if (l->hash == soft_thread->Whash[w] &&
+        if (l->hash == soft_thread->current_pos.stack_hashes[w] &&
             strncmp((const char *)l->pile, (const char *)soft_thread->current_pos.stacks[w], soft_thread->current_pos.columns_lens[w]) == 0) {
             break;
         }
@@ -1100,7 +1100,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
         a reverse mapping so we can unpack the piles swiftly. */
 
         strncpy((char*)l->pile, (const char *)soft_thread->current_pos.stacks[w], soft_thread->current_pos.columns_lens[w] + 1);
-        l->hash = soft_thread->Whash[w];
+        l->hash = soft_thread->current_pos.stack_hashes[w];
         l->pilenum = pilenum = soft_thread->Pilenum++;
         l->next = NULL;
         if (last == NULL) {
