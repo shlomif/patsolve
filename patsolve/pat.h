@@ -225,7 +225,7 @@ struct fc_solve_soft_thread_struct
 
     /* Temp storage for possible moves. */
 
-    fcs_pats__move_t Possible[FCS_PATS__MAX_NUM_MOVES];
+    fcs_pats__move_t possible_moves[FCS_PATS__MAX_NUM_MOVES];
 
 
     /* Statistics. */

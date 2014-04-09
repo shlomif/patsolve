@@ -470,7 +470,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
     int i, n, alln, o, a, numout;
     fcs_pats__move_t *mp, *mp0;
 
-    /* Fill in the soft_thread->Possible array. */
+    /* Fill in the soft_thread->possible_moves array. */
 
     alln = n = get_possible_moves(soft_thread, &a, &numout);
 
@@ -478,7 +478,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
 
         /* Throw out some obviously bad (non-auto)moves. */
 
-        for (i = 0, mp = soft_thread->Possible; i < alln; i++, mp++) {
+        for (i = 0, mp = soft_thread->possible_moves; i < alln; i++, mp++) {
 
             /* Special prune for Seahaven -k. */
 
@@ -538,7 +538,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
     don't need a priority. */
 
     if (!a) {
-        prioritize(soft_thread, soft_thread->Possible, alln);
+        prioritize(soft_thread, soft_thread->possible_moves, alln);
     }
 
     /* Now copy to safe storage and return.  Non-auto moves out get put
@@ -555,21 +555,21 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
     i = 0;
     if (a || numout == 0) {
         for (i = 0; i < alln; i++) {
-            if (soft_thread->Possible[i].card != NONE) {
-                *mp = soft_thread->Possible[i];      /* struct copy */
+            if (soft_thread->possible_moves[i].card != NONE) {
+                *mp = soft_thread->possible_moves[i];      /* struct copy */
                 mp++;
             }
         }
     } else {
         for (i = numout; i < alln; i++) {
-            if (soft_thread->Possible[i].card != NONE) {
-                *mp = soft_thread->Possible[i];      /* struct copy */
+            if (soft_thread->possible_moves[i].card != NONE) {
+                *mp = soft_thread->possible_moves[i];      /* struct copy */
                 mp++;
             }
         }
         for (i = 0; i < numout; i++) {
-            if (soft_thread->Possible[i].card != NONE) {
-                *mp = soft_thread->Possible[i];      /* struct copy */
+            if (soft_thread->possible_moves[i].card != NONE) {
+                *mp = soft_thread->possible_moves[i];      /* struct copy */
                 mp++;
             }
         }
@@ -620,7 +620,7 @@ static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o,
     return TRUE;
 }
 
-/* Get the possible moves from a position, and store them in soft_thread->Possible[]. */
+/* Get the possible moves from a position, and store them in soft_thread->possible_moves[]. */
 
 static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int *numout)
 {
@@ -631,7 +631,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
 
     n = 0;
-    mp = soft_thread->Possible;
+    mp = soft_thread->possible_moves;
     for (w = 0; w < soft_thread->Nwpiles; w++) {
         if (soft_thread->current_pos.columns_lens[w] > 0) {
             card = *soft_thread->current_pos.stack_ptrs[w];
@@ -658,7 +658,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 if (good_automove(soft_thread, o, fcs_pats_card_rank(card))) {
                     *a = TRUE;
                     if (n != 1) {
-                        soft_thread->Possible[0] = mp[-1];
+                        soft_thread->possible_moves[0] = mp[-1];
                         return 1;
                     }
                     return n;
@@ -692,7 +692,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 if (good_automove(soft_thread, o, fcs_pats_card_rank(card))) {
                     *a = TRUE;
                     if (n != 1) {
-                        soft_thread->Possible[0] = mp[-1];
+                        soft_thread->possible_moves[0] = mp[-1];
                         return 1;
                     }
                     return n;
@@ -902,7 +902,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
     const fcs_bool_t King_only = soft_thread->King_only;
     const typeof(soft_thread->Xparam[8]) Xparam_8 = soft_thread->Xparam[8];
 
-    for (i = 0, mp = soft_thread->Possible; i < n; i++, mp++) {
+    for (i = 0, mp = soft_thread->possible_moves; i < n; i++, mp++) {
         if (is_irreversible_move(
                 game_variant_suit_mask,
                 game_variant_desired_suit_value,
