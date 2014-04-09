@@ -976,11 +976,13 @@ void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
         }
     }
 
+#if 0
     /* Compute the inverse. */
 
     for (i = 0; i < soft_thread->Nwpiles; i++) {
-        soft_thread->Widxi[soft_thread->current_pos.column_idxs[i]] = i;
+        soft_thread->current_pos.column_inv_idxs[soft_thread->current_pos.column_idxs[i]] = i;
     }
+#endif
 }
 
 /* Win.  Print out the move stack. */
