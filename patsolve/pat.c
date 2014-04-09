@@ -439,14 +439,14 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
                 w = mp->from;
                 for (j = 0; j < npile; j++) {
                     if (w == pile[j]) {
-                        mp->pri += soft_thread->Xparam[0];
+                        mp->pri += soft_thread->pats_solve_params.x[0];
                     }
                 }
                 if (soft_thread->current_pos.columns_lens[w] > 1) {
                     card = soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w] - 2];
                     for (s = 0; s < 4; s++) {
                         if (card == need[s]) {
-                            mp->pri += soft_thread->Xparam[1];
+                            mp->pri += soft_thread->pats_solve_params.x[1];
                             break;
                         }
                     }
@@ -455,7 +455,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
             if (mp->totype == FCS_PATS__TYPE_WASTE) {
                 for (j = 0; j < npile; j++) {
                     if (mp->to == pile[j]) {
-                        mp->pri -= soft_thread->Xparam[2];
+                        mp->pri -= soft_thread->pats_solve_params.x[2];
                     }
                 }
             }
@@ -733,7 +733,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 mp->totype = FCS_PATS__TYPE_WASTE;
                 mp->srccard = soft_thread->current_pos.stack_ptrs[i][-1];
                 mp->destcard = NONE;
-                mp->pri = soft_thread->Xparam[3];
+                mp->pri = soft_thread->pats_solve_params.x[3];
                 n++;
                 mp++;
             }
@@ -764,7 +764,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                         mp->srccard = soft_thread->current_pos.stack_ptrs[i][-1];
                     }
                     mp->destcard = *soft_thread->current_pos.stack_ptrs[w];
-                    mp->pri = soft_thread->Xparam[4];
+                    mp->pri = soft_thread->pats_solve_params.x[4];
                     n++;
                     mp++;
                 }
@@ -788,7 +788,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                     mp->totype = FCS_PATS__TYPE_WASTE;
                     mp->srccard = NONE;
                     mp->destcard = *soft_thread->current_pos.stack_ptrs[w];
-                    mp->pri = soft_thread->Xparam[5];
+                    mp->pri = soft_thread->pats_solve_params.x[5];
                     n++;
                     mp++;
                 }
@@ -809,7 +809,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 mp->totype = FCS_PATS__TYPE_WASTE;
                 mp->srccard = NONE;
                 mp->destcard = NONE;
-                mp->pri = soft_thread->Xparam[6];
+                mp->pri = soft_thread->pats_solve_params.x[6];
                 n++;
                 mp++;
             }
@@ -837,7 +837,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                     mp->srccard = soft_thread->current_pos.stack_ptrs[w][-1];
                 }
                 mp->destcard = NONE;
-                mp->pri = soft_thread->Xparam[7];
+                mp->pri = soft_thread->pats_solve_params.x[7];
                 n++;
                 mp++;
             }
@@ -900,7 +900,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
     const card_t game_variant_suit_mask = soft_thread->game_variant_suit_mask;
     const card_t game_variant_desired_suit_value = soft_thread->game_variant_desired_suit_value;
     const fcs_bool_t King_only = soft_thread->King_only;
-    const typeof(soft_thread->Xparam[8]) Xparam_8 = soft_thread->Xparam[8];
+    const typeof(soft_thread->pats_solve_params.x[8]) x_param_8 = soft_thread->pats_solve_params.x[8];
 
     for (i = 0, mp = soft_thread->possible_moves; i < n; i++, mp++) {
         if (is_irreversible_move(
@@ -909,7 +909,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
                 King_only,
                 mp))
         {
-            mp->pri += Xparam_8;
+            mp->pri += x_param_8;
         }
     }
 }
@@ -918,7 +918,7 @@ static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
 
 static GCC_INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
 {
-    if (soft_thread->Xparam[9] < 0) {
+    if (soft_thread->pats_solve_params.x[9] < 0) {
         return soft_thread->current_pos.stack_ids[b] - soft_thread->current_pos.stack_ids[a];       /* newer piles first */
     } else {
         return soft_thread->current_pos.stack_ids[a] - soft_thread->current_pos.stack_ids[b];       /* older piles first */
@@ -928,7 +928,7 @@ static GCC_INLINE int wcmp(fc_solve_soft_thread_t * soft_thread, int a, int b)
 #if 0
 static GCC_INLINE int wcmp(int a, int b)
 {
-    if (soft_thread->Xparam[9] < 0) {
+    if (soft_thread->pats_solve_params.x[9] < 0) {
         return soft_thread->current_pos.columns_lens[b] - soft_thread->current_pos.columns_lens[a];       /* longer piles first */
     } else {
         return soft_thread->current_pos.columns_lens[a] - soft_thread->current_pos.columns_lens[b];       /* shorter piles first */

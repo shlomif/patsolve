@@ -92,19 +92,8 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
 
 static void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 {
-    const int *x;
-    const double *y;
-    int i;
-
-    x = XYparam[pnum].x;
-    y = XYparam[pnum].y;
-    for (i = 0; i < NXPARAM; i++) {
-        soft_thread->Xparam[i] = x[i];
-    }
-    soft_thread->cutoff = soft_thread->Xparam[NXPARAM - 1];
-    for (i = 0; i < NYPARAM; i++) {
-        soft_thread->Yparam[i] = y[i];
-    }
+    soft_thread->pats_solve_params = XYparam[pnum];
+    soft_thread->cutoff = soft_thread->pats_solve_params.x[NXPARAM - 1];
 }
 
 
@@ -381,7 +370,7 @@ int main(int argc, char **argv)
                 /* use -c for the last X param */
 
                 for (i = 0; i < NXPARAM - 1; i++) {
-                    soft_thread->Xparam[i] = atoi(argv[i + 1]);
+                    soft_thread->pats_solve_params.x[i] = atoi(argv[i + 1]);
                 }
                 argv += NXPARAM - 1;
                 argc -= NXPARAM - 1;
@@ -390,7 +379,7 @@ int main(int argc, char **argv)
 
             case 'Y':
                 for (i = 0; i < NYPARAM; i++) {
-                    soft_thread->Yparam[i] = atof(argv[i + 1]);
+                    soft_thread->pats_solve_params.y[i] = atof(argv[i + 1]);
                 }
                 argv += NYPARAM;
                 argc -= NYPARAM;

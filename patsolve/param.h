@@ -9,9 +9,9 @@
 typedef struct {
     int x[NXPARAM];
     double y[NYPARAM];
-} XYparam_t;
+} fcs_pats_xy_param_t;
 
-extern const XYparam_t XYparam[];
+extern const fcs_pats_xy_param_t XYparam[];
 
 #endif /* PATSOLVE_PARAM_H */
 #define FreecellSpeed 0

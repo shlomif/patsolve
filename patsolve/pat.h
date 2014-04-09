@@ -233,8 +233,8 @@ struct fc_solve_soft_thread_struct
     int num_checked_states;
     int num_states_in_collection;
 
-    int Xparam[NXPARAM];
-    double Yparam[NYPARAM];
+    fcs_pats_xy_param_t pats_solve_params;
+
     int Posbytes;
 
     fcs_pats__bucket_list_t *Bucketlist[FC_SOLVE_BUCKETLIST_NBUCKETS];
