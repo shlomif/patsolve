@@ -207,10 +207,10 @@ struct fc_solve_soft_thread_struct
         card_t freecells[MAX_NUM_FREECELLS];     /* one card in each temp cell */
         card_t stacks[MAX_NUM_STACKS][52]; /* the workspace */
         card_t *stack_ptrs[MAX_NUM_STACKS];   /* point to the top card of each work pile */
+        /* The number of cards in each column. */
+        int columns_lens[MAX_NUM_STACKS];
     } current_pos;
 
-    /* The number of cards in each column. */
-    int columns_lens[MAX_NUM_STACKS];
     int Widx[MAX_NUM_STACKS];     /* used to keep the piles sorted */
     int Widxi[MAX_NUM_STACKS];    /* inverse of the above */
 
