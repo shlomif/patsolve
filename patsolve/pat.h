@@ -216,10 +216,11 @@ struct fc_solve_soft_thread_struct
         /* Inverse of column_idxs */
         int column_inv_idxs[MAX_NUM_STACKS];
 #endif
+        /* Output piles (foundations) store only the rank or NONE */
+        card_t foundations[4];
     } current_pos;
 
 
-    card_t O[4];             /* output piles store only the rank or NONE */
 
     /* Every different pile has a hash and a unique id. */
 

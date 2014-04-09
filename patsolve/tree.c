@@ -117,7 +117,7 @@ static GCC_INLINE fcs_pats__insert_code_t insert_node(fc_solve_soft_thread_t * s
 array with the following format:
     pile0# pile1# ... pileN# (N = soft_thread->Nwpiles)
 where each pile number is packed into 12 bits (so 2 piles take 3 bytes).
-Positions in this format are unique can be compared with memcmp().  The soft_thread->O
+Positions in this format are unique can be compared with memcmp().  The soft_thread->current_pos.foundations
 cells are encoded as a cluster number: no two positions with different
 cluster numbers can ever be the same, so we store different clusters in
 different trees.  */
@@ -177,9 +177,9 @@ fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thre
 
     /* Get the cluster number from the Out cell contents. */
 
-    i = soft_thread->O[0] + (soft_thread->O[1] << 4);
+    i = soft_thread->current_pos.foundations[0] + (soft_thread->current_pos.foundations[1] << 4);
     k = i;
-    i = soft_thread->O[2] + (soft_thread->O[3] << 4);
+    i = soft_thread->current_pos.foundations[2] + (soft_thread->current_pos.foundations[3] << 4);
     k |= i << 8;
     *cluster = k;
 
