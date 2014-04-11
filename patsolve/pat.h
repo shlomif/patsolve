@@ -243,7 +243,7 @@ struct fc_solve_soft_thread_struct
     /* reverse lookup for unpack to get the bucket
                        from the pile */
     fcs_pats__bucket_list_t * bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
-    int Treebytes;
+    int bytes_per_tree_node;
     int Interactive; /* interactive mode. */
     int Noexit;     /* -E means don't exit */
     int num_solutions;             /* number of solutions found in -E mode */
@@ -294,19 +294,19 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
 
     memset(soft_thread->buckets_list, 0, sizeof(soft_thread->buckets_list));
     soft_thread->next_pile_idx = 0;
-    soft_thread->Treebytes = sizeof(fcs_pats__tree_t) + soft_thread->bytes_per_pile;
+    soft_thread->bytes_per_tree_node = sizeof(fcs_pats__tree_t) + soft_thread->bytes_per_pile;
 
     /* In order to keep the fcs_pats__tree_t structure aligned, we need to add
     up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
     better than storing the fcs_pats__tree_t nodes and keys separately, as that
-    requires a pointer.  On Intel for -f Treebytes winds up being
+    requires a pointer.  On Intel for -f bytes_per_tree_node winds up being
     a multiple of 8 currently anyway so it doesn't matter. */
 
 //#define ALIGN_BITS 0x3
 #define ALIGN_BITS 0x7
-    if (soft_thread->Treebytes & ALIGN_BITS) {
-        soft_thread->Treebytes |= ALIGN_BITS;
-        soft_thread->Treebytes++;
+    if (soft_thread->bytes_per_tree_node & ALIGN_BITS) {
+        soft_thread->bytes_per_tree_node |= ALIGN_BITS;
+        soft_thread->bytes_per_tree_node++;
     }
     soft_thread->position_size = sizeof(fcs_pats_position_t) + soft_thread->Ntpiles;
     if (soft_thread->position_size & ALIGN_BITS) {

@@ -131,7 +131,10 @@ static GCC_INLINE fcs_pats__tree_t *pack_position(fc_solve_soft_thread_t * soft_
     /* Allocate space and store the pile numbers.  The tree node
     will get filled in later, by insert_node(). */
 
-    p = fc_solve_pats__new_from_block(soft_thread, soft_thread->Treebytes);
+    p = fc_solve_pats__new_from_block(
+        soft_thread,
+        soft_thread->bytes_per_tree_node
+    );
     if (p == NULL) {
         return NULL;
     }
