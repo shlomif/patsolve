@@ -78,7 +78,10 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     }
     else
     {
-        p = fc_solve_pats__new_from_block(soft_thread, soft_thread->Posbytes);
+        p = fc_solve_pats__new_from_block(
+            soft_thread,
+            soft_thread->position_size
+        );
         if (p == NULL)
         {
             return NULL;

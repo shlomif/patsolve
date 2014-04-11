@@ -235,7 +235,7 @@ struct fc_solve_soft_thread_struct
 
     fcs_pats_xy_param_t pats_solve_params;
 
-    int Posbytes;
+    int position_size;
 
     fcs_pats__bucket_list_t *Bucketlist[FC_SOLVE_BUCKETLIST_NBUCKETS];
     int Pilenum;                    /* the next pile number to be assigned */
@@ -307,10 +307,10 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
         soft_thread->Treebytes |= ALIGN_BITS;
         soft_thread->Treebytes++;
     }
-    soft_thread->Posbytes = sizeof(fcs_pats_position_t) + soft_thread->Ntpiles;
-    if (soft_thread->Posbytes & ALIGN_BITS) {
-        soft_thread->Posbytes |= ALIGN_BITS;
-        soft_thread->Posbytes++;
+    soft_thread->position_size = sizeof(fcs_pats_position_t) + soft_thread->Ntpiles;
+    if (soft_thread->position_size & ALIGN_BITS) {
+        soft_thread->position_size |= ALIGN_BITS;
+        soft_thread->position_size++;
     }
 }
 
