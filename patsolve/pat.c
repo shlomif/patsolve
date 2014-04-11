@@ -1071,7 +1071,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
     /* Look for the pile in this bucket. */
 
     last = NULL;
-    for (l = soft_thread->Bucketlist[bucket]; l; l = l->next) {
+    for (l = soft_thread->buckets_list[bucket]; l; l = l->next) {
         if (l->hash == soft_thread->current_pos.stack_hashes[w] &&
             strncmp((const char *)l->pile, (const char *)soft_thread->current_pos.stacks[w], soft_thread->current_pos.columns_lens[w]) == 0) {
             break;
@@ -1104,7 +1104,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
         l->pilenum = pilenum = soft_thread->Pilenum++;
         l->next = NULL;
         if (last == NULL) {
-            soft_thread->Bucketlist[bucket] = l;
+            soft_thread->buckets_list[bucket] = l;
         } else {
             last->next = l;
         }
