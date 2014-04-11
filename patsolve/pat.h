@@ -244,7 +244,6 @@ struct fc_solve_soft_thread_struct
                        from the pile */
     fcs_pats__bucket_list_t * bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
     int bytes_per_tree_node;
-    int Interactive; /* interactive mode. */
     int Noexit;     /* -E means don't exit */
     int num_solutions;             /* number of solutions found in -E mode */
     /* -S means stack, not queue, the moves to be done. This is a boolean

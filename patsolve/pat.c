@@ -522,10 +522,6 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
             }
             soft_thread->status = WIN;
 
-            if (soft_thread->Interactive) {
-                exit(0);
-            }
-
             return NULL;
         }
 

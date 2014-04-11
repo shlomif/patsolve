@@ -218,7 +218,6 @@ int main(int argc, char **argv)
     soft_thread = &soft_thread_struct;
 
     soft_thread->is_quiet = FALSE;      /* print entertaining messages, else exit(Status); */
-    soft_thread->Interactive = TRUE;
     soft_thread->Noexit = FALSE;
     soft_thread->to_stack = FALSE;
     soft_thread->cutoff = 1;
@@ -476,7 +475,6 @@ int main(int argc, char **argv)
 
         /* Range mode.  Play lots of consecutive games. */
 
-        soft_thread->Interactive = FALSE;
         for (gn = Sgame; gn < Egame; gn++) {
             printf("#%ld\n", (long)gn);
             fc_solve_pats__deal_ms(soft_thread, gn);
