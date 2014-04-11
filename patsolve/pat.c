@@ -1108,7 +1108,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
         } else {
             last->next = l;
         }
-        soft_thread->Pilebucket[pilenum] = l;
+        soft_thread->bucket_from_pile_lookup[pilenum] = l;
     }
 
     return l->pilenum;

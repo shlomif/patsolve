@@ -242,7 +242,7 @@ struct fc_solve_soft_thread_struct
     int next_pile_idx;
     /* reverse lookup for unpack to get the bucket
                        from the pile */
-    fcs_pats__bucket_list_t * Pilebucket[FC_SOLVE__MAX_NUM_PILES];
+    fcs_pats__bucket_list_t * bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
     int Treebytes;
     int Interactive; /* interactive mode. */
     int Noexit;     /* -E means don't exit */
