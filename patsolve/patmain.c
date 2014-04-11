@@ -53,6 +53,16 @@ static int parse_pile(char *s, card_t *w, int size);
 
 static char *Progname = NULL;
 
+static GCC_INLINE void pats__recycle_soft_thread(
+    fc_solve_soft_thread_t * soft_thread
+)
+{
+    fc_solve_pats__free_buckets(soft_thread);
+    fc_solve_pats__free_clusters(soft_thread);
+    fc_solve_pats__free_blocks(soft_thread);
+    soft_thread->freed_positions = NULL;
+}
+
 /* Print a message and exit. */
 static void fatalerr(const char *msg, ...)
 {
@@ -471,6 +481,7 @@ int main(int argc, char **argv)
             printf("#%ld\n", (long)gn);
             fc_solve_pats__deal_ms(soft_thread, gn);
             play(soft_thread);
+            pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
         }
     }
@@ -515,12 +526,6 @@ void play(fc_solve_soft_thread_t * soft_thread)
         printf("%d unique positions.\n", soft_thread->num_checked_states);
         printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
 #endif
-    }
-    if (!soft_thread->Interactive) {
-        fc_solve_pats__free_buckets(soft_thread);
-        fc_solve_pats__free_clusters(soft_thread);
-        fc_solve_pats__free_blocks(soft_thread);
-        soft_thread->freed_positions = NULL;
     }
 #if DEBUG
 if (soft_thread->remaining_memory != Init_mem_remain) {
