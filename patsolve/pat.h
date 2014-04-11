@@ -238,7 +238,8 @@ struct fc_solve_soft_thread_struct
     int position_size;
 
     fcs_pats__bucket_list_t * buckets_list[FC_SOLVE_BUCKETLIST_NBUCKETS];
-    int Pilenum;                    /* the next pile number to be assigned */
+    /* The next pile number to be assigned. */
+    int next_pile_idx;
     /* reverse lookup for unpack to get the bucket
                        from the pile */
     fcs_pats__bucket_list_t * Pilebucket[FC_SOLVE__MAX_NUM_PILES];
@@ -292,7 +293,7 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
     soft_thread->bytes_per_pile = i;
 
     memset(soft_thread->buckets_list, 0, sizeof(soft_thread->buckets_list));
-    soft_thread->Pilenum = 0;
+    soft_thread->next_pile_idx = 0;
     soft_thread->Treebytes = sizeof(fcs_pats__tree_t) + soft_thread->bytes_per_pile;
 
     /* In order to keep the fcs_pats__tree_t structure aligned, we need to add
