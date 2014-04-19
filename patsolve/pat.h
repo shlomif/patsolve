@@ -51,17 +51,17 @@ typedef u_char card_t;
 #define PS_ACE  1
 #define PS_KING 13
 
-static GCC_INLINE card_t fcs_pats_card_rank(card_t card)
+static GCC_INLINE card_t fcs_pats_card_rank(const card_t card)
 {
     return (card & 0xF);
 }
 
-static GCC_INLINE card_t fcs_pats_card_suit(card_t card)
+static GCC_INLINE card_t fcs_pats_card_suit(const card_t card)
 {
     return (card >> 4);
 }
 
-static GCC_INLINE card_t fcs_pats_card_color(card_t card)
+static GCC_INLINE card_t fcs_pats_card_color(const card_t card)
 {
     return (card & PS_COLOR);
 }
@@ -71,12 +71,12 @@ static GCC_INLINE card_t fcs_pats_card_color(card_t card)
 /* The following macro implements
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
 */
-static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(card_t a, card_t b, card_t suit_mask, card_t suit_val)
+static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const card_t a, const card_t b, const card_t suit_mask, const card_t suit_val)
 {
     return (((a ^ b) & suit_mask) == suit_val);
 }
 
-static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(fcs_bool_t not_king_only, card_t card)
+static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const card_t card)
 {
     return (not_king_only || fcs_pats_card_rank(card) == PS_KING);
 }
