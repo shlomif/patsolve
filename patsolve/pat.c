@@ -48,8 +48,9 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w);
 
 static GCC_INLINE void hashpile(fc_solve_soft_thread_t * soft_thread, int w)
 {
-    soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w]] = 0;
-    soft_thread->current_pos.stack_hashes[w] = fnv_hash_str((const u_char *)soft_thread->current_pos.stacks[w]);
+    fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+    fcs_col_get_card(col, (int)fcs_col_len(col)) = '\0';
+    soft_thread->current_pos.stack_hashes[w] = fnv_hash_str((const u_char *)(col+1));
 
     /* Invalidate this pile's id.  We'll calculate it later. */
 
@@ -82,24 +83,24 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
     /* Remove from pile. */
 
     if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
-        card = soft_thread->current_pos.freecells[from];
-        soft_thread->current_pos.freecells[from] = fc_solve_empty_card;
+        card = fcs_freecell_card(soft_thread->current_pos.s, from);
+        fcs_empty_freecell(soft_thread->current_pos.s, from);
     } else {
-        card = *(soft_thread->current_pos.stack_ptrs[from]--);
-        soft_thread->current_pos.columns_lens[from]--;
+        fcs_cards_column_t from_col = fcs_state_get_col(soft_thread->current_pos.s, from);
+        fcs_col_pop_card(from_col, card);
         hashpile(soft_thread, from);
     }
 
     /* Add to pile. */
 
     if (m->totype == FCS_PATS__TYPE_FREECELL) {
-        soft_thread->current_pos.freecells[to] = card;
+        fcs_freecell_card(soft_thread->current_pos.s, to) = card;
     } else if (m->totype == FCS_PATS__TYPE_WASTE) {
-        *++soft_thread->current_pos.stack_ptrs[to] = card;
-        soft_thread->current_pos.columns_lens[to]++;
+        fcs_cards_column_t to_col = fcs_state_get_col(soft_thread->current_pos.s, to);
+        fcs_col_push_card(to_col, card);
         hashpile(soft_thread, to);
     } else {
-        soft_thread->current_pos.foundations[to]++;
+        fcs_increment_foundation(soft_thread->current_pos.s, to);
     }
 }
 
@@ -114,24 +115,24 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
     /* Remove from 'to' pile. */
 
     if (m->totype == FCS_PATS__TYPE_FREECELL) {
-        card = soft_thread->current_pos.freecells[to];
-        soft_thread->current_pos.freecells[to] = fc_solve_empty_card;
+        card = fcs_freecell_card(soft_thread->current_pos.s, to);
+        fcs_empty_freecell(soft_thread->current_pos.s, to);
     } else if (m->totype == FCS_PATS__TYPE_WASTE) {
-        card = *(soft_thread->current_pos.stack_ptrs[to]--);
-        soft_thread->current_pos.columns_lens[to]--;
+        fcs_cards_column_t to_col = fcs_state_get_col(soft_thread->current_pos.s, to);
+        fcs_col_pop_card(to_col, card);
         hashpile(soft_thread, to);
     } else {
-        card = fcs_make_card(soft_thread->current_pos.foundations[to], to);
-        soft_thread->current_pos.foundations[to]--;
+        card = fcs_make_card(fcs_foundation_value(soft_thread->current_pos.s, to), to);
+        fcs_foundation_value(soft_thread->current_pos.s, to)--;
     }
 
     /* Add to 'from' pile. */
 
     if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
-        soft_thread->current_pos.freecells[from] = card;
+        fcs_freecell_card(soft_thread->current_pos.s, from) = card;
     } else {
-        *++soft_thread->current_pos.stack_ptrs[from] = card;
-        soft_thread->current_pos.columns_lens[from]++;
+        fcs_cards_column_t from_col = fcs_state_get_col(soft_thread->current_pos.s, from);
+        fcs_col_push_card(from_col, card);
         hashpile(soft_thread, from);
     }
 }
@@ -158,8 +159,10 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t
     j = 0;
     r = fcs_card_rank(mp->card) + 1;
     s = fcs_card_suit(mp->card);
-    for (i = soft_thread->current_pos.columns_lens[w] - 1; i >= 0; i--) {
-        if (fcs_card_suit(soft_thread->current_pos.stacks[w][i]) == s && fcs_card_rank(soft_thread->current_pos.stacks[w][i]) == r + j) {
+    fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+    for (i = fcs_col_len(col) - 1; i >= 0; i--) {
+        fcs_card_t card = fcs_col_get_card(col, i);
+        if (fcs_card_suit(card) == s && fcs_card_rank(card) == r + j) {
             j++;
         }
     }
@@ -169,12 +172,12 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t
 
     /* If there's a smaller card of this suit in the pile, we can prune
     the move. */
-
-    j = soft_thread->current_pos.columns_lens[w];
+    j = fcs_col_len(col);
     r -= 1;
     for (i = 0; i < j; i++) {
-        if ( (fcs_card_suit(soft_thread->current_pos.stacks[w][i]) == s)
-            && (fcs_card_rank(soft_thread->current_pos.stacks[w][i]) < r) ) {
+        fcs_card_t card = fcs_col_get_card(col, i);
+        if ( (fcs_card_suit(card) == s)
+            && (fcs_card_rank(card) < r) ) {
             return TRUE;
         }
     }
@@ -400,7 +403,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     fcs_card_t need[NUM_SUITS];
     for (int suit = 0; suit < NUM_SUITS; suit++) {
         need[suit] = fc_solve_empty_card;
-        const fcs_card_t rank = soft_thread->current_pos.foundations[suit];
+        const fcs_card_t rank = fcs_foundation_value(soft_thread->current_pos.s, suit);
         if (rank != FCS_PATS__KING) {
             need[suit] = fcs_make_card(rank + 1, suit);
         }
@@ -413,9 +416,10 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     int num_piles = 0;
 
     for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
-        const int len = soft_thread->current_pos.columns_lens[w];
+        fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        const int len = fcs_col_len(col);
         for (int i = 0; i < len; i++) {
-            const fcs_card_t card = soft_thread->current_pos.stacks[w][i];
+            const fcs_card_t card = fcs_col_get_card(col, i);
             const int suit = fcs_card_suit(card);
 
             /* Save the locations of the piles containing
@@ -450,8 +454,10 @@ end_of_stacks:
                         mp->pri += soft_thread->pats_solve_params.x[0];
                     }
                 }
-                if (soft_thread->current_pos.columns_lens[w] > 1) {
-                    const fcs_card_t card = soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w] - 2];
+                fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+
+                if (fcs_col_len(col) > 1) {
+                    const fcs_card_t card = fcs_col_get_card(col, fcs_col_len(col)-2);
                     if (card == need[(int)fcs_card_suit(card)]) {
                         mp->pri += soft_thread->pats_solve_params.x[1];
                     }
@@ -510,7 +516,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
 
     if (n == 0) {
         for (o = 0; o < 4; o++) {
-            if (soft_thread->current_pos.foundations[o] != FCS_PATS__KING) {
+            if (fcs_foundation_value(soft_thread->current_pos.s, o) != FCS_PATS__KING) {
                 break;
             }
         }
@@ -593,7 +599,7 @@ static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o,
     /* Check the Out piles of opposite color. */
 
     for (i = 1 - (o & 1); i < 4; i += 2) {
-        if (soft_thread->current_pos.foundations[i] < r - 1) {
+        if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 1) {
 
 #if 1   /* Raymond's Rule */
             /* Not all the N-1's of opposite color are out
@@ -604,11 +610,11 @@ static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o,
             make it back to the outer loop. */
 
             for (i = 1 - (o & 1); i < 4; i += 2) {
-                if (soft_thread->current_pos.foundations[i] < r - 2) {
+                if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 2) {
                     return FALSE;
                 }
             }
-            if (soft_thread->current_pos.foundations[(o + 2) & 3] < r - 3) {
+            if (fcs_foundation_value(soft_thread->current_pos.s, ((o + 2) & 3)) < r - 3) {
                 return FALSE;
             }
 
@@ -637,10 +643,11 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     n = 0;
     mp = soft_thread->possible_moves;
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-        if (soft_thread->current_pos.columns_lens[w] > 0) {
-            card = *soft_thread->current_pos.stack_ptrs[w];
+        fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        if (fcs_col_len(col) > 0) {
+            card = fcs_col_get_card(col, fcs_col_len(col)-1);
             o = fcs_card_suit(card);
-            const fcs_card_t found_o = soft_thread->current_pos.foundations[o];
+            const fcs_card_t found_o = fcs_foundation_value(soft_thread->current_pos.s, o);
             empty = (found_o == fc_solve_empty_card);
             if (fcs_card_rank(card) == found_o + 1)
             {
@@ -650,8 +657,8 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                 mp->to = o;
                 mp->totype = FCS_PATS__TYPE_FOUNDATION;
                 mp->srccard = fc_solve_empty_card;
-                if (soft_thread->current_pos.columns_lens[w] > 1) {
-                    mp->srccard = soft_thread->current_pos.stack_ptrs[w][-1];
+                if (fcs_col_len(col) > 1) {
+                    mp->srccard = fcs_col_get_card(col, fcs_col_len(col)-2);
                 }
                 mp->destcard = fc_solve_empty_card;
                 mp->pri = 0;    /* unused */
@@ -675,12 +682,12 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     /* Check for moves from soft_thread->current_pos.freecells to soft_thread->current_pos.foundations. */
 
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        if (soft_thread->current_pos.freecells[t] != fc_solve_empty_card) {
-            card = soft_thread->current_pos.freecells[t];
+        if (fcs_freecell_card(soft_thread->current_pos.s, t) != fc_solve_empty_card) {
+            card = fcs_freecell_card(soft_thread->current_pos.s, t);
             o = fcs_card_suit(card);
-            empty = (soft_thread->current_pos.foundations[o] == fc_solve_empty_card);
+            empty = (fcs_foundation_value(soft_thread->current_pos.s, o) == fc_solve_empty_card);
             if ((empty && (fcs_card_rank(card) == FCS_PATS__ACE)) ||
-                (!empty && (fcs_card_rank(card) == soft_thread->current_pos.foundations[o] + 1))) {
+                (!empty && (fcs_card_rank(card) == fcs_foundation_value(soft_thread->current_pos.s, o) + 1))) {
                 mp->card = card;
                 mp->from = t;
                 mp->fromtype = FCS_PATS__TYPE_FREECELL;
@@ -718,7 +725,8 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
     emptyw = -1;
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-        if (soft_thread->current_pos.columns_lens[w] == 0) {
+        fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        if (! fcs_col_len(col)) {
             emptyw = w;
             break;
         }
@@ -728,19 +736,24 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
             if (i == emptyw) {
                 continue;
             }
-            if (soft_thread->current_pos.columns_lens[i] > 1 &&
-                fcs_pats_is_king_only(not_King_only, *(soft_thread->current_pos.stack_ptrs[i]))) {
-                card = *soft_thread->current_pos.stack_ptrs[i];
-                mp->card = card;
-                mp->from = i;
-                mp->fromtype = FCS_PATS__TYPE_WASTE;
-                mp->to = emptyw;
-                mp->totype = FCS_PATS__TYPE_WASTE;
-                mp->srccard = soft_thread->current_pos.stack_ptrs[i][-1];
-                mp->destcard = fc_solve_empty_card;
-                mp->pri = soft_thread->pats_solve_params.x[3];
-                n++;
-                mp++;
+
+            fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
+            if (fcs_col_len(i_col) > 1)
+            {
+                card = fcs_col_get_card(i_col, fcs_col_len(i_col)-1);
+                if (fcs_pats_is_king_only(not_King_only, card)) {
+                    mp->card = card;
+                    mp->from = i;
+                    mp->fromtype = FCS_PATS__TYPE_WASTE;
+                    mp->to = emptyw;
+                    mp->totype = FCS_PATS__TYPE_WASTE;
+                    mp->srccard = fcs_col_get_card(i_col, fcs_col_len(i_col) - 2);
+
+                    mp->destcard = fc_solve_empty_card;
+                    mp->pri = soft_thread->pats_solve_params.x[3];
+                    n++;
+                    mp++;
+                }
             }
         }
     }
@@ -750,28 +763,35 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     /* Check for moves from soft_thread->current_pos.stacks to non-empty soft_thread->current_pos.stacks cells. */
 
     for (i = 0; i < LOCAL_STACKS_NUM; i++) {
-        if (soft_thread->current_pos.columns_lens[i] > 0) {
-            card = *soft_thread->current_pos.stack_ptrs[i];
+        fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
+        if (fcs_col_len(i_col) > 0) {
+            card = fcs_col_get_card(i_col, fcs_col_len(i_col)-1);
             for (w = 0; w < LOCAL_STACKS_NUM; w++) {
                 if (i == w) {
                     continue;
                 }
-                if (soft_thread->current_pos.columns_lens[w] > 0 &&
-                    (fcs_card_rank(card) == fcs_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
-                     fcs_pats_is_suitable(card, *(soft_thread->current_pos.stack_ptrs[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
-                    mp->card = card;
-                    mp->from = i;
-                    mp->fromtype = FCS_PATS__TYPE_WASTE;
-                    mp->to = w;
-                    mp->totype = FCS_PATS__TYPE_WASTE;
-                    mp->srccard = fc_solve_empty_card;
-                    if (soft_thread->current_pos.columns_lens[i] > 1) {
-                        mp->srccard = soft_thread->current_pos.stack_ptrs[i][-1];
+                fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+                if (fcs_col_len(w_col) > 0)
+                {
+                    fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
+                    if (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
+                         fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value)
+                    )
+                    {
+                        mp->card = card;
+                        mp->from = i;
+                        mp->fromtype = FCS_PATS__TYPE_WASTE;
+                        mp->to = w;
+                        mp->totype = FCS_PATS__TYPE_WASTE;
+                        mp->srccard = fc_solve_empty_card;
+                        if (fcs_col_len(i_col) > 1) {
+                            mp->srccard = fcs_col_get_card(i_col, fcs_col_len(i_col) - 2);
+                        }
+                        mp->destcard = w_card;
+                        mp->pri = soft_thread->pats_solve_params.x[4];
+                        n++;
+                        mp++;
                     }
-                    mp->destcard = *soft_thread->current_pos.stack_ptrs[w];
-                    mp->pri = soft_thread->pats_solve_params.x[4];
-                    n++;
-                    mp++;
                 }
             }
         }
@@ -780,22 +800,26 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     /* Check for moves from soft_thread->current_pos.freecells to non-empty soft_thread->current_pos.stacks cells. */
 
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        card = soft_thread->current_pos.freecells[t];
+        card = fcs_freecell_card(soft_thread->current_pos.s, t);
         if (card != fc_solve_empty_card) {
             for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-                if (soft_thread->current_pos.columns_lens[w] > 0 &&
-                    (fcs_card_rank(card) == fcs_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
-                     fcs_pats_is_suitable(card, *(soft_thread->current_pos.stack_ptrs[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
-                    mp->card = card;
-                    mp->from = t;
-                    mp->fromtype = FCS_PATS__TYPE_FREECELL;
-                    mp->to = w;
-                    mp->totype = FCS_PATS__TYPE_WASTE;
-                    mp->srccard = fc_solve_empty_card;
-                    mp->destcard = *soft_thread->current_pos.stack_ptrs[w];
-                    mp->pri = soft_thread->pats_solve_params.x[5];
-                    n++;
-                    mp++;
+                fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+                if (fcs_col_len(w_col) > 0) {
+                    fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
+                    if (
+                        (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
+                         fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value))) {
+                        mp->card = card;
+                        mp->from = t;
+                        mp->fromtype = FCS_PATS__TYPE_FREECELL;
+                        mp->to = w;
+                        mp->totype = FCS_PATS__TYPE_WASTE;
+                        mp->srccard = fc_solve_empty_card;
+                        mp->destcard = w_card;
+                        mp->pri = soft_thread->pats_solve_params.x[5];
+                        n++;
+                        mp++;
+                    }
                 }
             }
         }
@@ -805,7 +829,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
     if (emptyw >= 0) {
         for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-            card = soft_thread->current_pos.freecells[t];
+            card = fcs_freecell_card(soft_thread->current_pos.s, t);
             if (card != fc_solve_empty_card && fcs_pats_is_king_only(not_King_only, card)) {
                 mp->card = card;
                 mp->from = t;
@@ -824,22 +848,24 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     /* Check for moves from soft_thread->current_pos.stacks to one of any empty soft_thread->current_pos.freecells cells. */
 
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        if (soft_thread->current_pos.freecells[t] == fc_solve_empty_card) {
+        if (fcs_freecell_card(soft_thread->current_pos.s, t) == fc_solve_empty_card) {
             break;
         }
     }
     if (t < LOCAL_FREECELLS_NUM) {
         for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-            if (soft_thread->current_pos.columns_lens[w] > 0) {
-                card = *soft_thread->current_pos.stack_ptrs[w];
+            fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+            if (fcs_col_len(w_col) > 0) {
+                card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
                 mp->card = card;
                 mp->from = w;
                 mp->fromtype = FCS_PATS__TYPE_WASTE;
                 mp->to = t;
                 mp->totype = FCS_PATS__TYPE_FREECELL;
                 mp->srccard = fc_solve_empty_card;
-                if (soft_thread->current_pos.columns_lens[w] > 1) {
-                    mp->srccard = soft_thread->current_pos.stack_ptrs[w][-1];
+                if (fcs_col_len(w_col) > 1)
+                {
+                    mp->srccard = fcs_col_get_card(w_col, fcs_col_len(w_col) - 2);
                 }
                 mp->destcard = fc_solve_empty_card;
                 mp->pri = soft_thread->pats_solve_params.x[7];
@@ -1080,9 +1106,12 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
 
     last = NULL;
     for (l = soft_thread->buckets_list[bucket]; l; l = l->next) {
-        if (l->hash == soft_thread->current_pos.stack_hashes[w] &&
-            strncmp((const char *)l->pile, (const char *)soft_thread->current_pos.stacks[w], soft_thread->current_pos.columns_lens[w]) == 0) {
+        if (l->hash == soft_thread->current_pos.stack_hashes[w]) {
+            fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+            if(
+                strncmp((const char *)l->pile, (const char *)w_col+1, fcs_col_len(w_col)) == 0) {
             break;
+            }
         }
         last = l;
     }
@@ -1098,7 +1127,8 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
         if (l == NULL) {
             return -1;
         }
-        l->pile = fc_solve_pats__new_array(soft_thread, u_char, soft_thread->current_pos.columns_lens[w] + 1);
+        fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        l->pile = fc_solve_pats__new_array(soft_thread, u_char, fcs_col_len(w_col) + 1);
         if (l->pile == NULL) {
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
             return -1;
@@ -1107,7 +1137,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w)
         /* Store the new pile along with its hash.  Maintain
         a reverse mapping so we can unpack the piles swiftly. */
 
-        strncpy((char*)l->pile, (const char *)soft_thread->current_pos.stacks[w], soft_thread->current_pos.columns_lens[w] + 1);
+        strncpy((char*)l->pile, ((const char *)w_col)+1, fcs_col_len(w_col) + 1);
         l->hash = soft_thread->current_pos.stack_hashes[w];
         l->pilenum = pilenum = soft_thread->next_pile_idx++;
         l->next = NULL;

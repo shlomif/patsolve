@@ -50,8 +50,6 @@ static const char Usage[] =
 long Init_mem_remain;
 #endif
 
-static int parse_pile(char *s, fcs_card_t *w, int size);
-
 static char *Progname = NULL;
 
 static GCC_INLINE void pats__recycle_soft_thread(
@@ -88,30 +86,31 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
     int i, t, w, o;
 
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-        for (i = 0; i < soft_thread->current_pos.columns_lens[w]; i++) {
+        fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        for (i = 0; i < fcs_col_len(col); i++) {
             if (i > 0)
             {
                 fputc(' ', stderr);
             }
-            fc_solve_pats__print_card(soft_thread->current_pos.stacks[w][i], stderr);
+            fc_solve_pats__print_card(fcs_col_get_card(col, i), stderr);
         }
         fputc('\n', stderr);
     }
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        if (t > 0 && soft_thread->current_pos.freecells[t] != fc_solve_empty_card)
+        if (t > 0 && fcs_freecell_card(soft_thread->current_pos.s, t) != fc_solve_empty_card)
         {
             fputc(' ', stderr);
         }
-        fc_solve_pats__print_card(soft_thread->current_pos.freecells[t], stderr);
+        fc_solve_pats__print_card(fcs_freecell_card(soft_thread->current_pos.s, t), stderr);
     }
     fputc('\n', stderr);
     for (o = 0; o < 4; o++) {
-        if (o > 0 && soft_thread->current_pos.foundations[o])
+        if (o > 0 && fcs_foundation_value(soft_thread->current_pos.s, o))
         {
             fputc(' ', stderr);
         }
         fc_solve_pats__print_card(
-            fcs_make_card( soft_thread->current_pos.foundations[o], o),
+            fcs_make_card( fcs_foundation_value(soft_thread->current_pos.s, o), o),
             stderr
         );
     }
@@ -197,61 +196,10 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, char * 
 #if !defined(HARD_CODED_NUM_STACKS)
     const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
 #endif
-    int w, i, total;
-    char buf[100];
-    fcs_card_t out[4];
 
-    /* Read the workspace. */
-
-    w = 0;
-    total = 0;
-    while (str_fgets(buf, 100, &input_s)) {
-        i = parse_pile(buf, soft_thread->current_pos.stacks[w], 52);
-        soft_thread->current_pos.stack_ptrs[w] = &soft_thread->current_pos.stacks[w][i - 1];
-        soft_thread->current_pos.columns_lens[w] = i;
-        w++;
-        total += i;
-        if (w == LOCAL_STACKS_NUM) {
-            break;
-        }
-    }
-    if (w != LOCAL_STACKS_NUM) {
-        fatalerr("not enough piles in input file");
-    }
-
-    /* Temp cells may have some cards too. */
-
-    for (i = 0; i < LOCAL_FREECELLS_NUM; i++) {
-        soft_thread->current_pos.freecells[i] = fc_solve_empty_card;
-    }
-    if (total != 52) {
-        str_fgets(buf, 100, &input_s);
-        total += parse_pile(buf, soft_thread->current_pos.freecells, LOCAL_FREECELLS_NUM);
-    }
-
-    /* Output piles, if any. */
-
-    for (i = 0; i < 4; i++) {
-        soft_thread->current_pos.foundations[i] = out[i] = fc_solve_empty_card;
-    }
-    if (total != 52) {
-        str_fgets(buf, 100, &input_s);
-        parse_pile(buf, out, 4);
-        for (i = 0; i < 4; i++) {
-            if (out[i] != fc_solve_empty_card) {
-                total +=
-                    (
-                        soft_thread->current_pos.foundations[
-                        (int)fcs_card_suit(out[i])
-                        ] = fcs_card_rank(out[i])
-                    );
-            }
-        }
-    }
-
-    if (total != 52) {
-        fatalerr("not enough cards");
-    }
+    fcs_state_keyval_pair_t kv;
+    fc_solve_initial_user_state_to_c(input_s, &kv, LOCAL_FREECELLS_NUM, LOCAL_STACKS_NUM, 1, soft_thread->current_pos.indirect_stacks_buffer);
+    soft_thread->current_pos.s = kv.s;
 }
 
 static int freecell_solver_user_set_sequences_are_built_by_type(
@@ -664,39 +612,6 @@ if (soft_thread->remaining_memory != Init_mem_remain) {
  fc_solve_msg("remaining_memory = %ld\n", soft_thread->remaining_memory);
 }
 #endif
-}
-
-
-static int parse_pile(char *s, fcs_card_t *w, int size)
-{
-    int i;
-    fcs_card_t rank, suit;
-
-    i = 0;
-    rank = suit = fc_solve_empty_card;
-    while (i < size && *s && *s != '\n' && *s != '\r') {
-        while (*s == ' ') s++;
-        *s = toupper(*s);
-        if (*s == 'A') rank = 1;
-        else if (*s >= '2' && *s <= '9') rank = *s - '0';
-        else if (*s == 'T') rank = 10;
-        else if (*s == 'J') rank = 11;
-        else if (*s == 'Q') rank = 12;
-        else if (*s == 'K') rank = 13;
-        else fatalerr("bad card %c%c\n", s[0], s[1]);
-        s++;
-        *s = toupper(*s);
-        if (*s == 'C') suit = FCS_PATS__CLUB;
-        else if (*s == 'D') suit = FCS_PATS__DIAMOND;
-        else if (*s == 'H') suit = FCS_PATS__HEART;
-        else if (*s == 'S') suit = FCS_PATS__SPADE;
-        else fatalerr("bad card %c%c\n", s[-1], s[0]);
-        s++;
-        *w++ = fcs_make_card(rank, suit);
-        i++;
-        while (*s == ' ') s++;
-    }
-    return i;
 }
 
 static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
