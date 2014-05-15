@@ -41,17 +41,17 @@
 
 typedef u_char card_t;
 
-#define PS_HEART     0x00         /* red */
-#define PS_CLUB      0x01         /* black */
-#define PS_DIAMOND   0x02         /* red */
-#define PS_SPADE     0x03         /* black */
+#define FCS_PATS__HEART     0x00         /* red */
+#define FCS_PATS__CLUB      0x01         /* black */
+#define FCS_PATS__DIAMOND   0x02         /* red */
+#define FCS_PATS__SPADE     0x03         /* black */
 
-#define PS_COLOR     0x01         /* black if set */
-#define PS_SUIT      0x03         /* mask both suit bits */
+#define FCS_PATS__COLOR     0x01         /* black if set */
+#define FCS_PATS__SUIT      0x03         /* mask both suit bits */
 
 #define NONE    0
-#define PS_ACE  1
-#define PS_KING 13
+#define FCS_PATS__ACE  1
+#define FCS_PATS__KING 13
 
 static GCC_INLINE card_t fcs_pats_card_rank(const card_t card)
 {
@@ -65,7 +65,7 @@ static GCC_INLINE card_t fcs_pats_card_suit(const card_t card)
 
 static GCC_INLINE card_t fcs_pats_card_color(const card_t card)
 {
-    return (card & PS_COLOR);
+    return (card & FCS_PATS__COLOR);
 }
 
 static GCC_INLINE card_t fcs_pats_make_card(const card_t rank, const card_t suit)
@@ -93,7 +93,7 @@ static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const card_t a, const card_t b
 
 static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const card_t card)
 {
-    return (not_king_only || fcs_pats_card_rank(card) == PS_KING);
+    return (not_king_only || fcs_pats_card_rank(card) == FCS_PATS__KING);
 }
 
 /* Represent a move. */

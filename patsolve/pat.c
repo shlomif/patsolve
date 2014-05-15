@@ -399,7 +399,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     for (int suit = 0; suit < NUM_SUITS; suit++) {
         need[suit] = NONE;
         const card_t rank = soft_thread->current_pos.foundations[suit];
-        if (rank != PS_KING) {
+        if (rank != FCS_PATS__KING) {
             need[suit] = fcs_pats_make_card(rank + 1, suit);
         }
     }
@@ -508,7 +508,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
 
     if (n == 0) {
         for (o = 0; o < 4; o++) {
-            if (soft_thread->current_pos.foundations[o] != PS_KING) {
+            if (soft_thread->current_pos.foundations[o] != FCS_PATS__KING) {
                 break;
             }
         }
@@ -677,7 +677,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
             card = soft_thread->current_pos.freecells[t];
             o = fcs_pats_card_suit(card);
             empty = (soft_thread->current_pos.foundations[o] == NONE);
-            if ((empty && (fcs_pats_card_rank(card) == PS_ACE)) ||
+            if ((empty && (fcs_pats_card_rank(card) == FCS_PATS__ACE)) ||
                 (!empty && (fcs_pats_card_rank(card) == soft_thread->current_pos.foundations[o] + 1))) {
                 mp->card = card;
                 mp->from = t;
@@ -884,9 +884,9 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
             }
         }
         /* TODO : This is probably a bug because mp->card probably cannot be
-         * PS_KING - only PS_KING bitwise-ORed with some other value.
+         * FCS_PATS__KING - only FCS_PATS__KING bitwise-ORed with some other value.
          * */
-        else if (King_only && mp->card != fcs_pats_make_card(PS_KING, 0))
+        else if (King_only && mp->card != fcs_pats_make_card(FCS_PATS__KING, 0))
         {
             return TRUE;
         }
