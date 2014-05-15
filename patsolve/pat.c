@@ -383,8 +383,8 @@ positions when they are added to the queue. */
 static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp0, int n)
 {
     DECLARE_STACKS();
-    int i, j, s, w, pile[NNEED], npile;
-    card_t card, need[4];
+    int i, j, w, pile[NNEED], npile;
+    card_t card;
     fcs_pats__move_t *mp;
 
     /* There are 4 cards that we "need": the next cards to go out.  We
@@ -396,11 +396,13 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     }
     npile = 0;
 
-    for (s = 0; s < 4; s++) {
-        need[s] = NONE;
-        const card_t rank = soft_thread->current_pos.foundations[s];
+#define NUM_SUITS 4
+    card_t need[NUM_SUITS];
+    for (int suit = 0; suit < NUM_SUITS; suit++) {
+        need[suit] = NONE;
+        const card_t rank = soft_thread->current_pos.foundations[suit];
         if (rank != PS_KING) {
-            need[s] = fcs_pats_make_card(rank + 1, s);
+            need[suit] = fcs_pats_make_card(rank + 1, suit);
         }
     }
 
@@ -412,14 +414,14 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
         j = soft_thread->current_pos.columns_lens[w];
         for (i = 0; i < j; i++) {
             card = soft_thread->current_pos.stacks[w][i];
-            s = fcs_pats_card_suit(card);
+            const int suit = fcs_pats_card_suit(card);
 
             /* Save the locations of the piles containing
             not only the card we need next, but the card
             after that as well. */
 
-            if (need[s] != NONE &&
-                (card == need[s] || card == fcs_pats_next_card(need[s]))) {
+            if (need[suit] != NONE &&
+                (card == need[suit] || card == fcs_pats_next_card(need[suit]))) {
                 pile[npile++] = w;
                 if (npile == NNEED) {
                     break;
