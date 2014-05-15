@@ -28,10 +28,11 @@
 #include <stdarg.h>
 
 #include "inline.h"
+#include "count.h"
 
 #include "pat.h"
 #include "tree.h"
-#include "deal_ms.h"
+#include "range_solvers_gen_ms_boards.h"
 
 static const char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
@@ -162,7 +163,36 @@ void play(fc_solve_soft_thread_t * soft_thread);
 /* Read a layout file.  Format is one pile per line, bottom to top (visible
 card).  Temp cells and Out on the last two lines, if any. */
 
-static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
+static GCC_INLINE fcs_bool_t str_fgets(char * line, const int len, char * * input_s)
+{
+    char * end = strchr(*input_s, '\n');
+    if (! end)
+    {
+        end = *input_s + strlen(*input_s);
+    }
+
+    if (end - (*input_s) >= len)
+    {
+        end = (*input_s) + len-1;
+    }
+
+    fcs_bool_t ret = ((*input_s) != end);
+    if (ret)
+    {
+        strncpy(line, *input_s, end-(*input_s));
+        line[end-(*input_s)] = '\0';
+    }
+    else
+    {
+        line[0] = '\0';
+    }
+
+    (*input_s) = (((*end) == '\0') ? end : end+1);
+
+    return ret;
+}
+
+static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, char * input_s)
 {
 #if !defined(HARD_CODED_NUM_STACKS)
     const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
@@ -175,7 +205,7 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
 
     w = 0;
     total = 0;
-    while (fgets(buf, 100, infile)) {
+    while (str_fgets(buf, 100, &input_s)) {
         i = parse_pile(buf, soft_thread->current_pos.stacks[w], 52);
         soft_thread->current_pos.stack_ptrs[w] = &soft_thread->current_pos.stacks[w][i - 1];
         soft_thread->current_pos.columns_lens[w] = i;
@@ -195,7 +225,7 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
         soft_thread->current_pos.freecells[i] = fc_solve_empty_card;
     }
     if (total != 52) {
-        fgets(buf, 100, infile);
+        str_fgets(buf, 100, &input_s);
         total += parse_pile(buf, soft_thread->current_pos.freecells, LOCAL_FREECELLS_NUM);
     }
 
@@ -205,7 +235,7 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
         soft_thread->current_pos.foundations[i] = out[i] = fc_solve_empty_card;
     }
     if (total != 52) {
-        fgets(buf, 100, infile);
+        str_fgets(buf, 100, &input_s);
         parse_pile(buf, out, 4);
         for (i = 0; i < 4; i++) {
             if (out[i] != fc_solve_empty_card) {
@@ -563,7 +593,10 @@ int main(int argc, char **argv)
 
         /* Read in the initial layout and play it. */
 
-        read_layout(soft_thread, infile);
+        char board_string[4096];
+        memset(board_string, '\0', sizeof(board_string));
+        fread(board_string, sizeof(board_string[0]), COUNT(board_string)-1, infile);
+        read_layout(soft_thread, board_string);
         if (!soft_thread->is_quiet) {
             print_layout(soft_thread);
         }
@@ -574,7 +607,10 @@ int main(int argc, char **argv)
 
         for (gn = Sgame; gn < Egame; gn++) {
             printf("#%ld\n", (long)gn);
-            fc_solve_pats__deal_ms(soft_thread, gn);
+            char board_string[4096];
+            memset(board_string, '\0', sizeof(board_string));
+            get_board_l(gn, board_string);
+            read_layout(soft_thread, board_string);
             play(soft_thread);
             pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
