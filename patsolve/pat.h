@@ -99,10 +99,6 @@ typedef struct {
 #define FCS_PATS__TYPE_FREECELL 2
 #define FCS_PATS__TYPE_WASTE 3
 
-/* Max number of piles */
-#define MAX_NUM_FREECELLS       8
-#define MAX_NUM_STACKS      13
-
 /* Position information.  We store a compact representation of the position;
 Temp cells are stored separately since they don't have to be compared.
 We also store the move that led to this position from the parent, as well
@@ -184,7 +180,7 @@ struct fc_solve_soft_thread_struct
     fcs_pats_position_t *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
     fcs_pats_position_t *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
     int max_queue_idx;
-#if DEBUG
+#ifdef DEBUG
     int num_positions_in_clusters[0x10000];
     int Inq[FC_SOLVE_PATS__NUM_QUEUES];
 #endif
@@ -381,7 +377,7 @@ static GCC_INLINE void fc_solve_pats__free_clusters(fc_solve_soft_thread_t * sof
 
 extern void fc_solve_msg(const char *msg, ...);
 
-#if DEBUG
+#ifdef DEBUG
 static GCC_INLINE void fc_solve_pats__print_queue(fc_solve_soft_thread_t * soft_thread)
 {
     fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
