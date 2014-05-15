@@ -242,8 +242,8 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, char * 
                 total +=
                     (
                         soft_thread->current_pos.foundations[
-                        (int)fcs_pats_card_suit(out[i])
-                        ] = fcs_pats_card_rank(out[i])
+                        (int)fcs_card_suit(out[i])
+                        ] = fcs_card_rank(out[i])
                     );
             }
         }
@@ -704,10 +704,10 @@ static const char * const fc_solve_pats__Suits_string = "HCDS";
 
 void fc_solve_pats__print_card(fcs_card_t card, FILE *outfile)
 {
-    if (fcs_pats_card_rank(card) != fc_solve_empty_card) {
+    if (fcs_card_rank(card) != fc_solve_empty_card) {
         fprintf(outfile, "%c%c",
-            fc_solve_pats__Ranks_string[(int)fcs_pats_card_rank(card)],
-            fc_solve_pats__Suits_string[(int)fcs_pats_card_suit(card)]);
+            fc_solve_pats__Ranks_string[(int)fcs_card_rank(card)],
+            fc_solve_pats__Suits_string[(int)fcs_card_suit(card)]);
     }
 }
 
