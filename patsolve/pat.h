@@ -200,11 +200,8 @@ struct fc_solve_soft_thread_struct
 
     struct
     {
-        fcs_card_t freecells[MAX_NUM_FREECELLS];     /* one card in each temp cell */
-        fcs_card_t stacks[MAX_NUM_STACKS][52]; /* the workspace */
-        fcs_card_t *stack_ptrs[MAX_NUM_STACKS];   /* point to the top card of each work pile */
-        /* The number of cards in each column. */
-        int columns_lens[MAX_NUM_STACKS];
+        fcs_state_t s;
+        DECLARE_IND_BUF_T(indirect_stacks_buffer);
         /* used to keep the piles sorted */
         int column_idxs[MAX_NUM_STACKS];
         /* column_inv_idxs are not needed or used. */
@@ -212,8 +209,6 @@ struct fc_solve_soft_thread_struct
         /* Inverse of column_idxs */
         int column_inv_idxs[MAX_NUM_STACKS];
 #endif
-        /* Output piles (foundations) store only the rank or NONE */
-        fcs_card_t foundations[4];
         /* Every different pile has a hash and a unique id. */
         u_int32_t stack_hashes[MAX_NUM_STACKS];
         int stack_ids[MAX_NUM_STACKS];

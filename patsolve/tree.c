@@ -181,9 +181,9 @@ fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thre
 
     /* Get the cluster number from the Out cell contents. */
 
-    i = soft_thread->current_pos.foundations[0] + (soft_thread->current_pos.foundations[1] << 4);
+    i = fcs_foundation_value(soft_thread->current_pos.s, 0) + (fcs_foundation_value(soft_thread->current_pos.s, 1) << 4);
     k = i;
-    i = soft_thread->current_pos.foundations[2] + (soft_thread->current_pos.foundations[3] << 4);
+    i = fcs_foundation_value(soft_thread->current_pos.s, 2) + (fcs_foundation_value(soft_thread->current_pos.s, 3) << 4);
     k |= i << 8;
     *cluster = k;
 

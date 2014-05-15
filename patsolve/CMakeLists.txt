@@ -8,16 +8,17 @@ SHLOMIF_COMMON_SETUP("${private_mod_path}")
 
 INCLUDE(CheckCCompilerFlag)
 
-SET (STATES_TYPE "INDIRECT_STACK_STATES" CACHE STRING
-    "States Type ('INDIRECT_STACK_STATES', 'COMPACT_STATES' or 'DEBUG_STATES'). No need to usually change.")
+# SET (STATES_TYPE "INDIRECT_STACK_STATES" CACHE STRING "States Type ('INDIRECT_STACK_STATES', 'COMPACT_STATES' or 'DEBUG_STATES'). No need to usually change.")
+SET (STATES_TYPE "COMPACT_STATES" CACHE STRING "States Type ('INDIRECT_STACK_STATES', 'COMPACT_STATES' or 'DEBUG_STATES'). No need to usually change.")
 SET (FCS_WITH_TEST_SUITE "1" CACHE BOOL "Also build and run the test suite.")
 SET (FCS_HARD_CODED_NUM_FCS_FOR_FREECELL_ONLY "4" CACHE STRING "The hard-coded number of freecells (4, 2, etc.). Usually ignored")
 SET (FCS_FREECELL_ONLY "" CACHE BOOL "Configure Freecell Solver to only be able to solve Freecell (not recommended)")
 SET (MAX_NUM_FREECELLS 8 CACHE STRING "Maximal Number of Freecells")
 SET (MAX_NUM_STACKS 10 CACHE STRING "Maximal Number of Stacks")
-SET (MAX_NUM_INITIAL_CARDS_IN_A_STACK 8 CACHE STRING
+SET (MAX_NUM_INITIAL_CARDS_IN_A_STACK 20 CACHE STRING
     "Maximal Number of Initial Cards in a Stack")
 SET (MAX_NUM_DECKS 2 CACHE STRING "Maximal Number of Decks (1 or 2)")
+SET (FCS_WITHOUT_CARD_FLIPPING "1" CACHE BOOL "Exclude the flipping of cards from the binary.")
 SET(COMPILER_FLAGS_TO_CHECK
     "-Wall" "-Werror=implicit-function-declaration" "-fvisibility=hidden"
 )
@@ -162,7 +163,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 INCLUDE(CPack)
 
 ADD_EXECUTABLE(patsolve
-    patmain.c param.c pat.c patsolve.c tree.c util.c
+    card.c patmain.c param.c pat.c patsolve.c tree.c util.c
     )
 
 SET(COMPILER_FLAGS_TO_CHECK "-Wall" "-Werror=implicit-function-declaration")

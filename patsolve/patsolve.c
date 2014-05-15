@@ -101,8 +101,8 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     p += sizeof(fcs_pats_position_t);
     int i = 0;
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        *p++ = soft_thread->current_pos.freecells[t];
-        if (soft_thread->current_pos.freecells[t] != fc_solve_empty_card) {
+        *p++ = fcs_freecell_card(soft_thread->current_pos.s, t);
+        if (fcs_freecell_card(soft_thread->current_pos.s, t) != fc_solve_empty_card) {
             i++;
         }
     }
@@ -267,7 +267,7 @@ static void queue_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_positi
     additional priority depending on the number of cards out.  We use a
     "queue squashing function" to map nout to priority.  */
 
-    nout = soft_thread->current_pos.foundations[0] + soft_thread->current_pos.foundations[1] + soft_thread->current_pos.foundations[2] + soft_thread->current_pos.foundations[3];
+    nout = fcs_foundation_value(soft_thread->current_pos.s, 0) + fcs_foundation_value(soft_thread->current_pos.s, 1) + fcs_foundation_value(soft_thread->current_pos.s, 2) + fcs_foundation_value(soft_thread->current_pos.s, 3);
 
     /* y_param[0] * nout^2 + y_param[1] * nout + y_param[2] */
 
@@ -341,14 +341,15 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
 
     {
         int packed_foundations = pos->cluster;
-        typeof(soft_thread->current_pos.foundations[0]) * const founds = soft_thread->current_pos.foundations;
-        founds[0] = packed_foundations & 0xF;
+
+        fcs_state_t * s_ptr = &(soft_thread->current_pos.s);
+        fcs_set_foundation(*s_ptr, 0, packed_foundations & 0xF);
         packed_foundations >>= 4;
-        founds[1] = packed_foundations & 0xF;
+        fcs_set_foundation(*s_ptr, 1, packed_foundations & 0xF);
         packed_foundations >>= 4;
-        founds[2] = packed_foundations & 0xF;
+        fcs_set_foundation(*s_ptr, 2, packed_foundations & 0xF);
         packed_foundations >>= 4;
-        founds[3] = packed_foundations & 0xF;
+        fcs_set_foundation(*s_ptr, 3, packed_foundations & 0xF);
     }
 
     {
@@ -384,9 +385,9 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
             k = !k;
             soft_thread->current_pos.stack_ids[w] = i;
             l = soft_thread->bucket_from_pile_lookup[i];
-            i = strecpy(soft_thread->current_pos.stacks[w], (char *)(l->pile));
-            soft_thread->current_pos.stack_ptrs[w] = &soft_thread->current_pos.stacks[w][i - 1];
-            soft_thread->current_pos.columns_lens[w] = i;
+            fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+            i = strecpy(w_col+1, (char *)(l->pile));
+            fcs_col_len(w_col) = i;
             soft_thread->current_pos.stack_hashes[w] = l->hash;
         }
     }
@@ -398,7 +399,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
         p += sizeof(fcs_pats_position_t);
         const typeof(LOCAL_FREECELLS_NUM) Ntpiles = LOCAL_FREECELLS_NUM;
         for (int i = 0; i < Ntpiles; i++) {
-            soft_thread->current_pos.freecells[i] = *p++;
+            fcs_freecell_card(soft_thread->current_pos.s, i) = *p++;
         }
     }
 }
