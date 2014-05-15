@@ -88,15 +88,27 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
 
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         for (i = 0; i < soft_thread->current_pos.columns_lens[w]; i++) {
+            if (i > 0)
+            {
+                fputc(' ', stderr);
+            }
             fc_solve_pats__print_card(soft_thread->current_pos.stacks[w][i], stderr);
         }
         fputc('\n', stderr);
     }
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
+        if (t > 0 && soft_thread->current_pos.freecells[t] != NONE)
+        {
+            fputc(' ', stderr);
+        }
         fc_solve_pats__print_card(soft_thread->current_pos.freecells[t], stderr);
     }
     fputc('\n', stderr);
     for (o = 0; o < 4; o++) {
+        if (o > 0 && soft_thread->current_pos.foundations[o])
+        {
+            fputc(' ', stderr);
+        }
         fc_solve_pats__print_card(
             fcs_pats_make_card( soft_thread->current_pos.foundations[o], o),
             stderr
@@ -655,10 +667,8 @@ static const char * const fc_solve_pats__Suits_string = "HCDS";
 
 void fc_solve_pats__print_card(card_t card, FILE *outfile)
 {
-    if (fcs_pats_card_rank(card) == NONE) {
-        fprintf(outfile, "   ");
-    } else {
-        fprintf(outfile, "%c%c ",
+    if (fcs_pats_card_rank(card) != NONE) {
+        fprintf(outfile, "%c%c",
             fc_solve_pats__Ranks_string[fcs_pats_card_rank(card)],
             fc_solve_pats__Suits_string[fcs_pats_card_suit(card)]);
     }
