@@ -45,7 +45,7 @@ static const char Usage[] =
 #define USAGE() fc_solve_msg(Usage, Progname)
 
 
-#if DEBUG
+#ifdef DEBUG
 long Init_mem_remain;
 #endif
 
@@ -107,7 +107,7 @@ static void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 }
 
 
-#if DEBUG
+#ifdef DEBUG
 #ifdef HANDLE_SIG_QUIT
 static void quit(fc_solve_soft_thread_t * soft_thread, int sig)
 {
@@ -225,13 +225,13 @@ int main(int argc, char **argv)
     soft_thread->freed_positions = NULL;
     /* Default variation. */
     soft_thread_struct.Same_suit = TRUE;
-    soft_thread_struct.King_only = KING_ONLY;
-    soft_thread_struct.Nwpiles = NWPILES;
-    soft_thread_struct.Ntpiles = NTPILES;
+    soft_thread_struct.King_only = FALSE;
+    soft_thread_struct.Nwpiles = 10;
+    soft_thread_struct.Ntpiles = 4;
 
 
     Progname = *argv;
-#if DEBUG
+#ifdef DEBUG
 #ifdef HANDLE_SIG_QUIT
     signal(SIGQUIT, quit);
 #endif
@@ -459,7 +459,7 @@ int main(int argc, char **argv)
         printf("%d work piles, %d temp cells.\n", soft_thread->Nwpiles, soft_thread->Ntpiles);
     }
 
-#if DEBUG
+#ifdef DEBUG
     Init_mem_remain = soft_thread->remaining_memory;
 #endif
     if (Sgame < 0) {
@@ -519,13 +519,13 @@ void play(fc_solve_soft_thread_t * soft_thread)
         {
             printf("No solution.\n");
         }
-#if DEBUG
+#ifdef DEBUG
         printf("%d positions generated.\n", soft_thread->num_states_in_collection);
         printf("%d unique positions.\n", soft_thread->num_checked_states);
         printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
 #endif
     }
-#if DEBUG
+#ifdef DEBUG
 if (soft_thread->remaining_memory != Init_mem_remain) {
  fc_solve_msg("remaining_memory = %ld\n", soft_thread->remaining_memory);
 }

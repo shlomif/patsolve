@@ -9,7 +9,13 @@ SHLOMIF_COMMON_SETUP("${private_mod_path}")
 INCLUDE(CheckCCompilerFlag)
 
 SET (FCS_WITH_TEST_SUITE "1" CACHE BOOL "Also build and run the test suite.")
-
+SET (FCS_HARD_CODED_NUM_FCS_FOR_FREECELL_ONLY "4" CACHE STRING "The hard-coded number of freecells (4, 2, etc.). Usually ignored")
+SET (FCS_FREECELL_ONLY "" CACHE BOOL "Configure Freecell Solver to only be able to solve Freecell (not recommended)")
+SET (MAX_NUM_FREECELLS 8 CACHE STRING "Maximal Number of Freecells")
+SET (MAX_NUM_STACKS 10 CACHE STRING "Maximal Number of Stacks")
+SET (MAX_NUM_INITIAL_CARDS_IN_A_STACK 8 CACHE STRING
+    "Maximal Number of Initial Cards in a Stack")
+SET (MAX_NUM_DECKS 2 CACHE STRING "Maximal Number of Decks (1 or 2)")
 SET(COMPILER_FLAGS_TO_CHECK
     "-Wall" "-Werror=implicit-function-declaration" "-fvisibility=hidden"
 )
@@ -187,3 +193,11 @@ IF (FCS_WITH_TEST_SUITE)
     )
 
 ENDIF(FCS_WITH_TEST_SUITE)
+
+CONFIGURE_FILE(
+    ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    )
+
+# So it can find config.h
+INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
