@@ -447,11 +447,8 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
                 }
                 if (soft_thread->current_pos.columns_lens[w] > 1) {
                     card = soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w] - 2];
-                    for (s = 0; s < 4; s++) {
-                        if (card == need[s]) {
-                            mp->pri += soft_thread->pats_solve_params.x[1];
-                            break;
-                        }
+                    if (card == need[fcs_pats_card_suit(card)]) {
+                        mp->pri += soft_thread->pats_solve_params.x[1];
                     }
                 }
             }
