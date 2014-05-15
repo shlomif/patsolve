@@ -1028,6 +1028,7 @@ static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
     for (i = 0, mpp = mpp0; i < nmoves; i++, mpp++) {
         mp = *mpp;
         fc_solve_pats__print_card(mp->card, out);
+        fputc(' ', out);
         if (mp->totype == FCS_PATS__TYPE_FREECELL) {
             fprintf(out, "to temp\n");
         } else if (mp->totype == FCS_PATS__TYPE_FOUNDATION) {
