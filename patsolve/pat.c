@@ -384,8 +384,7 @@ positions when they are added to the queue. */
 static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp0, int n)
 {
     DECLARE_STACKS();
-    int w, pile[NNEED];
-    card_t card;
+    int pile[NNEED];
 
     /* There are 4 cards that we "need": the next cards to go out.  We
     give higher priority to the moves that remove cards from the piles
@@ -411,10 +410,10 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
 
     int num_piles = 0;
 
-    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
+    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
         const int len = soft_thread->current_pos.columns_lens[w];
         for (int i = 0; i < len; i++) {
-            card = soft_thread->current_pos.stacks[w][i];
+            const card_t card = soft_thread->current_pos.stacks[w][i];
             const int suit = fcs_pats_card_suit(card);
 
             /* Save the locations of the piles containing
@@ -443,14 +442,14 @@ end_of_stacks:
     for (fcs_pats__move_t *mp = mp0; mp < mp_end; mp++) {
         if (mp->card != NONE) {
             if (mp->fromtype == FCS_PATS__TYPE_WASTE) {
-                w = mp->from;
+                const int w = mp->from;
                 for (int j = 0; j < num_piles; j++) {
                     if (w == pile[j]) {
                         mp->pri += soft_thread->pats_solve_params.x[0];
                     }
                 }
                 if (soft_thread->current_pos.columns_lens[w] > 1) {
-                    card = soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w] - 2];
+                    const card_t card = soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w] - 2];
                     if (card == need[fcs_pats_card_suit(card)]) {
                         mp->pri += soft_thread->pats_solve_params.x[1];
                     }
