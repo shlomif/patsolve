@@ -897,18 +897,18 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
     return FALSE;
 }
 
-static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
+static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, const int n)
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
-    int i;
-    fcs_pats__move_t *mp;
 
     const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
     const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
     const fcs_bool_t King_only = (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
     const typeof(soft_thread->pats_solve_params.x[8]) x_param_8 = soft_thread->pats_solve_params.x[8];
 
-    for (i = 0, mp = soft_thread->possible_moves; i < n; i++, mp++) {
+    fcs_pats__move_t * mp = soft_thread->possible_moves;
+    const fcs_pats__move_t * const mp_end = mp + n;
+    for (; mp < mp_end ; mp++) {
         if (is_irreversible_move(
                 game_variant_suit_mask,
                 game_variant_desired_suit_value,
