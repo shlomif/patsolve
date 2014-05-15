@@ -37,9 +37,9 @@
 #include "inline.h"
 #include "bool.h"
 
-/* A card is represented as (suit << 4) + rank. */
+#include "state.h"
 
-typedef u_char card_t;
+/* A card is represented as (suit << 4) + rank. */
 
 #define FCS_PATS__HEART     0x00         /* red */
 #define FCS_PATS__CLUB      0x01         /* black */
@@ -49,34 +49,25 @@ typedef u_char card_t;
 #define FCS_PATS__COLOR     0x01         /* black if set */
 #define FCS_PATS__SUIT      0x03         /* mask both suit bits */
 
-#define fc_solve_empty_card ((card_t)0)
-
-#if 0
-#define DEFINE_fc_solve_empty_card() \
-    card_t fc_solve_empty_card = (card_t)0;
-#else
-#define DEFINE_fc_solve_empty_card()
-#endif
-
 #define FCS_PATS__ACE  1
 #define FCS_PATS__KING 13
 
-static GCC_INLINE card_t fcs_pats_card_rank(const card_t card)
+static GCC_INLINE fcs_card_t fcs_pats_card_rank(const fcs_card_t card)
 {
     return (card >> 2);
 }
 
-static GCC_INLINE card_t fcs_pats_card_suit(const card_t card)
+static GCC_INLINE fcs_card_t fcs_pats_card_suit(const fcs_card_t card)
 {
     return (card & 0x03);
 }
 
-static GCC_INLINE card_t fcs_pats_card_color(const card_t card)
+static GCC_INLINE fcs_card_t fcs_pats_card_color(const fcs_card_t card)
 {
     return (card & FCS_PATS__COLOR);
 }
 
-static GCC_INLINE card_t fcs_pats_make_card(const card_t rank, const card_t suit)
+static GCC_INLINE fcs_card_t fcs_pats_make_card(const fcs_card_t rank, const fcs_card_t suit)
 {
     return ((rank << 2) | suit);
 }
@@ -84,7 +75,7 @@ static GCC_INLINE card_t fcs_pats_make_card(const card_t rank, const card_t suit
 /*
  * Next card in rank.
  * */
-static GCC_INLINE card_t fcs_pats_next_card(const card_t card)
+static GCC_INLINE fcs_card_t fcs_pats_next_card(const fcs_card_t card)
 {
     return card + (1 << 2);
 }
@@ -94,12 +85,12 @@ static GCC_INLINE card_t fcs_pats_next_card(const card_t card)
 /* The following macro implements
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
 */
-static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const card_t a, const card_t b, const card_t suit_mask, const card_t suit_val)
+static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a, const fcs_card_t b, const fcs_card_t suit_mask, const fcs_card_t suit_val)
 {
     return (((a ^ b) & suit_mask) == suit_val);
 }
 
-static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const card_t card)
+static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const fcs_card_t card)
 {
     return (not_king_only || fcs_pats_card_rank(card) == FCS_PATS__KING);
 }
@@ -107,13 +98,13 @@ static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_onl
 /* Represent a move. */
 
 typedef struct {
-    card_t card;            /* the card we're moving */
+    fcs_card_t card;            /* the card we're moving */
     u_char from;            /* from pile number */
     u_char to;              /* to pile number */
     u_char fromtype;        /* O, T, or W */
     u_char totype;
-    card_t srccard;         /* card we're uncovering */
-    card_t destcard;        /* card we're moving to */
+    fcs_card_t srccard;         /* card we're uncovering */
+    fcs_card_t destcard;        /* card we're moving to */
     signed char pri;        /* move priority (low priority == low value) */
 } fcs_pats__move_t;
 
@@ -140,7 +131,7 @@ typedef struct fc_solve_pats__struct {
 } fcs_pats_position_t;
 
 /* suits of the output piles */
-extern const card_t fc_solve_pats__output_suits[4];
+extern const fcs_card_t fc_solve_pats__output_suits[4];
 
 /* Temp storage for possible moves. */
 
@@ -200,8 +191,8 @@ struct fc_solve_instance_struct
 {
     /* game parameters */
     fcs_game_type_params_t game_params;
-    card_t game_variant_suit_mask;
-    card_t game_variant_desired_suit_value;
+    fcs_card_t game_variant_suit_mask;
+    fcs_card_t game_variant_desired_suit_value;
 };
 
 typedef struct fc_solve_instance_struct fc_solve_instance_t;
@@ -224,9 +215,9 @@ struct fc_solve_soft_thread_struct
 
     struct
     {
-        card_t freecells[MAX_NUM_FREECELLS];     /* one card in each temp cell */
-        card_t stacks[MAX_NUM_STACKS][52]; /* the workspace */
-        card_t *stack_ptrs[MAX_NUM_STACKS];   /* point to the top card of each work pile */
+        fcs_card_t freecells[MAX_NUM_FREECELLS];     /* one card in each temp cell */
+        fcs_card_t stacks[MAX_NUM_STACKS][52]; /* the workspace */
+        fcs_card_t *stack_ptrs[MAX_NUM_STACKS];   /* point to the top card of each work pile */
         /* The number of cards in each column. */
         int columns_lens[MAX_NUM_STACKS];
         /* used to keep the piles sorted */
@@ -237,7 +228,7 @@ struct fc_solve_soft_thread_struct
         int column_inv_idxs[MAX_NUM_STACKS];
 #endif
         /* Output piles (foundations) store only the rank or NONE */
-        card_t foundations[4];
+        fcs_card_t foundations[4];
         /* Every different pile has a hash and a unique id. */
         u_int32_t stack_hashes[MAX_NUM_STACKS];
         int stack_ids[MAX_NUM_STACKS];
@@ -289,7 +280,7 @@ typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
 
 extern fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node);
 extern void fc_solve_pats__do_it(fc_solve_soft_thread_t *);
-extern void fc_solve_pats__print_card(card_t card, FILE *);
+extern void fc_solve_pats__print_card(fcs_card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *);
 extern void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *);
 extern fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *, int *);

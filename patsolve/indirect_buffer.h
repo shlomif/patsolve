@@ -1,4 +1,4 @@
-/* Copyright (c) 2002 Tom Holroyd
+/* Copyright (c) 2000 Shlomi Fish
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -21,49 +21,22 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-/* This is a 32 bit FNV hash.  For more information, see
-http://www.isthe.com/chongo/tech/comp/fnv/index.html */
+/*
+ * indirect_buffer.h - declare the dll_ind_buf_t type.
+ *
+ */
+#ifndef FC_SOLVE__INDIRECT_BUFFER_H
+#define FC_SOLVE__INDIRECT_BUFFER_H
 
-#ifndef FNV_H
-#define FNV_H
-
-#include <sys/types.h>
 #include "config.h"
 
-#include "inline.h"
-
-#define FNV1_32_INIT 0x811C9DC5
-#define FNV_32_PRIME 0x01000193
-
-#define fnv_hash(x, hash) (((hash) * FNV_32_PRIME) ^ (x))
-
-/* Hash a buffer. */
-
-static GCC_INLINE u_int32_t fnv_hash_buf(u_char *s, int len)
-{
-    int i;
-    u_int32_t h;
-
-    h = FNV1_32_INIT;
-    for (i = 0; i < len; i++) {
-        h = fnv_hash(*s++, h);
-    }
-
-    return h;
-}
-
-/* Hash a 0 terminated string. */
-
-static GCC_INLINE u_int32_t fnv_hash_str(const u_char *s)
-{
-    u_int32_t h;
-
-    h = FNV1_32_INIT;
-    while (*s) {
-        h = fnv_hash(*s++, h);
-    }
-
-    return h;
-}
+#ifdef INDIRECT_STACK_STATES
+typedef char dll_ind_buf_t[MAX_NUM_STACKS << 7];
+#define DECLARE_IND_BUF_T(ident) dll_ind_buf_t ident;
+#define IND_BUF_T_PARAM(ident) , dll_ind_buf_t ident
+#else
+#define DECLARE_IND_BUF_T(ident)
+#define IND_BUF_T_PARAM(ident)
+#endif
 
 #endif
