@@ -42,12 +42,12 @@
 typedef u_char card_t;
 
 #define PS_DIAMOND 0x00         /* red */
-#define PS_CLUB    0x10         /* black */
-#define PS_HEART   0x20         /* red */
+#define PS_CLUB    0x01         /* black */
+#define PS_HEART   0x02         /* red */
 
-#define PS_SPADE   0x30         /* black */
-#define PS_COLOR   0x10         /* black if set */
-#define PS_SUIT    0x30         /* mask both suit bits */
+#define PS_SPADE   0x03         /* black */
+#define PS_COLOR   0x01         /* black if set */
+#define PS_SUIT    0x03         /* mask both suit bits */
 
 #define NONE    0
 #define PS_ACE  1
@@ -55,17 +55,30 @@ typedef u_char card_t;
 
 static GCC_INLINE card_t fcs_pats_card_rank(const card_t card)
 {
-    return (card & 0xF);
+    return (card >> 2);
 }
 
 static GCC_INLINE card_t fcs_pats_card_suit(const card_t card)
 {
-    return (card >> 4);
+    return (card & 0x03);
 }
 
 static GCC_INLINE card_t fcs_pats_card_color(const card_t card)
 {
     return (card & PS_COLOR);
+}
+
+static GCC_INLINE card_t fcs_pats_make_card(const card_t rank, const card_t suit)
+{
+    return ((rank << 2) | suit);
+}
+
+/*
+ * Next card in rank.
+ * */
+static GCC_INLINE card_t fcs_pats_next_card(const card_t card)
+{
+    return card + (1 << 2);
 }
 
 /* Some macros used in get_possible_moves(). */

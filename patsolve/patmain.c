@@ -641,7 +641,7 @@ static int parse_pile(char *s, card_t *w, int size)
         else if (*s == 'S') suit = PS_SPADE;
         else fatalerr("bad card %c%c\n", s[-1], s[0]);
         s++;
-        *w++ = suit + rank;
+        *w++ = (suit | (rank << 2));
         i++;
         while (*s == ' ') s++;
     }
