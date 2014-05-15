@@ -97,8 +97,10 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
     }
     fputc('\n', stderr);
     for (o = 0; o < 4; o++) {
-        fc_solve_pats__print_card(soft_thread->current_pos.foundations[o] +
-            fc_solve_pats__output_suits[o], stderr);
+        fc_solve_pats__print_card(
+            fcs_pats_make_card( soft_thread->current_pos.foundations[o], o),
+            stderr
+        );
     }
     fprintf(stderr, "\n---\n");
 }
@@ -641,7 +643,7 @@ static int parse_pile(char *s, card_t *w, int size)
         else if (*s == 'S') suit = PS_SPADE;
         else fatalerr("bad card %c%c\n", s[-1], s[0]);
         s++;
-        *w++ = (suit | (rank << 2));
+        *w++ = fcs_pats_make_card(rank, suit);
         i++;
         while (*s == ' ') s++;
     }
@@ -649,7 +651,7 @@ static int parse_pile(char *s, card_t *w, int size)
 }
 
 static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
-static const char * const fc_solve_pats__Suits_string = "DCHS";
+static const char * const fc_solve_pats__Suits_string = "HCDS";
 
 void fc_solve_pats__print_card(card_t card, FILE *outfile)
 {
