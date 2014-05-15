@@ -30,6 +30,8 @@
 #include <sys/types.h>
 #include "util.h"
 #include "config.h"
+#include "game_type_params.h"
+#include "fcs_enums.h"
 #include "tree.h"
 #include "param.h"
 #include "inline.h"
@@ -173,8 +175,19 @@ typedef struct fcs_pats__bucket_list_struct {
 
 #define FC_SOLVE_PATS__NUM_QUEUES 100
 
+struct fc_solve_instance_struct
+{
+    /* game parameters */
+    fcs_game_type_params_t game_params;
+    card_t game_variant_suit_mask;
+    card_t game_variant_desired_suit_value;
+};
+
+typedef struct fc_solve_instance_struct fc_solve_instance_t;
+
 struct fc_solve_soft_thread_struct
 {
+    fc_solve_instance_t * instance;
     long remaining_memory;
     int bytes_per_pile;
     fcs_pats_position_t *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
@@ -184,16 +197,6 @@ struct fc_solve_soft_thread_struct
     int num_positions_in_clusters[0x10000];
     int Inq[FC_SOLVE_PATS__NUM_QUEUES];
 #endif
-    /* game parameters */
-    int Same_suit;
-    fcs_bool_t King_only;
-    /* the numbers we're actually using */
-    int Nwpiles;
-    int Ntpiles;
-
-    card_t game_variant_suit_mask;
-    card_t game_variant_desired_suit_value;
-
     fcs_pats_position_t *freed_positions;       /* position freelist */
 
     /* Work arrays. */
@@ -278,13 +281,18 @@ extern void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread);
 
 static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft_thread)
 {
+#if !defined(HARD_CODED_NUM_STACKS) || !defined(HARD_CODED_NUM_FREECELLS)
+    const fc_solve_instance_t * const instance = soft_thread->instance;
+#endif
+    const int stacks_num = INSTANCE_STACKS_NUM;
+    const int freecells_num = INSTANCE_FREECELLS_NUM;
     int i;
 
     /* Packed positions need 3 bytes for every 2 piles. */
 
-    i = soft_thread->Nwpiles * 3;
+    i = stacks_num * 3;
     i >>= 1;
-    i += soft_thread->Nwpiles & 0x1;
+    i += stacks_num & 0x1;
     soft_thread->bytes_per_pile = i;
 
     memset(soft_thread->buckets_list, 0, sizeof(soft_thread->buckets_list));
@@ -303,7 +311,7 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
         soft_thread->bytes_per_tree_node |= ALIGN_BITS;
         soft_thread->bytes_per_tree_node++;
     }
-    soft_thread->position_size = sizeof(fcs_pats_position_t) + soft_thread->Ntpiles;
+    soft_thread->position_size = sizeof(fcs_pats_position_t) + freecells_num;
     if (soft_thread->position_size & ALIGN_BITS) {
         soft_thread->position_size |= ALIGN_BITS;
         soft_thread->position_size++;
@@ -395,7 +403,12 @@ static GCC_INLINE void fc_solve_pats__print_queue(fc_solve_soft_thread_t * soft_
     }
     fc_solve_msg("\n");
 }
-
 #endif
 
+#if !defined(HARD_CODED_NUM_STACKS)
+#define DECLARE_STACKS() \
+    const fcs_game_type_params_t game_params = soft_thread->instance->game_params
+#else
+#define DECLARE_STACKS() {}
+#endif
 #endif /* #ifndef FC_SOLVE_PATSOLVE_PAT_H */

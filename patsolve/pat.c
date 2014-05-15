@@ -57,11 +57,13 @@ static GCC_INLINE void hashpile(fc_solve_soft_thread_t * soft_thread, int w)
 
 /* Hash the whole layout.  This is called once, at the start. */
 
+
 void fc_solve_pats__hash_layout(fc_solve_soft_thread_t * soft_thread)
 {
+    DECLARE_STACKS();
     int w;
 
-    for (w = 0; w < soft_thread->Nwpiles; w++) {
+    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         hashpile(soft_thread, w);
     }
 }
@@ -134,16 +136,18 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
 }
 
 /* This prune applies only to Seahaven in -k mode: if we're putting a card
-onto a soft_thread->current_pos.stacks pile, and if that pile already has soft_thread->Ntpiles+1 cards of this suit in
+onto a soft_thread->current_pos.stacks pile, and if that pile already has LOCAL_FREECELLS_NUM+1 cards of this suit in
 a row, and if there is a smaller card of the same suit below the run, then
 the position is unsolvable.  This cuts out a lot of useless searching, so
 it's worth checking.  */
 
 static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp)
 {
+    const fc_solve_instance_t * const instance = soft_thread->instance;
+    const fcs_game_type_params_t game_params = instance->game_params;
     int i, j, w, r, s;
 
-    if (!soft_thread->Same_suit || !soft_thread->King_only || mp->totype != FCS_PATS__TYPE_WASTE) {
+    if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) || !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) || mp->totype != FCS_PATS__TYPE_WASTE) {
         return FALSE;
     }
     w = mp->to;
@@ -158,7 +162,7 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t
             j++;
         }
     }
-    if (j < soft_thread->Ntpiles + 1) {
+    if (j < LOCAL_FREECELLS_NUM + 1) {
         return FALSE;
     }
 
@@ -213,6 +217,7 @@ static GCC_INLINE int cardisdest(card_t card, fcs_pats__move_t **mpp, int j)
 
 static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp, fcs_pats_position_t *pos0)
 {
+    DECLARE_STACKS();
     int i, j;
     int zerot;
     fcs_pats__move_t *m, *prev[MAXPREVMOVE];
@@ -276,7 +281,7 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
     zerot = 0;
     pos = pos0;
     for (i = 0; i < j; i++) {
-        zerot |= (pos->ntemp == soft_thread->Ntpiles);
+        zerot |= (pos->ntemp == LOCAL_FREECELLS_NUM);
         pos = pos->parent;
     }
 
@@ -344,7 +349,7 @@ static int prune_redundant(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_
         first move, prune.  There are other cases, but they
         are more complicated. */
 
-        if (pos->ntemp != soft_thread->Ntpiles && !zerot) {
+        if (pos->ntemp != LOCAL_FREECELLS_NUM && !zerot) {
             return TRUE;
         }
 
@@ -379,6 +384,7 @@ positions when they are added to the queue. */
 
 static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp0, int n)
 {
+    DECLARE_STACKS();
     int i, j, s, w, pile[NNEED], npile;
     card_t card, need[4];
     fcs_pats__move_t *mp;
@@ -405,7 +411,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     like maybe an array that keeps track of every card; if maintaining
     such an array is not too expensive. */
 
-    for (w = 0; w < soft_thread->Nwpiles; w++) {
+    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         j = soft_thread->current_pos.columns_lens[w];
         for (i = 0; i < j; i++) {
             card = soft_thread->current_pos.stacks[w][i];
@@ -578,9 +584,10 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
 
 static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o, int r)
 {
+    const fc_solve_instance_t * const instance = soft_thread->instance;
     int i;
 
-    if (soft_thread->Same_suit || r <= 2) {
+    if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) || r <= 2) {
         return TRUE;
     }
 
@@ -620,6 +627,8 @@ static GCC_INLINE int good_automove(fc_solve_soft_thread_t * soft_thread, int o,
 
 static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *a, int *numout)
 {
+    const fc_solve_instance_t * const instance = soft_thread->instance;
+    DECLARE_STACKS();
     int i, n, t, w, o, empty, emptyw;
     card_t card;
     fcs_pats__move_t *mp;
@@ -628,7 +637,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
     n = 0;
     mp = soft_thread->possible_moves;
-    for (w = 0; w < soft_thread->Nwpiles; w++) {
+    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         if (soft_thread->current_pos.columns_lens[w] > 0) {
             card = *soft_thread->current_pos.stack_ptrs[w];
             o = fcs_pats_card_suit(card);
@@ -665,7 +674,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
     /* Check for moves from soft_thread->current_pos.freecells to soft_thread->current_pos.foundations. */
 
-    for (t = 0; t < soft_thread->Ntpiles; t++) {
+    for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
         if (soft_thread->current_pos.freecells[t] != NONE) {
             card = soft_thread->current_pos.freecells[t];
             o = fcs_pats_card_suit(card);
@@ -705,17 +714,17 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     /* Check for moves from non-singleton soft_thread->current_pos.stacks cells to one of any
     empty soft_thread->current_pos.stacks cells. */
 
-    const fcs_bool_t not_King_only = (! (soft_thread->King_only));
+    const fcs_bool_t not_King_only = (! ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
 
     emptyw = -1;
-    for (w = 0; w < soft_thread->Nwpiles; w++) {
+    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         if (soft_thread->current_pos.columns_lens[w] == 0) {
             emptyw = w;
             break;
         }
     }
     if (emptyw >= 0) {
-        for (i = 0; i < soft_thread->Nwpiles; i++) {
+        for (i = 0; i < LOCAL_STACKS_NUM; i++) {
             if (i == emptyw) {
                 continue;
             }
@@ -736,14 +745,14 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         }
     }
 
-    const card_t game_variant_suit_mask = soft_thread->game_variant_suit_mask;
-    const card_t game_variant_desired_suit_value = soft_thread->game_variant_desired_suit_value;
+    const card_t game_variant_suit_mask = instance->game_variant_suit_mask;
+    const card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
     /* Check for moves from soft_thread->current_pos.stacks to non-empty soft_thread->current_pos.stacks cells. */
 
-    for (i = 0; i < soft_thread->Nwpiles; i++) {
+    for (i = 0; i < LOCAL_STACKS_NUM; i++) {
         if (soft_thread->current_pos.columns_lens[i] > 0) {
             card = *soft_thread->current_pos.stack_ptrs[i];
-            for (w = 0; w < soft_thread->Nwpiles; w++) {
+            for (w = 0; w < LOCAL_STACKS_NUM; w++) {
                 if (i == w) {
                     continue;
                 }
@@ -770,10 +779,10 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
     /* Check for moves from soft_thread->current_pos.freecells to non-empty soft_thread->current_pos.stacks cells. */
 
-    for (t = 0; t < soft_thread->Ntpiles; t++) {
+    for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
         card = soft_thread->current_pos.freecells[t];
         if (card != NONE) {
-            for (w = 0; w < soft_thread->Nwpiles; w++) {
+            for (w = 0; w < LOCAL_STACKS_NUM; w++) {
                 if (soft_thread->current_pos.columns_lens[w] > 0 &&
                     (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
                      fcs_pats_is_suitable(card, *(soft_thread->current_pos.stack_ptrs[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
@@ -795,7 +804,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     /* Check for moves from soft_thread->current_pos.freecells to one of any empty soft_thread->current_pos.stacks cells. */
 
     if (emptyw >= 0) {
-        for (t = 0; t < soft_thread->Ntpiles; t++) {
+        for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
             card = soft_thread->current_pos.freecells[t];
             if (card != NONE && fcs_pats_is_king_only(not_King_only, card)) {
                 mp->card = card;
@@ -814,13 +823,13 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
     /* Check for moves from soft_thread->current_pos.stacks to one of any empty soft_thread->current_pos.freecells cells. */
 
-    for (t = 0; t < soft_thread->Ntpiles; t++) {
+    for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
         if (soft_thread->current_pos.freecells[t] == NONE) {
             break;
         }
     }
-    if (t < soft_thread->Ntpiles) {
-        for (w = 0; w < soft_thread->Nwpiles; w++) {
+    if (t < LOCAL_FREECELLS_NUM) {
+        for (w = 0; w < LOCAL_STACKS_NUM; w++) {
             if (soft_thread->current_pos.columns_lens[w] > 0) {
                 card = *soft_thread->current_pos.stack_ptrs[w];
                 mp->card = card;
@@ -890,12 +899,13 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
 
 static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
 {
+    const fc_solve_instance_t * const instance = soft_thread->instance;
     int i;
     fcs_pats__move_t *mp;
 
-    const card_t game_variant_suit_mask = soft_thread->game_variant_suit_mask;
-    const card_t game_variant_desired_suit_value = soft_thread->game_variant_desired_suit_value;
-    const fcs_bool_t King_only = soft_thread->King_only;
+    const card_t game_variant_suit_mask = instance->game_variant_suit_mask;
+    const card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
+    const fcs_bool_t King_only = (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
     const typeof(soft_thread->pats_solve_params.x[8]) x_param_8 = soft_thread->pats_solve_params.x[8];
 
     for (i = 0, mp = soft_thread->possible_moves; i < n; i++, mp++) {
@@ -937,11 +947,12 @@ equivalent layouts.  Assume it's already mostly sorted.  */
 
 void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
 {
+    DECLARE_STACKS();
     int w, i, j;
 
     /* Make sure all the piles have id numbers. */
 
-    for (w = 0; w < soft_thread->Nwpiles; w++) {
+    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         if (soft_thread->current_pos.stack_ids[w] < 0) {
             soft_thread->current_pos.stack_ids[w] = get_pilenum(soft_thread, w);
             if (soft_thread->current_pos.stack_ids[w] < 0) {
@@ -956,7 +967,7 @@ void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
 
     soft_thread->current_pos.column_idxs[0] = 0;
     w = 0;
-    for (i = 1; i < soft_thread->Nwpiles; i++) {
+    for (i = 1; i < LOCAL_STACKS_NUM; i++) {
         if (wcmp(soft_thread, soft_thread->current_pos.column_idxs[w], i) < 0) {
             w++;
             soft_thread->current_pos.column_idxs[w] = i;
@@ -975,7 +986,7 @@ void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread)
 #if 0
     /* Compute the inverse. */
 
-    for (i = 0; i < soft_thread->Nwpiles; i++) {
+    for (i = 0; i < LOCAL_STACKS_NUM; i++) {
         soft_thread->current_pos.column_inv_idxs[soft_thread->current_pos.column_idxs[i]] = i;
     }
 #endif
