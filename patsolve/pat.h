@@ -49,10 +49,14 @@ typedef u_char card_t;
 #define FCS_PATS__COLOR     0x01         /* black if set */
 #define FCS_PATS__SUIT      0x03         /* mask both suit bits */
 
-extern card_t fc_solve_empty_card;
+#define fc_solve_empty_card ((card_t)0)
 
+#if 0
 #define DEFINE_fc_solve_empty_card() \
     card_t fc_solve_empty_card = (card_t)0;
+#else
+#define DEFINE_fc_solve_empty_card()
+#endif
 
 #define FCS_PATS__ACE  1
 #define FCS_PATS__KING 13
