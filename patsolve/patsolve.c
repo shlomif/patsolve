@@ -318,7 +318,7 @@ soft_thread->num_positions_in_clusters[pos->cluster]++;
 }
 
 /* Like strcpy() but return the length of the string. */
-static GCC_INLINE int strecpy(u_char *dest, u_char *src)
+static GCC_INLINE int strecpy(char *dest, char *src)
 {
     int i;
 
@@ -384,7 +384,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
             k = !k;
             soft_thread->current_pos.stack_ids[w] = i;
             l = soft_thread->bucket_from_pile_lookup[i];
-            i = strecpy(soft_thread->current_pos.stacks[w], l->pile);
+            i = strecpy(soft_thread->current_pos.stacks[w], (char *)(l->pile));
             soft_thread->current_pos.stack_ptrs[w] = &soft_thread->current_pos.stacks[w][i - 1];
             soft_thread->current_pos.columns_lens[w] = i;
             soft_thread->current_pos.stack_hashes[w] = l->hash;

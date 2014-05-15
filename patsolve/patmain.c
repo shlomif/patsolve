@@ -50,7 +50,7 @@ static const char Usage[] =
 long Init_mem_remain;
 #endif
 
-static int parse_pile(char *s, card_t *w, int size);
+static int parse_pile(char *s, fcs_card_t *w, int size);
 
 static char *Progname = NULL;
 
@@ -199,7 +199,7 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, char * 
 #endif
     int w, i, total;
     char buf[100];
-    card_t out[4];
+    fcs_card_t out[4];
 
     /* Read the workspace. */
 
@@ -241,8 +241,9 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, char * 
             if (out[i] != fc_solve_empty_card) {
                 total +=
                     (
-                        soft_thread->current_pos.foundations[fcs_pats_card_suit(out[i])]
-                            = fcs_pats_card_rank(out[i])
+                        soft_thread->current_pos.foundations[
+                        (int)fcs_pats_card_suit(out[i])
+                        ] = fcs_pats_card_rank(out[i])
                     );
             }
         }
@@ -666,10 +667,10 @@ if (soft_thread->remaining_memory != Init_mem_remain) {
 }
 
 
-static int parse_pile(char *s, card_t *w, int size)
+static int parse_pile(char *s, fcs_card_t *w, int size)
 {
     int i;
-    card_t rank, suit;
+    fcs_card_t rank, suit;
 
     i = 0;
     rank = suit = fc_solve_empty_card;
@@ -701,12 +702,12 @@ static int parse_pile(char *s, card_t *w, int size)
 static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
 static const char * const fc_solve_pats__Suits_string = "HCDS";
 
-void fc_solve_pats__print_card(card_t card, FILE *outfile)
+void fc_solve_pats__print_card(fcs_card_t card, FILE *outfile)
 {
     if (fcs_pats_card_rank(card) != fc_solve_empty_card) {
         fprintf(outfile, "%c%c",
-            fc_solve_pats__Ranks_string[fcs_pats_card_rank(card)],
-            fc_solve_pats__Suits_string[fcs_pats_card_suit(card)]);
+            fc_solve_pats__Ranks_string[(int)fcs_pats_card_rank(card)],
+            fc_solve_pats__Suits_string[(int)fcs_pats_card_suit(card)]);
     }
 }
 

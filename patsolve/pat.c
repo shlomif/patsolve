@@ -49,7 +49,7 @@ static GCC_INLINE int get_pilenum(fc_solve_soft_thread_t * soft_thread, int w);
 static GCC_INLINE void hashpile(fc_solve_soft_thread_t * soft_thread, int w)
 {
     soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w]] = 0;
-    soft_thread->current_pos.stack_hashes[w] = fnv_hash_str(soft_thread->current_pos.stacks[w]);
+    soft_thread->current_pos.stack_hashes[w] = fnv_hash_str((const u_char *)soft_thread->current_pos.stacks[w]);
 
     /* Invalidate this pile's id.  We'll calculate it later. */
 
@@ -74,7 +74,7 @@ void fc_solve_pats__hash_layout(fc_solve_soft_thread_t * soft_thread)
 void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m)
 {
     int from, to;
-    card_t card;
+    fcs_card_t card;
 
     from = m->from;
     to = m->to;
@@ -106,7 +106,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
 void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m)
 {
     int from, to;
-    card_t card;
+    fcs_card_t card;
 
     from = m->from;
     to = m->to;
@@ -185,7 +185,7 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t
 /* This utility routine is used to check if a card is ever moved in
 a sequence of moves. */
 
-static GCC_INLINE int cardmoved(card_t card, fcs_pats__move_t **mpp, int j)
+static GCC_INLINE int cardmoved(fcs_card_t card, fcs_pats__move_t **mpp, int j)
 {
     int i;
 
@@ -200,7 +200,7 @@ static GCC_INLINE int cardmoved(card_t card, fcs_pats__move_t **mpp, int j)
 /* This utility routine is used to check if a card is ever used as a
 destination in a sequence of moves. */
 
-static GCC_INLINE int cardisdest(card_t card, fcs_pats__move_t **mpp, int j)
+static GCC_INLINE int cardisdest(fcs_card_t card, fcs_pats__move_t **mpp, int j)
 {
     int i;
 
@@ -397,10 +397,10 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     }
 
 #define NUM_SUITS 4
-    card_t need[NUM_SUITS];
+    fcs_card_t need[NUM_SUITS];
     for (int suit = 0; suit < NUM_SUITS; suit++) {
         need[suit] = fc_solve_empty_card;
-        const card_t rank = soft_thread->current_pos.foundations[suit];
+        const fcs_card_t rank = soft_thread->current_pos.foundations[suit];
         if (rank != FCS_PATS__KING) {
             need[suit] = fcs_pats_make_card(rank + 1, suit);
         }
@@ -415,7 +415,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
         const int len = soft_thread->current_pos.columns_lens[w];
         for (int i = 0; i < len; i++) {
-            const card_t card = soft_thread->current_pos.stacks[w][i];
+            const fcs_card_t card = soft_thread->current_pos.stacks[w][i];
             const int suit = fcs_pats_card_suit(card);
 
             /* Save the locations of the piles containing
@@ -451,8 +451,8 @@ end_of_stacks:
                     }
                 }
                 if (soft_thread->current_pos.columns_lens[w] > 1) {
-                    const card_t card = soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w] - 2];
-                    if (card == need[fcs_pats_card_suit(card)]) {
+                    const fcs_card_t card = soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w] - 2];
+                    if (card == need[(int)fcs_pats_card_suit(card)]) {
                         mp->pri += soft_thread->pats_solve_params.x[1];
                     }
                 }
@@ -629,7 +629,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     const fc_solve_instance_t * const instance = soft_thread->instance;
     DECLARE_STACKS();
     int i, n, t, w, o, empty, emptyw;
-    card_t card;
+    fcs_card_t card;
     fcs_pats__move_t *mp;
 
     /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
@@ -640,7 +640,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         if (soft_thread->current_pos.columns_lens[w] > 0) {
             card = *soft_thread->current_pos.stack_ptrs[w];
             o = fcs_pats_card_suit(card);
-            const card_t found_o = soft_thread->current_pos.foundations[o];
+            const fcs_card_t found_o = soft_thread->current_pos.foundations[o];
             empty = (found_o == fc_solve_empty_card);
             if (fcs_pats_card_rank(card) == found_o + 1)
             {
@@ -745,8 +745,8 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         }
     }
 
-    const card_t game_variant_suit_mask = instance->game_variant_suit_mask;
-    const card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
+    const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
+    const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
     /* Check for moves from soft_thread->current_pos.stacks to non-empty soft_thread->current_pos.stacks cells. */
 
     for (i = 0; i < LOCAL_STACKS_NUM; i++) {
@@ -856,8 +856,8 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 we are moving a card for the first time. */
 
 static GCC_INLINE fcs_bool_t is_irreversible_move(
-    const card_t game_variant_suit_mask,
-    const card_t game_variant_desired_suit_value,
+    const fcs_card_t game_variant_suit_mask,
+    const fcs_card_t game_variant_desired_suit_value,
     const fcs_bool_t King_only,
     const fcs_pats__move_t * const mp
 )
@@ -868,10 +868,10 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
     }
     else if (mp->fromtype == FCS_PATS__TYPE_WASTE)
     {
-        const card_t srccard = mp->srccard;
+        const fcs_card_t srccard = mp->srccard;
         if (srccard != fc_solve_empty_card)
         {
-            const card_t card = mp->card;
+            const fcs_card_t card = mp->card;
             if (
                 ( fcs_pats_card_rank(card) !=
                   fcs_pats_card_rank(srccard) - 1
@@ -903,8 +903,8 @@ static void mark_irreversible(fc_solve_soft_thread_t * const soft_thread, int n)
     int i;
     fcs_pats__move_t *mp;
 
-    const card_t game_variant_suit_mask = instance->game_variant_suit_mask;
-    const card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
+    const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
+    const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
     const fcs_bool_t King_only = (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
     const typeof(soft_thread->pats_solve_params.x[8]) x_param_8 = soft_thread->pats_solve_params.x[8];
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2002 Tom Holroyd
+/* Copyright (c) 2000 Shlomi Fish
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -21,49 +21,18 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-/* This is a 32 bit FNV hash.  For more information, see
-http://www.isthe.com/chongo/tech/comp/fnv/index.html */
+/*
+ * fcs_limit.h - the purpose of this file is to define the fcs_int_limit_t
+ * type, and the FCS_INT_LIMIT_MAX constant.
+ *
+ */
 
-#ifndef FNV_H
-#define FNV_H
+#ifndef FC_SOLVE__FCS_LIMIT_H
+#define FC_SOLVE__FCS_LIMIT_H
 
-#include <sys/types.h>
-#include "config.h"
+#include <stdint.h>
 
-#include "inline.h"
-
-#define FNV1_32_INIT 0x811C9DC5
-#define FNV_32_PRIME 0x01000193
-
-#define fnv_hash(x, hash) (((hash) * FNV_32_PRIME) ^ (x))
-
-/* Hash a buffer. */
-
-static GCC_INLINE u_int32_t fnv_hash_buf(u_char *s, int len)
-{
-    int i;
-    u_int32_t h;
-
-    h = FNV1_32_INIT;
-    for (i = 0; i < len; i++) {
-        h = fnv_hash(*s++, h);
-    }
-
-    return h;
-}
-
-/* Hash a 0 terminated string. */
-
-static GCC_INLINE u_int32_t fnv_hash_str(const u_char *s)
-{
-    u_int32_t h;
-
-    h = FNV1_32_INIT;
-    while (*s) {
-        h = fnv_hash(*s++, h);
-    }
-
-    return h;
-}
+typedef intptr_t fcs_int_limit_t;
+#define FCS_INT_LIMIT_MAX INTPTR_MAX
 
 #endif
