@@ -115,7 +115,7 @@ static GCC_INLINE fcs_pats__insert_code_t insert_node(fc_solve_soft_thread_t * s
 
 /* Compact position representation.  The position is stored as an
 array with the following format:
-    pile0# pile1# ... pileN# (N = soft_thread->Nwpiles)
+    pile0# pile1# ... pileN# (N = LOCAL_STACKS_NUM)
 where each pile number is packed into 12 bits (so 2 piles take 3 bytes).
 Positions in this format are unique can be compared with memcmp().  The soft_thread->current_pos.foundations
 cells are encoded as a cluster number: no two positions with different
@@ -124,6 +124,7 @@ different trees.  */
 
 static GCC_INLINE fcs_pats__tree_t *pack_position(fc_solve_soft_thread_t * soft_thread)
 {
+    DECLARE_STACKS();
     int j, k, w;
     u_char *p;
     fcs_pats__tree_t *node;
@@ -150,7 +151,7 @@ static GCC_INLINE fcs_pats__tree_t *pack_position(fc_solve_soft_thread_t * soft_
     */
 
     k = 0;
-    for (w = 0; w < soft_thread->Nwpiles; w++) {
+    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         j = soft_thread->current_pos.stack_ids[soft_thread->current_pos.column_idxs[w]];
         switch (k) {
         case 0:

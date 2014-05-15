@@ -81,15 +81,18 @@ static void fatalerr(const char *msg, ...)
 
 static void print_layout(fc_solve_soft_thread_t * soft_thread)
 {
+#if !defined(HARD_CODED_NUM_STACKS)
+    const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
+#endif
     int i, t, w, o;
 
-    for (w = 0; w < soft_thread->Nwpiles; w++) {
+    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         for (i = 0; i < soft_thread->current_pos.columns_lens[w]; i++) {
             fc_solve_pats__print_card(soft_thread->current_pos.stacks[w][i], stderr);
         }
         fputc('\n', stderr);
     }
-    for (t = 0; t < soft_thread->Ntpiles; t++) {
+    for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
         fc_solve_pats__print_card(soft_thread->current_pos.freecells[t], stderr);
     }
     fputc('\n', stderr);
@@ -147,6 +150,9 @@ card).  Temp cells and Out on the last two lines, if any. */
 
 static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *infile)
 {
+#if !defined(HARD_CODED_NUM_STACKS)
+    const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
+#endif
     int w, i, total;
     char buf[100];
     card_t out[4];
@@ -161,22 +167,22 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
         soft_thread->current_pos.columns_lens[w] = i;
         w++;
         total += i;
-        if (w == soft_thread->Nwpiles) {
+        if (w == LOCAL_STACKS_NUM) {
             break;
         }
     }
-    if (w != soft_thread->Nwpiles) {
+    if (w != LOCAL_STACKS_NUM) {
         fatalerr("not enough piles in input file");
     }
 
     /* Temp cells may have some cards too. */
 
-    for (i = 0; i < soft_thread->Ntpiles; i++) {
+    for (i = 0; i < LOCAL_FREECELLS_NUM; i++) {
         soft_thread->current_pos.freecells[i] = NONE;
     }
     if (total != 52) {
         fgets(buf, 100, infile);
-        total += parse_pile(buf, soft_thread->current_pos.freecells, soft_thread->Ntpiles);
+        total += parse_pile(buf, soft_thread->current_pos.freecells, LOCAL_FREECELLS_NUM);
     }
 
     /* Output piles, if any. */
@@ -203,6 +209,59 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
     }
 }
 
+static int freecell_solver_user_set_sequences_are_built_by_type(
+    fc_solve_instance_t * instance,
+    int sequences_are_built_by
+    )
+{
+#ifndef FCS_FREECELL_ONLY
+    if ((sequences_are_built_by < 0) || (sequences_are_built_by > 2))
+    {
+        return 1;
+    }
+
+    instance->game_params.game_flags &= (~0x3);
+    instance->game_params.game_flags |= sequences_are_built_by;
+
+#endif
+
+    return 0;
+}
+
+#if 0
+static int freecell_solver_user_set_sequence_move(
+    fc_solve_instance_t * instance,
+    int unlimited_sequence_move
+    )
+{
+#ifndef FCS_FREECELL_ONLY
+    instance->game_params.game_flags &= (~(1 << 4));
+    instance->game_params.game_flags |=
+        ((unlimited_sequence_move != 0)<< 4);
+
+#endif
+    return 0;
+}
+#endif
+
+static int freecell_solver_user_set_empty_stacks_filled_by(
+    fc_solve_instance_t * instance,
+    int empty_stacks_fill
+    )
+{
+#ifndef FCS_FREECELL_ONLY
+    if ((empty_stacks_fill < 0) || (empty_stacks_fill > 2))
+    {
+        return 1;
+    }
+
+    instance->game_params.game_flags &= (~(0x3 << 2));
+    instance->game_params.game_flags |=
+        (empty_stacks_fill << 2);
+#endif
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     int i, c, argc0;
@@ -223,12 +282,15 @@ int main(int argc, char **argv)
     soft_thread->cutoff = 1;
     soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->freed_positions = NULL;
+    fc_solve_instance_t instance_struct;
+    fc_solve_instance_t * instance = &instance_struct;
+    soft_thread->instance = &instance_struct;
     /* Default variation. */
-    soft_thread_struct.Same_suit = TRUE;
-    soft_thread_struct.King_only = FALSE;
-    soft_thread_struct.Nwpiles = 10;
-    soft_thread_struct.Ntpiles = 4;
-
+    instance_struct.game_params.game_flags = 0;
+    instance_struct.game_params.game_flags |= FCS_SEQ_BUILT_BY_ALTERNATE_COLOR;
+    instance_struct.game_params.game_flags |= FCS_ES_FILLED_BY_ANY_CARD << 2;
+    INSTANCE_STACKS_NUM = 10;
+    INSTANCE_FREECELLS_NUM = 4;
 
     Progname = *argv;
 #ifdef DEBUG
@@ -253,25 +315,43 @@ int main(int argc, char **argv)
             switch (c) {
 
             case 's':
-                soft_thread_struct.Same_suit = TRUE;
-                soft_thread_struct.King_only = FALSE;
-                soft_thread_struct.Nwpiles = 10;
-                soft_thread_struct.Ntpiles = 4;
+                freecell_solver_user_set_empty_stacks_filled_by(
+                    instance,
+                    FCS_ES_FILLED_BY_ANY_CARD
+                );
+                freecell_solver_user_set_sequences_are_built_by_type(
+                    instance,
+                    FCS_SEQ_BUILT_BY_SUIT
+                );
+                INSTANCE_STACKS_NUM = 10;
+                INSTANCE_FREECELLS_NUM = 4;
                 break;
 
             case 'f':
-                soft_thread_struct.Same_suit = FALSE;
-                soft_thread_struct.King_only = FALSE;
-                soft_thread_struct.Nwpiles = 8;
-                soft_thread_struct.Ntpiles = 4;
+                freecell_solver_user_set_empty_stacks_filled_by(
+                    instance,
+                    FCS_ES_FILLED_BY_ANY_CARD
+                );
+                freecell_solver_user_set_sequences_are_built_by_type(
+                    instance,
+                    FCS_SEQ_BUILT_BY_ALTERNATE_COLOR
+                );
+                INSTANCE_STACKS_NUM = 8;
+                INSTANCE_FREECELLS_NUM = 4;
                 break;
 
             case 'k':
-                soft_thread_struct.King_only = TRUE;
+                freecell_solver_user_set_empty_stacks_filled_by(
+                    instance,
+                    FCS_ES_FILLED_BY_KINGS_ONLY
+                );
                 break;
 
             case 'a':
-                soft_thread_struct.King_only = FALSE;
+                freecell_solver_user_set_empty_stacks_filled_by(
+                    instance,
+                    FCS_ES_FILLED_BY_ANY_CARD
+                );
                 break;
 
             case 'S':
@@ -279,12 +359,12 @@ int main(int argc, char **argv)
                 break;
 
             case 'w':
-                soft_thread_struct.Nwpiles = atoi(curr_arg);
+                INSTANCE_STACKS_NUM = atoi(curr_arg);
                 curr_arg = NULL;
                 break;
 
             case 't':
-                soft_thread_struct.Ntpiles = atoi(curr_arg);
+                INSTANCE_FREECELLS_NUM = atoi(curr_arg);
                 curr_arg = NULL;
                 break;
 
@@ -308,17 +388,17 @@ int main(int argc, char **argv)
 
     /* Set parameters. */
 
-    if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !soft_thread->to_stack) {
+    if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && !soft_thread->to_stack) {
         set_param(soft_thread, FreecellBest);
-    } else if (!soft_thread_struct.Same_suit && !soft_thread_struct.King_only && soft_thread->to_stack) {
+    } else if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && soft_thread->to_stack) {
         set_param(soft_thread, FreecellSpeed);
-    } else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && !soft_thread->to_stack) {
+    } else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && !soft_thread->to_stack) {
         set_param(soft_thread, SeahavenBest);
-    } else if (soft_thread_struct.Same_suit && !soft_thread_struct.King_only && soft_thread->to_stack) {
+    } else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && soft_thread->to_stack) {
         set_param(soft_thread, SeahavenSpeed);
-    } else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && !soft_thread->to_stack) {
+    } else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && !soft_thread->to_stack) {
         set_param(soft_thread, SeahavenKing);
-    } else if (soft_thread_struct.Same_suit && soft_thread_struct.King_only && soft_thread->to_stack) {
+    } else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && soft_thread->to_stack) {
         set_param(soft_thread, SeahavenKingSpeed);
     } else {
         set_param(soft_thread, 0);   /* default */
@@ -411,6 +491,9 @@ int main(int argc, char **argv)
             }
         }
     }
+#if !defined(HARD_CODED_NUM_STACKS) || !defined(HARD_CODED_NUM_FREECELLS)
+    const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
+#endif
 
     if (soft_thread->to_stack && soft_thread->Noexit) {
         fatalerr("-S and -E may not be used together.");
@@ -418,10 +501,10 @@ int main(int argc, char **argv)
     if (soft_thread->remaining_memory < BLOCKSIZE * 2) {
         fatalerr("-M too small.");
     }
-    if (soft_thread->Nwpiles > MAX_NUM_STACKS) {
+    if (LOCAL_STACKS_NUM > MAX_NUM_STACKS) {
         fatalerr("too many w piles (max %d)", MAX_NUM_STACKS);
     }
-    if (soft_thread->Ntpiles > MAX_NUM_FREECELLS) {
+    if (LOCAL_FREECELLS_NUM > MAX_NUM_FREECELLS) {
         fatalerr("too many t piles (max %d)", MAX_NUM_FREECELLS);
     }
 
@@ -440,23 +523,23 @@ int main(int argc, char **argv)
 
     /* Initialize the suitable() macro variables. */
 
-    soft_thread->game_variant_suit_mask = PS_COLOR;
-    soft_thread->game_variant_desired_suit_value = PS_COLOR;
-    if (soft_thread_struct.Same_suit) {
-        soft_thread->game_variant_suit_mask = PS_SUIT;
-        soft_thread->game_variant_desired_suit_value = 0;
+    instance->game_variant_suit_mask = PS_COLOR;
+    instance->game_variant_desired_suit_value = PS_COLOR;
+    if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT)) {
+        instance->game_variant_suit_mask = PS_SUIT;
+        instance->game_variant_desired_suit_value = 0;
     }
 
     /* Announce which variation this is. */
 
     if (!soft_thread->is_quiet) {
-        printf("%s", soft_thread_struct.Same_suit ? "Seahaven; " : "Freecell; ");
-        if (soft_thread_struct.King_only) {
+        printf("%s", (GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) ? "Seahaven; " : "Freecell; ");
+        if ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)) {
             printf("%s", "only Kings are allowed to start a pile.\n");
         } else {
             printf("%s", "any card may start a pile.\n");
         }
-        printf("%d work piles, %d temp cells.\n", soft_thread->Nwpiles, soft_thread->Ntpiles);
+        printf("%d work piles, %d temp cells.\n", LOCAL_STACKS_NUM, LOCAL_FREECELLS_NUM);
     }
 
 #ifdef DEBUG

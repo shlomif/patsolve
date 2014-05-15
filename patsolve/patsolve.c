@@ -48,6 +48,7 @@ it, along with the pointer to its parent and the move we used to get here. */
 
 static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent, fcs_pats__move_t *m)
 {
+    DECLARE_STACKS();
     int t, cluster;
     u_char *p;
     fcs_pats_position_t *pos;
@@ -99,7 +100,7 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
 
     p += sizeof(fcs_pats_position_t);
     int i = 0;
-    for (t = 0; t < soft_thread->Ntpiles; t++) {
+    for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
         *p++ = soft_thread->current_pos.freecells[t];
         if (soft_thread->current_pos.freecells[t] != NONE) {
             i++;
@@ -334,6 +335,7 @@ static GCC_INLINE int strecpy(u_char *dest, u_char *src)
 
 static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
 {
+    DECLARE_STACKS();
 
     /* Get the Out cells from the cluster number. */
 
@@ -365,8 +367,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
         c = 0;
         p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
         fcs_bool_t k = FALSE;
-        const typeof(soft_thread->Nwpiles) Nwpiles = soft_thread->Nwpiles;
-        for (int w = 0; w < Nwpiles ; w++)
+        for (int w = 0; w < LOCAL_STACKS_NUM ; w++)
         {
             int i;
             if (k)
@@ -395,7 +396,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
     {
         u_char * p = (u_char *)pos;
         p += sizeof(fcs_pats_position_t);
-        const typeof(soft_thread->Ntpiles) Ntpiles = soft_thread->Ntpiles;
+        const typeof(LOCAL_FREECELLS_NUM) Ntpiles = LOCAL_FREECELLS_NUM;
         for (int i = 0; i < Ntpiles; i++) {
             soft_thread->current_pos.freecells[i] = *p++;
         }

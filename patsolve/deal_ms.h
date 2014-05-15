@@ -78,6 +78,10 @@ static GCC_INLINE UINT fc_solve_pats__game_num_rand(LONG * seedx_ptr, LONG gnGam
 
 static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 {
+#if !defined(HARD_CODED_NUM_FREECELLS)
+    const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
+#endif
+
     static const int fc_solve_pats__msdeal_suits[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
     int i, j, c;
     int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
@@ -98,13 +102,13 @@ static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thre
 
     for (i = 0; i < NUM_CARDS; i++) {
         j = fc_solve_pats__game_num_rand(&seedx, gnGameNumber) % wLeft;
-        pos[i % soft_thread->Nwpiles][i / soft_thread->Nwpiles] = deck[j];
+        pos[i % LOCAL_STACKS_NUM][i / LOCAL_STACKS_NUM] = deck[j];
         deck[j] = deck[--wLeft];
-        if (soft_thread->Nwpiles == 10 && i == 49) {
+        if (LOCAL_STACKS_NUM == 10 && i == 49) {
             break;
         }
     }
-    for (i = 0; i < soft_thread->Nwpiles; i++) {
+    for (i = 0; i < LOCAL_STACKS_NUM; i++) {
         j = 0;
         while (pos[i][j]) {
             c = pos[i][j] - 1;
