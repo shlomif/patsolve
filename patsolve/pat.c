@@ -156,10 +156,10 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t
     /* Count the number of cards below this card. */
 
     j = 0;
-    r = fcs_pats_card_rank(mp->card) + 1;
-    s = fcs_pats_card_suit(mp->card);
+    r = fcs_card_rank(mp->card) + 1;
+    s = fcs_card_suit(mp->card);
     for (i = soft_thread->current_pos.columns_lens[w] - 1; i >= 0; i--) {
-        if (fcs_pats_card_suit(soft_thread->current_pos.stacks[w][i]) == s && fcs_pats_card_rank(soft_thread->current_pos.stacks[w][i]) == r + j) {
+        if (fcs_card_suit(soft_thread->current_pos.stacks[w][i]) == s && fcs_card_rank(soft_thread->current_pos.stacks[w][i]) == r + j) {
             j++;
         }
     }
@@ -173,8 +173,8 @@ static int prune_seahaven(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t
     j = soft_thread->current_pos.columns_lens[w];
     r -= 1;
     for (i = 0; i < j; i++) {
-        if ( (fcs_pats_card_suit(soft_thread->current_pos.stacks[w][i]) == s)
-            && (fcs_pats_card_rank(soft_thread->current_pos.stacks[w][i]) < r) ) {
+        if ( (fcs_card_suit(soft_thread->current_pos.stacks[w][i]) == s)
+            && (fcs_card_rank(soft_thread->current_pos.stacks[w][i]) < r) ) {
             return TRUE;
         }
     }
@@ -416,7 +416,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
         const int len = soft_thread->current_pos.columns_lens[w];
         for (int i = 0; i < len; i++) {
             const fcs_card_t card = soft_thread->current_pos.stacks[w][i];
-            const int suit = fcs_pats_card_suit(card);
+            const int suit = fcs_card_suit(card);
 
             /* Save the locations of the piles containing
             not only the card we need next, but the card
@@ -452,7 +452,7 @@ end_of_stacks:
                 }
                 if (soft_thread->current_pos.columns_lens[w] > 1) {
                     const fcs_card_t card = soft_thread->current_pos.stacks[w][soft_thread->current_pos.columns_lens[w] - 2];
-                    if (card == need[(int)fcs_pats_card_suit(card)]) {
+                    if (card == need[(int)fcs_card_suit(card)]) {
                         mp->pri += soft_thread->pats_solve_params.x[1];
                     }
                 }
@@ -639,10 +639,10 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         if (soft_thread->current_pos.columns_lens[w] > 0) {
             card = *soft_thread->current_pos.stack_ptrs[w];
-            o = fcs_pats_card_suit(card);
+            o = fcs_card_suit(card);
             const fcs_card_t found_o = soft_thread->current_pos.foundations[o];
             empty = (found_o == fc_solve_empty_card);
-            if (fcs_pats_card_rank(card) == found_o + 1)
+            if (fcs_card_rank(card) == found_o + 1)
             {
                 mp->card = card;
                 mp->from = w;
@@ -660,7 +660,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
                 /* If it's an automove, just do it. */
 
-                if (good_automove(soft_thread, o, fcs_pats_card_rank(card))) {
+                if (good_automove(soft_thread, o, fcs_card_rank(card))) {
                     *a = TRUE;
                     if (n != 1) {
                         soft_thread->possible_moves[0] = mp[-1];
@@ -677,10 +677,10 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
         if (soft_thread->current_pos.freecells[t] != fc_solve_empty_card) {
             card = soft_thread->current_pos.freecells[t];
-            o = fcs_pats_card_suit(card);
+            o = fcs_card_suit(card);
             empty = (soft_thread->current_pos.foundations[o] == fc_solve_empty_card);
-            if ((empty && (fcs_pats_card_rank(card) == FCS_PATS__ACE)) ||
-                (!empty && (fcs_pats_card_rank(card) == soft_thread->current_pos.foundations[o] + 1))) {
+            if ((empty && (fcs_card_rank(card) == FCS_PATS__ACE)) ||
+                (!empty && (fcs_card_rank(card) == soft_thread->current_pos.foundations[o] + 1))) {
                 mp->card = card;
                 mp->from = t;
                 mp->fromtype = FCS_PATS__TYPE_FREECELL;
@@ -694,7 +694,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
 
                 /* If it's an automove, just do it. */
 
-                if (good_automove(soft_thread, o, fcs_pats_card_rank(card))) {
+                if (good_automove(soft_thread, o, fcs_card_rank(card))) {
                     *a = TRUE;
                     if (n != 1) {
                         soft_thread->possible_moves[0] = mp[-1];
@@ -757,7 +757,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
                     continue;
                 }
                 if (soft_thread->current_pos.columns_lens[w] > 0 &&
-                    (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
+                    (fcs_card_rank(card) == fcs_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
                      fcs_pats_is_suitable(card, *(soft_thread->current_pos.stack_ptrs[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
                     mp->card = card;
                     mp->from = i;
@@ -784,7 +784,7 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         if (card != fc_solve_empty_card) {
             for (w = 0; w < LOCAL_STACKS_NUM; w++) {
                 if (soft_thread->current_pos.columns_lens[w] > 0 &&
-                    (fcs_pats_card_rank(card) == fcs_pats_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
+                    (fcs_card_rank(card) == fcs_card_rank(*soft_thread->current_pos.stack_ptrs[w]) - 1 &&
                      fcs_pats_is_suitable(card, *(soft_thread->current_pos.stack_ptrs[w]), game_variant_suit_mask, game_variant_desired_suit_value))) {
                     mp->card = card;
                     mp->from = t;
@@ -873,8 +873,8 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
         {
             const fcs_card_t card = mp->card;
             if (
-                ( fcs_pats_card_rank(card) !=
-                  fcs_pats_card_rank(srccard) - 1
+                ( fcs_card_rank(card) !=
+                  fcs_card_rank(srccard) - 1
                 )
                 ||
                 !fcs_pats_is_suitable(card, srccard,

@@ -52,16 +52,6 @@
 #define FCS_PATS__ACE  1
 #define FCS_PATS__KING 13
 
-static GCC_INLINE fcs_card_t fcs_pats_card_rank(const fcs_card_t card)
-{
-    return (card >> 2);
-}
-
-static GCC_INLINE fcs_card_t fcs_pats_card_suit(const fcs_card_t card)
-{
-    return (card & 0x03);
-}
-
 static GCC_INLINE fcs_card_t fcs_pats_card_color(const fcs_card_t card)
 {
     return (card & FCS_PATS__COLOR);
@@ -92,7 +82,7 @@ static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a, const fcs_
 
 static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const fcs_card_t card)
 {
-    return (not_king_only || fcs_pats_card_rank(card) == FCS_PATS__KING);
+    return (not_king_only || fcs_card_rank(card) == FCS_PATS__KING);
 }
 
 /* Represent a move. */
