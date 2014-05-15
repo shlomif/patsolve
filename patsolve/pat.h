@@ -57,11 +57,6 @@ static GCC_INLINE fcs_card_t fcs_pats_card_color(const fcs_card_t card)
     return (card & FCS_PATS__COLOR);
 }
 
-static GCC_INLINE fcs_card_t fcs_pats_make_card(const fcs_card_t rank, const fcs_card_t suit)
-{
-    return ((rank << 2) | suit);
-}
-
 /*
  * Next card in rank.
  * */
