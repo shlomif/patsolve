@@ -84,7 +84,7 @@ void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_p
         card = soft_thread->current_pos.freecells[from];
         soft_thread->current_pos.freecells[from] = NONE;
     } else {
-        card = *soft_thread->current_pos.stack_ptrs[from]--;
+        card = *(soft_thread->current_pos.stack_ptrs[from]--);
         soft_thread->current_pos.columns_lens[from]--;
         hashpile(soft_thread, from);
     }
@@ -116,11 +116,11 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
         card = soft_thread->current_pos.freecells[to];
         soft_thread->current_pos.freecells[to] = NONE;
     } else if (m->totype == FCS_PATS__TYPE_WASTE) {
-        card = *soft_thread->current_pos.stack_ptrs[to]--;
+        card = *(soft_thread->current_pos.stack_ptrs[to]--);
         soft_thread->current_pos.columns_lens[to]--;
         hashpile(soft_thread, to);
     } else {
-        card = soft_thread->current_pos.foundations[to] + fc_solve_pats__output_suits[to];
+        card = fcs_pats_make_card(soft_thread->current_pos.foundations[to], fc_solve_pats__output_suits[to]);
         soft_thread->current_pos.foundations[to]--;
     }
 
@@ -401,9 +401,9 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     for (s = 0; s < 4; s++) {
         need[s] = NONE;
         if (soft_thread->current_pos.foundations[s] == NONE) {
-            need[s] = fc_solve_pats__output_suits[s] + PS_ACE;
+            need[s] = fcs_pats_make_card(PS_ACE, fc_solve_pats__output_suits[s]);
         } else if (soft_thread->current_pos.foundations[s] != PS_KING) {
-            need[s] = fc_solve_pats__output_suits[s] + soft_thread->current_pos.foundations[s] + 1;
+            need[s] = fcs_pats_make_card(soft_thread->current_pos.foundations[s] + 1, fc_solve_pats__output_suits[s]);
         }
     }
 
@@ -422,7 +422,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
             after that as well. */
 
             if (need[s] != NONE &&
-                (card == need[s] || card == need[s] + 1)) {
+                (card == need[s] || card == fcs_pats_next_card(need[s]))) {
                 pile[npile++] = w;
                 if (npile == NNEED) {
                     break;
@@ -641,9 +641,10 @@ static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, i
         if (soft_thread->current_pos.columns_lens[w] > 0) {
             card = *soft_thread->current_pos.stack_ptrs[w];
             o = fcs_pats_card_suit(card);
-            empty = (soft_thread->current_pos.foundations[o] == NONE);
-            if ((empty && (fcs_pats_card_rank(card) == PS_ACE)) ||
-                (!empty && (fcs_pats_card_rank(card) == soft_thread->current_pos.foundations[o] + 1))) {
+            const card_t found_o = soft_thread->current_pos.foundations[o];
+            empty = (found_o == NONE);
+            if (fcs_pats_card_rank(card) == found_o + 1)
+            {
                 mp->card = card;
                 mp->from = w;
                 mp->fromtype = FCS_PATS__TYPE_WASTE;
@@ -888,7 +889,7 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
         /* TODO : This is probably a bug because mp->card probably cannot be
          * PS_KING - only PS_KING bitwise-ORed with some other value.
          * */
-        else if (King_only && mp->card != PS_KING)
+        else if (King_only && mp->card != fcs_pats_make_card(PS_KING, 0))
         {
             return TRUE;
         }
