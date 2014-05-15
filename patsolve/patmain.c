@@ -97,7 +97,7 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
         fputc('\n', stderr);
     }
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        if (t > 0 && soft_thread->current_pos.freecells[t] != NONE)
+        if (t > 0 && soft_thread->current_pos.freecells[t] != fc_solve_empty_card)
         {
             fputc(' ', stderr);
         }
@@ -192,7 +192,7 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
     /* Temp cells may have some cards too. */
 
     for (i = 0; i < LOCAL_FREECELLS_NUM; i++) {
-        soft_thread->current_pos.freecells[i] = NONE;
+        soft_thread->current_pos.freecells[i] = fc_solve_empty_card;
     }
     if (total != 52) {
         fgets(buf, 100, infile);
@@ -202,13 +202,13 @@ static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, FILE *i
     /* Output piles, if any. */
 
     for (i = 0; i < 4; i++) {
-        soft_thread->current_pos.foundations[i] = out[i] = NONE;
+        soft_thread->current_pos.foundations[i] = out[i] = fc_solve_empty_card;
     }
     if (total != 52) {
         fgets(buf, 100, infile);
         parse_pile(buf, out, 4);
         for (i = 0; i < 4; i++) {
-            if (out[i] != NONE) {
+            if (out[i] != fc_solve_empty_card) {
                 total +=
                     (
                         soft_thread->current_pos.foundations[fcs_pats_card_suit(out[i])]
@@ -636,7 +636,7 @@ static int parse_pile(char *s, card_t *w, int size)
     card_t rank, suit;
 
     i = 0;
-    rank = suit = NONE;
+    rank = suit = fc_solve_empty_card;
     while (i < size && *s && *s != '\n' && *s != '\r') {
         while (*s == ' ') s++;
         *s = toupper(*s);
@@ -667,7 +667,7 @@ static const char * const fc_solve_pats__Suits_string = "HCDS";
 
 void fc_solve_pats__print_card(card_t card, FILE *outfile)
 {
-    if (fcs_pats_card_rank(card) != NONE) {
+    if (fcs_pats_card_rank(card) != fc_solve_empty_card) {
         fprintf(outfile, "%c%c",
             fc_solve_pats__Ranks_string[fcs_pats_card_rank(card)],
             fc_solve_pats__Suits_string[fcs_pats_card_suit(card)]);

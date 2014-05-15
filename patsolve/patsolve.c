@@ -102,7 +102,7 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     int i = 0;
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
         *p++ = soft_thread->current_pos.freecells[t];
-        if (soft_thread->current_pos.freecells[t] != NONE) {
+        if (soft_thread->current_pos.freecells[t] != fc_solve_empty_card) {
             i++;
         }
     }
@@ -132,7 +132,7 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 
     fc_solve_pats__hash_layout(soft_thread);
     fc_solve_pats__sort_piles(soft_thread);
-    m.card = NONE;
+    m.card = fc_solve_empty_card;
     pos = new_position(soft_thread, NULL, &m);
     if (pos == NULL) {
         return;
