@@ -537,10 +537,10 @@ int main(int argc, char **argv)
 
     /* Initialize the suitable() macro variables. */
 
-    instance->game_variant_suit_mask = PS_COLOR;
-    instance->game_variant_desired_suit_value = PS_COLOR;
+    instance->game_variant_suit_mask = FCS_PATS__COLOR;
+    instance->game_variant_desired_suit_value = FCS_PATS__COLOR;
     if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT)) {
-        instance->game_variant_suit_mask = PS_SUIT;
+        instance->game_variant_suit_mask = FCS_PATS__SUIT;
         instance->game_variant_desired_suit_value = 0;
     }
 
@@ -649,10 +649,10 @@ static int parse_pile(char *s, card_t *w, int size)
         else fatalerr("bad card %c%c\n", s[0], s[1]);
         s++;
         *s = toupper(*s);
-        if (*s == 'C') suit = PS_CLUB;
-        else if (*s == 'D') suit = PS_DIAMOND;
-        else if (*s == 'H') suit = PS_HEART;
-        else if (*s == 'S') suit = PS_SPADE;
+        if (*s == 'C') suit = FCS_PATS__CLUB;
+        else if (*s == 'D') suit = FCS_PATS__DIAMOND;
+        else if (*s == 'H') suit = FCS_PATS__HEART;
+        else if (*s == 'S') suit = FCS_PATS__SPADE;
         else fatalerr("bad card %c%c\n", s[-1], s[0]);
         s++;
         *w++ = fcs_pats_make_card(rank, suit);

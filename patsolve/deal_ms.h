@@ -82,7 +82,7 @@ static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thre
     const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
 #endif
 
-    static const int fc_solve_pats__msdeal_suits[] = { PS_CLUB, PS_DIAMOND, PS_HEART, PS_SPADE };
+    static const int fc_solve_pats__msdeal_suits[] = { FCS_PATS__CLUB, FCS_PATS__DIAMOND, FCS_PATS__HEART, FCS_PATS__SPADE };
     int i, j, c;
     int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
     CARD deck[NUM_CARDS];
