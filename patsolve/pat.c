@@ -29,6 +29,7 @@
 #include <sys/types.h>
 
 #include "inline.h"
+#include "count.h"
 
 #include "pat.h"
 #include "fnv.h"
@@ -383,15 +384,14 @@ positions when they are added to the queue. */
 static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp0, int n)
 {
     DECLARE_STACKS();
-    int i, j, w, pile[NNEED], npile;
+    int w, pile[NNEED], npile;
     card_t card;
-    fcs_pats__move_t *mp;
 
     /* There are 4 cards that we "need": the next cards to go out.  We
     give higher priority to the moves that remove cards from the piles
     containing these cards. */
 
-    for (i = 0; i < NNEED; i++) {
+    for (int i = 0; i < COUNT(pile); i++) {
         pile[i] = -1;
     }
     npile = 0;
@@ -411,8 +411,8 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     such an array is not too expensive. */
 
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-        j = soft_thread->current_pos.columns_lens[w];
-        for (i = 0; i < j; i++) {
+        const int len = soft_thread->current_pos.columns_lens[w];
+        for (int i = 0; i < len; i++) {
             card = soft_thread->current_pos.stacks[w][i];
             const int suit = fcs_pats_card_suit(card);
 
@@ -438,11 +438,12 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     covers a card we need, decrease its priority.  These priority
     increments and decrements were determined empirically. */
 
-    for (i = 0, mp = mp0; i < n; i++, mp++) {
+    const typeof(mp0) mp_end= mp0+n;
+    for (fcs_pats__move_t *mp = mp0; mp < mp_end; mp++) {
         if (mp->card != NONE) {
             if (mp->fromtype == FCS_PATS__TYPE_WASTE) {
                 w = mp->from;
-                for (j = 0; j < npile; j++) {
+                for (int j = 0; j < npile; j++) {
                     if (w == pile[j]) {
                         mp->pri += soft_thread->pats_solve_params.x[0];
                     }
@@ -455,7 +456,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
                 }
             }
             if (mp->totype == FCS_PATS__TYPE_WASTE) {
-                for (j = 0; j < npile; j++) {
+                for (int j = 0; j < npile; j++) {
                     if (mp->to == pile[j]) {
                         mp->pri -= soft_thread->pats_solve_params.x[2];
                     }
