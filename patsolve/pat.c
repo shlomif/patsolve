@@ -384,7 +384,7 @@ positions when they are added to the queue. */
 static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *mp0, int n)
 {
     DECLARE_STACKS();
-    int w, pile[NNEED], npile;
+    int w, pile[NNEED];
     card_t card;
 
     /* There are 4 cards that we "need": the next cards to go out.  We
@@ -394,7 +394,6 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     for (int i = 0; i < COUNT(pile); i++) {
         pile[i] = -1;
     }
-    npile = 0;
 
 #define NUM_SUITS 4
     card_t need[NUM_SUITS];
@@ -410,6 +409,8 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
     like maybe an array that keeps track of every card; if maintaining
     such an array is not too expensive. */
 
+    int num_piles = 0;
+
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         const int len = soft_thread->current_pos.columns_lens[w];
         for (int i = 0; i < len; i++) {
@@ -422,16 +423,16 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
 
             if (need[suit] != NONE &&
                 (card == need[suit] || card == fcs_pats_next_card(need[suit]))) {
-                pile[npile++] = w;
-                if (npile == NNEED) {
-                    break;
+                pile[num_piles++] = w;
+                if (num_piles == NNEED) {
+                    goto end_of_stacks;
                 }
             }
         }
-        if (npile == NNEED) {
-            break;
-        }
     }
+
+end_of_stacks:
+    ;
 
     /* Now if any of the moves remove a card from any of the piles
     listed in pile[], bump their priority.  Likewise, if a move
@@ -443,7 +444,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
         if (mp->card != NONE) {
             if (mp->fromtype == FCS_PATS__TYPE_WASTE) {
                 w = mp->from;
-                for (int j = 0; j < npile; j++) {
+                for (int j = 0; j < num_piles; j++) {
                     if (w == pile[j]) {
                         mp->pri += soft_thread->pats_solve_params.x[0];
                     }
@@ -456,7 +457,7 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
                 }
             }
             if (mp->totype == FCS_PATS__TYPE_WASTE) {
-                for (int j = 0; j < npile; j++) {
+                for (int j = 0; j < num_piles; j++) {
                     if (mp->to == pile[j]) {
                         mp->pri -= soft_thread->pats_solve_params.x[2];
                     }
