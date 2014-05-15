@@ -36,8 +36,6 @@
 
 /* Names of the cards.  The ordering is defined in pat.h. */
 
-const card_t fc_solve_pats__output_suits[4] = { PS_DIAMOND, PS_CLUB, PS_HEART, PS_SPADE };
-
 static GCC_INLINE int get_possible_moves(fc_solve_soft_thread_t * soft_thread, int *, int *);
 static void mark_irreversible(fc_solve_soft_thread_t * soft_thread, int n);
 static void win(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos);
@@ -120,7 +118,7 @@ void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__mo
         soft_thread->current_pos.columns_lens[to]--;
         hashpile(soft_thread, to);
     } else {
-        card = fcs_pats_make_card(soft_thread->current_pos.foundations[to], fc_solve_pats__output_suits[to]);
+        card = fcs_pats_make_card(soft_thread->current_pos.foundations[to], to);
         soft_thread->current_pos.foundations[to]--;
     }
 
@@ -400,10 +398,9 @@ static void prioritize(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *m
 
     for (s = 0; s < 4; s++) {
         need[s] = NONE;
-        if (soft_thread->current_pos.foundations[s] == NONE) {
-            need[s] = fcs_pats_make_card(PS_ACE, fc_solve_pats__output_suits[s]);
-        } else if (soft_thread->current_pos.foundations[s] != PS_KING) {
-            need[s] = fcs_pats_make_card(soft_thread->current_pos.foundations[s] + 1, fc_solve_pats__output_suits[s]);
+        const card_t rank = soft_thread->current_pos.foundations[s];
+        if (rank != PS_KING) {
+            need[s] = fcs_pats_make_card(rank + 1, s);
         }
     }
 

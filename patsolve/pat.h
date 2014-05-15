@@ -41,13 +41,13 @@
 
 typedef u_char card_t;
 
-#define PS_DIAMOND 0x00         /* red */
-#define PS_CLUB    0x01         /* black */
-#define PS_HEART   0x02         /* red */
+#define PS_HEART     0x00         /* red */
+#define PS_CLUB      0x01         /* black */
+#define PS_DIAMOND   0x02         /* red */
+#define PS_SPADE     0x03         /* black */
 
-#define PS_SPADE   0x03         /* black */
-#define PS_COLOR   0x01         /* black if set */
-#define PS_SUIT    0x03         /* mask both suit bits */
+#define PS_COLOR     0x01         /* black if set */
+#define PS_SUIT      0x03         /* mask both suit bits */
 
 #define NONE    0
 #define PS_ACE  1
