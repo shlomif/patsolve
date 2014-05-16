@@ -582,14 +582,14 @@ void play(fc_solve_soft_thread_t * soft_thread)
     soft_thread->num_states_in_collection = 0;
     soft_thread->num_solutions = 0;
 
-    soft_thread->status = NOSOL;
+    soft_thread->status = FCS_PATS__NOSOL;
 
     /* Go to it. */
 
     fc_solve_pats__do_it(soft_thread);
-    if (soft_thread->status != WIN && !soft_thread->is_quiet)
+    if (soft_thread->status != FCS_PATS__WIN && !soft_thread->is_quiet)
     {
-        if (soft_thread->status == FAIL)
+        if (soft_thread->status == FCS_PATS__FAIL)
         {
             printf("Out of memory.\n");
         }

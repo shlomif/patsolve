@@ -531,7 +531,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread,
                 soft_thread->num_solutions++;
                 return NULL;
             }
-            soft_thread->status = WIN;
+            soft_thread->status = FCS_PATS__WIN;
 
             return NULL;
         }

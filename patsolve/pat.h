@@ -133,9 +133,9 @@ enum fcs_pats__insert_code_enum {
 typedef enum fcs_pats__insert_code_enum fcs_pats__insert_code_t;
 
 enum fc_solve_pats__status_code_enum {
-    FAIL = -1,
-    WIN = 0,
-    NOSOL = 1
+    FCS_PATS__FAIL = -1,
+    FCS_PATS__WIN = 0,
+    FCS_PATS__NOSOL = 1
 };
 
 typedef enum fc_solve_pats__status_code_enum fc_solve_pats__status_code_t;
