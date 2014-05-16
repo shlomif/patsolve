@@ -163,7 +163,7 @@ static int solve(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pare
     but always return FALSE from any position.  This enables the cleanup
     of the move stack and eventual destruction of the position store. */
 
-    if (soft_thread->status != NOSOL) {
+    if (soft_thread->status != FCS_PATS__NOSOL) {
         return FALSE;
     }
 
