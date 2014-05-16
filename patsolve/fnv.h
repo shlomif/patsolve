@@ -35,7 +35,10 @@ http://www.isthe.com/chongo/tech/comp/fnv/index.html */
 #define FNV1_32_INIT 0x811C9DC5
 #define FNV_32_PRIME 0x01000193
 
-#define fnv_hash(x, hash) (((hash) * FNV_32_PRIME) ^ (x))
+static GCC_INLINE u_int32_t fnv_hash(const char x, const u_int32_t hash)
+{
+    return ((hash * FNV_32_PRIME) ^ x);
+}
 
 /* Hash a buffer. */
 
