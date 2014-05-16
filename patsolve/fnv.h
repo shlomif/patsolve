@@ -39,14 +39,13 @@ http://www.isthe.com/chongo/tech/comp/fnv/index.html */
 
 /* Hash a buffer. */
 
-static GCC_INLINE u_int32_t fnv_hash_buf(u_char *s, int len)
+static GCC_INLINE u_int32_t fnv_hash_buf(const u_char *s, const int len)
 {
-    int i;
-    u_int32_t h;
-
-    h = FNV1_32_INIT;
-    for (i = 0; i < len; i++) {
-        h = fnv_hash(*s++, h);
+    u_int32_t h = FNV1_32_INIT;
+    const u_char * const end = s + len;
+    while (s < end)
+    {
+        h = fnv_hash((*(s++)), h);
     }
 
     return h;
