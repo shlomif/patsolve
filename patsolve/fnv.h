@@ -58,8 +58,10 @@ static GCC_INLINE u_int32_t fnv_hash_str(const u_char *s)
 {
     u_int32_t h = FNV1_32_INIT;
 
-    while (*s) {
-        h = fnv_hash(*s++, h);
+    u_char c;
+    while ((c = *(s++)))
+    {
+        h = fnv_hash(c, h);
     }
 
     return h;
