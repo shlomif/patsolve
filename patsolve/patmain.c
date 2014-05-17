@@ -33,6 +33,7 @@
 #include "pat.h"
 #include "tree.h"
 #include "range_solvers_gen_ms_boards.h"
+#include "state.h"
 
 static const char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
@@ -80,41 +81,24 @@ static void fatalerr(const char *msg, ...)
 
 static void print_layout(fc_solve_soft_thread_t * soft_thread)
 {
-#if !defined(HARD_CODED_NUM_STACKS)
-    const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
-#endif
-    int i, t, w, o;
-
-    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-        fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
-        for (i = 0; i < fcs_col_len(col); i++) {
-            if (i > 0)
-            {
-                fputc(' ', stderr);
-            }
-            fc_solve_pats__print_card(fcs_col_get_card(col, i), stderr);
-        }
-        fputc('\n', stderr);
-    }
-    for (t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        if (t > 0 && fcs_freecell_card(soft_thread->current_pos.s, t) != fc_solve_empty_card)
-        {
-            fputc(' ', stderr);
-        }
-        fc_solve_pats__print_card(fcs_freecell_card(soft_thread->current_pos.s, t), stderr);
-    }
-    fputc('\n', stderr);
-    for (o = 0; o < 4; o++) {
-        if (o > 0 && fcs_foundation_value(soft_thread->current_pos.s, o))
-        {
-            fputc(' ', stderr);
-        }
-        fc_solve_pats__print_card(
-            fcs_make_card( fcs_foundation_value(soft_thread->current_pos.s, o), o),
-            stderr
+    fc_solve_instance_t * instance = soft_thread->instance;
+    fcs_state_locs_struct_t locs;
+    fc_solve_init_locs(&locs);
+    char * s =
+        fc_solve_state_as_string(
+            &(soft_thread->current_pos.s),
+            &(locs),
+            INSTANCE_FREECELLS_NUM,
+            INSTANCE_STACKS_NUM,
+            INSTANCE_DECKS_NUM,
+            TRUE,
+            FALSE,
+            TRUE
         );
-    }
-    fprintf(stderr, "\n---\n");
+
+    fprintf(stderr, "%s\n---\n", s);
+
+    free(s);
 }
 
 static void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
