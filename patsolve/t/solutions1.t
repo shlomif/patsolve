@@ -28,6 +28,15 @@ sub _slurp
     return $contents;
 }
 
+sub remove_trailing_whitespace
+{
+    my ($s) = @_;
+
+    $s =~ s#[ \t]+$##gms;
+
+    return $s;
+}
+
 # Cleanup.
 unlink("win");
 
@@ -49,16 +58,17 @@ EOF
     ok (!defined($trap->exit()), '0 exit status.');
 
     # TEST
-    is ($trap->stderr(), <<'EOF', '24 stderr');
-4C 2C 9C 8C QS 4S 2H
-5H QH 3C AC 3H 4H QD
-QC 9S 6H 9H 3S KS 3D
-5D 2S JC 5C JH 6D AS
-2D KD TH TC TD 8D
-7H JS KH TS KC 7C
-AH 5S 6S AD 8H JD
-7S 6C 7D 4D 8S 9D
-
+    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', '24 stderr');
+Foundations:
+Freecells:
+: 4C 2C 9C 8C QS 4S 2H
+: 5H QH 3C AC 3H 4H QD
+: QC 9S 6H 9H 3S KS 3D
+: 5D 2S JC 5C JH 6D AS
+: 2D KD TH TC TD 8D
+: 7H JS KH TS KC 7C
+: AH 5S 6S AD 8H JD
+: 7S 6C 7D 4D 8S 9D
 
 ---
 EOF
@@ -178,16 +188,17 @@ EOF
     ok (!defined($trap->exit()), '0 exit status.');
 
     # TEST
-    is ($trap->stderr(), <<'EOF', '24 stderr');
-4C 2C 9C 8C QS 4S 2H
-5H QH 3C AC 3H 4H QD
-QC 9S 6H 9H 3S KS 3D
-5D 2S JC 5C JH 6D AS
-2D KD TH TC TD 8D
-7H JS KH TS KC 7C
-AH 5S 6S AD 8H JD
-7S 6C 7D 4D 8S 9D
-
+    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', '24 stderr');
+Foundations:
+Freecells:
+: 4C 2C 9C 8C QS 4S 2H
+: 5H QH 3C AC 3H 4H QD
+: QC 9S 6H 9H 3S KS 3D
+: 5D 2S JC 5C JH 6D AS
+: 2D KD TH TC TD 8D
+: 7H JS KH TS KC 7C
+: AH 5S 6S AD 8H JD
+: 7S 6C 7D 4D 8S 9D
 
 ---
 EOF
@@ -389,18 +400,19 @@ EOF
     ok (!defined($trap->exit()), '0 exit status.');
 
     # TEST
-    is ($trap->stderr(), <<'EOF', 'sea1 stderr');
-JD 9S JS 4D 6D
-2D 5S AS 7S 8S
-9H AD AH 3S 8D
-JC QC 3C TD QS
-5D KH 4C 4S 6C
-7H 3H 5C TH 3D
-7C 2S TS 8H 8C
-5H KS QH 2C TC
-KD 9D 4H JH 6S
-KC QD AC 7D 9C
-2H 6H
+    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', 'sea1 stderr');
+Foundations:
+Freecells:  2H  6H
+: JD 9S JS 4D 6D
+: 2D 5S AS 7S 8S
+: 9H AD AH 3S 8D
+: JC QC 3C TD QS
+: 5D KH 4C 4S 6C
+: 7H 3H 5C TH 3D
+: 7C 2S TS 8H 8C
+: 5H KS QH 2C TC
+: KD 9D 4H JH 6S
+: KC QD AC 7D 9C
 
 ---
 EOF
@@ -507,18 +519,19 @@ EOF
     ok (!defined($trap->exit()), '0 exit status.');
 
     # TEST
-    is ($trap->stderr(), <<'EOF', 'sea1 -S stderr');
-JD 9S JS 4D 6D
-2D 5S AS 7S 8S
-9H AD AH 3S 8D
-JC QC 3C TD QS
-5D KH 4C 4S 6C
-7H 3H 5C TH 3D
-7C 2S TS 8H 8C
-5H KS QH 2C TC
-KD 9D 4H JH 6S
-KC QD AC 7D 9C
-2H 6H
+    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', 'sea1 -S stderr');
+Foundations:
+Freecells:  2H  6H
+: JD 9S JS 4D 6D
+: 2D 5S AS 7S 8S
+: 9H AD AH 3S 8D
+: JC QC 3C TD QS
+: 5D KH 4C 4S 6C
+: 7H 3H 5C TH 3D
+: 7C 2S TS 8H 8C
+: 5H KS QH 2C TC
+: KD 9D 4H JH 6S
+: KC QD AC 7D 9C
 
 ---
 EOF
