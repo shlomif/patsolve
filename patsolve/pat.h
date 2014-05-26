@@ -182,7 +182,7 @@ struct fc_solve_instance_struct
 
 typedef struct fc_solve_instance_struct fc_solve_instance_t;
 
-struct fc_solve_soft_thread_struct
+struct fc_solve__patsolve_thread_struct
 {
     fc_solve_instance_t * instance;
     long remaining_memory;
@@ -254,7 +254,7 @@ struct fc_solve_soft_thread_struct
     fcs_bool_t is_quiet;
 };
 
-typedef struct fc_solve_soft_thread_struct fc_solve_soft_thread_t;
+typedef struct fc_solve__patsolve_thread_struct fc_solve_soft_thread_t;
 
 /* Prototypes. */
 
