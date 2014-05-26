@@ -54,7 +54,7 @@ long Init_mem_remain;
 static char *Progname = NULL;
 
 static GCC_INLINE void pats__recycle_soft_thread(
-    fc_solve_soft_thread_t * soft_thread
+    fcs_pats_thread_t * soft_thread
 )
 {
     fc_solve_pats__free_buckets(soft_thread);
@@ -79,7 +79,7 @@ static void fatalerr(const char *msg, ...)
     exit(1);
 }
 
-static void print_layout(fc_solve_soft_thread_t * soft_thread)
+static void print_layout(fcs_pats_thread_t * soft_thread)
 {
     fc_solve_instance_t * instance = soft_thread->instance;
     fcs_state_locs_struct_t locs;
@@ -101,7 +101,7 @@ static void print_layout(fc_solve_soft_thread_t * soft_thread)
     free(s);
 }
 
-static void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
+static void set_param(fcs_pats_thread_t * soft_thread, int pnum)
 {
     soft_thread->pats_solve_params = freecell_solver_pats__x_y_params_preset[pnum];
     soft_thread->cutoff = soft_thread->pats_solve_params.x[NXPARAM - 1];
@@ -110,7 +110,7 @@ static void set_param(fc_solve_soft_thread_t * soft_thread, int pnum)
 
 #ifdef DEBUG
 #ifdef HANDLE_SIG_QUIT
-static void quit(fc_solve_soft_thread_t * soft_thread, int sig)
+static void quit(fcs_pats_thread_t * soft_thread, int sig)
 {
     int i, c;
 
@@ -141,7 +141,7 @@ static void quit(fc_solve_soft_thread_t * soft_thread, int sig)
 
 #endif
 
-void play(fc_solve_soft_thread_t * soft_thread);
+void play(fcs_pats_thread_t * soft_thread);
 
 /* Read a layout file.  Format is one pile per line, bottom to top (visible
 card).  Temp cells and Out on the last two lines, if any. */
@@ -175,7 +175,7 @@ static GCC_INLINE fcs_bool_t str_fgets(char * line, const int len, char * * inpu
     return ret;
 }
 
-static GCC_INLINE void read_layout(fc_solve_soft_thread_t * soft_thread, char * input_s)
+static GCC_INLINE void read_layout(fcs_pats_thread_t * soft_thread, char * input_s)
 {
 #if !defined(HARD_CODED_NUM_STACKS)
     const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
@@ -248,8 +248,8 @@ int main(int argc, char **argv)
     int Sgame = -1;         /* for range solving */
     int Egame = -1;
 
-    fc_solve_soft_thread_t soft_thread_struct;
-    fc_solve_soft_thread_t * soft_thread;
+    fcs_pats_thread_t soft_thread_struct;
+    fcs_pats_thread_t * soft_thread;
 
     soft_thread = &soft_thread_struct;
 
@@ -553,7 +553,7 @@ int main(int argc, char **argv)
     return ((int)(soft_thread->status));
 }
 
-void play(fc_solve_soft_thread_t * soft_thread)
+void play(fcs_pats_thread_t * soft_thread)
 {
     /* Initialize the hash tables. */
 
