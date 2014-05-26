@@ -42,7 +42,7 @@ void fc_solve_msg(const char *msg, ...)
 
 /* Allocate some space and return a pointer to it.  See new() in util.h. */
 
-void * fc_solve_pats__malloc(fc_solve_soft_thread_t * soft_thread, size_t s)
+void * fc_solve_pats__malloc(fcs_pats_thread_t * soft_thread, size_t s)
 {
     void *x;
 

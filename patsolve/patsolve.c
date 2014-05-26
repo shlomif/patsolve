@@ -38,15 +38,15 @@ search. */
 
 #include "inline.h"
 
-static int solve(fc_solve_soft_thread_t *, fcs_pats_position_t *);
-static void free_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int);
-static void queue_position(fc_solve_soft_thread_t *, fcs_pats_position_t *, int);
-static fcs_pats_position_t *dequeue_position(fc_solve_soft_thread_t *);
+static int solve(fcs_pats_thread_t *, fcs_pats_position_t *);
+static void free_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int);
+static void queue_position(fcs_pats_thread_t *, fcs_pats_position_t *, int);
+static fcs_pats_position_t *dequeue_position(fcs_pats_thread_t *);
 
 /* Test the current position to see if it's new (or better).  If it is, save
 it, along with the pointer to its parent and the move we used to get here. */
 
-static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent, fcs_pats__move_t *m)
+static fcs_pats_position_t *new_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent, fcs_pats__move_t *m)
 {
     DECLARE_STACKS();
     int t, cluster;
@@ -111,7 +111,7 @@ static fcs_pats_position_t *new_position(fc_solve_soft_thread_t * soft_thread, f
     return pos;
 }
 
-void fc_solve_pats__do_it(fc_solve_soft_thread_t * soft_thread)
+void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
 {
     int i, q;
     fcs_pats_position_t *pos;
@@ -153,7 +153,7 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
 
-static int solve(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *parent)
+static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
 {
     int i, nmoves, q, qq;
     fcs_pats__move_t *mp, *mp0;
@@ -232,7 +232,7 @@ The nchild element keeps track of descendents, and when there are none left
 in the parent we can free it too after solve() returns and we get called
 recursively (rec == TRUE). */
 
-static void free_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int rec)
+static void free_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int rec)
 {
     /* We don't really free anything here, we just push it onto a
     freelist (using the queue member), so we can use it again later. */
@@ -258,7 +258,7 @@ static void free_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_positio
 that got us here.  The work queue is kept sorted by priority (simply by
 having separate queues). */
 
-static void queue_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos, int pri)
+static void queue_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int pri)
 {
     int nout;
     double x;
@@ -333,7 +333,7 @@ static GCC_INLINE int strecpy(char *dest, char *src)
 /* Unpack a compact position rep.  soft_thread->current_pos.freecells cells must be restored from
  * the array following the fcs_pats_position_t struct. */
 
-static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *pos)
+static GCC_INLINE void unpack_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos)
 {
     DECLARE_STACKS();
 
@@ -406,7 +406,7 @@ static GCC_INLINE void unpack_position(fc_solve_soft_thread_t * soft_thread, fcs
 
 /* Return the position on the head of the queue, or NULL if there isn't one. */
 
-static fcs_pats_position_t *dequeue_position(fc_solve_soft_thread_t * soft_thread)
+static fcs_pats_position_t *dequeue_position(fcs_pats_thread_t * soft_thread)
 {
     int last;
     fcs_pats_position_t *pos;

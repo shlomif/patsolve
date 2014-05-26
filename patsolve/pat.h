@@ -254,24 +254,24 @@ struct fc_solve__patsolve_thread_struct
     fcs_bool_t is_quiet;
 };
 
-typedef struct fc_solve__patsolve_thread_struct fc_solve_soft_thread_t;
+typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
 
 /* Prototypes. */
 
-extern fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node);
-extern void fc_solve_pats__do_it(fc_solve_soft_thread_t *);
+extern fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node);
+extern void fc_solve_pats__do_it(fcs_pats_thread_t *);
 extern void fc_solve_pats__print_card(fcs_card_t card, FILE *);
-extern void freecell_solver_pats__make_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *);
-extern void fc_solve_pats__undo_move(fc_solve_soft_thread_t * soft_thread, fcs_pats__move_t *);
-extern fcs_pats__move_t *fc_solve_pats__get_moves(fc_solve_soft_thread_t * soft_thread, fcs_pats_position_t *, int *);
-extern void fc_solve_pats__init_clusters(fc_solve_soft_thread_t * soft_thread);
-extern u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t);
-extern void fc_solve_pats__sort_piles(fc_solve_soft_thread_t * soft_thread);
+extern void freecell_solver_pats__make_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *);
+extern void fc_solve_pats__undo_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *);
+extern fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *, int *);
+extern void fc_solve_pats__init_clusters(fcs_pats_thread_t * soft_thread);
+extern u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * soft_thread, size_t);
+extern void fc_solve_pats__sort_piles(fcs_pats_thread_t * soft_thread);
 
 
 /* Initialize the hash buckets. */
 
-static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__init_buckets(fcs_pats_thread_t * soft_thread)
 {
 #if !defined(HARD_CODED_NUM_STACKS) || !defined(HARD_CODED_NUM_FREECELLS)
     const fc_solve_instance_t * const instance = soft_thread->instance;
@@ -312,11 +312,11 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fc_solve_soft_thread_t * soft
 
 /* A function and some macros for allocating memory. */
 
-extern void * fc_solve_pats__malloc(fc_solve_soft_thread_t * soft_thread, size_t s);
+extern void * fc_solve_pats__malloc(fcs_pats_thread_t * soft_thread, size_t s);
 
 #define fc_solve_pats__new(soft_thread, type) ((type *)fc_solve_pats__malloc(soft_thread, sizeof(type)))
 
-static GCC_INLINE void fc_solve_pats__release(fc_solve_soft_thread_t * const soft_thread, void * const ptr, const size_t count_freed)
+static GCC_INLINE void fc_solve_pats__release(fcs_pats_thread_t * const soft_thread, void * const ptr, const size_t count_freed)
 {
     free(ptr);
 
@@ -328,7 +328,7 @@ static GCC_INLINE void fc_solve_pats__release(fc_solve_soft_thread_t * const sof
 #define fc_solve_pats__new_array(soft_thread, type, size) ((type *)fc_solve_pats__malloc(soft_thread, (size) * sizeof(type)))
 #define fc_solve_pats__free_array(soft_thread, ptr, type, size) fc_solve_pats__release((soft_thread), (ptr), ((size)*sizeof(type)))
 
-static GCC_INLINE void fc_solve_pats__free_buckets(fc_solve_soft_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__free_buckets(fcs_pats_thread_t * soft_thread)
 {
     int i, j;
     fcs_pats__bucket_list_t *l, *n;
@@ -345,7 +345,7 @@ static GCC_INLINE void fc_solve_pats__free_buckets(fc_solve_soft_thread_t * soft
     }
 }
 
-static GCC_INLINE void fc_solve_pats__free_blocks(fc_solve_soft_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__free_blocks(fcs_pats_thread_t * soft_thread)
 {
     fcs_pats__block_t *b, *next;
 
@@ -358,9 +358,9 @@ static GCC_INLINE void fc_solve_pats__free_blocks(fc_solve_soft_thread_t * soft_
     }
 }
 
-extern void fc_solve_pats__hash_layout(fc_solve_soft_thread_t * soft_thread);
+extern void fc_solve_pats__hash_layout(fcs_pats_thread_t * soft_thread);
 
-static GCC_INLINE void fc_solve_pats__free_clusters(fc_solve_soft_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__free_clusters(fcs_pats_thread_t * soft_thread)
 {
     int i;
     fcs_pats__treelist_t *l, *n;
@@ -378,7 +378,7 @@ static GCC_INLINE void fc_solve_pats__free_clusters(fc_solve_soft_thread_t * sof
 extern void fc_solve_msg(const char *msg, ...);
 
 #ifdef DEBUG
-static GCC_INLINE void fc_solve_pats__print_queue(fc_solve_soft_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_thread)
 {
     fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
     int n = 0;

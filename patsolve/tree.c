@@ -36,10 +36,10 @@
 clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
-static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster);
-static fcs_pats__block_t *new_block(fc_solve_soft_thread_t * soft_thread);
+static fcs_pats__treelist_t *cluster_tree(fcs_pats_thread_t * soft_thread, int cluster);
+static fcs_pats__block_t *new_block(fcs_pats_thread_t * soft_thread);
 
-static GCC_INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_char *b)
+static GCC_INLINE int CMP(fcs_pats_thread_t * soft_thread, u_char *a, u_char *b)
 {
     return memcmp(a, b, soft_thread->bytes_per_pile);
 }
@@ -48,7 +48,7 @@ static GCC_INLINE int CMP(fc_solve_soft_thread_t * soft_thread, u_char *a, u_cha
 can ONLY be called once, immediately after the call to fc_solve_pats__new_from_block().
 That is, no other calls to give_back_block() are allowed. */
 
-static GCC_INLINE void give_back_block(fc_solve_soft_thread_t * const soft_thread, u_char *p)
+static GCC_INLINE void give_back_block(fcs_pats_thread_t * const soft_thread, u_char *p)
 {
     size_t s;
     fcs_pats__block_t *b;
@@ -62,7 +62,7 @@ static GCC_INLINE void give_back_block(fc_solve_soft_thread_t * const soft_threa
 /* Add it to the binary tree for this cluster.  The piles are stored
 following the fcs_pats__tree_t structure. */
 
-static GCC_INLINE fcs_pats__insert_code_t insert_node(fc_solve_soft_thread_t * soft_thread, fcs_pats__tree_t *n, int d, fcs_pats__tree_t **tree, fcs_pats__tree_t **node)
+static GCC_INLINE fcs_pats__insert_code_t insert_node(fcs_pats_thread_t * soft_thread, fcs_pats__tree_t *n, int d, fcs_pats__tree_t **tree, fcs_pats__tree_t **node)
 {
     u_char *key, *tkey;
     fcs_pats__tree_t *t;
@@ -122,7 +122,7 @@ cells are encoded as a cluster number: no two positions with different
 cluster numbers can ever be the same, so we store different clusters in
 different trees.  */
 
-static GCC_INLINE fcs_pats__tree_t *pack_position(fc_solve_soft_thread_t * soft_thread)
+static GCC_INLINE fcs_pats__tree_t *pack_position(fcs_pats_thread_t * soft_thread)
 {
     DECLARE_STACKS();
     int j, k, w;
@@ -173,7 +173,7 @@ static GCC_INLINE fcs_pats__tree_t *pack_position(fc_solve_soft_thread_t * soft_
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
-fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node)
+fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node)
 {
     int i, k;
     fcs_pats__tree_t *new;
@@ -215,13 +215,13 @@ fcs_pats__insert_code_t fc_solve_pats__insert(fc_solve_soft_thread_t * soft_thre
 
 /* Clusters are also stored in a hashed array. */
 
-void fc_solve_pats__init_clusters(fc_solve_soft_thread_t * soft_thread)
+void fc_solve_pats__init_clusters(fcs_pats_thread_t * soft_thread)
 {
     memset(soft_thread->tree_list, 0, sizeof(soft_thread->tree_list));
     soft_thread->my_block = new_block(soft_thread);
 }
 
-static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, int cluster)
+static fcs_pats__treelist_t *cluster_tree(fcs_pats_thread_t * soft_thread, int cluster)
 {
     int bucket;
     fcs_pats__treelist_t *tl, *last;
@@ -262,7 +262,7 @@ static fcs_pats__treelist_t *cluster_tree(fc_solve_soft_thread_t * soft_thread, 
 
 /* my_block storage.  Reduces overhead, and can be freed quickly. */
 
-static fcs_pats__block_t *new_block(fc_solve_soft_thread_t * soft_thread)
+static fcs_pats__block_t *new_block(fcs_pats_thread_t * soft_thread)
 {
     fcs_pats__block_t * b = fc_solve_pats__new(soft_thread, fcs_pats__block_t);
     if (b == NULL) {
@@ -282,7 +282,7 @@ static fcs_pats__block_t *new_block(fc_solve_soft_thread_t * soft_thread)
 
 /* Like new(), only from the current block.  Make a new block if necessary. */
 
-u_char *fc_solve_pats__new_from_block(fc_solve_soft_thread_t * soft_thread, size_t s)
+u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * soft_thread, size_t s)
 {
     u_char *p;
     fcs_pats__block_t *b;
