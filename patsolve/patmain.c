@@ -141,7 +141,7 @@ static void quit(fcs_pats_thread_t * soft_thread, int sig)
 
 #endif
 
-void play(fcs_pats_thread_t * soft_thread);
+static void play(fcs_pats_thread_t * soft_thread);
 
 /* Read a layout file.  Format is one pile per line, bottom to top (visible
 card).  Temp cells and Out on the last two lines, if any. */
@@ -553,7 +553,7 @@ int main(int argc, char **argv)
     return ((int)(soft_thread->status));
 }
 
-void play(fcs_pats_thread_t * soft_thread)
+static void play(fcs_pats_thread_t * soft_thread)
 {
     /* Initialize the hash tables. */
 
