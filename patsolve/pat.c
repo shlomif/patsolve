@@ -187,11 +187,9 @@ static int prune_seahaven(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp)
 /* This utility routine is used to check if a card is ever moved in
 a sequence of moves. */
 
-static GCC_INLINE int cardmoved(fcs_card_t card, fcs_pats__move_t **mpp, int j)
+static GCC_INLINE int was_card_moved(const fcs_card_t card, fcs_pats__move_t * const * const mpp, const int j)
 {
-    int i;
-
-    for (i = 0; i < j; i++) {
+    for (int i = 0; i < j; i++) {
         if (mpp[i]->card == card) {
             return TRUE;
         }
@@ -333,7 +331,7 @@ static int prune_redundant(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp
         that was uncovered or uses it as a destination (including
         fc_solve_empty_card), there is a dependency. */
 
-        if (cardmoved(mp->destcard, prev, j) ||
+        if (was_card_moved(mp->destcard, prev, j) ||
             cardisdest(mp->destcard, prev, j)) {
             return FALSE;
         }
@@ -367,7 +365,7 @@ static int prune_redundant(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp
         /* We can prune these moves as long as the intervening
         moves don't touch mp->destcard. */
 
-        if (cardmoved(mp->destcard, prev, j) ||
+        if (was_card_moved(mp->destcard, prev, j) ||
             cardisdest(mp->destcard, prev, j)) {
             return FALSE;
         }
