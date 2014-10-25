@@ -192,14 +192,14 @@ TARGET_LINK_LIBRARIES (patsolve "m")
 IF (FCS_WITH_TEST_SUITE)
 
     ADD_CUSTOM_TARGET(
-        "test"
+        "check"
         "perl" "${CMAKE_CURRENT_SOURCE_DIR}/run-tests.pl"
     )
 
-    ADD_DEPENDENCIES(
-        "test"
-        "all"
-    )
+# ADD_DEPENDENCIES(
+# "check"
+# "all"
+# )
 
 ENDIF(FCS_WITH_TEST_SUITE)
 
@@ -208,5 +208,11 @@ CONFIGURE_FILE(
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
     )
 
+set_source_files_properties( tags PROPERTIES GENERATED true)
+
+add_custom_target (
+    tags
+    COMMAND ctags -R .
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR} )
 # So it can find config.h
 INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_BINARY_DIR})
