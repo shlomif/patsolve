@@ -210,6 +210,11 @@ static GCC_INLINE int is_card_dest(const fcs_card_t card, fcs_pats__move_t * con
     return FALSE;
 }
 
+static GCC_INLINE int was_card_moved_or_dest(const fcs_card_t card, fcs_pats__move_t * const * const mpp, const int j)
+{
+    return (was_card_moved(card, mpp, j) || is_card_dest(card, mpp, j));
+}
+
 /* Prune redundant moves, if we can prove that they really are redundant. */
 
 #define MAXPREVMOVE 4   /* Increasing this beyond 4 doesn't do much. */
@@ -329,8 +334,8 @@ static int prune_redundant(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp
         that was uncovered or uses it as a destination (including
         fc_solve_empty_card), there is a dependency. */
 
-        if (was_card_moved(mp->destcard, prev, j) ||
-            is_card_dest(mp->destcard, prev, j)) {
+        if (was_card_moved_or_dest(mp->destcard, prev, j))
+        {
             return FALSE;
         }
 
@@ -363,8 +368,8 @@ static int prune_redundant(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp
         /* We can prune these moves as long as the intervening
         moves don't touch mp->destcard. */
 
-        if (was_card_moved(mp->destcard, prev, j) ||
-            is_card_dest(mp->destcard, prev, j)) {
+        if (was_card_moved_or_dest(mp->destcard, prev, j))
+        {
             return FALSE;
         }
 
