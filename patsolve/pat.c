@@ -200,11 +200,9 @@ static GCC_INLINE int was_card_moved(const fcs_card_t card, fcs_pats__move_t * c
 /* This utility routine is used to check if a card is ever used as a
 destination in a sequence of moves. */
 
-static GCC_INLINE int cardisdest(fcs_card_t card, fcs_pats__move_t **mpp, int j)
+static GCC_INLINE int is_card_dest(const fcs_card_t card, fcs_pats__move_t * const * const mpp, const int j)
 {
-    int i;
-
-    for (i = 0; i < j; i++) {
+    for (int i = 0; i < j; i++) {
         if (mpp[i]->destcard == card) {
             return TRUE;
         }
@@ -305,7 +303,7 @@ static int prune_redundant(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp
         /* If any intervening move used this card as a destination,
         we have a dependency and we can't prune. */
 
-        if (cardisdest(mp->card, prev, j)) {
+        if (is_card_dest(mp->card, prev, j)) {
             return FALSE;
         }
 
@@ -332,7 +330,7 @@ static int prune_redundant(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp
         fc_solve_empty_card), there is a dependency. */
 
         if (was_card_moved(mp->destcard, prev, j) ||
-            cardisdest(mp->destcard, prev, j)) {
+            is_card_dest(mp->destcard, prev, j)) {
             return FALSE;
         }
 
@@ -366,7 +364,7 @@ static int prune_redundant(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp
         moves don't touch mp->destcard. */
 
         if (was_card_moved(mp->destcard, prev, j) ||
-            cardisdest(mp->destcard, prev, j)) {
+            is_card_dest(mp->destcard, prev, j)) {
             return FALSE;
         }
 
