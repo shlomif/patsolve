@@ -463,3 +463,60 @@ soft_thread->num_positions_in_clusters[pos->cluster]--;
 #endif
     return pos;
 }
+
+DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
+{
+    /* Initialize the hash tables. */
+
+    fc_solve_pats__init_buckets(soft_thread);
+    fc_solve_pats__init_clusters(soft_thread);
+
+    /* Reset stats. */
+
+    soft_thread->num_checked_states = 0;
+    soft_thread->num_states_in_collection = 0;
+    soft_thread->num_solutions = 0;
+
+    soft_thread->status = FCS_PATS__NOSOL;
+
+    /* Go to it. */
+
+    fc_solve_pats__do_it(soft_thread);
+    if (soft_thread->status != FCS_PATS__WIN && !soft_thread->is_quiet)
+    {
+        if (soft_thread->status == FCS_PATS__FAIL)
+        {
+            printf("Out of memory.\n");
+        }
+        else if (soft_thread->Noexit && soft_thread->num_solutions > 0)
+        {
+            printf("No shorter solutions.\n");
+        }
+        else
+        {
+            printf("No solution.\n");
+        }
+#ifdef DEBUG
+        printf("%d positions generated.\n", soft_thread->num_states_in_collection);
+        printf("%d unique positions.\n", soft_thread->num_checked_states);
+        printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
+#endif
+    }
+#ifdef DEBUG
+    if (soft_thread->remaining_memory != Init_mem_remain) {
+        fc_solve_msg("remaining_memory = %ld\n", soft_thread->remaining_memory);
+    }
+#endif
+}
+
+static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
+static const char * const fc_solve_pats__Suits_string = "HCDS";
+
+DLLEXPORT void fc_solve_pats__print_card(const fcs_card_t card, FILE * out_fh)
+{
+    if (fcs_card_rank(card) != fc_solve_empty_card) {
+        fprintf(out_fh, "%c%c",
+            fc_solve_pats__Ranks_string[(int)fcs_card_rank(card)],
+            fc_solve_pats__Suits_string[(int)fcs_card_suit(card)]);
+    }
+}

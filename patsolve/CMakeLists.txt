@@ -162,9 +162,16 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 INCLUDE(CPack)
 
+ADD_LIBRARY(fcs_patsolve_lib
+    SHARED
+    app_str.c card.c pat.c patsolve.c state.c tree.c util.c
+)
+
 ADD_EXECUTABLE(patsolve
-    app_str.c card.c patmain.c param.c pat.c patsolve.c state.c tree.c util.c
+    param.c patmain.c
     )
+
+TARGET_LINK_LIBRARIES(patsolve fcs_patsolve_lib)
 
 ADD_EXECUTABLE(pats-msdeal
     msdeal.c

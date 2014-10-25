@@ -1152,3 +1152,38 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * soft_thread, int w)
     return l->pilenum;
 }
 
+void DLLEXPORT fc_solve_pats__read_layout(fcs_pats_thread_t * soft_thread, const char * input_s)
+{
+#if !defined(HARD_CODED_NUM_STACKS)
+    const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
+#endif
+
+    fcs_state_keyval_pair_t kv;
+    fc_solve_initial_user_state_to_c(input_s, &kv, LOCAL_FREECELLS_NUM, LOCAL_STACKS_NUM, 1, soft_thread->current_pos.indirect_stacks_buffer);
+    soft_thread->current_pos.s = kv.s;
+}
+
+DLLEXPORT void fc_solve_pats__print_layout(
+    fcs_pats_thread_t * soft_thread
+)
+{
+    fc_solve_instance_t * instance = soft_thread->instance;
+
+    fcs_state_locs_struct_t locs;
+    fc_solve_init_locs(&locs);
+    char * s =
+        fc_solve_state_as_string(
+            &(soft_thread->current_pos.s),
+            &(locs),
+            INSTANCE_FREECELLS_NUM,
+            INSTANCE_STACKS_NUM,
+            INSTANCE_DECKS_NUM,
+            TRUE,
+            FALSE,
+            TRUE
+        );
+
+    fprintf(stderr, "%s\n---\n", s);
+
+    free(s);
+}

@@ -35,6 +35,17 @@
 #include "range_solvers_gen_ms_boards.h"
 #include "state.h"
 
+/* Just print a message. */
+
+static void print_msg(const char *msg, ...)
+{
+    va_list ap;
+
+    va_start(ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
+}
+
 static const char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
   "-s Seahaven (same suit), -f Freecell (red/black)\n"
@@ -44,7 +55,7 @@ static const char Usage[] =
   "-S speed mode; find a solution quickly, rather than a good solution\n"
   "-q quiet, -v verbose\n"
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
-#define USAGE() fc_solve_msg(Usage, Progname)
+#define USAGE() print_msg(Usage, Progname)
 
 
 #ifdef DEBUG
@@ -79,27 +90,6 @@ static void fatalerr(const char *msg, ...)
     exit(1);
 }
 
-static void print_layout(fcs_pats_thread_t * soft_thread)
-{
-    fc_solve_instance_t * instance = soft_thread->instance;
-    fcs_state_locs_struct_t locs;
-    fc_solve_init_locs(&locs);
-    char * s =
-        fc_solve_state_as_string(
-            &(soft_thread->current_pos.s),
-            &(locs),
-            INSTANCE_FREECELLS_NUM,
-            INSTANCE_STACKS_NUM,
-            INSTANCE_DECKS_NUM,
-            TRUE,
-            FALSE,
-            TRUE
-        );
-
-    fprintf(stderr, "%s\n---\n", s);
-
-    free(s);
-}
 
 static void set_param(fcs_pats_thread_t * soft_thread, int pnum)
 {
@@ -118,20 +108,20 @@ static void quit(fcs_pats_thread_t * soft_thread, int sig)
     c = 0;
     for (i = 0; i <= 0xFFFF; i++) {
         if (soft_thread->num_positions_in_clusters[i]) {
-            fc_solve_msg("%04X: %6d", i, soft_thread->num_positions_in_clusters[i]);
+            print_msg("%04X: %6d", i, soft_thread->num_positions_in_clusters[i]);
             c++;
             if (c % 5 == 0) {
                 c = 0;
-                fc_solve_msg("\n");
+                print_msg("\n");
             } else {
-                fc_solve_msg("\t");
+                print_msg("\t");
             }
         }
     }
     if (c != 0) {
-        fc_solve_msg("\n");
+        print_msg("\n");
     }
-    print_layout(soft_thread);
+    fc_solve_pats__print_layout(soft_thread);
 
 #ifdef HANDLE_SIG_QUIT
     signal(SIGQUIT, quit);
@@ -140,8 +130,6 @@ static void quit(fcs_pats_thread_t * soft_thread, int sig)
 #endif
 
 #endif
-
-static void play(fcs_pats_thread_t * soft_thread);
 
 /* Read a layout file.  Format is one pile per line, bottom to top (visible
 card).  Temp cells and Out on the last two lines, if any. */
@@ -175,16 +163,6 @@ static GCC_INLINE fcs_bool_t str_fgets(char * line, const int len, char * * inpu
     return ret;
 }
 
-static GCC_INLINE void read_layout(fcs_pats_thread_t * soft_thread, char * input_s)
-{
-#if !defined(HARD_CODED_NUM_STACKS)
-    const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
-#endif
-
-    fcs_state_keyval_pair_t kv;
-    fc_solve_initial_user_state_to_c(input_s, &kv, LOCAL_FREECELLS_NUM, LOCAL_STACKS_NUM, 1, soft_thread->current_pos.indirect_stacks_buffer);
-    soft_thread->current_pos.s = kv.s;
-}
 
 static int freecell_solver_user_set_sequences_are_built_by_type(
     fc_solve_instance_t * instance,
@@ -274,7 +252,7 @@ int main(int argc, char **argv)
 #ifdef HANDLE_SIG_QUIT
     signal(SIGQUIT, quit);
 #endif
-    fc_solve_msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
+    print_msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 #endif
 
     /* Parse args twice.  Once to get the operating mode, and the
@@ -462,7 +440,7 @@ int main(int argc, char **argv)
                 break;
 
             default:
-                fc_solve_msg("%s: unknown flag -%c\n", Progname, c);
+                print_msg("%s: unknown flag -%c\n", Progname, c);
                 USAGE();
                 exit(1);
             }
@@ -529,11 +507,11 @@ int main(int argc, char **argv)
         char board_string[4096];
         memset(board_string, '\0', sizeof(board_string));
         fread(board_string, sizeof(board_string[0]), COUNT(board_string)-1, infile);
-        read_layout(soft_thread, board_string);
+        fc_solve_pats__read_layout(soft_thread, board_string);
         if (!soft_thread->is_quiet) {
-            print_layout(soft_thread);
+            fc_solve_pats__print_layout(soft_thread);
         }
-        play(&soft_thread_struct);
+        fc_solve_pats__play(&soft_thread_struct);
     } else {
 
         /* Range mode.  Play lots of consecutive games. */
@@ -543,8 +521,8 @@ int main(int argc, char **argv)
             char board_string[4096];
             memset(board_string, '\0', sizeof(board_string));
             get_board_l(gn, board_string);
-            read_layout(soft_thread, board_string);
-            play(soft_thread);
+            fc_solve_pats__read_layout(soft_thread, board_string);
+            fc_solve_pats__play(soft_thread);
             pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
         }
@@ -553,82 +531,24 @@ int main(int argc, char **argv)
     return ((int)(soft_thread->status));
 }
 
-static void play(fcs_pats_thread_t * soft_thread)
-{
-    /* Initialize the hash tables. */
-
-    fc_solve_pats__init_buckets(soft_thread);
-    fc_solve_pats__init_clusters(soft_thread);
-
-    /* Reset stats. */
-
-    soft_thread->num_checked_states = 0;
-    soft_thread->num_states_in_collection = 0;
-    soft_thread->num_solutions = 0;
-
-    soft_thread->status = FCS_PATS__NOSOL;
-
-    /* Go to it. */
-
-    fc_solve_pats__do_it(soft_thread);
-    if (soft_thread->status != FCS_PATS__WIN && !soft_thread->is_quiet)
-    {
-        if (soft_thread->status == FCS_PATS__FAIL)
-        {
-            printf("Out of memory.\n");
-        }
-        else if (soft_thread->Noexit && soft_thread->num_solutions > 0)
-        {
-            printf("No shorter solutions.\n");
-        }
-        else
-        {
-            printf("No solution.\n");
-        }
-#ifdef DEBUG
-        printf("%d positions generated.\n", soft_thread->num_states_in_collection);
-        printf("%d unique positions.\n", soft_thread->num_checked_states);
-        printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
-#endif
-    }
-#ifdef DEBUG
-if (soft_thread->remaining_memory != Init_mem_remain) {
- fc_solve_msg("remaining_memory = %ld\n", soft_thread->remaining_memory);
-}
-#endif
-}
-
-static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
-static const char * const fc_solve_pats__Suits_string = "HCDS";
-
-void fc_solve_pats__print_card(fcs_card_t card, FILE *outfile)
-{
-    if (fcs_card_rank(card) != fc_solve_empty_card) {
-        fprintf(outfile, "%c%c",
-            fc_solve_pats__Ranks_string[(int)fcs_card_rank(card)],
-            fc_solve_pats__Suits_string[(int)fcs_card_suit(card)]);
-    }
-}
-
-
 #if 0
 void print_move(MOVE *mp)
 {
   fc_solve_pats__print_card(mp->card, stderr);
   if (mp->totype == T_TYPE) {
-   fc_solve_msg("to temp (%d)\n", mp->pri);
+   print_msg("to temp (%d)\n", mp->pri);
   } else if (mp->totype == O_TYPE) {
-   fc_solve_msg("out (%d)\n", mp->pri);
+   print_msg("out (%d)\n", mp->pri);
   } else {
-   fc_solve_msg("to ");
+   print_msg("to ");
    if (mp->destcard == NONE) {
-    fc_solve_msg("empty pile (%d)", mp->pri);
+    print_msg("empty pile (%d)", mp->pri);
    } else {
     fc_solve_pats__print_card(mp->destcard, stderr);
-    fc_solve_msg("(%d)", mp->pri);
+    print_msg("(%d)", mp->pri);
    }
    fputc('\n', stderr);
   }
-  print_layout(soft_thread);
+  fc_solve_pats__print_layout(soft_thread);
 }
 #endif
