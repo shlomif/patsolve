@@ -104,7 +104,7 @@ static void print_layout(fcs_pats_thread_t * soft_thread)
 static void set_param(fcs_pats_thread_t * soft_thread, int pnum)
 {
     soft_thread->pats_solve_params = freecell_solver_pats__x_y_params_preset[pnum];
-    soft_thread->cutoff = soft_thread->pats_solve_params.x[NXPARAM - 1];
+    soft_thread->cutoff = soft_thread->pats_solve_params.x[FC_SOLVE_PATS__NUM_X_PARAM - 1];
 }
 
 
@@ -346,14 +346,14 @@ int main(int argc, char **argv)
                 break;
 
             case 'X':
-                argv += NXPARAM - 1;
-                argc -= NXPARAM - 1;
+                argv += FC_SOLVE_PATS__NUM_X_PARAM - 1;
+                argc -= FC_SOLVE_PATS__NUM_X_PARAM - 1;
                 curr_arg = NULL;
                 break;
 
             case 'Y':
-                argv += NYPARAM;
-                argc -= NYPARAM;
+                argv += FC_SOLVE_PATS__NUM_Y_PARAM;
+                argc -= FC_SOLVE_PATS__NUM_Y_PARAM;
                 curr_arg = NULL;
                 break;
 
@@ -366,17 +366,17 @@ int main(int argc, char **argv)
     /* Set parameters. */
 
     if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && !soft_thread->to_stack) {
-        set_param(soft_thread, FreecellBest);
+        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__FreecellBest);
     } else if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && soft_thread->to_stack) {
-        set_param(soft_thread, FreecellSpeed);
+        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__FreecellSpeed);
     } else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && !soft_thread->to_stack) {
-        set_param(soft_thread, SeahavenBest);
+        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__SeahavenBest);
     } else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && soft_thread->to_stack) {
-        set_param(soft_thread, SeahavenSpeed);
+        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__SeahavenSpeed);
     } else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && !soft_thread->to_stack) {
-        set_param(soft_thread, SeahavenKing);
+        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__SeahavenKing);
     } else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) && (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) && soft_thread->to_stack) {
-        set_param(soft_thread, SeahavenKingSpeed);
+        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__SeahavenKingSpeed);
     } else {
         set_param(soft_thread, 0);   /* default */
     }
@@ -435,20 +435,20 @@ int main(int argc, char **argv)
 
                 /* use -c for the last X param */
 
-                for (i = 0; i < NXPARAM - 1; i++) {
+                for (i = 0; i < FC_SOLVE_PATS__NUM_X_PARAM - 1; i++) {
                     soft_thread->pats_solve_params.x[i] = atoi(argv[i + 1]);
                 }
-                argv += NXPARAM - 1;
-                argc -= NXPARAM - 1;
+                argv += FC_SOLVE_PATS__NUM_X_PARAM - 1;
+                argc -= FC_SOLVE_PATS__NUM_X_PARAM - 1;
                 curr_arg = NULL;
                 break;
 
             case 'Y':
-                for (i = 0; i < NYPARAM; i++) {
+                for (i = 0; i < FC_SOLVE_PATS__NUM_Y_PARAM; i++) {
                     soft_thread->pats_solve_params.y[i] = atof(argv[i + 1]);
                 }
-                argv += NYPARAM;
-                argc -= NYPARAM;
+                argv += FC_SOLVE_PATS__NUM_Y_PARAM;
+                argc -= FC_SOLVE_PATS__NUM_Y_PARAM;
                 curr_arg = NULL;
                 break;
 
