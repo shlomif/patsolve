@@ -166,6 +166,10 @@ ADD_EXECUTABLE(patsolve
     app_str.c card.c patmain.c param.c pat.c patsolve.c state.c tree.c util.c
     )
 
+ADD_EXECUTABLE(pats-msdeal
+    msdeal.c
+    )
+
 SET(COMPILER_FLAGS_TO_CHECK "-Wall" "-Werror=implicit-function-declaration")
 
 IF (CPU_ARCH)
