@@ -71,7 +71,6 @@ int main(int argc, char **argv)
     int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
     CARD deck[NUM_CARDS];
     CARD pos[10][10];
-    LONG gnGameNumber;
 
     int Nwpiles = 8;
     if (argc > 2 && argv[1][0] == 's') {
@@ -84,7 +83,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "usage: %s number\n", argv[0]);
         exit(1);
     }
-    gnGameNumber = strtoul(argv[1], NULL, 10);
+    const LONG gnGameNumber = strtoul(argv[1], NULL, 10);
 
     memset(pos, 0, sizeof(pos));
     for (int i = 0; i < NUM_CARDS; i++) {
