@@ -106,14 +106,12 @@ void freecell_solver_pats__make_move(fcs_pats_thread_t * soft_thread, fcs_pats__
 
 void fc_solve_pats__undo_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *m)
 {
-    int from, to;
-    fcs_card_t card;
-
-    from = m->from;
-    to = m->to;
+    const typeof(m->from) from = m->from;
+    const typeof(m->to) to = m->to;
 
     /* Remove from 'to' pile. */
 
+    fcs_card_t card;
     if (m->totype == FCS_PATS__TYPE_FREECELL) {
         card = fcs_freecell_card(soft_thread->current_pos.s, to);
         fcs_empty_freecell(soft_thread->current_pos.s, to);
@@ -147,37 +145,38 @@ static int prune_seahaven(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp)
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
     const fcs_game_type_params_t game_params = instance->game_params;
-    int i, j, w, r, s;
 
     if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) || !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) || mp->totype != FCS_PATS__TYPE_WASTE) {
         return FALSE;
     }
-    w = mp->to;
 
     /* Count the number of cards below this card. */
 
-    j = 0;
-    r = fcs_card_rank(mp->card) + 1;
-    s = fcs_card_suit(mp->card);
-    fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
-    for (i = fcs_col_len(col) - 1; i >= 0; i--) {
-        fcs_card_t card = fcs_col_get_card(col, i);
-        if (fcs_card_suit(card) == s && fcs_card_rank(card) == r + j) {
-            j++;
+    const int r = fcs_card_rank(mp->card) + 1;
+    const int s = fcs_card_suit(mp->card);
+    const fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, mp->to);
+    const int len = fcs_col_len(col);
+
+    {
+        int j = 0;
+        for (int i = len - 1; i >= 0; i--) {
+            fcs_card_t card = fcs_col_get_card(col, i);
+            if (fcs_card_suit(card) == s && fcs_card_rank(card) == r + j) {
+                j++;
+            }
         }
-    }
-    if (j < LOCAL_FREECELLS_NUM + 1) {
-        return FALSE;
+        if (j < LOCAL_FREECELLS_NUM + 1) {
+            return FALSE;
+        }
     }
 
     /* If there's a smaller card of this suit in the pile, we can prune
     the move. */
-    j = fcs_col_len(col);
-    r -= 1;
-    for (i = 0; i < j; i++) {
+    const int r_minus = r-1;
+    for (int i = 0; i < len; i++) {
         fcs_card_t card = fcs_col_get_card(col, i);
         if ( (fcs_card_suit(card) == s)
-            && (fcs_card_rank(card) < r) ) {
+            && (fcs_card_rank(card) < r_minus) ) {
             return TRUE;
         }
     }
