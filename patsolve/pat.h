@@ -252,6 +252,7 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__block_t *my_block;
 
     fcs_bool_t is_quiet;
+    fcs_pats_position_t * win_pos;
 };
 
 typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
@@ -311,8 +312,41 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fcs_pats_thread_t * soft_thre
 }
 
 /* A function and some macros for allocating memory. */
+/* Allocate some space and return a pointer to it.  See new() in util.h. */
 
-extern void * fc_solve_pats__malloc(fcs_pats_thread_t * soft_thread, size_t s);
+static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * soft_thread, size_t s)
+{
+    void *x;
+
+    if (s > soft_thread->remaining_memory) {
+#if 0
+        POSITION *pos;
+
+        /* Try to get some space back from the freelist. A vain hope. */
+
+        while (Freepos) {
+            pos = Freepos->queue;
+            free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
+            Freepos = pos;
+        }
+        if (s > soft_thread->remaining_memory) {
+            soft_thread->Status = FCS_PATS__FAIL;
+            return NULL;
+        }
+#else
+        soft_thread->status = FCS_PATS__FAIL;
+        return NULL;
+#endif
+    }
+
+    if ((x = (void *)malloc(s)) == NULL) {
+        soft_thread->status = FCS_PATS__FAIL;
+        return NULL;
+    }
+
+    soft_thread->remaining_memory -= s;
+    return x;
+}
 
 #define fc_solve_pats__new(soft_thread, type) ((type *)fc_solve_pats__malloc(soft_thread, sizeof(type)))
 
