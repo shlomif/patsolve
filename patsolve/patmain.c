@@ -26,6 +26,7 @@
 #include <ctype.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include "inline.h"
 #include "count.h"
@@ -275,19 +276,14 @@ static void GCC_INLINE trace_solution(fcs_pats_thread_t * soft_thread, FILE * ou
     }
 }
 
-int main(int argc, char **argv)
+static void fc_solve_pats__configure_soft_thread(
+    fcs_pats_thread_t * soft_thread,
+    int * argc_ptr,
+    char * * * argv_ptr
+)
 {
-    int i, c, argc0;
-    char *curr_arg, **argv0;
-    u_int64_t gn;
-    FILE *infile;
-    int Sgame = -1;         /* for range solving */
-    int Egame = -1;
-
-    fcs_pats_thread_t soft_thread_struct;
-    fcs_pats_thread_t * soft_thread;
-
-    soft_thread = &soft_thread_struct;
+    int argc = *argc_ptr;
+    char * * argv = *argv_ptr;
 
     soft_thread->is_quiet = FALSE;      /* print entertaining messages, else exit(Status); */
     soft_thread->Noexit = FALSE;
@@ -296,13 +292,13 @@ int main(int argc, char **argv)
     soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->freed_positions = NULL;
     soft_thread->win_pos = NULL;
-    fc_solve_instance_t instance_struct;
-    fc_solve_instance_t * instance = &instance_struct;
-    soft_thread->instance = &instance_struct;
     /* Default variation. */
-    instance_struct.game_params.game_flags = 0;
-    instance_struct.game_params.game_flags |= FCS_SEQ_BUILT_BY_ALTERNATE_COLOR;
-    instance_struct.game_params.game_flags |= FCS_ES_FILLED_BY_ANY_CARD << 2;
+
+    typeof (soft_thread->instance) instance = soft_thread->instance;
+
+    instance->game_params.game_flags = 0;
+    instance->game_params.game_flags |= FCS_SEQ_BUILT_BY_ALTERNATE_COLOR;
+    instance->game_params.game_flags |= FCS_ES_FILLED_BY_ANY_CARD << 2;
     INSTANCE_STACKS_NUM = 10;
     INSTANCE_FREECELLS_NUM = 4;
 
@@ -317,14 +313,16 @@ int main(int argc, char **argv)
     /* Parse args twice.  Once to get the operating mode, and the
     next for other options. */
 
-    argc0 = argc;
-    argv0 = argv;
+    typeof(argc) argc0 = argc;
+    typeof(argv) argv0 = argv;
+    char * curr_arg;
     while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv)) {
 
         /* Scan current argument until a flag indicates that the rest
         of the argument isn't flags (curr_arg = NULL), or until
         the end of the argument is reached (if it is all flags). */
 
+        int c;
         while (curr_arg != NULL && (c = *curr_arg++) != '\0') {
             switch (c) {
 
@@ -422,6 +420,7 @@ int main(int argc, char **argv)
 
     argc = argc0;
     argv = argv0;
+    int c;
     while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv)) {
         while (curr_arg != NULL && (c = *curr_arg++) != '\0') {
             switch (c) {
@@ -460,19 +459,11 @@ int main(int argc, char **argv)
                 soft_thread->is_quiet = TRUE;
                 break;
 
-            case 'N':
-                Sgame = atoi(curr_arg);
-                Egame = atoi(argv[1]);
-                curr_arg = NULL;
-                argv++;
-                argc--;
-                break;
-
             case 'X':
 
                 /* use -c for the last X param */
 
-                for (i = 0; i < FC_SOLVE_PATS__NUM_X_PARAM - 1; i++) {
+                for (int i = 0; i < FC_SOLVE_PATS__NUM_X_PARAM - 1; i++) {
                     soft_thread->pats_solve_params.x[i] = atoi(argv[i + 1]);
                 }
                 argv += FC_SOLVE_PATS__NUM_X_PARAM - 1;
@@ -481,7 +472,7 @@ int main(int argc, char **argv)
                 break;
 
             case 'Y':
-                for (i = 0; i < FC_SOLVE_PATS__NUM_Y_PARAM; i++) {
+                for (int i = 0; i < FC_SOLVE_PATS__NUM_Y_PARAM; i++) {
                     soft_thread->pats_solve_params.y[i] = atof(argv[i + 1]);
                 }
                 argv += FC_SOLVE_PATS__NUM_Y_PARAM;
@@ -490,12 +481,14 @@ int main(int argc, char **argv)
                 break;
 
             case 'P':
-                i = atoi(curr_arg);
-                if (i < 0 || i > LastParam) {
-                    fatalerr("invalid parameter code");
+                {
+                    int i = atoi(curr_arg);
+                    if (i < 0 || i > LastParam) {
+                        fatalerr("invalid parameter code");
+                    }
+                    set_param(soft_thread, i);
+                    curr_arg = NULL;
                 }
-                set_param(soft_thread, i);
-                curr_arg = NULL;
                 break;
 
             default:
@@ -525,15 +518,6 @@ int main(int argc, char **argv)
     /* Process the named file, or stdin if no file given.
     The name '-' also specifies stdin. */
 
-    infile = stdin;
-    if (argc && **argv != '-') {
-        infile = fopen(*argv, "r");
-
-        if (! infile)
-        {
-            fatalerr("Cannot open input file '%s' (for reading).", *argv);
-        }
-    }
 
     /* Initialize the suitable() macro variables. */
 
@@ -556,10 +540,58 @@ int main(int argc, char **argv)
         printf("%d work piles, %d temp cells.\n", LOCAL_STACKS_NUM, LOCAL_FREECELLS_NUM);
     }
 
+    *argc_ptr = argc;
+    *argv_ptr = argv;
+
+    return;
+}
+
+static GCC_INLINE int get_idx_from_env(const char * name)
+{
+    const char * s = getenv(name);
+    if (!s)
+    {
+        return -1;
+    }
+    else
+    {
+        return atoi(s);
+    }
+}
+
+int main(int argc, char **argv)
+{
+    u_int64_t gn;
+    const int start_game_idx = get_idx_from_env("PATSOLVE_START");         /* for range solving */
+    const int end_game_idx = get_idx_from_env("PATSOLVE_END");
+
+    fcs_pats_thread_t soft_thread_struct;
+    fcs_pats_thread_t * soft_thread;
+
+    soft_thread = &soft_thread_struct;
+
+    fc_solve_instance_t instance_struct;
+    soft_thread->instance = &instance_struct;
+
+    fc_solve_pats__configure_soft_thread(
+        soft_thread,
+        &argc,
+        &argv
+    );
+
+    FILE * infile = stdin;
+    if (argc && **argv != '-') {
+        infile = fopen(*argv, "r");
+
+        if (! infile)
+        {
+            fatalerr("Cannot open input file '%s' (for reading).", *argv);
+        }
+    }
 #ifdef DEBUG
     Init_mem_remain = soft_thread->remaining_memory;
 #endif
-    if (Sgame < 0) {
+    if (start_game_idx < 0) {
 
         /* Read in the initial layout and play it. */
 
@@ -590,7 +622,7 @@ int main(int argc, char **argv)
 
         /* Range mode.  Play lots of consecutive games. */
 
-        for (gn = Sgame; gn < Egame; gn++) {
+        for (gn = start_game_idx; gn < end_game_idx; gn++) {
             printf("#%ld\n", (long)gn);
             char board_string[4096];
             memset(board_string, '\0', sizeof(board_string));
