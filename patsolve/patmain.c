@@ -565,10 +565,8 @@ int main(int argc, char **argv)
     const int start_game_idx = get_idx_from_env("PATSOLVE_START");         /* for range solving */
     const int end_game_idx = get_idx_from_env("PATSOLVE_END");
 
-    fcs_pats_thread_t soft_thread_struct;
-    fcs_pats_thread_t * soft_thread;
-
-    soft_thread = &soft_thread_struct;
+    fcs_pats_thread_t soft_thread_struct__dont_use_directly;
+    fcs_pats_thread_t * soft_thread = &soft_thread_struct__dont_use_directly;
 
     fc_solve_instance_t instance_struct;
     soft_thread->instance = &instance_struct;
@@ -602,9 +600,9 @@ int main(int argc, char **argv)
         if (!soft_thread->is_quiet) {
             fc_solve_pats__print_layout(soft_thread);
         }
-        fc_solve_pats__play(&soft_thread_struct);
+        fc_solve_pats__play(soft_thread);
 
-        if (soft_thread_struct.status == FCS_PATS__WIN)
+        if (soft_thread->status == FCS_PATS__WIN)
         {
             FILE * out = fopen("win", "w");
             if (! out)
@@ -612,7 +610,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "%s\n", "Cannot open 'win' for writing.");
                 exit(1);
             }
-            trace_solution(&soft_thread_struct, out);
+            trace_solution(soft_thread, out);
 
             fclose(out);
         }
