@@ -67,7 +67,7 @@ static const char Usage[] =
 long Init_mem_remain;
 #endif
 
-static char *Progname = NULL;
+static const char *Progname = NULL;
 
 static GCC_INLINE void pats__recycle_soft_thread(
     fcs_pats_thread_t * soft_thread
@@ -283,11 +283,11 @@ static void GCC_INLINE trace_solution(fcs_pats_thread_t * soft_thread, FILE * ou
 static void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread_t * soft_thread,
     int * argc_ptr,
-    char * * * argv_ptr
+    const char * * * argv_ptr
 )
 {
     int argc = *argc_ptr;
-    char * * argv = *argv_ptr;
+    const char * * argv = *argv_ptr;
 
     soft_thread->is_quiet = FALSE;      /* print entertaining messages, else exit(Status); */
     soft_thread->Noexit = FALSE;
@@ -319,7 +319,7 @@ static void fc_solve_pats__configure_soft_thread(
 
     typeof(argc) argc0 = argc;
     typeof(argv) argv0 = argv;
-    char * curr_arg;
+    const char * curr_arg;
     while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv)) {
 
         /* Scan current argument until a flag indicates that the rest
@@ -606,7 +606,7 @@ static void * worker_thread(void * void_context)
     fc_solve_pats__configure_soft_thread(
         soft_thread,
         &argc,
-        &argv
+        (const char * * *)(&argv)
     );
 
     int board_num;
@@ -679,62 +679,16 @@ int main(int argc, char **argv)
     const int start_game_idx = get_idx_from_env("PATSOLVE_START");         /* for range solving */
     const int end_game_idx = get_idx_from_env("PATSOLVE_END");
 
-    fcs_pats_thread_t soft_thread_struct__dont_use_directly;
-    fcs_pats_thread_t * soft_thread = &soft_thread_struct__dont_use_directly;
-
-    fc_solve_instance_t instance_struct;
-    soft_thread->instance = &instance_struct;
-
-    fc_solve_pats__configure_soft_thread(
-        soft_thread,
-        &argc,
-        &argv
-    );
-
-    FILE * infile = stdin;
-    if (argc && **argv != '-') {
-        infile = fopen(*argv, "r");
-
-        if (! infile)
-        {
-            fatalerr("Cannot open input file '%s' (for reading).", *argv);
-        }
-    }
 #ifdef DEBUG
     Init_mem_remain = soft_thread->remaining_memory;
 #endif
-    if (start_game_idx < 0) {
-
-        /* Read in the initial layout and play it. */
-
-        char board_string[4096];
-        memset(board_string, '\0', sizeof(board_string));
-        fread(board_string, sizeof(board_string[0]), COUNT(board_string)-1, infile);
-        fc_solve_pats__read_layout(soft_thread, board_string);
-        if (!soft_thread->is_quiet) {
-            fc_solve_pats__print_layout(soft_thread);
-        }
-        fc_solve_pats__play(soft_thread);
-
-        if (soft_thread->status == FCS_PATS__WIN)
-        {
-            FILE * out = fopen("win", "w");
-            if (! out)
-            {
-                fprintf(stderr, "%s\n", "Cannot open 'win' for writing.");
-                exit(1);
-            }
-            trace_solution(soft_thread, out);
-
-            fclose(out);
-        }
-    }
-    else
     {
         int board_num_step = 1;
         int update_total_num_iters_threshold = 1000000;
         int num_workers = 4;
         int stop_at = 100;
+
+        next_board_num = start_game_idx;
 
         fcs_portable_time_t mytime;
         FCS_PRINT_STARTED_AT(mytime);
@@ -772,11 +726,9 @@ int main(int argc, char **argv)
         FCS_PRINT_FINISHED(mytime, total_num_iters);
 
         free(workers);
-
-        soft_thread->status = 0;
     }
 
-    return ((int)(soft_thread->status));
+    return 0;
 }
 
 #if 0
