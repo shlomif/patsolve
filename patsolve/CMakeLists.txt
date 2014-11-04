@@ -173,6 +173,12 @@ ADD_EXECUTABLE(patsolve
 
 TARGET_LINK_LIBRARIES(patsolve fcs_patsolve_lib)
 
+ADD_EXECUTABLE(threaded-pats
+    param.c threaded_main.c
+    )
+
+TARGET_LINK_LIBRARIES(threaded-pats fcs_patsolve_lib "pthread" "m")
+
 ADD_EXECUTABLE(pats-msdeal
     msdeal.c
     )
