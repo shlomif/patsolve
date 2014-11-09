@@ -416,6 +416,7 @@ extern DLLEXPORT void fc_solve_pats__print_card(const fcs_card_t card, FILE * ou
 
 extern void fc_solve_msg(const char *msg, ...);
 
+#if 0
 #ifdef DEBUG
 static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_thread)
 {
@@ -434,6 +435,7 @@ static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_threa
     }
     fc_solve_msg("\n");
 }
+#endif
 #endif
 
 #if !defined(HARD_CODED_NUM_STACKS)
