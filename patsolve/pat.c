@@ -31,7 +31,7 @@
 #include "inline.h"
 #include "count.h"
 
-#include "pat.h"
+#include "instance.h"
 #include "fnv.h"
 #include "tree.h"
 
