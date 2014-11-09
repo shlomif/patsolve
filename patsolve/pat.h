@@ -138,7 +138,13 @@ enum fc_solve_pats__status_code_enum {
     FCS_PATS__NOSOL = 1
 };
 
+enum fc_solve_pats__status_fail_reason_enum {
+    FCS_PATS__FAIL_CHECKED_STATES = 0,
+    FCS_PATS__FAIL_OTHER = 1,
+};
+
 typedef enum fc_solve_pats__status_code_enum fc_solve_pats__status_code_t;
+typedef enum fc_solve_pats__status_fail_reason_enum fc_solve_pats__status_fail_reason_t;
 
 /* Memory. */
 
@@ -211,7 +217,7 @@ struct fc_solve__patsolve_thread_struct
 
     /* Statistics. */
 
-    int num_checked_states;
+    int num_checked_states, max_num_checked_states;
     int num_states_in_collection;
 
     fcs_pats_xy_param_t pats_solve_params;
@@ -236,6 +242,7 @@ struct fc_solve__patsolve_thread_struct
     int cutoff;
     /* win, lose, or fail */
     fc_solve_pats__status_code_t status;
+    fc_solve_pats__status_fail_reason_t fail_reason;
 
     #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499    /* a prime */
     fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];

@@ -146,6 +146,13 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
         if (!q) {
             free_position(soft_thread, pos, TRUE);
         }
+
+        if (soft_thread->num_checked_states == soft_thread->max_num_checked_states)
+        {
+            soft_thread->status = FCS_PATS__FAIL;
+            soft_thread->fail_reason = FCS_PATS__FAIL_CHECKED_STATES;
+            break;
+        }
     }
 }
 
