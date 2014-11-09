@@ -31,7 +31,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "pat.h"
+#include "instance.h"
 
 #ifndef TRUE
 #define TRUE 1

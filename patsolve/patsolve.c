@@ -32,7 +32,7 @@ search. */
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
-#include "pat.h"
+#include "instance.h"
 #include "fnv.h"
 #include "util.h"
 

@@ -172,16 +172,6 @@ typedef struct fcs_pats__bucket_list_struct {
 
 #define FC_SOLVE_PATS__NUM_QUEUES 100
 
-struct fc_solve_instance_struct
-{
-    /* game parameters */
-    fcs_game_type_params_t game_params;
-    fcs_card_t game_variant_suit_mask;
-    fcs_card_t game_variant_desired_suit_value;
-};
-
-typedef struct fc_solve_instance_struct fc_solve_instance_t;
-
 struct fc_solve__patsolve_thread_struct
 {
     fc_solve_instance_t * instance;
