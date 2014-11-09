@@ -65,15 +65,6 @@ long Init_mem_remain;
 
 static char *Progname = NULL;
 
-static GCC_INLINE void pats__recycle_soft_thread(
-    fcs_pats_thread_t * soft_thread
-)
-{
-    fc_solve_pats__free_buckets(soft_thread);
-    fc_solve_pats__free_clusters(soft_thread);
-    fc_solve_pats__free_blocks(soft_thread);
-    soft_thread->freed_positions = NULL;
-}
 
 /* Print a message and exit. */
 static void fatalerr(const char *msg, ...)
@@ -278,6 +269,7 @@ static void GCC_INLINE trace_solution(fcs_pats_thread_t * soft_thread, FILE * ou
 
 static void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread_t * soft_thread,
+    fc_solve_instance_t * instance,
     int * argc_ptr,
     char * * * argv_ptr
 )
@@ -285,17 +277,8 @@ static void fc_solve_pats__configure_soft_thread(
     int argc = *argc_ptr;
     char * * argv = *argv_ptr;
 
-    soft_thread->is_quiet = FALSE;      /* print entertaining messages, else exit(Status); */
-    soft_thread->Noexit = FALSE;
-    soft_thread->to_stack = FALSE;
-    soft_thread->cutoff = 1;
-    soft_thread->remaining_memory = (50 * 1000 * 1000);
-    soft_thread->freed_positions = NULL;
-    soft_thread->win_pos = NULL;
+    fc_solve_pats__init_soft_thread(soft_thread, instance);
     /* Default variation. */
-
-    typeof (soft_thread->instance) instance = soft_thread->instance;
-
     instance->game_params.game_flags = 0;
     instance->game_params.game_flags |= FCS_SEQ_BUILT_BY_ALTERNATE_COLOR;
     instance->game_params.game_flags |= FCS_ES_FILLED_BY_ANY_CARD << 2;
@@ -569,10 +552,10 @@ int main(int argc, char **argv)
     fcs_pats_thread_t * soft_thread = &soft_thread_struct__dont_use_directly;
 
     fc_solve_instance_t instance_struct;
-    soft_thread->instance = &instance_struct;
 
     fc_solve_pats__configure_soft_thread(
         soft_thread,
+        &instance_struct,
         &argc,
         &argv
     );
@@ -627,7 +610,7 @@ int main(int argc, char **argv)
             get_board_l(gn, board_string);
             fc_solve_pats__read_layout(soft_thread, board_string);
             fc_solve_pats__play(soft_thread);
-            pats__recycle_soft_thread(soft_thread);
+            fc_solve_pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
         }
     }
