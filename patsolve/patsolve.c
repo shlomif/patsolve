@@ -503,9 +503,7 @@ DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
 #endif
     }
 #ifdef DEBUG
-    if (soft_thread->remaining_memory != Init_mem_remain) {
-        fc_solve_msg("remaining_memory = %ld\n", soft_thread->remaining_memory);
-    }
+    fc_solve_msg("remaining_memory = %ld\n", soft_thread->remaining_memory);
 #endif
 }
 
