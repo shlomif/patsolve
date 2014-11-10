@@ -406,6 +406,18 @@ static GCC_INLINE void fc_solve_pats__free_clusters(fcs_pats_thread_t * soft_thr
     }
 }
 
+static GCC_INLINE void fc_solve_pats__soft_thread_reset_helper(
+    fcs_pats_thread_t * soft_thread
+)
+{
+    soft_thread->freed_positions = NULL;
+    soft_thread->num_checked_states = 0;
+    soft_thread->num_states_in_collection = 0;
+    soft_thread->num_solutions = 0;
+
+    soft_thread->status = FCS_PATS__NOSOL;
+}
+
 static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
     fcs_pats_thread_t * soft_thread
 )
@@ -413,12 +425,8 @@ static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
     fc_solve_pats__free_buckets(soft_thread);
     fc_solve_pats__free_clusters(soft_thread);
     fc_solve_pats__free_blocks(soft_thread);
-    soft_thread->freed_positions = NULL;
-    soft_thread->num_checked_states = 0;
-    soft_thread->num_states_in_collection = 0;
-    soft_thread->num_solutions = 0;
 
-    soft_thread->status = FCS_PATS__NOSOL;
+    fc_solve_pats__soft_thread_reset_helper(soft_thread);
 }
 
 static GCC_INLINE void fc_solve_pats__init_soft_thread(
@@ -436,7 +444,7 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
     soft_thread->win_pos = NULL;
     soft_thread->max_num_checked_states = -1;
 
-    fc_solve_pats__recycle_soft_thread(soft_thread);
+    fc_solve_pats__soft_thread_reset_helper(soft_thread);
 }
 
 extern DLLEXPORT void fc_solve_pats__read_layout(fcs_pats_thread_t * soft_thread, const char * input_s);
