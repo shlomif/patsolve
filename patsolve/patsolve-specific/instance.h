@@ -28,6 +28,6 @@
 
 #define PATSOLVE_STANDALONE 1
 
-#include "pat.h"
+#include <pat.h>
 
 #endif /* #ifndef FC_SOLVE_PATSOLVE_INSTANCE_H */
