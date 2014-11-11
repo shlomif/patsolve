@@ -59,7 +59,7 @@ EOF
 
     # TEST
     is (remove_trailing_whitespace($trap->stderr()), <<'EOF', '24 stderr');
-Foundations:
+Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
 : 5H QH 3C AC 3H 4H QD
@@ -189,7 +189,7 @@ EOF
 
     # TEST
     is (remove_trailing_whitespace($trap->stderr()), <<'EOF', '24 stderr');
-Foundations:
+Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
 : 5H QH 3C AC 3H 4H QD
@@ -401,7 +401,7 @@ EOF
 
     # TEST
     is (remove_trailing_whitespace($trap->stderr()), <<'EOF', 'sea1 stderr');
-Foundations:
+Foundations: H-0 C-0 D-0 S-0
 Freecells:  2H  6H
 : JD 9S JS 4D 6D
 : 2D 5S AS 7S 8S
@@ -520,7 +520,7 @@ EOF
 
     # TEST
     is (remove_trailing_whitespace($trap->stderr()), <<'EOF', 'sea1 -S stderr');
-Foundations:
+Foundations: H-0 C-0 D-0 S-0
 Freecells:  2H  6H
 : JD 9S JS 4D 6D
 : 2D 5S AS 7S 8S

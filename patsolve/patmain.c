@@ -282,6 +282,7 @@ static void fc_solve_pats__configure_soft_thread(
     instance->game_params.game_flags = 0;
     instance->game_params.game_flags |= FCS_SEQ_BUILT_BY_ALTERNATE_COLOR;
     instance->game_params.game_flags |= FCS_ES_FILLED_BY_ANY_CARD << 2;
+    INSTANCE_DECKS_NUM = 1;
     INSTANCE_STACKS_NUM = 10;
     INSTANCE_FREECELLS_NUM = 4;
 
