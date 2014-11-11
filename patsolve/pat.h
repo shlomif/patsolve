@@ -385,6 +385,7 @@ static GCC_INLINE void fc_solve_pats__free_buckets(fcs_pats_thread_t * soft_thre
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
             l = n;
         }
+        soft_thread->buckets_list[i] = NULL;
     }
 }
 
@@ -399,6 +400,7 @@ static GCC_INLINE void fc_solve_pats__free_blocks(fcs_pats_thread_t * soft_threa
         fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
         b = next;
     }
+    soft_thread->my_block = NULL;
 }
 
 extern void fc_solve_pats__hash_layout(fcs_pats_thread_t * soft_thread);
@@ -415,6 +417,7 @@ static GCC_INLINE void fc_solve_pats__free_clusters(fcs_pats_thread_t * soft_thr
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__treelist_t);
             l = n;
         }
+        soft_thread->tree_list[i] = NULL;
     }
 }
 
