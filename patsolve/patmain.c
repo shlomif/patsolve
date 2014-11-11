@@ -598,6 +598,7 @@ int main(int argc, char **argv)
 
             fclose(out);
         }
+        fc_solve_pats__recycle_soft_thread(soft_thread);
     }
     else
     {
