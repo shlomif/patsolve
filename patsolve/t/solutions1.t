@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 16;
+use Test::More tests => 20;
 
 use Test::Trap qw( trap $trap :flow:stderr(systemsafe):stdout(systemsafe):warn );
 
@@ -632,6 +632,136 @@ QC to temp
 JC out
 QC out
 KC out
+EOF
+
+}
+
+{
+    trap
+    {
+        system("./patsolve", "-f", "-S", File::Spec->catfile($data_dir, '3.board'));
+    };
+
+    # TEST
+    is ($trap->stdout(), <<'EOF', '3 -S stdout');
+Freecell; any card may start a pile.
+8 work piles, 4 temp cells.
+A winner.
+91 moves.
+EOF
+
+    # TEST
+    ok (!defined($trap->exit()), '0 exit status.');
+
+    # TEST
+    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', '3 stderr');
+Foundations: H-0 C-0 D-0 S-0
+Freecells:
+: KC 7D TC 4H 6C 9S 8C
+: 2D JH QH AS TD 2C 4S
+: QC 9D TS JD 2S 3H 5S
+: 7H JS 5D 8D 3C 4C 5C
+: 6S QS 6H AC 9H AH
+: 8H 8S KS 6D KD 2H
+: TH 9C 7C 3D 7S JC
+: 4D QD AD KH 3S 5H
+
+---
+EOF
+
+    # TEST
+    is (_slurp('win'), <<'EOF', '3 win contents');
+AH out
+2H out
+4S to temp
+2C to temp
+TD to JC
+AS out
+5H to temp
+3S to temp
+8C to 9H
+9S to TD
+5H to 6C
+5S to temp
+3H out
+2S out
+3S out
+4S out
+5S out
+5H to temp
+6C to temp
+4H out
+5H out
+9S to temp
+8C to temp
+9H to TC
+AC out
+2C out
+5C to temp
+8C to 9H
+KH to temp
+AD out
+6H out
+QS to KD
+6S out
+KH to empty pile
+4C to temp
+3C out
+4C out
+5C out
+QS to KH
+TD to temp
+KD to temp
+JC to QD
+7S out
+6C out
+JC to QH
+3D to temp
+7C out
+8C out
+9C out
+9S to TH
+JC to QD
+QH to temp
+JH to QS
+2D out
+3D out
+JC to temp
+8D to 9S
+QD to empty pile
+4D out
+5D out
+6D out
+KD to empty pile
+JD to temp
+TD to JS
+9H to TS
+TC out
+7D out
+8D out
+KS to temp
+8S out
+9S out
+JC out
+9H to temp
+TS out
+9D out
+TD out
+JD out
+QC out
+QD out
+KD out
+KC out
+JS out
+7H out
+8H out
+9H out
+TH out
+JH out
+QS out
+QH out
+KH out
+KS out
 EOF
 
 }
