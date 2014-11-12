@@ -28,6 +28,7 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "alloc_wrap.h"
 #include "inline.h"
 #include "count.h"
 
@@ -41,8 +42,35 @@ DEFINE_fc_solve_empty_card();
 
 static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *, int *);
 static void mark_irreversible(fcs_pats_thread_t * soft_thread, int n);
-static void win(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos);
 static GCC_INLINE int get_pilenum(fcs_pats_thread_t * soft_thread, int w);
+
+/* Win.  Print out the move stack. */
+
+static GCC_INLINE void win(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos)
+{
+    if (soft_thread->moves_to_win)
+    {
+        free (soft_thread->moves_to_win);
+        soft_thread->moves_to_win = NULL;
+    }
+
+    int num_moves = 0;
+    for (typeof(pos) p = pos; p->parent; p = p->parent) {
+        num_moves++;
+    }
+    typeof(soft_thread->moves_to_win) mpp0 = SMALLOC(mpp0, num_moves);
+    if (! mpp0)
+    {
+        return; /* how sad, so close... */
+    }
+    typeof(mpp0) mpp = mpp0 + num_moves - 1;
+    for (typeof(pos) p = pos; p->parent; p = p->parent) {
+        *(mpp--) = (p->move);
+    }
+
+    soft_thread->moves_to_win = mpp0;
+    soft_thread->num_moves_to_win = num_moves;
+}
 
 /* Hash a pile. */
 
@@ -1018,12 +1046,6 @@ void fc_solve_pats__sort_piles(fcs_pats_thread_t * soft_thread)
 #endif
 }
 
-/* Win.  Print out the move stack. */
-
-static void GCC_INLINE win(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos)
-{
-    soft_thread->win_pos = pos;
-}
 
 /* For each pile, return a unique identifier.  Although there are a
 large number of possible piles, generally fewer than 1000 different

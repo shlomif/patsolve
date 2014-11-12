@@ -211,33 +211,16 @@ static int freecell_solver_user_set_empty_stacks_filled_by(
 
 static void GCC_INLINE trace_solution(fcs_pats_thread_t * soft_thread, FILE * out)
 {
-    fcs_pats_position_t *pos = soft_thread->win_pos;
-
-    int i, nmoves;
-    fcs_pats_position_t *p;
-    fcs_pats__move_t *mp, **mpp, **mpp0;
+    int i;
+    fcs_pats__move_t *mp;
 
     /* Go back up the chain of parents and store the moves
     in reverse order. */
 
-    i = 0;
-    for (p = pos; p->parent; p = p->parent) {
-        i++;
-    }
-    nmoves = i;
-    mpp0 = fc_solve_pats__new_array(soft_thread, fcs_pats__move_t *, nmoves);
-    if (mpp0 == NULL) {
-        return; /* how sad, so close... */
-    }
-    mpp = mpp0 + nmoves - 1;
-    for (p = pos; p->parent; p = p->parent) {
-        *mpp-- = &p->move;
-    }
+    typeof(soft_thread->num_moves_to_win) nmoves = soft_thread->num_moves_to_win;
+    typeof(soft_thread->moves_to_win) mpp0 = soft_thread->moves_to_win;
 
-    /* Now print them out in the correct order. */
-
-    for (i = 0, mpp = mpp0; i < nmoves; i++, mpp++) {
-        mp = *mpp;
+    for (i = 0, mp = mpp0; i < nmoves; i++, mp++) {
         fc_solve_pats__print_card(mp->card, out);
         fputc(' ', out);
         if (mp->totype == FCS_PATS__TYPE_FREECELL) {
@@ -254,7 +237,10 @@ static void GCC_INLINE trace_solution(fcs_pats_thread_t * soft_thread, FILE * ou
             fputc('\n', out);
         }
     }
-    fc_solve_pats__free_array(soft_thread, mpp0, fcs_pats__move_t *, nmoves);
+
+    free (soft_thread->moves_to_win);
+    soft_thread->moves_to_win = NULL;
+    soft_thread->num_moves_to_win = 0;
 
     if (!soft_thread->is_quiet) {
         printf("A winner.\n");
