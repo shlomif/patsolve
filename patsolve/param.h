@@ -3,13 +3,7 @@
 #ifndef PATSOLVE_PARAM_H
 #define PATSOLVE_PARAM_H
 
-#define FC_SOLVE_PATS__NUM_X_PARAM 11
-#define FC_SOLVE_PATS__NUM_Y_PARAM 3
-
-typedef struct {
-    int x[FC_SOLVE_PATS__NUM_X_PARAM];
-    double y[FC_SOLVE_PATS__NUM_Y_PARAM];
-} fcs_pats_xy_param_t;
+#include "fcs_pats_xy_param.h"
 
 extern const fcs_pats_xy_param_t freecell_solver_pats__x_y_params_preset[];
 
