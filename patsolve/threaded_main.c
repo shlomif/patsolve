@@ -222,64 +222,6 @@ static int freecell_solver_user_set_empty_stacks_filled_by(
     return 0;
 }
 
-static void GCC_INLINE trace_solution(fcs_pats_thread_t * soft_thread, FILE * out)
-{
-    fcs_pats_position_t *pos = soft_thread->win_pos;
-
-    int i, nmoves;
-    fcs_pats_position_t *p;
-    fcs_pats__move_t *mp, **mpp, **mpp0;
-
-    /* Go back up the chain of parents and store the moves
-    in reverse order. */
-
-    i = 0;
-    for (p = pos; p->parent; p = p->parent) {
-        i++;
-    }
-    nmoves = i;
-    mpp0 = fc_solve_pats__new_array(soft_thread, fcs_pats__move_t *, nmoves);
-    if (mpp0 == NULL) {
-        return; /* how sad, so close... */
-    }
-    mpp = mpp0 + nmoves - 1;
-    for (p = pos; p->parent; p = p->parent) {
-        *mpp-- = &p->move;
-    }
-
-    /* Now print them out in the correct order. */
-
-    for (i = 0, mpp = mpp0; i < nmoves; i++, mpp++) {
-        mp = *mpp;
-        fc_solve_pats__print_card(mp->card, out);
-        fputc(' ', out);
-        if (mp->totype == FCS_PATS__TYPE_FREECELL) {
-            fprintf(out, "to temp\n");
-        } else if (mp->totype == FCS_PATS__TYPE_FOUNDATION) {
-            fprintf(out, "out\n");
-        } else {
-            fprintf(out, "to ");
-            if (mp->destcard == fc_solve_empty_card) {
-                fprintf(out, "empty pile");
-            } else {
-                fc_solve_pats__print_card(mp->destcard, out);
-            }
-            fputc('\n', out);
-        }
-    }
-    fc_solve_pats__free_array(soft_thread, mpp0, fcs_pats__move_t *, nmoves);
-
-    if (!soft_thread->is_quiet) {
-        printf("A winner.\n");
-        printf("%d moves.\n", nmoves);
-#ifdef DEBUG
-        printf("%d positions generated.\n", soft_thread->num_states_in_collection);
-        printf("%d unique positions.\n", soft_thread->num_checked_states);
-        printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
-#endif
-    }
-}
-
 static void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread_t * soft_thread,
     int * argc_ptr,
@@ -295,7 +237,6 @@ static void fc_solve_pats__configure_soft_thread(
     soft_thread->cutoff = 1;
     soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->freed_positions = NULL;
-    soft_thread->win_pos = NULL;
     /* Default variation. */
 
     typeof (soft_thread->instance) instance = soft_thread->instance;

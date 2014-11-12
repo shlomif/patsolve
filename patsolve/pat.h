@@ -261,7 +261,8 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__block_t *my_block;
 
     fcs_bool_t is_quiet;
-    fcs_pats_position_t * win_pos;
+    fcs_pats__move_t * moves_to_win;
+    int num_moves_to_win;
 };
 
 typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
@@ -441,6 +442,12 @@ static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
     fc_solve_pats__free_clusters(soft_thread);
     fc_solve_pats__free_blocks(soft_thread);
 
+    if (soft_thread->moves_to_win)
+    {
+        free (soft_thread->moves_to_win);
+        soft_thread->moves_to_win = NULL;
+        soft_thread->num_moves_to_win = 0;
+    }
     fc_solve_pats__soft_thread_reset_helper(soft_thread);
 }
 
@@ -456,8 +463,10 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
     soft_thread->cutoff = 1;
     soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->freed_positions = NULL;
-    soft_thread->win_pos = NULL;
     soft_thread->max_num_checked_states = -1;
+
+    soft_thread->moves_to_win = NULL;
+    soft_thread->num_moves_to_win = 0;
 
     fc_solve_pats__soft_thread_reset_helper(soft_thread);
 }
