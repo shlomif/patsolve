@@ -584,7 +584,9 @@ int main(int argc, char **argv)
 
             fclose(out);
         }
+        int ret = ((int)(soft_thread->status));
         fc_solve_pats__recycle_soft_thread(soft_thread);
+        return ret;
     }
     else
     {
@@ -601,9 +603,9 @@ int main(int argc, char **argv)
             fc_solve_pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
         }
-    }
 
-    return ((int)(soft_thread->status));
+        return 0;
+    }
 }
 
 #if 0
