@@ -421,8 +421,6 @@ static fcs_pats_position_t *dequeue_position(fcs_pats_thread_t * soft_thread)
 {
     int last;
     fcs_pats_position_t *pos;
-    static int qpos = 0;
-    static int minpos = 0;
 
     /* This is a kind of prioritized round robin.  We make sweeps
     through the queues, starting at the highest priority and
@@ -433,35 +431,35 @@ static fcs_pats_position_t *dequeue_position(fcs_pats_thread_t * soft_thread)
 
     last = FALSE;
     do {
-        qpos--;
-        if (qpos < minpos) {
+        soft_thread->dequeue__qpos--;
+        if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos) {
             if (last) {
                 return NULL;
             }
-            qpos = soft_thread->max_queue_idx;
-            minpos--;
-            if (minpos < 0) {
-                minpos = soft_thread->max_queue_idx;
+            soft_thread->dequeue__qpos = soft_thread->max_queue_idx;
+            soft_thread->dequeue__minpos--;
+            if (soft_thread->dequeue__minpos < 0) {
+                soft_thread->dequeue__minpos = soft_thread->max_queue_idx;
             }
-            if (minpos == 0) {
+            if (soft_thread->dequeue__minpos == 0) {
                 last = TRUE;
             }
         }
-    } while (soft_thread->queue_head[qpos] == NULL);
+    } while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL);
 
-    pos = soft_thread->queue_head[qpos];
-    soft_thread->queue_head[qpos] = pos->queue;
+    pos = soft_thread->queue_head[soft_thread->dequeue__qpos];
+    soft_thread->queue_head[soft_thread->dequeue__qpos] = pos->queue;
 #ifdef DEBUG
-    soft_thread->Inq[qpos]--;
+    soft_thread->Inq[soft_thread->dequeue__qpos]--;
 #endif
 
     /* Decrease soft_thread->max_queue_idx if that queue emptied. */
 
-    while (soft_thread->queue_head[qpos] == NULL && qpos == soft_thread->max_queue_idx && soft_thread->max_queue_idx > 0) {
+    while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL && soft_thread->dequeue__qpos == soft_thread->max_queue_idx && soft_thread->max_queue_idx > 0) {
         soft_thread->max_queue_idx--;
-        qpos--;
-        if (qpos < minpos) {
-            minpos = qpos;
+        soft_thread->dequeue__qpos--;
+        if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos) {
+            soft_thread->dequeue__minpos = soft_thread->dequeue__qpos;
         }
     }
 
