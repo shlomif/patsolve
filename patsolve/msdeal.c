@@ -45,7 +45,7 @@ static GCC_INLINE VOID srandp(UINT s)
     seedx = (LONG) s;
 }
 
-static GCC_INLINE UINT randp()
+static GCC_INLINE UINT randp(void)
 {
     seedx = seedx * 214013L + 2531011L;
     return (seedx >> 16) & 0xffff;
@@ -56,14 +56,14 @@ static GCC_INLINE VOID srando(UINT s)
     seedx = (LONG) s;
 }
 
-static GCC_INLINE UINT rando()
+static GCC_INLINE UINT rando(void)
 {
     seedx = seedx * 214013L + 2531011L;
     return (seedx >> 16) & 0x7fff;
 }
 
-const static char Rank[] = "A23456789TJQK";
-const static char Suit[] = "CDHS";
+static const char Rank[] = "A23456789TJQK";
+static const char Suit[] = "CDHS";
 
 int main(int argc, char **argv)
 {
