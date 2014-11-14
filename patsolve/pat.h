@@ -260,6 +260,8 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
     fcs_pats__block_t *my_block;
 
+    int dequeue__minpos, dequeue__qpos;
+
     fcs_bool_t is_quiet;
     fcs_pats__move_t * moves_to_win;
     int num_moves_to_win;
@@ -432,6 +434,9 @@ static GCC_INLINE void fc_solve_pats__soft_thread_reset_helper(
     soft_thread->num_solutions = 0;
 
     soft_thread->status = FCS_PATS__NOSOL;
+
+    soft_thread->dequeue__qpos = 0;
+    soft_thread->dequeue__minpos = 0;
 }
 
 static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
