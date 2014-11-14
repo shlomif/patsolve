@@ -141,9 +141,7 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 
 void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
 {
-    int i;
     fcs_pats_position_t *pos;
-    fcs_pats__move_t m;
 
     /* Solve it. */
 

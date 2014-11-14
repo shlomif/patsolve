@@ -209,7 +209,7 @@ static int freecell_solver_user_set_empty_stacks_filled_by(
     return 0;
 }
 
-static void GCC_INLINE trace_solution(fcs_pats_thread_t * soft_thread, FILE * out)
+static GCC_INLINE void trace_solution(fcs_pats_thread_t * soft_thread, FILE * out)
 {
     int i;
     fcs_pats__move_t *mp;
