@@ -471,6 +471,11 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
     fc_solve_pats__soft_thread_reset_helper(soft_thread);
 }
 
+extern void fc_solve_pats__initialize_solving_process(
+    fcs_pats_thread_t * const soft_thread
+);
+
+
 extern DLLEXPORT void fc_solve_pats__read_layout(fcs_pats_thread_t * soft_thread, const char * input_s);
 extern DLLEXPORT void fc_solve_pats__print_layout( fcs_pats_thread_t * soft_thread);
 extern DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread);

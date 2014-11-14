@@ -111,15 +111,13 @@ static fcs_pats_position_t *new_position(fcs_pats_thread_t * soft_thread, fcs_pa
     return pos;
 }
 
-void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
+extern void fc_solve_pats__initialize_solving_process(
+    fcs_pats_thread_t * const soft_thread
+)
 {
-    int i, q;
-    fcs_pats_position_t *pos;
-    fcs_pats__move_t m;
-
     /* Init the queues. */
 
-    for (i = 0; i < FC_SOLVE_PATS__NUM_QUEUES; i++) {
+    for (int i = 0; i < FC_SOLVE_PATS__NUM_QUEUES; i++) {
         soft_thread->queue_head[i] = NULL;
     }
     soft_thread->max_queue_idx = 0;
@@ -132,17 +130,25 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
 
     fc_solve_pats__hash_layout(soft_thread);
     fc_solve_pats__sort_piles(soft_thread);
+    fcs_pats__move_t m;
     m.card = fc_solve_empty_card;
-    pos = new_position(soft_thread, NULL, &m);
+    fcs_pats_position_t * pos = new_position(soft_thread, NULL, &m);
     if (pos == NULL) {
         return;
     }
     queue_position(soft_thread, pos, 0);
+}
+
+void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
+{
+    int i;
+    fcs_pats_position_t *pos;
+    fcs_pats__move_t m;
 
     /* Solve it. */
 
     while ((pos = dequeue_position(soft_thread)) != NULL) {
-        q = solve(soft_thread, pos);
+        const int q = solve(soft_thread, pos);
         if (!q) {
             free_position(soft_thread, pos, TRUE);
         }
@@ -488,6 +494,7 @@ DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
 
     /* Go to it. */
 
+    fc_solve_pats__initialize_solving_process(soft_thread);
     fc_solve_pats__do_it(soft_thread);
     if (soft_thread->status != FCS_PATS__WIN && !soft_thread->is_quiet)
     {
