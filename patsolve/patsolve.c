@@ -139,7 +139,7 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
     queue_position(soft_thread, pos, 0);
 }
 
-void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
+DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
 {
     fcs_pats_position_t *pos;
 
@@ -473,7 +473,7 @@ soft_thread->num_positions_in_clusters[pos->cluster]--;
     return pos;
 }
 
-DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
+DLLEXPORT void fc_solve_pats__before_play(fcs_pats_thread_t * soft_thread)
 {
     /* Initialize the hash tables. */
 
@@ -491,6 +491,11 @@ DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
     /* Go to it. */
 
     fc_solve_pats__initialize_solving_process(soft_thread);
+}
+
+DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
+{
+    fc_solve_pats__before_play(soft_thread);
     fc_solve_pats__do_it(soft_thread);
     if (soft_thread->status != FCS_PATS__WIN && !soft_thread->is_quiet)
     {
