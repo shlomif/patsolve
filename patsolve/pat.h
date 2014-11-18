@@ -483,6 +483,7 @@ extern void fc_solve_pats__initialize_solving_process(
 
 extern DLLEXPORT void fc_solve_pats__read_layout(fcs_pats_thread_t * soft_thread, const char * input_s);
 extern DLLEXPORT void fc_solve_pats__print_layout( fcs_pats_thread_t * soft_thread);
+extern DLLEXPORT void fc_solve_pats__before_play(fcs_pats_thread_t * soft_thread);
 extern DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread);
 extern DLLEXPORT void fc_solve_pats__print_card(const fcs_card_t card, FILE * out_fh);
 
