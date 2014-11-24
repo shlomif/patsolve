@@ -151,7 +151,9 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
             free_position(soft_thread, pos, TRUE);
         }
 
-        if (soft_thread->num_checked_states == soft_thread->max_num_checked_states)
+        if ((soft_thread->status == FCS_PATS__NOSOL)
+            && (soft_thread->max_num_checked_states >= 0)
+            && (soft_thread->num_checked_states >= soft_thread->max_num_checked_states))
         {
             soft_thread->status = FCS_PATS__FAIL;
             soft_thread->fail_reason = FCS_PATS__FAIL_CHECKED_STATES;
