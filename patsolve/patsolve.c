@@ -306,7 +306,7 @@ descendents, were queued or not (if not, the position can be freed). */
 
 static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
 {
-    int i, nmoves, q, qq;
+    int i, nmoves;
     fcs_pats__move_t *mp, *mp0;
     fcs_pats_position_t *pos;
 
@@ -334,7 +334,7 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
 
     /* Make each move and either solve or queue the result. */
 
-    q = FALSE;
+    fcs_bool_t q = FALSE;
     for (i = 0, mp = mp0; i < nmoves; i++, mp++) {
         freecell_solver_pats__make_move(soft_thread, mp);
 
@@ -357,12 +357,16 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
         later. */
 
         if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
-            qq = solve(soft_thread, pos);
+            const fcs_bool_t qq = solve(soft_thread, pos);
             fc_solve_pats__undo_move(soft_thread, mp);
-            if (!qq) {
+            if (qq)
+            {
+                q = TRUE;
+            }
+            else
+            {
                 free_position(soft_thread, pos, FALSE);
             }
-            q |= qq;
         } else {
             queue_position(soft_thread, pos, mp->pri);
             fc_solve_pats__undo_move(soft_thread, mp);
