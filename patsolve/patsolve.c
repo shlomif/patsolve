@@ -357,9 +357,7 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
         later. */
 
         if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
-            const fcs_bool_t qq = solve(soft_thread, pos);
-            fc_solve_pats__undo_move(soft_thread, mp);
-            if (qq)
+            if (solve(soft_thread, pos))
             {
                 q = TRUE;
             }
@@ -367,6 +365,7 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
             {
                 free_position(soft_thread, pos, FALSE);
             }
+            fc_solve_pats__undo_move(soft_thread, mp);
         } else {
             queue_position(soft_thread, pos, mp->pri);
             fc_solve_pats__undo_move(soft_thread, mp);
