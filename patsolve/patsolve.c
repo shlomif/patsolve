@@ -146,8 +146,7 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
     /* Solve it. */
 
     while ((pos = dequeue_position(soft_thread)) != NULL) {
-        const int q = solve(soft_thread, pos);
-        if (!q) {
+        if (! solve(soft_thread, pos) ) {
             free_position(soft_thread, pos, TRUE);
         }
 
