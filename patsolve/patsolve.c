@@ -306,10 +306,6 @@ descendents, were queued or not (if not, the position can be freed). */
 
 static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
 {
-    int i, nmoves;
-    fcs_pats__move_t *mp, *mp0;
-    fcs_pats_position_t *pos;
-
     /* If we've won already (or failed), we just go through the motions
     but always return FALSE from any position.  This enables the cleanup
     of the move stack and eventual destruction of the position store. */
@@ -327,15 +323,19 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
 
     /* Generate an array of all the moves we can make. */
 
-    if (!(mp0 = fc_solve_pats__get_moves(soft_thread, parent, &nmoves))) {
+    int nmoves;
+    fcs_pats__move_t * const mp0 =
+        fc_solve_pats__get_moves(soft_thread, parent, &nmoves);
+    if (! mp0) {
         return FALSE;
     }
-    parent->nchild = nmoves;
+    fcs_pats__move_t * const mp_end = mp0 + (parent->nchild = nmoves);
 
     /* Make each move and either solve or queue the result. */
 
     fcs_bool_t q = FALSE;
-    for (i = 0, mp = mp0; i < nmoves; i++, mp++) {
+    for (fcs_pats__move_t *mp = mp0; mp < mp_end; mp++)
+    {
         freecell_solver_pats__make_move(soft_thread, mp);
 
         /* Calculate indices for the new piles. */
@@ -343,8 +343,8 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
         fc_solve_pats__sort_piles(soft_thread);
 
         /* See if this is a new position. */
-
-        if ((pos = new_position(soft_thread, parent, mp)) == NULL)
+        fcs_pats_position_t * const pos = new_position(soft_thread, parent, mp);
+        if (! pos)
         {
             parent->nchild--;
         }
