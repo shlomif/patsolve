@@ -334,7 +334,7 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
     /* Make each move and either solve or queue the result. */
 
     fcs_bool_t q = FALSE;
-    for (fcs_pats__move_t *mp = mp0; mp < mp_end; mp++)
+    for (fcs_pats__move_t * mp = mp0; mp < mp_end; mp++)
     {
         freecell_solver_pats__make_move(soft_thread, mp);
 
