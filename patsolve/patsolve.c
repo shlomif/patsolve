@@ -365,12 +365,11 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
             {
                 free_position(soft_thread, pos, FALSE);
             }
-            fc_solve_pats__undo_move(soft_thread, mp);
         } else {
             queue_position(soft_thread, pos, mp->pri);
-            fc_solve_pats__undo_move(soft_thread, mp);
             q = TRUE;
         }
+        fc_solve_pats__undo_move(soft_thread, mp);
     }
     fc_solve_pats__free_array(soft_thread, mp0, fcs_pats__move_t, nmoves);
 
