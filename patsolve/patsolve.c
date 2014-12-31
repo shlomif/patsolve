@@ -37,14 +37,153 @@ search. */
 #include "util.h"
 
 #include "inline.h"
+#include "bool.h"
 
 static int solve(fcs_pats_thread_t *, fcs_pats_position_t *);
 static void free_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int);
 static void queue_position(fcs_pats_thread_t *, fcs_pats_position_t *, int);
-static fcs_pats_position_t *dequeue_position(fcs_pats_thread_t *);
+
+/* Like strcpy() but return the length of the string. */
+static GCC_INLINE int strecpy(char *dest, char *src)
+{
+    int i;
+
+    i = 0;
+    while ((*dest++ = *src++) != '\0') {
+        i++;
+    }
+
+    return i;
+}
 
 /* Test the current position to see if it's new (or better).  If it is, save
 it, along with the pointer to its parent and the move we used to get here. */
+
+/* Return the position on the head of the queue, or NULL if there isn't one. */
+
+static GCC_INLINE void unpack_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos)
+{
+    DECLARE_STACKS();
+
+    /* Get the Out cells from the cluster number. */
+
+    {
+        int packed_foundations = pos->cluster;
+
+        fcs_state_t * s_ptr = &(soft_thread->current_pos.s);
+        fcs_set_foundation(*s_ptr, 0, packed_foundations & 0xF);
+        packed_foundations >>= 4;
+        fcs_set_foundation(*s_ptr, 1, packed_foundations & 0xF);
+        packed_foundations >>= 4;
+        fcs_set_foundation(*s_ptr, 2, packed_foundations & 0xF);
+        packed_foundations >>= 4;
+        fcs_set_foundation(*s_ptr, 3, packed_foundations & 0xF);
+    }
+
+    {
+        u_char c;
+        u_char *p;
+        fcs_pats__bucket_list_t *l;
+
+        /* Unpack bytes p into pile numbers j.
+           p         p         p
+           +--------+----:----+--------+
+           |76543210|7654:3210|76543210|
+           +--------+----:----+--------+
+           j             j
+           */
+
+        c = 0;
+        p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
+        fcs_bool_t k = FALSE;
+        for (int w = 0; w < LOCAL_STACKS_NUM ; w++)
+        {
+            int i;
+            if (k)
+            {
+                i = (c & 0xF) << 8;
+                i |= *p++;
+            }
+            else
+            {
+                i = *p++ << 4;
+                c = *p++;
+                i |= (c >> 4) & 0xF;
+            }
+            k = !k;
+            soft_thread->current_pos.stack_ids[w] = i;
+            l = soft_thread->bucket_from_pile_lookup[i];
+            fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+            i = strecpy(w_col+1, (char *)(l->pile));
+            fcs_col_len(w_col) = i;
+            soft_thread->current_pos.stack_hashes[w] = l->hash;
+        }
+    }
+
+    /* soft_thread->current_pos.freecells cells. */
+
+    {
+        u_char * p = (u_char *)pos;
+        p += sizeof(fcs_pats_position_t);
+        const typeof(LOCAL_FREECELLS_NUM) Ntpiles = LOCAL_FREECELLS_NUM;
+        for (int i = 0; i < Ntpiles; i++) {
+            fcs_freecell_card(soft_thread->current_pos.s, i) = *p++;
+        }
+    }
+}
+
+static GCC_INLINE fcs_pats_position_t * dequeue_position(fcs_pats_thread_t * soft_thread)
+{
+    /* This is a kind of prioritized round robin.  We make sweeps
+    through the queues, starting at the highest priority and
+    working downwards; each time through the sweeps get longer.
+    That way the highest priority queues get serviced the most,
+    but we still get lots of low priority action (instead of
+    ignoring it completely). */
+
+    fcs_bool_t last = FALSE;
+    do {
+        soft_thread->dequeue__qpos--;
+        if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos) {
+            if (last) {
+                return NULL;
+            }
+            soft_thread->dequeue__qpos = soft_thread->max_queue_idx;
+            soft_thread->dequeue__minpos--;
+            if (soft_thread->dequeue__minpos < 0) {
+                soft_thread->dequeue__minpos = soft_thread->max_queue_idx;
+            }
+            if (soft_thread->dequeue__minpos == 0) {
+                last = TRUE;
+            }
+        }
+    } while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL);
+
+    fcs_pats_position_t * const pos = soft_thread->queue_head[soft_thread->dequeue__qpos];
+    soft_thread->queue_head[soft_thread->dequeue__qpos] = pos->queue;
+#ifdef DEBUG
+    soft_thread->Inq[soft_thread->dequeue__qpos]--;
+#endif
+
+    /* Decrease soft_thread->max_queue_idx if that queue emptied. */
+
+    while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL && soft_thread->dequeue__qpos == soft_thread->max_queue_idx && soft_thread->max_queue_idx > 0) {
+        soft_thread->max_queue_idx--;
+        soft_thread->dequeue__qpos--;
+        if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos) {
+            soft_thread->dequeue__minpos = soft_thread->dequeue__qpos;
+        }
+    }
+
+    /* Unpack the position into the work arrays. */
+
+    unpack_position(soft_thread, pos);
+
+#ifdef DEBUG
+soft_thread->num_positions_in_clusters[pos->cluster]--;
+#endif
+    return pos;
+}
 
 static fcs_pats_position_t *new_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent, fcs_pats__move_t *m)
 {
@@ -329,150 +468,11 @@ soft_thread->num_positions_in_clusters[pos->cluster]++;
 #endif
 }
 
-/* Like strcpy() but return the length of the string. */
-static GCC_INLINE int strecpy(char *dest, char *src)
-{
-    int i;
-
-    i = 0;
-    while ((*dest++ = *src++) != '\0') {
-        i++;
-    }
-
-    return i;
-}
 
 /* Unpack a compact position rep.  soft_thread->current_pos.freecells cells must be restored from
  * the array following the fcs_pats_position_t struct. */
 
-static GCC_INLINE void unpack_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos)
-{
-    DECLARE_STACKS();
 
-    /* Get the Out cells from the cluster number. */
-
-    {
-        int packed_foundations = pos->cluster;
-
-        fcs_state_t * s_ptr = &(soft_thread->current_pos.s);
-        fcs_set_foundation(*s_ptr, 0, packed_foundations & 0xF);
-        packed_foundations >>= 4;
-        fcs_set_foundation(*s_ptr, 1, packed_foundations & 0xF);
-        packed_foundations >>= 4;
-        fcs_set_foundation(*s_ptr, 2, packed_foundations & 0xF);
-        packed_foundations >>= 4;
-        fcs_set_foundation(*s_ptr, 3, packed_foundations & 0xF);
-    }
-
-    {
-        u_char c;
-        u_char *p;
-        fcs_pats__bucket_list_t *l;
-
-        /* Unpack bytes p into pile numbers j.
-           p         p         p
-           +--------+----:----+--------+
-           |76543210|7654:3210|76543210|
-           +--------+----:----+--------+
-           j             j
-           */
-
-        c = 0;
-        p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
-        fcs_bool_t k = FALSE;
-        for (int w = 0; w < LOCAL_STACKS_NUM ; w++)
-        {
-            int i;
-            if (k)
-            {
-                i = (c & 0xF) << 8;
-                i |= *p++;
-            }
-            else
-            {
-                i = *p++ << 4;
-                c = *p++;
-                i |= (c >> 4) & 0xF;
-            }
-            k = !k;
-            soft_thread->current_pos.stack_ids[w] = i;
-            l = soft_thread->bucket_from_pile_lookup[i];
-            fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
-            i = strecpy(w_col+1, (char *)(l->pile));
-            fcs_col_len(w_col) = i;
-            soft_thread->current_pos.stack_hashes[w] = l->hash;
-        }
-    }
-
-    /* soft_thread->current_pos.freecells cells. */
-
-    {
-        u_char * p = (u_char *)pos;
-        p += sizeof(fcs_pats_position_t);
-        const typeof(LOCAL_FREECELLS_NUM) Ntpiles = LOCAL_FREECELLS_NUM;
-        for (int i = 0; i < Ntpiles; i++) {
-            fcs_freecell_card(soft_thread->current_pos.s, i) = *p++;
-        }
-    }
-}
-
-/* Return the position on the head of the queue, or NULL if there isn't one. */
-
-static fcs_pats_position_t *dequeue_position(fcs_pats_thread_t * soft_thread)
-{
-    int last;
-    fcs_pats_position_t *pos;
-
-    /* This is a kind of prioritized round robin.  We make sweeps
-    through the queues, starting at the highest priority and
-    working downwards; each time through the sweeps get longer.
-    That way the highest priority queues get serviced the most,
-    but we still get lots of low priority action (instead of
-    ignoring it completely). */
-
-    last = FALSE;
-    do {
-        soft_thread->dequeue__qpos--;
-        if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos) {
-            if (last) {
-                return NULL;
-            }
-            soft_thread->dequeue__qpos = soft_thread->max_queue_idx;
-            soft_thread->dequeue__minpos--;
-            if (soft_thread->dequeue__minpos < 0) {
-                soft_thread->dequeue__minpos = soft_thread->max_queue_idx;
-            }
-            if (soft_thread->dequeue__minpos == 0) {
-                last = TRUE;
-            }
-        }
-    } while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL);
-
-    pos = soft_thread->queue_head[soft_thread->dequeue__qpos];
-    soft_thread->queue_head[soft_thread->dequeue__qpos] = pos->queue;
-#ifdef DEBUG
-    soft_thread->Inq[soft_thread->dequeue__qpos]--;
-#endif
-
-    /* Decrease soft_thread->max_queue_idx if that queue emptied. */
-
-    while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL && soft_thread->dequeue__qpos == soft_thread->max_queue_idx && soft_thread->max_queue_idx > 0) {
-        soft_thread->max_queue_idx--;
-        soft_thread->dequeue__qpos--;
-        if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos) {
-            soft_thread->dequeue__minpos = soft_thread->dequeue__qpos;
-        }
-    }
-
-    /* Unpack the position into the work arrays. */
-
-    unpack_position(soft_thread, pos);
-
-#ifdef DEBUG
-soft_thread->num_positions_in_clusters[pos->cluster]--;
-#endif
-    return pos;
-}
 
 DLLEXPORT void fc_solve_pats__before_play(fcs_pats_thread_t * soft_thread)
 {
