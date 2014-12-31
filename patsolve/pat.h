@@ -38,6 +38,7 @@
 #include "bool.h"
 #include "fcs_dllexport.h"
 #include "state.h"
+#include "fnv.h"
 
 /* A card is represented as (suit << 4) + rank. */
 
@@ -275,7 +276,6 @@ extern fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * soft_th
 extern void fc_solve_pats__do_it(fcs_pats_thread_t *);
 extern void fc_solve_pats__print_card(fcs_card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *);
-extern void fc_solve_pats__undo_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *);
 extern fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *, int *);
 extern void fc_solve_pats__init_clusters(fcs_pats_thread_t * soft_thread);
 extern u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * soft_thread, size_t);
@@ -474,6 +474,49 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
     soft_thread->num_moves_to_win = 0;
 
     fc_solve_pats__soft_thread_reset_helper(soft_thread);
+}
+
+/* Hash a pile. */
+static GCC_INLINE void fc_solve_pats__hashpile(fcs_pats_thread_t * soft_thread, int w)
+{
+    fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+    fcs_col_get_card(col, (int)fcs_col_len(col)) = '\0';
+    soft_thread->current_pos.stack_hashes[w] = fnv_hash_str((const u_char *)(col+1));
+
+    /* Invalidate this pile's id.  We'll calculate it later. */
+
+    soft_thread->current_pos.stack_ids[w] = -1;
+}
+
+static GCC_INLINE void fc_solve_pats__undo_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *m)
+{
+    const typeof(m->from) from = m->from;
+    const typeof(m->to) to = m->to;
+
+    /* Remove from 'to' pile. */
+
+    fcs_card_t card;
+    if (m->totype == FCS_PATS__TYPE_FREECELL) {
+        card = fcs_freecell_card(soft_thread->current_pos.s, to);
+        fcs_empty_freecell(soft_thread->current_pos.s, to);
+    } else if (m->totype == FCS_PATS__TYPE_WASTE) {
+        fcs_cards_column_t to_col = fcs_state_get_col(soft_thread->current_pos.s, to);
+        fcs_col_pop_card(to_col, card);
+        fc_solve_pats__hashpile(soft_thread, to);
+    } else {
+        card = fcs_make_card(fcs_foundation_value(soft_thread->current_pos.s, to), to);
+        fcs_foundation_value(soft_thread->current_pos.s, to)--;
+    }
+
+    /* Add to 'from' pile. */
+
+    if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
+        fcs_freecell_card(soft_thread->current_pos.s, from) = card;
+    } else {
+        fcs_cards_column_t from_col = fcs_state_get_col(soft_thread->current_pos.s, from);
+        fcs_col_push_card(from_col, card);
+        fc_solve_pats__hashpile(soft_thread, from);
+    }
 }
 
 extern void fc_solve_pats__initialize_solving_process(

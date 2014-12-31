@@ -72,19 +72,6 @@ static GCC_INLINE void win(fcs_pats_thread_t * soft_thread, fcs_pats_position_t 
     soft_thread->num_moves_to_win = num_moves;
 }
 
-/* Hash a pile. */
-
-static GCC_INLINE void hashpile(fcs_pats_thread_t * soft_thread, int w)
-{
-    fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
-    fcs_col_get_card(col, (int)fcs_col_len(col)) = '\0';
-    soft_thread->current_pos.stack_hashes[w] = fnv_hash_str((const u_char *)(col+1));
-
-    /* Invalidate this pile's id.  We'll calculate it later. */
-
-    soft_thread->current_pos.stack_ids[w] = -1;
-}
-
 /* Hash the whole layout.  This is called once, at the start. */
 
 
@@ -94,7 +81,7 @@ void fc_solve_pats__hash_layout(fcs_pats_thread_t * soft_thread)
     int w;
 
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-        hashpile(soft_thread, w);
+        fc_solve_pats__hashpile(soft_thread, w);
     }
 }
 
@@ -116,7 +103,7 @@ void freecell_solver_pats__make_move(fcs_pats_thread_t * soft_thread, fcs_pats__
     } else {
         fcs_cards_column_t from_col = fcs_state_get_col(soft_thread->current_pos.s, from);
         fcs_col_pop_card(from_col, card);
-        hashpile(soft_thread, from);
+        fc_solve_pats__hashpile(soft_thread, from);
     }
 
     /* Add to pile. */
@@ -126,42 +113,12 @@ void freecell_solver_pats__make_move(fcs_pats_thread_t * soft_thread, fcs_pats__
     } else if (m->totype == FCS_PATS__TYPE_WASTE) {
         fcs_cards_column_t to_col = fcs_state_get_col(soft_thread->current_pos.s, to);
         fcs_col_push_card(to_col, card);
-        hashpile(soft_thread, to);
+        fc_solve_pats__hashpile(soft_thread, to);
     } else {
         fcs_increment_foundation(soft_thread->current_pos.s, to);
     }
 }
 
-void fc_solve_pats__undo_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *m)
-{
-    const typeof(m->from) from = m->from;
-    const typeof(m->to) to = m->to;
-
-    /* Remove from 'to' pile. */
-
-    fcs_card_t card;
-    if (m->totype == FCS_PATS__TYPE_FREECELL) {
-        card = fcs_freecell_card(soft_thread->current_pos.s, to);
-        fcs_empty_freecell(soft_thread->current_pos.s, to);
-    } else if (m->totype == FCS_PATS__TYPE_WASTE) {
-        fcs_cards_column_t to_col = fcs_state_get_col(soft_thread->current_pos.s, to);
-        fcs_col_pop_card(to_col, card);
-        hashpile(soft_thread, to);
-    } else {
-        card = fcs_make_card(fcs_foundation_value(soft_thread->current_pos.s, to), to);
-        fcs_foundation_value(soft_thread->current_pos.s, to)--;
-    }
-
-    /* Add to 'from' pile. */
-
-    if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
-        fcs_freecell_card(soft_thread->current_pos.s, from) = card;
-    } else {
-        fcs_cards_column_t from_col = fcs_state_get_col(soft_thread->current_pos.s, from);
-        fcs_col_push_card(from_col, card);
-        hashpile(soft_thread, from);
-    }
-}
 
 /* This prune applies only to Seahaven in -k mode: if we're putting a card
 onto a soft_thread->current_pos.stacks pile, and if that pile already has LOCAL_FREECELLS_NUM+1 cards of this suit in

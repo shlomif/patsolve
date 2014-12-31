@@ -344,30 +344,31 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
 
         /* See if this is a new position. */
 
-        if ((pos = new_position(soft_thread, parent, mp)) == NULL) {
-            fc_solve_pats__undo_move(soft_thread, mp);
+        if ((pos = new_position(soft_thread, parent, mp)) == NULL)
+        {
             parent->nchild--;
-            continue;
         }
+        else
+        {
+            /* If this position is in a new cluster, a card went out.
+               Don't queue it, just keep going.  A larger cutoff can also
+               force a recursive call, which can help speed things up (but
+               reduces the quality of solutions).  Otherwise, save it for
+               later. */
 
-        /* If this position is in a new cluster, a card went out.
-        Don't queue it, just keep going.  A larger cutoff can also
-        force a recursive call, which can help speed things up (but
-        reduces the quality of solutions).  Otherwise, save it for
-        later. */
-
-        if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
-            if (solve(soft_thread, pos))
-            {
+            if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
+                if (solve(soft_thread, pos))
+                {
+                    q = TRUE;
+                }
+                else
+                {
+                    free_position(soft_thread, pos, FALSE);
+                }
+            } else {
+                queue_position(soft_thread, pos, mp->pri);
                 q = TRUE;
             }
-            else
-            {
-                free_position(soft_thread, pos, FALSE);
-            }
-        } else {
-            queue_position(soft_thread, pos, mp->pri);
-            q = TRUE;
         }
         fc_solve_pats__undo_move(soft_thread, mp);
     }
