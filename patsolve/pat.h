@@ -197,6 +197,7 @@ typedef struct {
     int nmoves;
     fcs_pats__move_t * mp0, * mp_end, * mp;
     fcs_bool_t q;
+    fcs_pats_position_t * pos;
 } fcs_pats__solve_depth_t;
 
 struct fc_solve__patsolve_thread_struct

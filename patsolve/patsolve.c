@@ -305,60 +305,98 @@ recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
 
 
+enum MYDIR { UP, DOWN };
 static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *init_parent)
 {
-    soft_thread->solve_stack[
-        soft_thread->curr_solve_depth
-    ].parent = init_parent;
+    /* short for Depth */
+#define D (soft_thread->curr_solve_depth)
+    /* Short for Level */
+#define L (soft_thread->solve_stack[D])
+#define UP_L (soft_thread->solve_stack[D+1])
+    L.parent = init_parent;
+    L.mp0 = NULL;
 
-    typeof(init_parent) parent = init_parent;
+    enum MYDIR mydir = UP;
 
-#if 0
-    while (depth >= 0)
+    while (D >= 0)
     {
-#endif
 
+    typeof(init_parent) parent = L.parent;
     /* If we've won already (or failed), we just go through the motions
     but always return FALSE from any position.  This enables the cleanup
     of the move stack and eventual destruction of the position store. */
 
-    if (soft_thread->status != FCS_PATS__NOSOL) {
-        return FALSE;
-    }
-
-    /* If the position was found again in the tree by a shorter
-    path, prune this path. */
-
-    if (parent->node->depth < parent->depth) {
-        return FALSE;
+    if ((soft_thread->status != FCS_PATS__NOSOL)
+        || (parent->node->depth < parent->depth))
+    {
+        L.q = FALSE;
+        D--;
+        mydir = DOWN;
+        continue;
     }
 
     /* Generate an array of all the moves we can make. */
-
     int nmoves;
-    fcs_pats__move_t * const mp0 =
-        fc_solve_pats__get_moves(soft_thread, parent, &nmoves);
-    if (! mp0) {
-        return FALSE;
+    if (! L.mp0)
+    {
+        L.mp0 =
+            fc_solve_pats__get_moves(soft_thread, parent, &nmoves);
+        if (! L.mp0)
+        {
+            L.q = FALSE;
+            D--;
+            mydir = DOWN;
+            continue;
+        }
+        L.mp_end = L.mp0 + (parent->nchild = nmoves);
+        L.mp = L.mp0;
+        L.q = FALSE;
     }
-    fcs_pats__move_t * const mp_end = mp0 + (parent->nchild = nmoves);
+    else
+    {
+        nmoves = L.mp_end - L.mp0;
+    }
 
     /* Make each move and either solve or queue the result. */
 
-    fcs_bool_t q = FALSE;
-    for (fcs_pats__move_t * mp = mp0; mp < mp_end; mp++)
+    if (mydir == DOWN)
     {
-        freecell_solver_pats__make_move(soft_thread, mp);
+        if (UP_L.q)
+        {
+            L.q = TRUE;
+        }
+        else
+        {
+            free_position(soft_thread, L.pos, FALSE);
+        }
+        fc_solve_pats__undo_move(soft_thread, L.mp);
+        mydir = UP;
+        L.mp++;
+    }
+
+    if (L.mp == L.mp_end)
+    {
+        fc_solve_pats__free_array(soft_thread, L.mp0, fcs_pats__move_t, nmoves);
+        L.mp0 = NULL;
+        D--;
+        mydir = DOWN;
+        continue;
+    }
+    else
+    {
+        freecell_solver_pats__make_move(soft_thread, L.mp);
 
         /* Calculate indices for the new piles. */
-
         fc_solve_pats__sort_piles(soft_thread);
 
         /* See if this is a new position. */
-        fcs_pats_position_t * const pos = new_position(soft_thread, parent, mp);
-        if (! pos)
+        L.pos = new_position(soft_thread, parent, L.mp);
+        if (! L.pos)
         {
             parent->nchild--;
+            fc_solve_pats__undo_move(soft_thread, L.mp);
+            L.mp++;
+            mydir = UP;
         }
         else
         {
@@ -368,30 +406,37 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *init_pare
                reduces the quality of solutions).  Otherwise, save it for
                later. */
 
-            if (pos->cluster != parent->cluster || nmoves < soft_thread->cutoff) {
-                if (solve(soft_thread, pos))
+            if (L.pos->cluster != parent->cluster || nmoves < soft_thread->cutoff)
+            {
+                if (D+1 >= soft_thread->max_solve_depth)
                 {
-                    q = TRUE;
+                    soft_thread->max_solve_depth += FCS_PATS__SOLVE_LEVEL_GROW_BY;
+                    soft_thread->solve_stack = SREALLOC(soft_thread->solve_stack, soft_thread->max_solve_depth);
                 }
-                else
-                {
-                    free_position(soft_thread, pos, FALSE);
-                }
-            } else {
-                queue_position(soft_thread, pos, mp->pri);
-                q = TRUE;
+                UP_L.parent = L.pos;
+                UP_L.mp0 = NULL;
+                D++;
+                mydir = UP;
+            }
+            else
+            {
+                queue_position(soft_thread, L.pos, (L.mp)->pri);
+                fc_solve_pats__undo_move(soft_thread, L.mp);
+                L.q = TRUE;
+                L.mp++;
+                mydir = UP;
             }
         }
-        fc_solve_pats__undo_move(soft_thread, mp);
     }
-    fc_solve_pats__free_array(soft_thread, mp0, fcs_pats__move_t, nmoves);
 
     /* Return true if this position needs to be kept around. */
-
-    return q;
-#if 0
     }
-#endif
+    typeof(UP_L.q) ret = UP_L.q;
+    D = 0;
+    return ret;
+#undef L
+#undef UP_L
+#undef D
 }
 
 /* We can't free the stored piles in the trees, but we can free some of the
