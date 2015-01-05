@@ -596,6 +596,7 @@ int main(int argc, char **argv)
         }
         int ret = ((int)(soft_thread->status));
         fc_solve_pats__recycle_soft_thread(soft_thread);
+        fc_solve_pats__destroy_soft_thread(soft_thread);
         return ret;
     }
     else
@@ -613,6 +614,7 @@ int main(int argc, char **argv)
             fc_solve_pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
         }
+        fc_solve_pats__destroy_soft_thread(soft_thread);
 
         return 0;
     }

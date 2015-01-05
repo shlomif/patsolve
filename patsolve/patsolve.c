@@ -304,8 +304,20 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * soft_thread)
 recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
 
-static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
+
+static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *init_parent)
 {
+    soft_thread->solve_stack[
+        soft_thread->curr_solve_depth
+    ].parent = init_parent;
+
+    typeof(init_parent) parent = init_parent;
+
+#if 0
+    while (depth >= 0)
+    {
+#endif
+
     /* If we've won already (or failed), we just go through the motions
     but always return FALSE from any position.  This enables the cleanup
     of the move stack and eventual destruction of the position store. */
@@ -377,6 +389,9 @@ static int solve(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent)
     /* Return true if this position needs to be kept around. */
 
     return q;
+#if 0
+    }
+#endif
 }
 
 /* We can't free the stored piles in the trees, but we can free some of the

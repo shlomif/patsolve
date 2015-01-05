@@ -39,6 +39,7 @@
 #include "fcs_dllexport.h"
 #include "state.h"
 #include "fnv.h"
+#include "alloc_wrap.h"
 
 /* A card is represented as (suit << 4) + rank. */
 
@@ -191,6 +192,13 @@ struct fc_solve_instance_struct
 typedef struct fc_solve_instance_struct fc_solve_instance_t;
 #endif
 
+typedef struct {
+    fcs_pats_position_t * parent;
+    int nmoves;
+    fcs_pats__move_t * mp0, * mp_end, * mp;
+    fcs_bool_t q;
+} fcs_pats__solve_depth_t;
+
 struct fc_solve__patsolve_thread_struct
 {
     fc_solve_instance_t * instance;
@@ -266,6 +274,10 @@ struct fc_solve__patsolve_thread_struct
     fcs_bool_t is_quiet;
     fcs_pats__move_t * moves_to_win;
     int num_moves_to_win;
+
+#define FCS_PATS__SOLVE_LEVEL_GROW_BY 16
+    int curr_solve_depth, max_solve_depth;
+    fcs_pats__solve_depth_t * solve_stack;
 };
 
 typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
@@ -437,6 +449,8 @@ static GCC_INLINE void fc_solve_pats__soft_thread_reset_helper(
 
     soft_thread->dequeue__qpos = 0;
     soft_thread->dequeue__minpos = 0;
+
+    soft_thread->curr_solve_depth = 0;
 }
 
 static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
@@ -447,6 +461,7 @@ static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
     fc_solve_pats__free_clusters(soft_thread);
     fc_solve_pats__free_blocks(soft_thread);
 
+    soft_thread->curr_solve_depth = 0;
     if (soft_thread->moves_to_win)
     {
         free (soft_thread->moves_to_win);
@@ -474,6 +489,19 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
     soft_thread->num_moves_to_win = 0;
 
     fc_solve_pats__soft_thread_reset_helper(soft_thread);
+
+    soft_thread->max_solve_depth = FCS_PATS__SOLVE_LEVEL_GROW_BY;
+    soft_thread->solve_stack = SMALLOC(soft_thread->solve_stack, soft_thread->max_solve_depth);
+}
+
+static GCC_INLINE void fc_solve_pats__destroy_soft_thread(
+    fcs_pats_thread_t * const soft_thread
+)
+{
+    free (soft_thread->solve_stack);
+    soft_thread->solve_stack = NULL;
+    soft_thread->max_solve_depth = 0;
+    soft_thread->curr_solve_depth = -1;
 }
 
 /* Hash a pile. */
