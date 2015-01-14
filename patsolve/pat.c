@@ -620,12 +620,11 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
     const fc_solve_instance_t * const instance = soft_thread->instance;
     DECLARE_STACKS();
     int t, w, empty, emptyw;
-    fcs_pats__move_t *mp;
 
     /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
 
     int num_moves = 0;
-    mp = soft_thread->possible_moves;
+    typeof(soft_thread->possible_moves[0]) * mp = soft_thread->possible_moves;
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
         if (fcs_col_len(col) > 0) {
