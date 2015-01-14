@@ -654,9 +654,8 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                     *a = TRUE;
                     if (num_moves != 1) {
                         soft_thread->possible_moves[0] = mp[-1];
-                        return 1;
                     }
-                    return num_moves;
+                    return 1;
                 }
             }
         }
@@ -688,9 +687,8 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                     *a = TRUE;
                     if (num_moves != 1) {
                         soft_thread->possible_moves[0] = mp[-1];
-                        return 1;
                     }
-                    return num_moves;
+                    return 1;
                 }
             }
         }
