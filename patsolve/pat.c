@@ -619,13 +619,13 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
     DECLARE_STACKS();
-    int w, empty, emptyw;
+    int empty, emptyw;
 
     /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
 
     int num_moves = 0;
     typeof(soft_thread->possible_moves[0]) * mp = soft_thread->possible_moves;
-    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
+    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
         fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
         if (fcs_col_len(col) > 0) {
             const fcs_card_t card = fcs_col_get_card(col, fcs_col_len(col)-1);
@@ -705,7 +705,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
     const fcs_bool_t not_King_only = (! ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
 
     emptyw = -1;
-    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
+    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
         fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
         if (! fcs_col_len(col)) {
             emptyw = w;
@@ -747,7 +747,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
         fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
         if (fcs_col_len(i_col) > 0) {
             const fcs_card_t card = fcs_col_get_card(i_col, fcs_col_len(i_col)-1);
-            for (w = 0; w < LOCAL_STACKS_NUM; w++) {
+            for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
                 if (i == w) {
                     continue;
                 }
@@ -783,7 +783,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
     for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
         const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
         if (card != fc_solve_empty_card) {
-            for (w = 0; w < LOCAL_STACKS_NUM; w++) {
+            for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
                 fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
                 if (fcs_col_len(w_col) > 0) {
                     fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
@@ -840,7 +840,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
         }
         if (t < LOCAL_FREECELLS_NUM)
         {
-            for (w = 0; w < LOCAL_STACKS_NUM; w++)
+            for (int w = 0; w < LOCAL_STACKS_NUM; w++)
             {
                 fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
                 if (fcs_col_len(w_col) > 0)
