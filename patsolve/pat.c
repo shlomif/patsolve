@@ -619,13 +619,13 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
     DECLARE_STACKS();
-    int n, t, w, o, empty, emptyw;
+    int t, w, o, empty, emptyw;
     fcs_card_t card;
     fcs_pats__move_t *mp;
 
     /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
 
-    n = 0;
+    int num_moves = 0;
     mp = soft_thread->possible_moves;
     for (w = 0; w < LOCAL_STACKS_NUM; w++) {
         fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
@@ -647,18 +647,18 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                 }
                 mp->destcard = fc_solve_empty_card;
                 mp->pri = 0;    /* unused */
-                n++;
+                num_moves++;
                 mp++;
 
                 /* If it's an automove, just do it. */
 
                 if (good_automove(soft_thread, o, fcs_card_rank(card))) {
                     *a = TRUE;
-                    if (n != 1) {
+                    if (num_moves != 1) {
                         soft_thread->possible_moves[0] = mp[-1];
                         return 1;
                     }
-                    return n;
+                    return num_moves;
                 }
             }
         }
@@ -681,18 +681,18 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                 mp->srccard = fc_solve_empty_card;
                 mp->destcard = fc_solve_empty_card;
                 mp->pri = 0;    /* unused */
-                n++;
+                num_moves++;
                 mp++;
 
                 /* If it's an automove, just do it. */
 
                 if (good_automove(soft_thread, o, fcs_card_rank(card))) {
                     *a = TRUE;
-                    if (n != 1) {
+                    if (num_moves != 1) {
                         soft_thread->possible_moves[0] = mp[-1];
                         return 1;
                     }
-                    return n;
+                    return num_moves;
                 }
             }
         }
@@ -701,7 +701,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
     /* No more automoves, but remember if there were any moves out. */
 
     *a = FALSE;
-    *numout = n;
+    *numout = num_moves;
 
     /* Check for moves from non-singleton soft_thread->current_pos.stacks cells to one of any
     empty soft_thread->current_pos.stacks cells. */
@@ -736,7 +736,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
 
                     mp->destcard = fc_solve_empty_card;
                     mp->pri = soft_thread->pats_solve_params.x[3];
-                    n++;
+                    num_moves++;
                     mp++;
                 }
             }
@@ -774,7 +774,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                         }
                         mp->destcard = w_card;
                         mp->pri = soft_thread->pats_solve_params.x[4];
-                        n++;
+                        num_moves++;
                         mp++;
                     }
                 }
@@ -802,7 +802,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                         mp->srccard = fc_solve_empty_card;
                         mp->destcard = w_card;
                         mp->pri = soft_thread->pats_solve_params.x[5];
-                        n++;
+                        num_moves++;
                         mp++;
                     }
                 }
@@ -824,7 +824,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                 mp->srccard = fc_solve_empty_card;
                 mp->destcard = fc_solve_empty_card;
                 mp->pri = soft_thread->pats_solve_params.x[6];
-                n++;
+                num_moves++;
                 mp++;
             }
         }
@@ -854,13 +854,13 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                 }
                 mp->destcard = fc_solve_empty_card;
                 mp->pri = soft_thread->pats_solve_params.x[7];
-                n++;
+                num_moves++;
                 mp++;
             }
         }
     }
 
-    return n;
+    return num_moves;
 }
 
 /* Moves that can't be undone get slightly higher priority, since it means
