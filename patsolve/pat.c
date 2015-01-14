@@ -717,10 +717,6 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
     const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
     if (empty_col_idx >= 0) {
         for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
-            if (i == empty_col_idx) {
-                continue;
-            }
-
             fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
             if (fcs_col_len(i_col) > 1)
             {
