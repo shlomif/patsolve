@@ -619,7 +619,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
     DECLARE_STACKS();
-    int i, n, t, w, o, empty, emptyw;
+    int n, t, w, o, empty, emptyw;
     fcs_card_t card;
     fcs_pats__move_t *mp;
 
@@ -717,7 +717,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
         }
     }
     if (emptyw >= 0) {
-        for (i = 0; i < LOCAL_STACKS_NUM; i++) {
+        for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
             if (i == emptyw) {
                 continue;
             }
@@ -747,7 +747,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
     const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
     /* Check for moves from soft_thread->current_pos.stacks to non-empty soft_thread->current_pos.stacks cells. */
 
-    for (i = 0; i < LOCAL_STACKS_NUM; i++) {
+    for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
         fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
         if (fcs_col_len(i_col) > 0) {
             card = fcs_col_get_card(i_col, fcs_col_len(i_col)-1);
