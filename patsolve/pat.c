@@ -613,13 +613,24 @@ static GCC_INLINE int good_automove(fcs_pats_thread_t * soft_thread, int o, int 
     return TRUE;
 }
 
+static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_thread, const int stacks_num)
+{
+    for (int w = 0 ; w < stacks_num ; w++)
+    {
+        if (! fcs_col_len(fcs_state_get_col(soft_thread->current_pos.s, w)))
+        {
+            return w;
+        }
+    }
+    return -1;
+}
+
 /* Get the possible moves from a position, and store them in soft_thread->possible_moves[]. */
 
 static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a, int *numout)
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
     DECLARE_STACKS();
-    int emptyw;
 
     /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
 
@@ -703,17 +714,10 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
 
     const fcs_bool_t not_King_only = (! ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
 
-    emptyw = -1;
-    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
-        fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
-        if (! fcs_col_len(col)) {
-            emptyw = w;
-            break;
-        }
-    }
-    if (emptyw >= 0) {
+    const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
+    if (empty_col_idx >= 0) {
         for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
-            if (i == emptyw) {
+            if (i == empty_col_idx) {
                 continue;
             }
 
@@ -725,7 +729,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
                     mp->card = card;
                     mp->from = i;
                     mp->fromtype = FCS_PATS__TYPE_WASTE;
-                    mp->to = emptyw;
+                    mp->to = empty_col_idx;
                     mp->totype = FCS_PATS__TYPE_WASTE;
                     mp->srccard = fcs_col_get_card(i_col, fcs_col_len(i_col) - 2);
 
@@ -807,14 +811,14 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
 
     /* Check for moves from soft_thread->current_pos.freecells to one of any empty soft_thread->current_pos.stacks cells. */
 
-    if (emptyw >= 0) {
+    if (empty_col_idx >= 0) {
         for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
             const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
             if (card != fc_solve_empty_card && fcs_pats_is_king_only(not_King_only, card)) {
                 mp->card = card;
                 mp->from = t;
                 mp->fromtype = FCS_PATS__TYPE_FREECELL;
-                mp->to = emptyw;
+                mp->to = empty_col_idx;
                 mp->totype = FCS_PATS__TYPE_WASTE;
                 mp->srccard = fc_solve_empty_card;
                 mp->destcard = fc_solve_empty_card;
