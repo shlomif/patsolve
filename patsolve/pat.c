@@ -619,7 +619,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
     DECLARE_STACKS();
-    int empty, emptyw;
+    int emptyw;
 
     /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
 
@@ -631,7 +631,6 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
             const fcs_card_t card = fcs_col_get_card(col, fcs_col_len(col)-1);
             const int o = fcs_card_suit(card);
             const fcs_card_t found_o = fcs_foundation_value(soft_thread->current_pos.s, o);
-            empty = (found_o == fc_solve_empty_card);
             if (fcs_card_rank(card) == found_o + 1)
             {
                 mp->card = card;
@@ -667,9 +666,9 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a
         if (fcs_freecell_card(soft_thread->current_pos.s, t) != fc_solve_empty_card) {
             const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
             const int o = fcs_card_suit(card);
-            empty = (fcs_foundation_value(soft_thread->current_pos.s, o) == fc_solve_empty_card);
-            if ((empty && (fcs_card_rank(card) == FCS_PATS__ACE)) ||
-                (!empty && (fcs_card_rank(card) == fcs_foundation_value(soft_thread->current_pos.s, o) + 1))) {
+            if (
+                fcs_card_rank(card) == fcs_foundation_value(soft_thread->current_pos.s, o) + 1
+                ) {
                 mp->card = card;
                 mp->from = t;
                 mp->fromtype = FCS_PATS__TYPE_FREECELL;
