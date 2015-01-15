@@ -39,7 +39,6 @@ search. */
 #include "inline.h"
 #include "bool.h"
 
-static int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const is_finished);
 static void free_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int);
 static void queue_position(fcs_pats_thread_t *, fcs_pats_position_t *, int);
 
@@ -288,43 +287,6 @@ static GCC_INLINE fcs_bool_t check_for_exceeded(fcs_pats_thread_t * const soft_t
     );
 }
 
-DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
-{
-    /* Solve it. */
-
-    while (1)
-    {
-        if (! soft_thread->curr_solve_pos)
-        {
-            fcs_pats_position_t * const pos = dequeue_position(soft_thread);
-            if (! pos)
-            {
-                break;
-            }
-            soft_thread->solve_stack[0].parent = soft_thread->curr_solve_pos = pos;
-            soft_thread->solve_stack[0].mp0 = NULL;
-            soft_thread->curr_solve_depth = 0;
-            soft_thread->curr_solve_dir = FC_SOLVE_PATS__UP;
-        }
-        fcs_bool_t is_finished;
-        if (! solve(soft_thread, &is_finished) )
-        {
-            free_position(soft_thread, soft_thread->curr_solve_pos, TRUE);
-        }
-        if (is_finished)
-        {
-            soft_thread->curr_solve_pos = NULL;
-        }
-
-        if (check_for_exceeded(soft_thread))
-        {
-            soft_thread->status = FCS_PATS__FAIL;
-            soft_thread->fail_reason = FCS_PATS__FAIL_CHECKED_STATES;
-            break;
-        }
-    }
-}
-
 /* Generate all the successors to a position and either queue them or
 recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
@@ -334,7 +296,7 @@ static GCC_INLINE void wrap_up_solve(fcs_pats_thread_t * const soft_thread, cons
     soft_thread->curr_solve_dir = mydir;
 }
 
-static int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const is_finished)
+static GCC_INLINE int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const is_finished)
 {
     /* short for Depth */
 #define D (soft_thread->curr_solve_depth)
@@ -471,6 +433,44 @@ static int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const is_fi
 #undef UP_L
 #undef D
 }
+
+DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
+{
+    /* Solve it. */
+
+    while (1)
+    {
+        if (! soft_thread->curr_solve_pos)
+        {
+            fcs_pats_position_t * const pos = dequeue_position(soft_thread);
+            if (! pos)
+            {
+                break;
+            }
+            soft_thread->solve_stack[0].parent = soft_thread->curr_solve_pos = pos;
+            soft_thread->solve_stack[0].mp0 = NULL;
+            soft_thread->curr_solve_depth = 0;
+            soft_thread->curr_solve_dir = FC_SOLVE_PATS__UP;
+        }
+        fcs_bool_t is_finished;
+        if (! solve(soft_thread, &is_finished) )
+        {
+            free_position(soft_thread, soft_thread->curr_solve_pos, TRUE);
+        }
+        if (is_finished)
+        {
+            soft_thread->curr_solve_pos = NULL;
+        }
+
+        if (check_for_exceeded(soft_thread))
+        {
+            soft_thread->status = FCS_PATS__FAIL;
+            soft_thread->fail_reason = FCS_PATS__FAIL_CHECKED_STATES;
+            break;
+        }
+    }
+}
+
 
 /* We can't free the stored piles in the trees, but we can free some of the
 fcs_pats_position_t structs.  We have to be careful, though, because there are many
