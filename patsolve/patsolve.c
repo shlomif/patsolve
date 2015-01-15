@@ -278,6 +278,16 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
     queue_position(soft_thread, pos, 0);
 }
 
+static GCC_INLINE fcs_bool_t check_for_exceeded(fcs_pats_thread_t * const soft_thread)
+{
+    return
+    (
+        (soft_thread->status == FCS_PATS__NOSOL)
+            && (soft_thread->max_num_checked_states >= 0)
+            && (soft_thread->num_checked_states >= soft_thread->max_num_checked_states)
+    );
+}
+
 DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
 {
     /* Solve it. */
@@ -306,9 +316,7 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
             soft_thread->curr_solve_pos = NULL;
         }
 
-        if ((soft_thread->status == FCS_PATS__NOSOL)
-            && (soft_thread->max_num_checked_states >= 0)
-            && (soft_thread->num_checked_states >= soft_thread->max_num_checked_states))
+        if (check_for_exceeded(soft_thread))
         {
             soft_thread->status = FCS_PATS__FAIL;
             soft_thread->fail_reason = FCS_PATS__FAIL_CHECKED_STATES;
@@ -321,6 +329,10 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
 recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
 
+static GCC_INLINE void wrap_up_solve(fcs_pats_thread_t * const soft_thread, const enum FC_SOLVE_PATS__MYDIR mydir)
+{
+    soft_thread->curr_solve_dir = mydir;
+}
 
 static int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const is_finished)
 {
@@ -334,6 +346,12 @@ static int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const is_fi
     *is_finished = FALSE;
     while (D >= 0)
     {
+
+    if (check_for_exceeded(soft_thread))
+    {
+        wrap_up_solve(soft_thread, mydir);
+        return TRUE;
+    }
 
     typeof(L.parent) parent = L.parent;
     /* If we've won already (or failed), we just go through the motions
@@ -446,7 +464,7 @@ static int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const is_fi
     /* Return true if this position needs to be kept around. */
     }
     *is_finished = TRUE;
-    soft_thread->curr_solve_dir = mydir;
+    wrap_up_solve(soft_thread, mydir);
     typeof(UP_L.q) ret = UP_L.q;
     return ret;
 #undef L
