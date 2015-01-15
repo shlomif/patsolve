@@ -40,13 +40,13 @@
 
 DEFINE_fc_solve_empty_card();
 
-static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *, int *);
-static void mark_irreversible(fcs_pats_thread_t * soft_thread, int n);
-static GCC_INLINE int get_pilenum(fcs_pats_thread_t * soft_thread, int w);
+static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const a, int * const numout);
+static void mark_irreversible(fcs_pats_thread_t * const soft_thread, int n);
+static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, int w);
 
 /* Win.  Print out the move stack. */
 
-static GCC_INLINE void win(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos)
+static GCC_INLINE void win(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos)
 {
     if (soft_thread->moves_to_win)
     {
@@ -55,7 +55,7 @@ static GCC_INLINE void win(fcs_pats_thread_t * soft_thread, fcs_pats_position_t 
     }
 
     int num_moves = 0;
-    for (typeof(pos) p = pos; p->parent; p = p->parent) {
+    for (fcs_pats_position_t * p = pos; p->parent; p = p->parent) {
         num_moves++;
     }
     typeof(soft_thread->moves_to_win) mpp0 = SMALLOC(mpp0, num_moves);
@@ -64,7 +64,7 @@ static GCC_INLINE void win(fcs_pats_thread_t * soft_thread, fcs_pats_position_t 
         return; /* how sad, so close... */
     }
     typeof(mpp0) mpp = mpp0 + num_moves - 1;
-    for (typeof(pos) p = pos; p->parent; p = p->parent) {
+    for (fcs_pats_position_t * p = pos; p->parent; p = p->parent) {
         *(mpp--) = (p->move);
     }
 
@@ -75,19 +75,18 @@ static GCC_INLINE void win(fcs_pats_thread_t * soft_thread, fcs_pats_position_t 
 /* Hash the whole layout.  This is called once, at the start. */
 
 
-void fc_solve_pats__hash_layout(fcs_pats_thread_t * soft_thread)
+void fc_solve_pats__hash_layout(fcs_pats_thread_t * const soft_thread)
 {
     DECLARE_STACKS();
-    int w;
 
-    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
+    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
         fc_solve_pats__hashpile(soft_thread, w);
     }
 }
 
 /* These two routines make and unmake moves. */
 
-void freecell_solver_pats__make_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *m)
+void freecell_solver_pats__make_move(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const m)
 {
     int from, to;
     fcs_card_t card;
@@ -126,7 +125,7 @@ a row, and if there is a smaller card of the same suit below the run, then
 the position is unsolvable.  This cuts out a lot of useless searching, so
 it's worth checking.  */
 
-static int prune_seahaven(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp)
+static GCC_INLINE int prune_seahaven(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const mp)
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
     const fcs_game_type_params_t game_params = instance->game_params;
@@ -204,7 +203,7 @@ static GCC_INLINE int was_card_moved_or_dest(const fcs_card_t card, fcs_pats__mo
 
 #define MAXPREVMOVE 4   /* Increasing this beyond 4 doesn't do much. */
 
-static int prune_redundant(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp, fcs_pats_position_t *pos0)
+static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const mp, fcs_pats_position_t * const pos0)
 {
     DECLARE_STACKS();
     int i, j;
@@ -371,7 +370,7 @@ positions when they are added to the queue. */
 
 #define NNEED 8
 
-static void prioritize(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *mp0, int n)
+static GCC_INLINE void prioritize(fcs_pats_thread_t * const soft_thread, fcs_pats__move_t * const mp0, const int n)
 {
     DECLARE_STACKS();
     int pile[NNEED];
@@ -461,13 +460,14 @@ end_of_stacks:
 
 /* Generate an array of the moves we can make from this position. */
 
-fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int *nmoves)
+fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int * const nmoves)
 {
-    int i, n, alln, o, a, numout;
+    int i, n, alln, o, numout;
     fcs_pats__move_t *mp, *mp0;
 
     /* Fill in the soft_thread->possible_moves array. */
 
+    fcs_bool_t a;
     alln = n = get_possible_moves(soft_thread, &a, &numout);
 
     if (!a) {
@@ -627,7 +627,7 @@ static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_th
 
 /* Get the possible moves from a position, and store them in soft_thread->possible_moves[]. */
 
-static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * soft_thread, int *a, int *numout)
+static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const a, int * const numout)
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
     DECLARE_STACKS();
