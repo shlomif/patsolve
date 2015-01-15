@@ -200,6 +200,8 @@ typedef struct {
     fcs_pats_position_t * pos;
 } fcs_pats__solve_depth_t;
 
+enum FC_SOLVE_PATS__MYDIR { FC_SOLVE_PATS__UP, FC_SOLVE_PATS__DOWN };
+
 struct fc_solve__patsolve_thread_struct
 {
     fc_solve_instance_t * instance;
@@ -279,6 +281,8 @@ struct fc_solve__patsolve_thread_struct
 #define FCS_PATS__SOLVE_LEVEL_GROW_BY 16
     int curr_solve_depth, max_solve_depth;
     fcs_pats__solve_depth_t * solve_stack;
+    fcs_pats_position_t * curr_solve_pos;
+    enum FC_SOLVE_PATS__MYDIR curr_solve_dir;
 };
 
 typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
@@ -463,6 +467,7 @@ static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
     fc_solve_pats__free_blocks(soft_thread);
 
     soft_thread->curr_solve_depth = 0;
+    soft_thread->curr_solve_pos = NULL;
     if (soft_thread->moves_to_win)
     {
         free (soft_thread->moves_to_win);
