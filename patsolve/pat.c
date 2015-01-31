@@ -119,6 +119,7 @@ void freecell_solver_pats__make_move(fcs_pats_thread_t * const soft_thread, cons
 }
 
 
+#ifndef FCS_FREECELL_ONLY
 /* This prune applies only to Seahaven in -k mode: if we're putting a card
 onto a soft_thread->current_pos.stacks pile, and if that pile already has LOCAL_FREECELLS_NUM+1 cards of this suit in
 a row, and if there is a smaller card of the same suit below the run, then
@@ -167,6 +168,7 @@ static GCC_INLINE int prune_seahaven(fcs_pats_thread_t * const soft_thread, cons
 
     return FALSE;
 }
+#endif
 
 /* This utility routine is used to check if a card is ever moved in
 a sequence of moves. */
@@ -476,6 +478,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread
 
         for (i = 0, mp = soft_thread->possible_moves; i < alln; i++, mp++) {
 
+#ifndef FCS_FREECELL_ONLY
             /* Special prune for Seahaven -k. */
 
             if (prune_seahaven(soft_thread, mp)) {
@@ -483,6 +486,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread
                 n--;
                 continue;
             }
+#endif
 
             /* Prune redundant moves. */
 
@@ -577,7 +581,14 @@ static GCC_INLINE int good_automove(fcs_pats_thread_t * soft_thread, int o, int 
     const fc_solve_instance_t * const instance = soft_thread->instance;
     int i;
 
-    if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT) || r <= 2) {
+    if (
+#ifndef FCS_FREECELL_ONLY
+        (GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT)
+            ||
+#endif
+        r <= 2
+    )
+    {
         return TRUE;
     }
 
@@ -712,7 +723,12 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
     /* Check for moves from non-singleton soft_thread->current_pos.stacks cells to one of any
     empty soft_thread->current_pos.stacks cells. */
 
-    const fcs_bool_t not_King_only = (! ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
+    const fcs_bool_t not_King_only =
+#ifndef FCS_FREECELL_ONLY
+        (! ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
+#else
+        TRUE;
+#endif
 
     const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
     if (empty_col_idx >= 0) {
@@ -918,7 +934,13 @@ static GCC_INLINE void mark_irreversible(fcs_pats_thread_t * const soft_thread, 
 
     const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
     const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
-    const fcs_bool_t King_only = (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
+    const fcs_bool_t King_only =
+#ifndef FCS_FREECELL_ONLY
+        (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
+#else
+        FALSE;
+#endif
+
     const typeof(soft_thread->pats_solve_params.x[8]) x_param_8 = soft_thread->pats_solve_params.x[8];
 
     fcs_pats__move_t * mp = soft_thread->possible_moves;
