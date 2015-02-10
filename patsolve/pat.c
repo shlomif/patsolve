@@ -460,11 +460,21 @@ end_of_stacks:
     }
 }
 
+static GCC_INLINE const fcs_bool_t is_win(fcs_pats_thread_t * const soft_thread)
+{
+    for (int o = 0; o < 4; o++) {
+        if (fcs_foundation_value(soft_thread->current_pos.s, o) != FCS_PATS__KING) {
+            return FALSE;
+        }
+    }
+    return TRUE;
+}
+
 /* Generate an array of the moves we can make from this position. */
 
 fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int * const nmoves)
 {
-    int o, numout;
+    int numout;
 
     /* Fill in the soft_thread->possible_moves array. */
 
@@ -505,30 +515,24 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread
 
     /* No moves?  Maybe we won. */
 
-    if (n == 0) {
-        for (o = 0; o < 4; o++) {
-            if (fcs_foundation_value(soft_thread->current_pos.s, o) != FCS_PATS__KING) {
-                break;
-            }
-        }
-
-        if (o == 4) {
-
+    if (n == 0)
+    {
+        if (is_win(soft_thread))
+        {
             /* Report the win. */
-
             win(soft_thread, pos);
 
-            if (soft_thread->Noexit) {
+            if (soft_thread->Noexit)
+            {
                 soft_thread->num_solutions++;
-                return NULL;
             }
-            soft_thread->status = FCS_PATS__WIN;
-
-            return NULL;
+            else
+            {
+                soft_thread->status = FCS_PATS__WIN;
+            }
         }
 
         /* We lost. */
-
         return NULL;
     }
 
