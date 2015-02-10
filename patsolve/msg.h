@@ -23,14 +23,28 @@
  */
 /* Standard utilities. */
 
-#ifndef FC_SOLVE__UTIL_H
-#define FC_SOLVE__UTIL_H
+#ifndef FC_SOLVE__MSG_H
+#define FC_SOLVE__MSG_H
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 
-#include "instance.h"
+#include "inline.h"
 
-#endif  /* FC_SOLVE__UTIL_H */
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
+static GCC_INLINE void fc_solve_msg(const char *msg, ...)
+{
+    va_list ap;
+
+    va_start(ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
+}
+
+#ifdef  __cplusplus
+}
+#endif
+
+#endif  /* FC_SOLVE__MSG_H */

@@ -28,7 +28,6 @@
 
 #include <stdio.h>
 #include <sys/types.h>
-#include "util.h"
 #include "config.h"
 #include "game_type_params.h"
 #include "fcs_enums.h"
@@ -40,6 +39,8 @@
 #include "state.h"
 #include "fnv.h"
 #include "alloc_wrap.h"
+
+#include "util.h"
 
 /* A card is represented as (suit << 4) + rank. */
 
@@ -556,10 +557,10 @@ extern void fc_solve_pats__initialize_solving_process(
     fcs_pats_thread_t * const soft_thread
 );
 
-extern void fc_solve_msg(const char *msg, ...);
-
 #if 0
 #ifdef DEBUG
+
+#include "msg.h"
 static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_thread)
 {
     fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
