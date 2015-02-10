@@ -75,12 +75,10 @@ static GCC_INLINE void free_position_recursive(fcs_pats_thread_t * const soft_th
 
 static void queue_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t *, int);
 
-/* Like strcpy() but return the length of the string. */
-static GCC_INLINE int strecpy(char *dest, char *src)
+/* Like strcpy() but returns the length of the string. */
+static GCC_INLINE int strecpy(char *dest, const char *src)
 {
-    int i;
-
-    i = 0;
+    int i = 0;
     while ((*dest++ = *src++) != '\0') {
         i++;
     }
@@ -93,7 +91,7 @@ it, along with the pointer to its parent and the move we used to get here. */
 
 /* Return the position on the head of the queue, or NULL if there isn't one. */
 
-static GCC_INLINE void unpack_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos)
+static GCC_INLINE void unpack_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos)
 {
     DECLARE_STACKS();
 
@@ -155,11 +153,10 @@ static GCC_INLINE void unpack_position(fcs_pats_thread_t * soft_thread, fcs_pats
     /* soft_thread->current_pos.freecells cells. */
 
     {
-        u_char * p = (u_char *)pos;
-        p += sizeof(fcs_pats_position_t);
+        u_char * p = ( ((u_char *)pos) + sizeof(fcs_pats_position_t) );
         const typeof(LOCAL_FREECELLS_NUM) Ntpiles = LOCAL_FREECELLS_NUM;
         for (int i = 0; i < Ntpiles; i++) {
-            fcs_freecell_card(soft_thread->current_pos.s, i) = *p++;
+            fcs_freecell_card(soft_thread->current_pos.s, i) = *(p++);
         }
     }
 }
