@@ -77,9 +77,9 @@ static GCC_INLINE fcs_pats__treelist_t * cluster_tree(
     return tl;
 }
 
-static fcs_pats__block_t *new_block(fcs_pats_thread_t * soft_thread);
+static fcs_pats__block_t * const new_block(fcs_pats_thread_t * const soft_thread);
 
-static GCC_INLINE int CMP(fcs_pats_thread_t * soft_thread, u_char *a, u_char *b)
+static GCC_INLINE int CMP(fcs_pats_thread_t * const soft_thread, const u_char * const a, const u_char * const b)
 {
     return memcmp(a, b, soft_thread->bytes_per_pile);
 }
@@ -88,13 +88,10 @@ static GCC_INLINE int CMP(fcs_pats_thread_t * soft_thread, u_char *a, u_char *b)
 can ONLY be called once, immediately after the call to fc_solve_pats__new_from_block().
 That is, no other calls to give_back_block() are allowed. */
 
-static GCC_INLINE void give_back_block(fcs_pats_thread_t * const soft_thread, u_char *p)
+static GCC_INLINE void give_back_block(fcs_pats_thread_t * const soft_thread, u_char * const p)
 {
-    size_t s;
-    fcs_pats__block_t *b;
-
-    b = soft_thread->my_block;
-    s = b->ptr - p;
+    typeof(soft_thread->my_block) b = soft_thread->my_block;
+    const size_t s = b->ptr - p;
     b->ptr -= s;
     b->remain += s;
 }
@@ -102,23 +99,24 @@ static GCC_INLINE void give_back_block(fcs_pats_thread_t * const soft_thread, u_
 /* Add it to the binary tree for this cluster.  The piles are stored
 following the fcs_pats__tree_t structure. */
 
-static GCC_INLINE fcs_pats__insert_code_t insert_node(fcs_pats_thread_t * soft_thread, fcs_pats__tree_t *n, int d, fcs_pats__tree_t **tree, fcs_pats__tree_t **node)
+static GCC_INLINE fcs_pats__insert_code_t insert_node(
+    fcs_pats_thread_t * const soft_thread,
+    fcs_pats__tree_t *n,
+    const int d,
+    fcs_pats__tree_t **tree,
+    fcs_pats__tree_t **node)
 {
-    u_char *key, *tkey;
-    fcs_pats__tree_t *t;
-
-    key = (u_char *)n + sizeof(fcs_pats__tree_t);
+    const u_char * const key = (u_char *)n + sizeof(fcs_pats__tree_t);
     n->depth = d;
     n->left = n->right = NULL;
     *node = n;
-    t = *tree;
+    fcs_pats__tree_t *t = *tree;
     if (t == NULL) {
         *tree = n;
         return FCS_PATS__INSERT_CODE_NEW;
     }
     while (1) {
-        tkey = (u_char *)t + sizeof(fcs_pats__tree_t);
-        const int c = CMP(soft_thread, key, tkey);
+        const int c = CMP(soft_thread, key, ((u_char *)t + sizeof(fcs_pats__tree_t)));
         if (c == 0) {
             break;
         }
@@ -264,9 +262,9 @@ void fc_solve_pats__init_clusters(fcs_pats_thread_t * soft_thread)
 
 /* my_block storage.  Reduces overhead, and can be freed quickly. */
 
-static fcs_pats__block_t *new_block(fcs_pats_thread_t * soft_thread)
+static fcs_pats__block_t * const new_block(fcs_pats_thread_t * const soft_thread)
 {
-    fcs_pats__block_t * b = fc_solve_pats__new(soft_thread, fcs_pats__block_t);
+    fcs_pats__block_t * const b = fc_solve_pats__new(soft_thread, fcs_pats__block_t);
     if (b == NULL) {
         return NULL;
     }
@@ -284,7 +282,7 @@ static fcs_pats__block_t *new_block(fcs_pats_thread_t * soft_thread)
 
 /* Like new(), only from the current block.  Make a new block if necessary. */
 
-u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * soft_thread, size_t s)
+u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * const soft_thread, const size_t s)
 {
     u_char *p;
     fcs_pats__block_t *b;
