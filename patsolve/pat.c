@@ -1040,7 +1040,7 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
     last = NULL;
     for (l = soft_thread->buckets_list[bucket]; l; l = l->next) {
         if (l->hash == soft_thread->current_pos.stack_hashes[w]) {
-            fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+            const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
             if(
                 strncmp((const char *)l->pile, (const char *)w_col+1, fcs_col_len(w_col)) == 0) {
             break;
@@ -1060,7 +1060,7 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
         if (l == NULL) {
             return -1;
         }
-        fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
         l->pile = fc_solve_pats__new_array(soft_thread, u_char, fcs_col_len(w_col) + 1);
         if (l->pile == NULL) {
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
