@@ -464,7 +464,7 @@ end_of_stacks:
 
 fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int * const nmoves)
 {
-    int i, n, alln, o, numout;
+    int n, alln, o, numout;
     fcs_pats__move_t *mp, *mp0;
 
     /* Fill in the soft_thread->possible_moves array. */
@@ -475,8 +475,9 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread
     if (!a) {
 
         /* Throw out some obviously bad (non-auto)moves. */
-
-        for (i = 0, mp = soft_thread->possible_moves; i < alln; i++, mp++) {
+        mp = soft_thread->possible_moves;
+        const typeof(mp) mp_end = mp+alln;
+        for (;mp<mp_end;mp++) {
 
 #ifndef FCS_FREECELL_ONLY
             /* Special prune for Seahaven -k. */
@@ -548,22 +549,24 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread
         return NULL;
     }
     *nmoves = n;
-    i = 0;
-    if (a || numout == 0) {
-        for (i = 0; i < alln; i++) {
+    if (a || numout == 0)
+    {
+        for (int i = 0; i < alln; i++) {
             if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
                 *mp = soft_thread->possible_moves[i];      /* struct copy */
                 mp++;
             }
         }
-    } else {
-        for (i = numout; i < alln; i++) {
+    }
+    else
+    {
+        for (int i = numout; i < alln; i++) {
             if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
                 *mp = soft_thread->possible_moves[i];      /* struct copy */
                 mp++;
             }
         }
-        for (i = 0; i < numout; i++) {
+        for (int i = 0; i < numout; i++) {
             if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
                 *mp = soft_thread->possible_moves[i];      /* struct copy */
                 mp++;
