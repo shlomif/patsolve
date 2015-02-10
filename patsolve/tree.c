@@ -101,10 +101,10 @@ following the fcs_pats__tree_t structure. */
 
 static GCC_INLINE fcs_pats__insert_code_t insert_node(
     fcs_pats_thread_t * const soft_thread,
-    fcs_pats__tree_t *n,
+    fcs_pats__tree_t * const n,
     const int d,
-    fcs_pats__tree_t **tree,
-    fcs_pats__tree_t **node)
+    fcs_pats__tree_t ** const tree,
+    fcs_pats__tree_t ** const node)
 {
     const u_char * const key = (u_char *)n + sizeof(fcs_pats__tree_t);
     n->depth = d;
