@@ -974,16 +974,24 @@ equivalent layouts.  Assume it's already mostly sorted.  */
 void fc_solve_pats__sort_piles(fcs_pats_thread_t * const soft_thread)
 {
     DECLARE_STACKS();
-    int w, i, j;
+    int i, j;
 
     /* Make sure all the piles have id numbers. */
 
-    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-        if (soft_thread->current_pos.stack_ids[w] < 0) {
-            soft_thread->current_pos.stack_ids[w] = get_pilenum(soft_thread, w);
-            if (soft_thread->current_pos.stack_ids[w] < 0) {
-                return;
-            }
+    for (int stack_idx = 0; stack_idx < LOCAL_STACKS_NUM; stack_idx++)
+    {
+        if (
+            (soft_thread->current_pos.stack_ids[stack_idx] < 0)
+            &&
+            (
+            (
+                    soft_thread->current_pos.stack_ids[stack_idx]
+                    = get_pilenum(soft_thread, stack_idx)
+            ) < 0
+            )
+        )
+        {
+            return;
         }
     }
 
@@ -992,7 +1000,7 @@ void fc_solve_pats__sort_piles(fcs_pats_thread_t * const soft_thread)
     /* TODO : Add a temp pointer to column_idxs */
 
     soft_thread->current_pos.column_idxs[0] = 0;
-    w = 0;
+    int w = 0;
     for (i = 1; i < LOCAL_STACKS_NUM; i++) {
         if (wcmp(soft_thread, soft_thread->current_pos.column_idxs[w], i) < 0) {
             w++;
