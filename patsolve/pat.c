@@ -464,18 +464,19 @@ end_of_stacks:
 
 fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int * const nmoves)
 {
-    int n, alln, o, numout;
-    fcs_pats__move_t *mp, *mp0;
+    int o, numout;
 
     /* Fill in the soft_thread->possible_moves array. */
 
     fcs_bool_t a;
-    alln = n = get_possible_moves(soft_thread, &a, &numout);
+    int n = get_possible_moves(soft_thread, &a, &numout);
+    int alln = n;
 
     if (!a) {
 
         /* Throw out some obviously bad (non-auto)moves. */
-        mp = soft_thread->possible_moves;
+        typeof(soft_thread->possible_moves[0]) * mp =
+            soft_thread->possible_moves;
         const typeof(mp) mp_end = mp+alln;
         for (;mp<mp_end;mp++) {
 
@@ -544,37 +545,40 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread
     do the recursive solve() on them, but only after queueing the other
     moves. */
 
-    mp = mp0 = fc_solve_pats__new_array(soft_thread, fcs_pats__move_t, n);
-    if (mp == NULL) {
-        return NULL;
-    }
-    *nmoves = n;
-    if (a || numout == 0)
     {
-        for (int i = 0; i < alln; i++) {
-            if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
-                *mp = soft_thread->possible_moves[i];      /* struct copy */
-                mp++;
+        fcs_pats__move_t *mp, *mp0;
+        mp = mp0 = fc_solve_pats__new_array(soft_thread, fcs_pats__move_t, n);
+        if (mp == NULL) {
+            return NULL;
+        }
+        *nmoves = n;
+        if (a || numout == 0)
+        {
+            for (int i = 0; i < alln; i++) {
+                if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
+                    *mp = soft_thread->possible_moves[i];      /* struct copy */
+                    mp++;
+                }
             }
         }
-    }
-    else
-    {
-        for (int i = numout; i < alln; i++) {
-            if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
-                *mp = soft_thread->possible_moves[i];      /* struct copy */
-                mp++;
+        else
+        {
+            for (int i = numout; i < alln; i++) {
+                if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
+                    *mp = soft_thread->possible_moves[i];      /* struct copy */
+                    mp++;
+                }
+            }
+            for (int i = 0; i < numout; i++) {
+                if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
+                    *mp = soft_thread->possible_moves[i];      /* struct copy */
+                    mp++;
+                }
             }
         }
-        for (int i = 0; i < numout; i++) {
-            if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
-                *mp = soft_thread->possible_moves[i];      /* struct copy */
-                mp++;
-            }
-        }
-    }
 
-    return mp0;
+        return mp0;
+    }
 }
 
 /* Automove logic.  Freecell games must avoid certain types of automoves. */
