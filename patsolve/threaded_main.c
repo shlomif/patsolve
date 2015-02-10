@@ -42,6 +42,7 @@
 
 #include "print_layout.h"
 #include "read_layout.h"
+#include "pats__play.h"
 
 /* Just print a message. */
 

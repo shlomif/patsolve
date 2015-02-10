@@ -39,6 +39,7 @@
 #include "print_layout.h"
 #include "print_card.h"
 #include "read_layout.h"
+#include "pats__play.h"
 
 /* Just print a message. */
 

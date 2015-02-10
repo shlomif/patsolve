@@ -590,32 +590,4 @@ DLLEXPORT void fc_solve_pats__before_play(fcs_pats_thread_t * soft_thread)
     fc_solve_pats__initialize_solving_process(soft_thread);
 }
 
-DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
-{
-    fc_solve_pats__before_play(soft_thread);
-    fc_solve_pats__do_it(soft_thread);
-    if (soft_thread->status != FCS_PATS__WIN && !soft_thread->is_quiet)
-    {
-        if (soft_thread->status == FCS_PATS__FAIL)
-        {
-            printf("Out of memory.\n");
-        }
-        else if (soft_thread->Noexit && soft_thread->num_solutions > 0)
-        {
-            printf("No shorter solutions.\n");
-        }
-        else
-        {
-            printf("No solution.\n");
-        }
-#ifdef DEBUG
-        printf("%d positions generated.\n", soft_thread->num_states_in_collection);
-        printf("%d unique positions.\n", soft_thread->num_checked_states);
-        printf("remaining_memory = %ld\n", soft_thread->remaining_memory);
-#endif
-    }
-#ifdef DEBUG
-    fc_solve_msg("remaining_memory = %ld\n", soft_thread->remaining_memory);
-#endif
-}
 
