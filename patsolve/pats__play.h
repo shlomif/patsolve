@@ -29,6 +29,28 @@
 #include "pat.h"
 #include "inline.h"
 
+static GCC_INLINE void fc_solve_pats__before_play(
+    fcs_pats_thread_t * soft_thread
+)
+{
+    /* Initialize the hash tables. */
+
+    fc_solve_pats__init_buckets(soft_thread);
+    fc_solve_pats__init_clusters(soft_thread);
+
+    /* Reset stats. */
+
+    soft_thread->num_checked_states = 0;
+    soft_thread->num_states_in_collection = 0;
+    soft_thread->num_solutions = 0;
+
+    soft_thread->status = FCS_PATS__NOSOL;
+
+    /* Go to it. */
+
+    fc_solve_pats__initialize_solving_process(soft_thread);
+}
+
 static GCC_INLINE void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
 {
     fc_solve_pats__before_play(soft_thread);
