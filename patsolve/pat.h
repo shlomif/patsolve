@@ -118,9 +118,6 @@ typedef struct fc_solve_pats__struct {
     u_char nchild;          /* number of child nodes left */
 } fcs_pats_position_t;
 
-/* suits of the output piles */
-extern const fcs_card_t fc_solve_pats__output_suits[4];
-
 /* Temp storage for possible moves. */
 
 /* > max # moves from any position */
