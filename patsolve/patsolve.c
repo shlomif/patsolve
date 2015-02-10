@@ -619,14 +619,3 @@ DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
 #endif
 }
 
-static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
-static const char * const fc_solve_pats__Suits_string = "HCDS";
-
-DLLEXPORT void fc_solve_pats__print_card(const fcs_card_t card, FILE * out_fh)
-{
-    if (fcs_card_rank(card) != fc_solve_empty_card) {
-        fprintf(out_fh, "%c%c",
-            fc_solve_pats__Ranks_string[(int)fcs_card_rank(card)],
-            fc_solve_pats__Suits_string[(int)fcs_card_suit(card)]);
-    }
-}

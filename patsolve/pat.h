@@ -291,7 +291,6 @@ typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
 
 extern fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node);
 extern void fc_solve_pats__do_it(fcs_pats_thread_t *);
-extern void fc_solve_pats__print_card(fcs_card_t card, FILE *);
 extern void freecell_solver_pats__make_move(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const m);
 extern fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *, int *);
 extern void fc_solve_pats__init_clusters(fcs_pats_thread_t * soft_thread);
@@ -561,7 +560,6 @@ extern void fc_solve_pats__initialize_solving_process(
 extern DLLEXPORT void fc_solve_pats__read_layout(fcs_pats_thread_t * soft_thread, const char * input_s);
 extern DLLEXPORT void fc_solve_pats__before_play(fcs_pats_thread_t * soft_thread);
 extern DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread);
-extern DLLEXPORT void fc_solve_pats__print_card(const fcs_card_t card, FILE * out_fh);
 
 extern void fc_solve_msg(const char *msg, ...);
 
