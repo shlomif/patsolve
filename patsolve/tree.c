@@ -36,7 +36,47 @@
 clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
-static fcs_pats__treelist_t *cluster_tree(fcs_pats_thread_t * soft_thread, int cluster);
+static GCC_INLINE fcs_pats__treelist_t * cluster_tree(
+    fcs_pats_thread_t * const soft_thread,
+    const int cluster
+)
+{
+
+    /* Pick a bucket, any bucket. */
+
+    const int bucket = cluster % FCS_PATS__TREE_LIST_NUM_BUCKETS;
+
+    /* Find the tree in this bucket with that cluster number. */
+
+    fcs_pats__treelist_t * last = NULL;
+    fcs_pats__treelist_t * tl;
+    for (tl = soft_thread->tree_list[bucket]; tl; tl = tl->next) {
+        if (tl->cluster == cluster) {
+            break;
+        }
+        last = tl;
+    }
+
+    /* If we didn't find it, make a new one and add it to the list. */
+
+    if (tl == NULL) {
+        tl = fc_solve_pats__new(soft_thread, fcs_pats__treelist_t);
+        if (tl == NULL) {
+            return NULL;
+        }
+        tl->tree = NULL;
+        tl->cluster = cluster;
+        tl->next = NULL;
+        if (last == NULL) {
+            soft_thread->tree_list[bucket] = tl;
+        } else {
+            last->next = tl;
+        }
+    }
+
+    return tl;
+}
+
 static fcs_pats__block_t *new_block(fcs_pats_thread_t * soft_thread);
 
 static GCC_INLINE int CMP(fcs_pats_thread_t * soft_thread, u_char *a, u_char *b)
@@ -221,44 +261,6 @@ void fc_solve_pats__init_clusters(fcs_pats_thread_t * soft_thread)
     soft_thread->my_block = new_block(soft_thread);
 }
 
-static fcs_pats__treelist_t *cluster_tree(fcs_pats_thread_t * soft_thread, int cluster)
-{
-    int bucket;
-    fcs_pats__treelist_t *tl, *last;
-
-    /* Pick a bucket, any bucket. */
-
-    bucket = cluster % FCS_PATS__TREE_LIST_NUM_BUCKETS;
-
-    /* Find the tree in this bucket with that cluster number. */
-
-    last = NULL;
-    for (tl = soft_thread->tree_list[bucket]; tl; tl = tl->next) {
-        if (tl->cluster == cluster) {
-            break;
-        }
-        last = tl;
-    }
-
-    /* If we didn't find it, make a new one and add it to the list. */
-
-    if (tl == NULL) {
-        tl = fc_solve_pats__new(soft_thread, fcs_pats__treelist_t);
-        if (tl == NULL) {
-            return NULL;
-        }
-        tl->tree = NULL;
-        tl->cluster = cluster;
-        tl->next = NULL;
-        if (last == NULL) {
-            soft_thread->tree_list[bucket] = tl;
-        } else {
-            last->next = tl;
-        }
-    }
-
-    return tl;
-}
 
 /* my_block storage.  Reduces overhead, and can be freed quickly. */
 
