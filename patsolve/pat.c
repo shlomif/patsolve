@@ -648,9 +648,10 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
     int num_moves = 0;
     typeof(soft_thread->possible_moves[0]) * mp = soft_thread->possible_moves;
     for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
-        fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
-        if (fcs_col_len(col) > 0) {
-            const fcs_card_t card = fcs_col_get_card(col, fcs_col_len(col)-1);
+        const fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        const int col_len = fcs_col_len(col);
+        if (col_len > 0) {
+            const fcs_card_t card = fcs_col_get_card(col, col_len-1);
             const int o = fcs_card_suit(card);
             const fcs_card_t found_o = fcs_foundation_value(soft_thread->current_pos.s, o);
             if (fcs_card_rank(card) == found_o + 1)
@@ -660,10 +661,10 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
                 mp->fromtype = FCS_PATS__TYPE_WASTE;
                 mp->to = o;
                 mp->totype = FCS_PATS__TYPE_FOUNDATION;
-                mp->srccard = fc_solve_empty_card;
-                if (fcs_col_len(col) > 1) {
-                    mp->srccard = fcs_col_get_card(col, fcs_col_len(col)-2);
-                }
+                mp->srccard = (
+                    (col_len > 1) ? fcs_col_get_card(col, col_len-2)
+                    : fc_solve_empty_card
+                );
                 mp->destcard = fc_solve_empty_card;
                 mp->pri = 0;    /* unused */
                 num_moves++;
@@ -733,17 +734,18 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
     const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
     if (empty_col_idx >= 0) {
         for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
-            fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
-            if (fcs_col_len(i_col) > 1)
+            const fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
+            const int i_col_len = fcs_col_len(i_col);
+            if (i_col_len > 1)
             {
-                const fcs_card_t card = fcs_col_get_card(i_col, fcs_col_len(i_col)-1);
+                const fcs_card_t card = fcs_col_get_card(i_col, i_col_len-1);
                 if (fcs_pats_is_king_only(not_King_only, card)) {
                     mp->card = card;
                     mp->from = i;
                     mp->fromtype = FCS_PATS__TYPE_WASTE;
                     mp->to = empty_col_idx;
                     mp->totype = FCS_PATS__TYPE_WASTE;
-                    mp->srccard = fcs_col_get_card(i_col, fcs_col_len(i_col) - 2);
+                    mp->srccard = fcs_col_get_card(i_col, i_col_len - 2);
 
                     mp->destcard = fc_solve_empty_card;
                     mp->pri = soft_thread->pats_solve_params.x[3];
@@ -759,17 +761,18 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
     /* Check for moves from soft_thread->current_pos.stacks to non-empty soft_thread->current_pos.stacks cells. */
 
     for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
-        fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
-        if (fcs_col_len(i_col) > 0) {
-            const fcs_card_t card = fcs_col_get_card(i_col, fcs_col_len(i_col)-1);
+        const fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
+        const int i_col_len = fcs_col_len(i_col);
+        if (i_col_len > 0) {
+            const fcs_card_t card = fcs_col_get_card(i_col, i_col_len-1);
             for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
                 if (i == w) {
                     continue;
                 }
-                fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+                const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
                 if (fcs_col_len(w_col) > 0)
                 {
-                    fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
+                    const fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
                     if (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
                          fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value)
                     )
@@ -779,10 +782,10 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
                         mp->fromtype = FCS_PATS__TYPE_WASTE;
                         mp->to = w;
                         mp->totype = FCS_PATS__TYPE_WASTE;
-                        mp->srccard = fc_solve_empty_card;
-                        if (fcs_col_len(i_col) > 1) {
-                            mp->srccard = fcs_col_get_card(i_col, fcs_col_len(i_col) - 2);
-                        }
+                        mp->srccard = ((i_col_len > 1) ?
+                            fcs_col_get_card(i_col, i_col_len - 2)
+                            : fc_solve_empty_card
+                        );
                         mp->destcard = w_card;
                         mp->pri = soft_thread->pats_solve_params.x[4];
                         num_moves++;
