@@ -36,6 +36,8 @@
 #include "range_solvers_gen_ms_boards.h"
 #include "state.h"
 
+#include "print_layout.h"
+
 /* Just print a message. */
 
 static void print_msg(const char *msg, ...)
