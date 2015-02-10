@@ -1027,8 +1027,6 @@ identifiers. */
 
 static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const int w)
 {
-    int pilenum;
-    fcs_pats__bucket_list_t *l, *last;
 
     /* For a given pile, get its unique pile id.  If it doesn't have
     one, add it to the appropriate list and give it one.  First, get
@@ -1038,6 +1036,7 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
 
     /* Look for the pile in this bucket. */
 
+    fcs_pats__bucket_list_t *l, *last;
     last = NULL;
     for (l = soft_thread->buckets_list[bucket]; l; l = l->next) {
         if (l->hash == soft_thread->current_pos.stack_hashes[w]) {
@@ -1073,14 +1072,15 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
 
         strncpy((char*)l->pile, ((const char *)w_col)+1, fcs_col_len(w_col) + 1);
         l->hash = soft_thread->current_pos.stack_hashes[w];
-        l->pilenum = pilenum = soft_thread->next_pile_idx++;
         l->next = NULL;
         if (last == NULL) {
             soft_thread->buckets_list[bucket] = l;
         } else {
             last->next = l;
         }
-        soft_thread->bucket_from_pile_lookup[pilenum] = l;
+        soft_thread->bucket_from_pile_lookup[
+            l->pilenum = soft_thread->next_pile_idx++
+        ] = l;
     }
 
     return l->pilenum;
