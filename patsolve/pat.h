@@ -391,17 +391,17 @@ static GCC_INLINE void fc_solve_pats__release(fcs_pats_thread_t * const soft_thr
 #define fc_solve_pats__new_array(soft_thread, type, size) ((type *)fc_solve_pats__malloc(soft_thread, (size) * sizeof(type)))
 #define fc_solve_pats__free_array(soft_thread, ptr, type, size) fc_solve_pats__release((soft_thread), (ptr), ((size)*sizeof(type)))
 
-static GCC_INLINE void fc_solve_pats__free_buckets(fcs_pats_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__free_buckets(fcs_pats_thread_t * const soft_thread)
 {
-    int i, j;
     fcs_pats__bucket_list_t *l, *n;
 
-    for (i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++) {
+    for (int i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++) {
         l = soft_thread->buckets_list[i];
         while (l) {
             n = l->next;
-            j = strlen((const char *)l->pile);    /* @@@ use block? */
-            fc_solve_pats__free_array(soft_thread, l->pile, u_char, j + 1);
+            fc_solve_pats__free_array(soft_thread, l->pile, u_char,
+                strlen((const char *)l->pile) + 1
+            );
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
             l = n;
         }
@@ -409,13 +409,11 @@ static GCC_INLINE void fc_solve_pats__free_buckets(fcs_pats_thread_t * soft_thre
     }
 }
 
-static GCC_INLINE void fc_solve_pats__free_blocks(fcs_pats_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__free_blocks(fcs_pats_thread_t * const soft_thread)
 {
-    fcs_pats__block_t *b, *next;
-
-    b = soft_thread->my_block;
+    typeof(soft_thread->my_block) b = soft_thread->my_block;
     while (b) {
-        next = b->next;
+        typeof (b->next) next = b->next;
         fc_solve_pats__free_array(soft_thread, b->block, u_char, BLOCKSIZE);
         fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
         b = next;
@@ -423,17 +421,14 @@ static GCC_INLINE void fc_solve_pats__free_blocks(fcs_pats_thread_t * soft_threa
     soft_thread->my_block = NULL;
 }
 
-extern void fc_solve_pats__hash_layout(fcs_pats_thread_t * soft_thread);
+extern void fc_solve_pats__hash_layout(fcs_pats_thread_t * const soft_thread);
 
-static GCC_INLINE void fc_solve_pats__free_clusters(fcs_pats_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__free_clusters(fcs_pats_thread_t * const soft_thread)
 {
-    int i;
-    fcs_pats__treelist_t *l, *n;
-
-    for (i = 0; i < FCS_PATS__TREE_LIST_NUM_BUCKETS; i++) {
-        l = soft_thread->tree_list[i];
+    for (int i = 0; i < FCS_PATS__TREE_LIST_NUM_BUCKETS; i++) {
+        typeof(soft_thread->tree_list[i]) l = soft_thread->tree_list[i];
         while (l) {
-            n = l->next;
+            typeof(l) n = l->next;
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__treelist_t);
             l = n;
         }
@@ -442,7 +437,7 @@ static GCC_INLINE void fc_solve_pats__free_clusters(fcs_pats_thread_t * soft_thr
 }
 
 static GCC_INLINE void fc_solve_pats__soft_thread_reset_helper(
-    fcs_pats_thread_t * soft_thread
+    fcs_pats_thread_t * const soft_thread
 )
 {
     soft_thread->freed_positions = NULL;
@@ -459,7 +454,7 @@ static GCC_INLINE void fc_solve_pats__soft_thread_reset_helper(
 }
 
 static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
-    fcs_pats_thread_t * soft_thread
+    fcs_pats_thread_t * const soft_thread
 )
 {
     fc_solve_pats__free_buckets(soft_thread);
@@ -511,7 +506,7 @@ static GCC_INLINE void fc_solve_pats__destroy_soft_thread(
 }
 
 /* Hash a pile. */
-static GCC_INLINE void fc_solve_pats__hashpile(fcs_pats_thread_t * soft_thread, int w)
+static GCC_INLINE void fc_solve_pats__hashpile(fcs_pats_thread_t * const soft_thread, const int w)
 {
     fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
     fcs_col_get_card(col, (int)fcs_col_len(col)) = '\0';
@@ -522,7 +517,7 @@ static GCC_INLINE void fc_solve_pats__hashpile(fcs_pats_thread_t * soft_thread, 
     soft_thread->current_pos.stack_ids[w] = -1;
 }
 
-static GCC_INLINE void fc_solve_pats__undo_move(fcs_pats_thread_t * soft_thread, fcs_pats__move_t *m)
+static GCC_INLINE void fc_solve_pats__undo_move(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const m)
 {
     const typeof(m->from) from = m->from;
     const typeof(m->to) to = m->to;
