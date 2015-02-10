@@ -558,7 +558,6 @@ extern void fc_solve_pats__initialize_solving_process(
 
 
 extern DLLEXPORT void fc_solve_pats__before_play(fcs_pats_thread_t * soft_thread);
-extern DLLEXPORT void fc_solve_pats__play(fcs_pats_thread_t * soft_thread);
 
 extern void fc_solve_msg(const char *msg, ...);
 
