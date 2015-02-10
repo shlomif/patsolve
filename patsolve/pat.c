@@ -974,8 +974,6 @@ equivalent layouts.  Assume it's already mostly sorted.  */
 void fc_solve_pats__sort_piles(fcs_pats_thread_t * const soft_thread)
 {
     DECLARE_STACKS();
-    int i, j;
-
     /* Make sure all the piles have id numbers. */
 
     for (int stack_idx = 0; stack_idx < LOCAL_STACKS_NUM; stack_idx++)
@@ -1001,12 +999,12 @@ void fc_solve_pats__sort_piles(fcs_pats_thread_t * const soft_thread)
 
     soft_thread->current_pos.column_idxs[0] = 0;
     int w = 0;
-    for (i = 1; i < LOCAL_STACKS_NUM; i++) {
+    for (int i = 1; i < LOCAL_STACKS_NUM; i++) {
         if (wcmp(soft_thread, soft_thread->current_pos.column_idxs[w], i) < 0) {
             w++;
             soft_thread->current_pos.column_idxs[w] = i;
         } else {
-            for (j = w; j >= 0; --j) {
+            for (int j = w; j >= 0; --j) {
                 soft_thread->current_pos.column_idxs[j + 1] = soft_thread->current_pos.column_idxs[j];
                 if (j == 0 || wcmp(soft_thread, soft_thread->current_pos.column_idxs[j - 1], i) < 0) {
                     soft_thread->current_pos.column_idxs[j] = i;
