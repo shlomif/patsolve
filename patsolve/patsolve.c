@@ -39,8 +39,40 @@ search. */
 #include "inline.h"
 #include "bool.h"
 
-static void free_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int);
-static void queue_position(fcs_pats_thread_t *, fcs_pats_position_t *, int);
+/* We can't free the stored piles in the trees, but we can free some of the
+fcs_pats_position_t structs.  We have to be careful, though, because there are many
+threads running through the game tree starting from the queued positions.
+The nchild element keeps track of descendents, and when there are none left
+in the parent we can free it too after solve() returns and we get called
+recursively (rec == TRUE). */
+
+/* We don't really free anything here, we just push it onto a
+   freelist (using the queue member), so we can use it again later.
+*/
+
+
+static GCC_INLINE void free_position_non_recursive(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos)
+{
+    pos->queue = soft_thread->freed_positions;
+    soft_thread->freed_positions = pos;
+    pos->parent->nchild--;
+}
+
+static GCC_INLINE void free_position_recursive(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t *pos)
+{
+    do
+    {
+        pos->queue = soft_thread->freed_positions;
+        soft_thread->freed_positions = pos;
+        pos = pos->parent;
+        if (pos == NULL) {
+            return;
+        }
+        pos->nchild--;
+    } while (pos->nchild == 0);
+}
+
+static void queue_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t *, int);
 
 /* Like strcpy() but return the length of the string. */
 static GCC_INLINE int strecpy(char *dest, char *src)
@@ -361,7 +393,7 @@ static GCC_INLINE int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * 
         }
         else
         {
-            free_position(soft_thread, L.pos, FALSE);
+            free_position_non_recursive(soft_thread, L.pos);
         }
         fc_solve_pats__undo_move(soft_thread, L.mp);
         mydir = FC_SOLVE_PATS__UP;
@@ -455,7 +487,7 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
         fcs_bool_t is_finished;
         if (! solve(soft_thread, &is_finished) )
         {
-            free_position(soft_thread, soft_thread->curr_solve_pos, TRUE);
+            free_position_recursive(soft_thread, soft_thread->curr_solve_pos);
         }
         if (is_finished)
         {
@@ -472,34 +504,6 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
 }
 
 
-/* We can't free the stored piles in the trees, but we can free some of the
-fcs_pats_position_t structs.  We have to be careful, though, because there are many
-threads running through the game tree starting from the queued positions.
-The nchild element keeps track of descendents, and when there are none left
-in the parent we can free it too after solve() returns and we get called
-recursively (rec == TRUE). */
-
-static void free_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int rec)
-{
-    /* We don't really free anything here, we just push it onto a
-    freelist (using the queue member), so we can use it again later. */
-
-    if (!rec) {
-        pos->queue = soft_thread->freed_positions;
-        soft_thread->freed_positions = pos;
-        pos->parent->nchild--;
-    } else {
-        do {
-            pos->queue = soft_thread->freed_positions;
-            soft_thread->freed_positions = pos;
-            pos = pos->parent;
-            if (pos == NULL) {
-                return;
-            }
-            pos->nchild--;
-        } while (pos->nchild == 0);
-    }
-}
 
 /* Save positions for consideration later.  pri is the priority of the move
 that got us here.  The work queue is kept sorted by priority (simply by
