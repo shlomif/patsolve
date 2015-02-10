@@ -37,6 +37,7 @@
 #include "state.h"
 
 #include "print_layout.h"
+#include "print_card.h"
 
 /* Just print a message. */
 
