@@ -46,6 +46,7 @@ extern "C" {
 
 #include "internal_move_struct.h"
 #include "indirect_buffer.h"
+#include "fcs_dllexport.h"
 
 #if MAX_NUM_INITIAL_CARDS_IN_A_STACK+12>(MAX_NUM_DECKS*52)
 #define MAX_NUM_CARDS_IN_A_STACK (MAX_NUM_DECKS*52)
@@ -1012,7 +1013,7 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
 #undef ret
 #undef handle_eos
 
-extern char * fc_solve_state_as_string(
+extern DLLEXPORT char * fc_solve_state_as_string(
     fcs_state_t * key,
     fcs_state_locs_struct_t * state_locs,
     int freecells_num,
