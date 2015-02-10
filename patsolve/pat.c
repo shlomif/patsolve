@@ -998,12 +998,14 @@ void fc_solve_pats__sort_piles(fcs_pats_thread_t * const soft_thread)
     /* TODO : Add a temp pointer to column_idxs */
 
     soft_thread->current_pos.column_idxs[0] = 0;
-    int w = 0;
     for (int i = 1; i < LOCAL_STACKS_NUM; i++) {
-        if (wcmp(soft_thread, soft_thread->current_pos.column_idxs[w], i) < 0) {
-            w++;
-            soft_thread->current_pos.column_idxs[w] = i;
-        } else {
+        const typeof(i) w = i - 1;
+        if (wcmp(soft_thread, soft_thread->current_pos.column_idxs[w], i) < 0)
+        {
+            soft_thread->current_pos.column_idxs[i] = i;
+        }
+        else
+        {
             for (int j = w; j >= 0; --j) {
                 soft_thread->current_pos.column_idxs[j + 1] = soft_thread->current_pos.column_idxs[j];
                 if (j == 0 || wcmp(soft_thread, soft_thread->current_pos.column_idxs[j - 1], i) < 0) {
@@ -1011,7 +1013,6 @@ void fc_solve_pats__sort_piles(fcs_pats_thread_t * const soft_thread)
                     break;
                 }
             }
-            w++;
         }
     }
 
