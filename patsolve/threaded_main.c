@@ -41,6 +41,7 @@
 #include "state.h"
 
 #include "print_layout.h"
+#include "read_layout.h"
 
 /* Just print a message. */
 

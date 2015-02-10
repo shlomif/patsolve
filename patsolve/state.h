@@ -678,7 +678,7 @@ enum
  * This function converts an entire card from its string representations
  * (e.g: "AH", "KS", "8D"), to a fcs_card_t data type.
  * */
-extern fcs_card_t fc_solve_card_user2perl(const char * str);
+extern DLLEXPORT fcs_card_t fc_solve_card_user2perl(const char * str);
 
 /*
  * Convert an entire card to its user representation.
@@ -714,7 +714,7 @@ extern char * fc_solve_p2u_rank(
  * (e.g: "A", "K", "9") to its card number that can be used by
  * the program.
  * */
-extern int fc_solve_u2p_rank(const char * string);
+extern DLLEXPORT int fc_solve_u2p_rank(const char * string);
 
 /*
  * This function converts a string containing a suit letter (that is
@@ -723,7 +723,7 @@ extern int fc_solve_u2p_rank(const char * string);
  * The suit letter may come somewhat after the beginning of the string.
  *
  * */
-extern int fc_solve_u2p_suit(const char * deck);
+extern DLLEXPORT int fc_solve_u2p_suit(const char * deck);
 
 #ifdef INDIRECT_STACK_STATES
 #define fc_solve_state_init(state, stacks_num, indirect_stacks_buffer) \

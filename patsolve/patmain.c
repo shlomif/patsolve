@@ -38,6 +38,7 @@
 
 #include "print_layout.h"
 #include "print_card.h"
+#include "read_layout.h"
 
 /* Just print a message. */
 
