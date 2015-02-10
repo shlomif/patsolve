@@ -1074,7 +1074,9 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
 
     if (l == NULL) {
         if (soft_thread->next_pile_idx == FC_SOLVE__MAX_NUM_PILES) {
+#if 0
             fc_solve_msg("Ran out of pile numbers!");
+#endif
             return -1;
         }
         l = fc_solve_pats__new(soft_thread, fcs_pats__bucket_list_t);

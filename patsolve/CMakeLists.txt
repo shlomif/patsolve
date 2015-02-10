@@ -166,7 +166,7 @@ INCLUDE(CPack)
 
 ADD_LIBRARY(fcs_patsolve_lib
     SHARED
-    app_str.c card.c pat.c patsolve.c state.c tree.c util.c
+    app_str.c card.c pat.c patsolve.c state.c tree.c
 )
 
 ADD_EXECUTABLE(patsolve

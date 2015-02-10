@@ -29,6 +29,10 @@
 #include "pat.h"
 #include "inline.h"
 
+#ifdef DEBUG
+#include "msg.h"
+#endif
+
 static GCC_INLINE void fc_solve_pats__before_play(
     fcs_pats_thread_t * soft_thread
 )
