@@ -301,21 +301,24 @@ extern void fc_solve_pats__sort_piles(fcs_pats_thread_t * soft_thread);
 
 /* Initialize the hash buckets. */
 
-static GCC_INLINE void fc_solve_pats__init_buckets(fcs_pats_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__init_buckets(fcs_pats_thread_t * const soft_thread)
 {
 #if !defined(HARD_CODED_NUM_STACKS) || !defined(HARD_CODED_NUM_FREECELLS)
     const fc_solve_instance_t * const instance = soft_thread->instance;
 #endif
     const int stacks_num = INSTANCE_STACKS_NUM;
     const int freecells_num = INSTANCE_FREECELLS_NUM;
-    int i;
 
     /* Packed positions need 3 bytes for every 2 piles. */
-
-    i = stacks_num * 3;
-    i >>= 1;
-    i += stacks_num & 0x1;
-    soft_thread->bytes_per_pile = i;
+    soft_thread->bytes_per_pile =
+        (
+            (
+                (stacks_num * 3)
+                >> 1
+            )
+            + (stacks_num & 0x1)
+        )
+        ;
 
     memset(soft_thread->buckets_list, 0, sizeof(soft_thread->buckets_list));
     soft_thread->next_pile_idx = 0;
@@ -343,7 +346,7 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fcs_pats_thread_t * soft_thre
 /* A function and some macros for allocating memory. */
 /* Allocate some space and return a pointer to it.  See new() in util.h. */
 
-static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * soft_thread, size_t s)
+static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_thread, size_t s)
 {
     void *x;
 
@@ -393,12 +396,10 @@ static GCC_INLINE void fc_solve_pats__release(fcs_pats_thread_t * const soft_thr
 
 static GCC_INLINE void fc_solve_pats__free_buckets(fcs_pats_thread_t * const soft_thread)
 {
-    fcs_pats__bucket_list_t *l, *n;
-
     for (int i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++) {
-        l = soft_thread->buckets_list[i];
+        typeof(soft_thread->buckets_list[i]) l = soft_thread->buckets_list[i];
         while (l) {
-            n = l->next;
+            typeof(l->next) n = l->next;
             fc_solve_pats__free_array(soft_thread, l->pile, u_char,
                 strlen((const char *)l->pile) + 1
             );
