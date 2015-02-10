@@ -65,7 +65,8 @@ static GCC_INLINE void free_position_recursive(fcs_pats_thread_t * const soft_th
         pos->queue = soft_thread->freed_positions;
         soft_thread->freed_positions = pos;
         pos = pos->parent;
-        if (pos == NULL) {
+        if (! pos)
+        {
             return;
         }
         pos->nchild--;
