@@ -40,9 +40,458 @@
 
 DEFINE_fc_solve_empty_card();
 
-static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const a, int * const numout);
-static GCC_INLINE void mark_irreversible(fcs_pats_thread_t * const soft_thread, const int n);
-static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, int w);
+static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_thread, const int stacks_num)
+{
+    for (int w = 0 ; w < stacks_num ; w++)
+    {
+        if (! fcs_col_len(fcs_state_get_col(soft_thread->current_pos.s, w)))
+        {
+            return w;
+        }
+    }
+    return -1;
+}
+
+/* Automove logic.  Freecell games must avoid certain types of automoves. */
+static GCC_INLINE int good_automove(fcs_pats_thread_t * soft_thread, int o, int r)
+{
+    const fc_solve_instance_t * const instance = soft_thread->instance;
+    int i;
+
+    if (
+#ifndef FCS_FREECELL_ONLY
+        (GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT)
+            ||
+#endif
+        r <= 2
+    )
+    {
+        return TRUE;
+    }
+
+    /* Check the Out piles of opposite color. */
+
+    for (i = 1 - (o & 1); i < 4; i += 2) {
+        if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 1) {
+
+#if 1   /* Raymond's Rule */
+            /* Not all the N-1's of opposite color are out
+            yet.  We can still make an automove if either
+            both N-2's are out or the other same color N-3
+            is out (Raymond's rule).  Note the re-use of
+            the loop variable i.  We return here and never
+            make it back to the outer loop. */
+
+            for (i = 1 - (o & 1); i < 4; i += 2) {
+                if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 2) {
+                    return FALSE;
+                }
+            }
+            if (fcs_foundation_value(soft_thread->current_pos.s, ((o + 2) & 3)) < r - 3) {
+                return FALSE;
+            }
+
+            return TRUE;
+#else   /* Horne's Rule */
+            return FALSE;
+#endif
+        }
+    }
+
+    return TRUE;
+}
+/* Get the possible moves from a position, and store them in soft_thread->possible_moves[]. */
+
+static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const a, int * const numout)
+{
+    const fc_solve_instance_t * const instance = soft_thread->instance;
+    DECLARE_STACKS();
+
+    /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
+
+    int num_moves = 0;
+    typeof(soft_thread->possible_moves[0]) * mp = soft_thread->possible_moves;
+    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
+        const fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        const int col_len = fcs_col_len(col);
+        if (col_len > 0) {
+            const fcs_card_t card = fcs_col_get_card(col, col_len-1);
+            const int o = fcs_card_suit(card);
+            const fcs_card_t found_o = fcs_foundation_value(soft_thread->current_pos.s, o);
+            if (fcs_card_rank(card) == found_o + 1)
+            {
+                mp->card = card;
+                mp->from = w;
+                mp->fromtype = FCS_PATS__TYPE_WASTE;
+                mp->to = o;
+                mp->totype = FCS_PATS__TYPE_FOUNDATION;
+                mp->srccard = (
+                    (col_len > 1) ? fcs_col_get_card(col, col_len-2)
+                    : fc_solve_empty_card
+                );
+                mp->destcard = fc_solve_empty_card;
+                mp->pri = 0;    /* unused */
+                num_moves++;
+                mp++;
+
+                /* If it's an automove, just do it. */
+
+                if (good_automove(soft_thread, o, fcs_card_rank(card))) {
+                    *a = TRUE;
+                    if (num_moves != 1) {
+                        soft_thread->possible_moves[0] = mp[-1];
+                    }
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* Check for moves from soft_thread->current_pos.freecells to soft_thread->current_pos.foundations. */
+
+    for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
+        if (fcs_freecell_card(soft_thread->current_pos.s, t) != fc_solve_empty_card) {
+            const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
+            const int o = fcs_card_suit(card);
+            if (
+                fcs_card_rank(card) == fcs_foundation_value(soft_thread->current_pos.s, o) + 1
+                ) {
+                mp->card = card;
+                mp->from = t;
+                mp->fromtype = FCS_PATS__TYPE_FREECELL;
+                mp->to = o;
+                mp->totype = FCS_PATS__TYPE_FOUNDATION;
+                mp->srccard = fc_solve_empty_card;
+                mp->destcard = fc_solve_empty_card;
+                mp->pri = 0;    /* unused */
+                num_moves++;
+                mp++;
+
+                /* If it's an automove, just do it. */
+
+                if (good_automove(soft_thread, o, fcs_card_rank(card))) {
+                    *a = TRUE;
+                    if (num_moves != 1) {
+                        soft_thread->possible_moves[0] = mp[-1];
+                    }
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* No more automoves, but remember if there were any moves out. */
+
+    *a = FALSE;
+    *numout = num_moves;
+
+    /* Check for moves from non-singleton soft_thread->current_pos.stacks cells to one of any
+    empty soft_thread->current_pos.stacks cells. */
+
+    const fcs_bool_t not_King_only =
+#ifndef FCS_FREECELL_ONLY
+        (! ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
+#else
+        TRUE;
+#endif
+
+    const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
+    if (empty_col_idx >= 0) {
+        for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
+            const fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
+            const int i_col_len = fcs_col_len(i_col);
+            if (i_col_len > 1)
+            {
+                const fcs_card_t card = fcs_col_get_card(i_col, i_col_len-1);
+                if (fcs_pats_is_king_only(not_King_only, card)) {
+                    mp->card = card;
+                    mp->from = i;
+                    mp->fromtype = FCS_PATS__TYPE_WASTE;
+                    mp->to = empty_col_idx;
+                    mp->totype = FCS_PATS__TYPE_WASTE;
+                    mp->srccard = fcs_col_get_card(i_col, i_col_len - 2);
+
+                    mp->destcard = fc_solve_empty_card;
+                    mp->pri = soft_thread->pats_solve_params.x[3];
+                    num_moves++;
+                    mp++;
+                }
+            }
+        }
+    }
+
+    const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
+    const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
+    /* Check for moves from soft_thread->current_pos.stacks to non-empty soft_thread->current_pos.stacks cells. */
+
+    for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
+        const fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
+        const int i_col_len = fcs_col_len(i_col);
+        if (i_col_len > 0) {
+            const fcs_card_t card = fcs_col_get_card(i_col, i_col_len-1);
+            for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
+                if (i == w) {
+                    continue;
+                }
+                const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+                if (fcs_col_len(w_col) > 0)
+                {
+                    const fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
+                    if (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
+                         fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value)
+                    )
+                    {
+                        mp->card = card;
+                        mp->from = i;
+                        mp->fromtype = FCS_PATS__TYPE_WASTE;
+                        mp->to = w;
+                        mp->totype = FCS_PATS__TYPE_WASTE;
+                        mp->srccard = ((i_col_len > 1) ?
+                            fcs_col_get_card(i_col, i_col_len - 2)
+                            : fc_solve_empty_card
+                        );
+                        mp->destcard = w_card;
+                        mp->pri = soft_thread->pats_solve_params.x[4];
+                        num_moves++;
+                        mp++;
+                    }
+                }
+            }
+        }
+    }
+
+    /* Check for moves from soft_thread->current_pos.freecells to non-empty soft_thread->current_pos.stacks cells. */
+
+    for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
+        const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
+        if (card != fc_solve_empty_card) {
+            for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
+                fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+                if (fcs_col_len(w_col) > 0) {
+                    fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
+                    if (
+                        (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
+                         fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value))) {
+                        mp->card = card;
+                        mp->from = t;
+                        mp->fromtype = FCS_PATS__TYPE_FREECELL;
+                        mp->to = w;
+                        mp->totype = FCS_PATS__TYPE_WASTE;
+                        mp->srccard = fc_solve_empty_card;
+                        mp->destcard = w_card;
+                        mp->pri = soft_thread->pats_solve_params.x[5];
+                        num_moves++;
+                        mp++;
+                    }
+                }
+            }
+        }
+    }
+
+    /* Check for moves from soft_thread->current_pos.freecells to one of any empty soft_thread->current_pos.stacks cells. */
+
+    if (empty_col_idx >= 0) {
+        for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
+            const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
+            if (card != fc_solve_empty_card && fcs_pats_is_king_only(not_King_only, card)) {
+                mp->card = card;
+                mp->from = t;
+                mp->fromtype = FCS_PATS__TYPE_FREECELL;
+                mp->to = empty_col_idx;
+                mp->totype = FCS_PATS__TYPE_WASTE;
+                mp->srccard = fc_solve_empty_card;
+                mp->destcard = fc_solve_empty_card;
+                mp->pri = soft_thread->pats_solve_params.x[6];
+                num_moves++;
+                mp++;
+            }
+        }
+    }
+
+    /* Check for moves from soft_thread->current_pos.stacks to one of any empty soft_thread->current_pos.freecells cells. */
+
+    {
+        int t;
+        for (t = 0; t < LOCAL_FREECELLS_NUM; t++)
+        {
+            if (fcs_freecell_card(soft_thread->current_pos.s, t)
+                == fc_solve_empty_card)
+            {
+                break;
+            }
+        }
+        if (t < LOCAL_FREECELLS_NUM)
+        {
+            for (int w = 0; w < LOCAL_STACKS_NUM; w++)
+            {
+                fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+                if (fcs_col_len(w_col) > 0)
+                {
+                    const fcs_card_t card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
+                    mp->card = card;
+                    mp->from = w;
+                    mp->fromtype = FCS_PATS__TYPE_WASTE;
+                    mp->to = t;
+                    mp->totype = FCS_PATS__TYPE_FREECELL;
+                    mp->srccard = fc_solve_empty_card;
+                    if (fcs_col_len(w_col) > 1)
+                    {
+                        mp->srccard = fcs_col_get_card(w_col, fcs_col_len(w_col) - 2);
+                    }
+                    mp->destcard = fc_solve_empty_card;
+                    mp->pri = soft_thread->pats_solve_params.x[7];
+                    num_moves++;
+                    mp++;
+                }
+            }
+        }
+    }
+
+    return num_moves;
+}
+
+/* Moves that can't be undone get slightly higher priority, since it means
+we are moving a card for the first time. */
+
+static GCC_INLINE fcs_bool_t is_irreversible_move(
+    const fcs_card_t game_variant_suit_mask,
+    const fcs_card_t game_variant_desired_suit_value,
+    const fcs_bool_t King_only,
+    const fcs_pats__move_t * const mp
+)
+{
+    if (mp->totype == FCS_PATS__TYPE_FOUNDATION)
+    {
+        return TRUE;
+    }
+    else if (mp->fromtype == FCS_PATS__TYPE_WASTE)
+    {
+        const fcs_card_t srccard = mp->srccard;
+        if (srccard != fc_solve_empty_card)
+        {
+            const fcs_card_t card = mp->card;
+            if (
+                ( fcs_card_rank(card) !=
+                  fcs_card_rank(srccard) - 1
+                )
+                ||
+                !fcs_pats_is_suitable(card, srccard,
+                    game_variant_suit_mask,
+                    game_variant_desired_suit_value
+                )
+            ) {
+                return TRUE;
+            }
+        }
+        /* TODO : This is probably a bug because mp->card probably cannot be
+         * FCS_PATS__KING - only FCS_PATS__KING bitwise-ORed with some other value.
+         * */
+        else if (King_only && mp->card != fcs_make_card(FCS_PATS__KING, 0))
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+static GCC_INLINE void mark_irreversible(fcs_pats_thread_t * const soft_thread, const int n)
+{
+    const fc_solve_instance_t * const instance = soft_thread->instance;
+
+    const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
+    const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
+    const fcs_bool_t King_only =
+#ifndef FCS_FREECELL_ONLY
+        (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
+#else
+        FALSE;
+#endif
+
+    const typeof(soft_thread->pats_solve_params.x[8]) x_param_8 = soft_thread->pats_solve_params.x[8];
+
+    fcs_pats__move_t * mp = soft_thread->possible_moves;
+    const fcs_pats__move_t * const mp_end = mp + n;
+    for (; mp < mp_end ; mp++) {
+        if (is_irreversible_move(
+                game_variant_suit_mask,
+                game_variant_desired_suit_value,
+                King_only,
+                mp))
+        {
+            mp->pri += x_param_8;
+        }
+    }
+}
+
+/* For each pile, return a unique identifier.  Although there are a
+large number of possible piles, generally fewer than 1000 different
+piles appear in any given game.  We'll use the pile's hash to find
+a hash bucket that contains a short list of piles, along with their
+identifiers. */
+
+static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const int w)
+{
+
+    /* For a given pile, get its unique pile id.  If it doesn't have
+    one, add it to the appropriate list and give it one.  First, get
+    the hash bucket. */
+
+    const int bucket = soft_thread->current_pos.stack_hashes[w] % FC_SOLVE_BUCKETLIST_NBUCKETS;
+
+    /* Look for the pile in this bucket. */
+
+    fcs_pats__bucket_list_t *l, *last;
+    last = NULL;
+    for (l = soft_thread->buckets_list[bucket]; l; l = l->next) {
+        if (l->hash == soft_thread->current_pos.stack_hashes[w]) {
+            const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+            if(
+                strncmp((const char *)l->pile, (const char *)w_col+1, fcs_col_len(w_col)) == 0) {
+            break;
+            }
+        }
+        last = l;
+    }
+
+    /* If we didn't find it, make a new one and add it to the list. */
+
+    if (l == NULL) {
+        if (soft_thread->next_pile_idx == FC_SOLVE__MAX_NUM_PILES) {
+#if 0
+            fc_solve_msg("Ran out of pile numbers!");
+#endif
+            return -1;
+        }
+        l = fc_solve_pats__new(soft_thread, fcs_pats__bucket_list_t);
+        if (l == NULL) {
+            return -1;
+        }
+        const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+        l->pile = fc_solve_pats__new_array(soft_thread, u_char, fcs_col_len(w_col) + 1);
+        if (l->pile == NULL) {
+            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
+            return -1;
+        }
+
+        /* Store the new pile along with its hash.  Maintain
+        a reverse mapping so we can unpack the piles swiftly. */
+
+        strncpy((char*)l->pile, ((const char *)w_col)+1, fcs_col_len(w_col) + 1);
+        l->hash = soft_thread->current_pos.stack_hashes[w];
+        l->next = NULL;
+        if (last == NULL) {
+            soft_thread->buckets_list[bucket] = l;
+        } else {
+            last->next = l;
+        }
+        soft_thread->bucket_from_pile_lookup[
+            l->pilenum = soft_thread->next_pile_idx++
+        ] = l;
+    }
+
+    return l->pilenum;
+}
 
 /* Win.  Print out the move stack. */
 
@@ -585,392 +1034,6 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread
     }
 }
 
-/* Automove logic.  Freecell games must avoid certain types of automoves. */
-
-static GCC_INLINE int good_automove(fcs_pats_thread_t * soft_thread, int o, int r)
-{
-    const fc_solve_instance_t * const instance = soft_thread->instance;
-    int i;
-
-    if (
-#ifndef FCS_FREECELL_ONLY
-        (GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT)
-            ||
-#endif
-        r <= 2
-    )
-    {
-        return TRUE;
-    }
-
-    /* Check the Out piles of opposite color. */
-
-    for (i = 1 - (o & 1); i < 4; i += 2) {
-        if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 1) {
-
-#if 1   /* Raymond's Rule */
-            /* Not all the N-1's of opposite color are out
-            yet.  We can still make an automove if either
-            both N-2's are out or the other same color N-3
-            is out (Raymond's rule).  Note the re-use of
-            the loop variable i.  We return here and never
-            make it back to the outer loop. */
-
-            for (i = 1 - (o & 1); i < 4; i += 2) {
-                if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 2) {
-                    return FALSE;
-                }
-            }
-            if (fcs_foundation_value(soft_thread->current_pos.s, ((o + 2) & 3)) < r - 3) {
-                return FALSE;
-            }
-
-            return TRUE;
-#else   /* Horne's Rule */
-            return FALSE;
-#endif
-        }
-    }
-
-    return TRUE;
-}
-
-static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_thread, const int stacks_num)
-{
-    for (int w = 0 ; w < stacks_num ; w++)
-    {
-        if (! fcs_col_len(fcs_state_get_col(soft_thread->current_pos.s, w)))
-        {
-            return w;
-        }
-    }
-    return -1;
-}
-
-/* Get the possible moves from a position, and store them in soft_thread->possible_moves[]. */
-
-static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const a, int * const numout)
-{
-    const fc_solve_instance_t * const instance = soft_thread->instance;
-    DECLARE_STACKS();
-
-    /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
-
-    int num_moves = 0;
-    typeof(soft_thread->possible_moves[0]) * mp = soft_thread->possible_moves;
-    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
-        const fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
-        const int col_len = fcs_col_len(col);
-        if (col_len > 0) {
-            const fcs_card_t card = fcs_col_get_card(col, col_len-1);
-            const int o = fcs_card_suit(card);
-            const fcs_card_t found_o = fcs_foundation_value(soft_thread->current_pos.s, o);
-            if (fcs_card_rank(card) == found_o + 1)
-            {
-                mp->card = card;
-                mp->from = w;
-                mp->fromtype = FCS_PATS__TYPE_WASTE;
-                mp->to = o;
-                mp->totype = FCS_PATS__TYPE_FOUNDATION;
-                mp->srccard = (
-                    (col_len > 1) ? fcs_col_get_card(col, col_len-2)
-                    : fc_solve_empty_card
-                );
-                mp->destcard = fc_solve_empty_card;
-                mp->pri = 0;    /* unused */
-                num_moves++;
-                mp++;
-
-                /* If it's an automove, just do it. */
-
-                if (good_automove(soft_thread, o, fcs_card_rank(card))) {
-                    *a = TRUE;
-                    if (num_moves != 1) {
-                        soft_thread->possible_moves[0] = mp[-1];
-                    }
-                    return 1;
-                }
-            }
-        }
-    }
-
-    /* Check for moves from soft_thread->current_pos.freecells to soft_thread->current_pos.foundations. */
-
-    for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        if (fcs_freecell_card(soft_thread->current_pos.s, t) != fc_solve_empty_card) {
-            const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
-            const int o = fcs_card_suit(card);
-            if (
-                fcs_card_rank(card) == fcs_foundation_value(soft_thread->current_pos.s, o) + 1
-                ) {
-                mp->card = card;
-                mp->from = t;
-                mp->fromtype = FCS_PATS__TYPE_FREECELL;
-                mp->to = o;
-                mp->totype = FCS_PATS__TYPE_FOUNDATION;
-                mp->srccard = fc_solve_empty_card;
-                mp->destcard = fc_solve_empty_card;
-                mp->pri = 0;    /* unused */
-                num_moves++;
-                mp++;
-
-                /* If it's an automove, just do it. */
-
-                if (good_automove(soft_thread, o, fcs_card_rank(card))) {
-                    *a = TRUE;
-                    if (num_moves != 1) {
-                        soft_thread->possible_moves[0] = mp[-1];
-                    }
-                    return 1;
-                }
-            }
-        }
-    }
-
-    /* No more automoves, but remember if there were any moves out. */
-
-    *a = FALSE;
-    *numout = num_moves;
-
-    /* Check for moves from non-singleton soft_thread->current_pos.stacks cells to one of any
-    empty soft_thread->current_pos.stacks cells. */
-
-    const fcs_bool_t not_King_only =
-#ifndef FCS_FREECELL_ONLY
-        (! ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
-#else
-        TRUE;
-#endif
-
-    const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
-    if (empty_col_idx >= 0) {
-        for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
-            const fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
-            const int i_col_len = fcs_col_len(i_col);
-            if (i_col_len > 1)
-            {
-                const fcs_card_t card = fcs_col_get_card(i_col, i_col_len-1);
-                if (fcs_pats_is_king_only(not_King_only, card)) {
-                    mp->card = card;
-                    mp->from = i;
-                    mp->fromtype = FCS_PATS__TYPE_WASTE;
-                    mp->to = empty_col_idx;
-                    mp->totype = FCS_PATS__TYPE_WASTE;
-                    mp->srccard = fcs_col_get_card(i_col, i_col_len - 2);
-
-                    mp->destcard = fc_solve_empty_card;
-                    mp->pri = soft_thread->pats_solve_params.x[3];
-                    num_moves++;
-                    mp++;
-                }
-            }
-        }
-    }
-
-    const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
-    const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
-    /* Check for moves from soft_thread->current_pos.stacks to non-empty soft_thread->current_pos.stacks cells. */
-
-    for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
-        const fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
-        const int i_col_len = fcs_col_len(i_col);
-        if (i_col_len > 0) {
-            const fcs_card_t card = fcs_col_get_card(i_col, i_col_len-1);
-            for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
-                if (i == w) {
-                    continue;
-                }
-                const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
-                if (fcs_col_len(w_col) > 0)
-                {
-                    const fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
-                    if (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
-                         fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value)
-                    )
-                    {
-                        mp->card = card;
-                        mp->from = i;
-                        mp->fromtype = FCS_PATS__TYPE_WASTE;
-                        mp->to = w;
-                        mp->totype = FCS_PATS__TYPE_WASTE;
-                        mp->srccard = ((i_col_len > 1) ?
-                            fcs_col_get_card(i_col, i_col_len - 2)
-                            : fc_solve_empty_card
-                        );
-                        mp->destcard = w_card;
-                        mp->pri = soft_thread->pats_solve_params.x[4];
-                        num_moves++;
-                        mp++;
-                    }
-                }
-            }
-        }
-    }
-
-    /* Check for moves from soft_thread->current_pos.freecells to non-empty soft_thread->current_pos.stacks cells. */
-
-    for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-        const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
-        if (card != fc_solve_empty_card) {
-            for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
-                fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
-                if (fcs_col_len(w_col) > 0) {
-                    fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
-                    if (
-                        (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
-                         fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value))) {
-                        mp->card = card;
-                        mp->from = t;
-                        mp->fromtype = FCS_PATS__TYPE_FREECELL;
-                        mp->to = w;
-                        mp->totype = FCS_PATS__TYPE_WASTE;
-                        mp->srccard = fc_solve_empty_card;
-                        mp->destcard = w_card;
-                        mp->pri = soft_thread->pats_solve_params.x[5];
-                        num_moves++;
-                        mp++;
-                    }
-                }
-            }
-        }
-    }
-
-    /* Check for moves from soft_thread->current_pos.freecells to one of any empty soft_thread->current_pos.stacks cells. */
-
-    if (empty_col_idx >= 0) {
-        for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
-            const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
-            if (card != fc_solve_empty_card && fcs_pats_is_king_only(not_King_only, card)) {
-                mp->card = card;
-                mp->from = t;
-                mp->fromtype = FCS_PATS__TYPE_FREECELL;
-                mp->to = empty_col_idx;
-                mp->totype = FCS_PATS__TYPE_WASTE;
-                mp->srccard = fc_solve_empty_card;
-                mp->destcard = fc_solve_empty_card;
-                mp->pri = soft_thread->pats_solve_params.x[6];
-                num_moves++;
-                mp++;
-            }
-        }
-    }
-
-    /* Check for moves from soft_thread->current_pos.stacks to one of any empty soft_thread->current_pos.freecells cells. */
-
-    {
-        int t;
-        for (t = 0; t < LOCAL_FREECELLS_NUM; t++)
-        {
-            if (fcs_freecell_card(soft_thread->current_pos.s, t)
-                == fc_solve_empty_card)
-            {
-                break;
-            }
-        }
-        if (t < LOCAL_FREECELLS_NUM)
-        {
-            for (int w = 0; w < LOCAL_STACKS_NUM; w++)
-            {
-                fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
-                if (fcs_col_len(w_col) > 0)
-                {
-                    const fcs_card_t card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
-                    mp->card = card;
-                    mp->from = w;
-                    mp->fromtype = FCS_PATS__TYPE_WASTE;
-                    mp->to = t;
-                    mp->totype = FCS_PATS__TYPE_FREECELL;
-                    mp->srccard = fc_solve_empty_card;
-                    if (fcs_col_len(w_col) > 1)
-                    {
-                        mp->srccard = fcs_col_get_card(w_col, fcs_col_len(w_col) - 2);
-                    }
-                    mp->destcard = fc_solve_empty_card;
-                    mp->pri = soft_thread->pats_solve_params.x[7];
-                    num_moves++;
-                    mp++;
-                }
-            }
-        }
-    }
-
-    return num_moves;
-}
-
-/* Moves that can't be undone get slightly higher priority, since it means
-we are moving a card for the first time. */
-
-static GCC_INLINE fcs_bool_t is_irreversible_move(
-    const fcs_card_t game_variant_suit_mask,
-    const fcs_card_t game_variant_desired_suit_value,
-    const fcs_bool_t King_only,
-    const fcs_pats__move_t * const mp
-)
-{
-    if (mp->totype == FCS_PATS__TYPE_FOUNDATION)
-    {
-        return TRUE;
-    }
-    else if (mp->fromtype == FCS_PATS__TYPE_WASTE)
-    {
-        const fcs_card_t srccard = mp->srccard;
-        if (srccard != fc_solve_empty_card)
-        {
-            const fcs_card_t card = mp->card;
-            if (
-                ( fcs_card_rank(card) !=
-                  fcs_card_rank(srccard) - 1
-                )
-                ||
-                !fcs_pats_is_suitable(card, srccard,
-                    game_variant_suit_mask,
-                    game_variant_desired_suit_value
-                )
-            ) {
-                return TRUE;
-            }
-        }
-        /* TODO : This is probably a bug because mp->card probably cannot be
-         * FCS_PATS__KING - only FCS_PATS__KING bitwise-ORed with some other value.
-         * */
-        else if (King_only && mp->card != fcs_make_card(FCS_PATS__KING, 0))
-        {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-static GCC_INLINE void mark_irreversible(fcs_pats_thread_t * const soft_thread, const int n)
-{
-    const fc_solve_instance_t * const instance = soft_thread->instance;
-
-    const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
-    const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
-    const fcs_bool_t King_only =
-#ifndef FCS_FREECELL_ONLY
-        (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
-#else
-        FALSE;
-#endif
-
-    const typeof(soft_thread->pats_solve_params.x[8]) x_param_8 = soft_thread->pats_solve_params.x[8];
-
-    fcs_pats__move_t * mp = soft_thread->possible_moves;
-    const fcs_pats__move_t * const mp_end = mp + n;
-    for (; mp < mp_end ; mp++) {
-        if (is_irreversible_move(
-                game_variant_suit_mask,
-                game_variant_desired_suit_value,
-                King_only,
-                mp))
-        {
-            mp->pri += x_param_8;
-        }
-    }
-}
-
 /* Comparison function for sorting the soft_thread->current_pos.stacks piles. */
 
 static GCC_INLINE int wcmp(fcs_pats_thread_t * const soft_thread, const int a, const int b)
@@ -1040,73 +1103,5 @@ void fc_solve_pats__sort_piles(fcs_pats_thread_t * const soft_thread)
 }
 
 
-/* For each pile, return a unique identifier.  Although there are a
-large number of possible piles, generally fewer than 1000 different
-piles appear in any given game.  We'll use the pile's hash to find
-a hash bucket that contains a short list of piles, along with their
-identifiers. */
-
-static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const int w)
-{
-
-    /* For a given pile, get its unique pile id.  If it doesn't have
-    one, add it to the appropriate list and give it one.  First, get
-    the hash bucket. */
-
-    const int bucket = soft_thread->current_pos.stack_hashes[w] % FC_SOLVE_BUCKETLIST_NBUCKETS;
-
-    /* Look for the pile in this bucket. */
-
-    fcs_pats__bucket_list_t *l, *last;
-    last = NULL;
-    for (l = soft_thread->buckets_list[bucket]; l; l = l->next) {
-        if (l->hash == soft_thread->current_pos.stack_hashes[w]) {
-            const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
-            if(
-                strncmp((const char *)l->pile, (const char *)w_col+1, fcs_col_len(w_col)) == 0) {
-            break;
-            }
-        }
-        last = l;
-    }
-
-    /* If we didn't find it, make a new one and add it to the list. */
-
-    if (l == NULL) {
-        if (soft_thread->next_pile_idx == FC_SOLVE__MAX_NUM_PILES) {
-#if 0
-            fc_solve_msg("Ran out of pile numbers!");
-#endif
-            return -1;
-        }
-        l = fc_solve_pats__new(soft_thread, fcs_pats__bucket_list_t);
-        if (l == NULL) {
-            return -1;
-        }
-        const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
-        l->pile = fc_solve_pats__new_array(soft_thread, u_char, fcs_col_len(w_col) + 1);
-        if (l->pile == NULL) {
-            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
-            return -1;
-        }
-
-        /* Store the new pile along with its hash.  Maintain
-        a reverse mapping so we can unpack the piles swiftly. */
-
-        strncpy((char*)l->pile, ((const char *)w_col)+1, fcs_col_len(w_col) + 1);
-        l->hash = soft_thread->current_pos.stack_hashes[w];
-        l->next = NULL;
-        if (last == NULL) {
-            soft_thread->buckets_list[bucket] = l;
-        } else {
-            last->next = l;
-        }
-        soft_thread->bucket_from_pile_lookup[
-            l->pilenum = soft_thread->next_pile_idx++
-        ] = l;
-    }
-
-    return l->pilenum;
-}
 
 
