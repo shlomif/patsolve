@@ -53,10 +53,9 @@ static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_th
 }
 
 /* Automove logic.  Freecell games must avoid certain types of automoves. */
-static GCC_INLINE int good_automove(fcs_pats_thread_t * soft_thread, int o, int r)
+static GCC_INLINE const fcs_bool_t good_automove(fcs_pats_thread_t * const soft_thread, const int o, const int r)
 {
     const fc_solve_instance_t * const instance = soft_thread->instance;
-    int i;
 
     if (
 #ifndef FCS_FREECELL_ONLY
@@ -71,7 +70,7 @@ static GCC_INLINE int good_automove(fcs_pats_thread_t * soft_thread, int o, int 
 
     /* Check the Out piles of opposite color. */
 
-    for (i = 1 - (o & 1); i < 4; i += 2) {
+    for (int i = 1 - (o & 1); i < 4; i += 2) {
         if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 1) {
 
 #if 1   /* Raymond's Rule */
@@ -82,16 +81,12 @@ static GCC_INLINE int good_automove(fcs_pats_thread_t * soft_thread, int o, int 
             the loop variable i.  We return here and never
             make it back to the outer loop. */
 
-            for (i = 1 - (o & 1); i < 4; i += 2) {
-                if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 2) {
+            for (int j = 1 - (o & 1); j < 4; j += 2) {
+                if (fcs_foundation_value(soft_thread->current_pos.s, j) < r - 2) {
                     return FALSE;
                 }
             }
-            if (fcs_foundation_value(soft_thread->current_pos.s, ((o + 2) & 3)) < r - 3) {
-                return FALSE;
-            }
-
-            return TRUE;
+            return (fcs_foundation_value(soft_thread->current_pos.s, ((o + 2) & 3)) >= r - 3);
 #else   /* Horne's Rule */
             return FALSE;
 #endif
