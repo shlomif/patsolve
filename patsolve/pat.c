@@ -443,12 +443,14 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
 
     fcs_pats__bucket_list_t *l, *last;
     last = NULL;
+    const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
+    const int w_col_len = fcs_col_len(w_col);
+    const char * w_col_data = (const char *)w_col+1;
     for (l = soft_thread->buckets_list[bucket]; l; l = l->next) {
         if (l->hash == soft_thread->current_pos.stack_hashes[w]) {
-            const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
             if(
-                strncmp((const char *)l->pile, (const char *)w_col+1, fcs_col_len(w_col)) == 0) {
-            break;
+                memcmp((const char *)l->pile, w_col_data, w_col_len) == 0) {
+                break;
             }
         }
         last = l;
@@ -456,8 +458,10 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
 
     /* If we didn't find it, make a new one and add it to the list. */
 
-    if (l == NULL) {
-        if (soft_thread->next_pile_idx == FC_SOLVE__MAX_NUM_PILES) {
+    if (! l)
+    {
+        if (soft_thread->next_pile_idx == FC_SOLVE__MAX_NUM_PILES)
+        {
 #if 0
             fc_solve_msg("Ran out of pile numbers!");
 #endif
@@ -467,8 +471,7 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
         if (l == NULL) {
             return -1;
         }
-        const fcs_cards_column_t w_col = fcs_state_get_col(soft_thread->current_pos.s, w);
-        l->pile = fc_solve_pats__new_array(soft_thread, u_char, fcs_col_len(w_col) + 1);
+        l->pile = fc_solve_pats__new_array(soft_thread, u_char, w_col_len + 1);
         if (l->pile == NULL) {
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
             return -1;
@@ -477,7 +480,7 @@ static GCC_INLINE int get_pilenum(fcs_pats_thread_t * const soft_thread, const i
         /* Store the new pile along with its hash.  Maintain
         a reverse mapping so we can unpack the piles swiftly. */
 
-        strncpy((char*)l->pile, ((const char *)w_col)+1, fcs_col_len(w_col) + 1);
+        memcpy((char*)l->pile, w_col_data, w_col_len + 1);
         l->hash = soft_thread->current_pos.stack_hashes[w];
         l->next = NULL;
         if (last == NULL) {
