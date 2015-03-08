@@ -55,7 +55,9 @@ static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_th
 /* Automove logic.  Freecell games must avoid certain types of automoves. */
 static GCC_INLINE const fcs_bool_t good_automove(fcs_pats_thread_t * const soft_thread, const int o, const int r)
 {
+#ifndef FCS_FREECELL_ONLY
     const fc_solve_instance_t * const instance = soft_thread->instance;
+#endif
 
     if (
 #ifndef FCS_FREECELL_ONLY

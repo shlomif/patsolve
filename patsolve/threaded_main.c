@@ -245,11 +245,13 @@ static void fc_solve_pats__configure_soft_thread(
 
     typeof (soft_thread->instance) instance = soft_thread->instance;
 
+#ifndef FCS_FREECELL_ONLY
     instance->game_params.game_flags = 0;
     instance->game_params.game_flags |= FCS_SEQ_BUILT_BY_ALTERNATE_COLOR;
     instance->game_params.game_flags |= FCS_ES_FILLED_BY_ANY_CARD << 2;
     INSTANCE_STACKS_NUM = 10;
     INSTANCE_FREECELLS_NUM = 4;
+#endif
 
     Progname = *argv;
 #ifdef DEBUG
@@ -284,8 +286,10 @@ static void fc_solve_pats__configure_soft_thread(
                     instance,
                     FCS_SEQ_BUILT_BY_SUIT
                 );
+#ifndef FCS_FREECELL_ONLY
                 INSTANCE_STACKS_NUM = 10;
                 INSTANCE_FREECELLS_NUM = 4;
+#endif
                 break;
 
             case 'f':
@@ -296,9 +300,11 @@ static void fc_solve_pats__configure_soft_thread(
                 freecell_solver_user_set_sequences_are_built_by_type(
                     instance,
                     FCS_SEQ_BUILT_BY_ALTERNATE_COLOR
-                );
+                    );
+#ifndef FCS_FREECELL_ONLY
                 INSTANCE_STACKS_NUM = 8;
                 INSTANCE_FREECELLS_NUM = 4;
+#endif
                 break;
 
             case 'k':
@@ -320,12 +326,16 @@ static void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'w':
+#ifndef FCS_FREECELL_ONLY
                 INSTANCE_STACKS_NUM = atoi(curr_arg);
+#endif
                 curr_arg = NULL;
                 break;
 
             case 't':
+#ifndef FCS_FREECELL_ONLY
                 INSTANCE_FREECELLS_NUM = atoi(curr_arg);
+#endif
                 curr_arg = NULL;
                 break;
 
