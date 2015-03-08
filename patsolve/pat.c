@@ -101,7 +101,9 @@ static GCC_INLINE const fcs_bool_t good_automove(fcs_pats_thread_t * const soft_
 
 static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const a, int * const numout)
 {
+#ifndef FCS_FREECELL_ONLY
     const fc_solve_instance_t * const instance = soft_thread->instance;
+#endif
     DECLARE_STACKS();
 
     /* Check for moves from soft_thread->current_pos.stacks to soft_thread->current_pos.foundations. */
@@ -217,8 +219,10 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
         }
     }
 
+#ifndef FCS_FREECELL_ONLY
     const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
     const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
+#endif
     /* Check for moves from soft_thread->current_pos.stacks to non-empty soft_thread->current_pos.stacks cells. */
 
     for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
@@ -235,7 +239,11 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
                 {
                     const fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
                     if (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
-                         fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value)
+                         fcs_pats_is_suitable(card, w_card
+#ifndef FCS_FREECELL_ONLY
+                             , game_variant_suit_mask, game_variant_desired_suit_value
+#endif
+                             )
                     )
                     {
                         mp->card = card;
@@ -268,7 +276,11 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
                     fcs_card_t w_card = fcs_col_get_card(w_col, fcs_col_len(w_col)-1);
                     if (
                         (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
-                         fcs_pats_is_suitable(card, w_card, game_variant_suit_mask, game_variant_desired_suit_value))) {
+                         fcs_pats_is_suitable(card, w_card
+#ifndef FCS_FREECELL_ONLY
+                             , game_variant_suit_mask, game_variant_desired_suit_value
+#endif
+                             ))) {
                         mp->card = card;
                         mp->from = t;
                         mp->fromtype = FCS_PATS__TYPE_FREECELL;
@@ -351,8 +363,10 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
 we are moving a card for the first time. */
 
 static GCC_INLINE fcs_bool_t is_irreversible_move(
+#ifndef FCS_FREECELL_ONLY
     const fcs_card_t game_variant_suit_mask,
     const fcs_card_t game_variant_desired_suit_value,
+#endif
     const fcs_bool_t King_only,
     const fcs_pats__move_t * const mp
 )
@@ -372,9 +386,11 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
                   fcs_card_rank(srccard) - 1
                 )
                 ||
-                !fcs_pats_is_suitable(card, srccard,
-                    game_variant_suit_mask,
-                    game_variant_desired_suit_value
+                !fcs_pats_is_suitable(card, srccard
+#ifndef FCS_FREECELL_ONLY
+                    , game_variant_suit_mask
+                    , game_variant_desired_suit_value
+#endif
                 )
             ) {
                 return TRUE;
@@ -394,10 +410,12 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
 
 static GCC_INLINE void mark_irreversible(fcs_pats_thread_t * const soft_thread, const int n)
 {
+#ifndef FCS_FREECELL_ONLY
     const fc_solve_instance_t * const instance = soft_thread->instance;
 
     const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
     const fcs_card_t game_variant_desired_suit_value = instance->game_variant_desired_suit_value;
+#endif
     const fcs_bool_t King_only =
 #ifndef FCS_FREECELL_ONLY
         (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
@@ -411,8 +429,10 @@ static GCC_INLINE void mark_irreversible(fcs_pats_thread_t * const soft_thread, 
     const fcs_pats__move_t * const mp_end = mp + n;
     for (; mp < mp_end ; mp++) {
         if (is_irreversible_move(
+#ifndef FCS_FREECELL_ONLY
                 game_variant_suit_mask,
                 game_variant_desired_suit_value,
+#endif
                 King_only,
                 mp))
         {

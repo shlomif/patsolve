@@ -505,12 +505,14 @@ static void fc_solve_pats__configure_soft_thread(
 
     /* Initialize the suitable() macro variables. */
 
+#ifndef FCS_FREECELL_ONLY
     instance->game_variant_suit_mask = FCS_PATS__COLOR;
     instance->game_variant_desired_suit_value = FCS_PATS__COLOR;
     if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT)) {
         instance->game_variant_suit_mask = FCS_PATS__SUIT;
         instance->game_variant_desired_suit_value = 0;
     }
+#endif
 
     /* Announce which variation this is. */
 
