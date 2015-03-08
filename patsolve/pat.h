@@ -73,10 +73,19 @@ static GCC_INLINE fcs_card_t fcs_pats_next_card(const fcs_card_t card)
 /* The following macro implements
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
 */
+#ifdef FCS_FREECELL_ONLY
+static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a, const fcs_card_t b)
+{
+    const fcs_card_t suit_mask = FCS_PATS__COLOR;
+    const fcs_card_t suit_val = FCS_PATS__COLOR;
+    return (((a ^ b) & suit_mask) == suit_val);
+}
+#else
 static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a, const fcs_card_t b, const fcs_card_t suit_mask, const fcs_card_t suit_val)
 {
     return (((a ^ b) & suit_mask) == suit_val);
 }
+#endif
 
 static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const fcs_card_t card)
 {
@@ -183,8 +192,10 @@ struct fc_solve_instance_struct
 {
     /* game parameters */
     fcs_game_type_params_t game_params;
+#ifndef FCS_FREECELL_ONLY
     fcs_card_t game_variant_suit_mask;
     fcs_card_t game_variant_desired_suit_value;
+#endif
 };
 
 typedef struct fc_solve_instance_struct fc_solve_instance_t;
