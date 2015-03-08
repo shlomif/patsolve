@@ -449,6 +449,7 @@ static GCC_INLINE void fc_solve_pats__soft_thread_reset_helper(
     soft_thread->dequeue__minpos = 0;
 
     soft_thread->curr_solve_depth = 0;
+    soft_thread->curr_solve_pos = NULL;
 }
 
 static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
@@ -459,8 +460,6 @@ static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
     fc_solve_pats__free_clusters(soft_thread);
     fc_solve_pats__free_blocks(soft_thread);
 
-    soft_thread->curr_solve_depth = 0;
-    soft_thread->curr_solve_pos = NULL;
     if (soft_thread->moves_to_win)
     {
         free (soft_thread->moves_to_win);
