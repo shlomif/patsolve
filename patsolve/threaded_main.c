@@ -67,10 +67,6 @@ static const char Usage[] =
 #define USAGE() print_msg(Usage, Progname)
 
 
-#ifdef DEBUG
-long Init_mem_remain;
-#endif
-
 static const char *Progname = NULL;
 
 static GCC_INLINE void pats__recycle_soft_thread(
@@ -258,7 +254,6 @@ static void fc_solve_pats__configure_soft_thread(
 #ifdef HANDLE_SIG_QUIT
     signal(SIGQUIT, quit);
 #endif
-    print_msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 #endif
 
     /* Parse args twice.  Once to get the operating mode, and the
@@ -634,9 +629,6 @@ int main(int argc, char **argv)
     const int start_game_idx = get_idx_from_env("PATSOLVE_START");         /* for range solving */
     const int end_game_idx = get_idx_from_env("PATSOLVE_END");
 
-#ifdef DEBUG
-    Init_mem_remain = soft_thread->remaining_memory;
-#endif
     {
         int board_num_step = 1;
         int update_total_num_iters_threshold = 1000000;

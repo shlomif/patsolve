@@ -284,7 +284,6 @@ static void fc_solve_pats__configure_soft_thread(
 #ifdef HANDLE_SIG_QUIT
     signal(SIGQUIT, quit);
 #endif
-    print_msg("sizeof(POSITION) = %d\n", sizeof(POSITION));
 #endif
 
     /* Parse args twice.  Once to get the operating mode, and the
