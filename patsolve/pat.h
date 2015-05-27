@@ -50,10 +50,6 @@
 
 #define FCS_PATS__KING 13
 
-static GCC_INLINE fcs_card_t fcs_pats_card_color(const fcs_card_t card)
-{
-    return (card & FCS_PATS__COLOR);
-}
 
 /*
  * Next card in rank.
@@ -361,7 +357,7 @@ static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_th
 
         while (Freepos) {
             pos = Freepos->queue;
-            free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
+            fc_solve_pats__free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
             Freepos = pos;
         }
         if (s > soft_thread->remaining_memory) {
