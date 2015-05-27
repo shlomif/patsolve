@@ -40,21 +40,6 @@ static GCC_INLINE u_int32_t fnv_hash(const char x, const u_int32_t hash)
     return ((hash * FNV_32_PRIME) ^ x);
 }
 
-/* Hash a buffer. */
-
-static GCC_INLINE u_int32_t fnv_hash_buf(const u_char *s, const int len)
-{
-    u_int32_t h = FNV1_32_INIT;
-    const u_char * const end = s + len;
-
-    while (s < end)
-    {
-        h = fnv_hash((*(s++)), h);
-    }
-
-    return h;
-}
-
 /* Hash a 0 terminated string. */
 
 static GCC_INLINE u_int32_t fnv_hash_str(const u_char *s)
