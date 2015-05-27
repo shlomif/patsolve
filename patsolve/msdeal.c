@@ -68,7 +68,8 @@ static const char Suit[] = "CDHS";
 int main(int argc, char **argv)
 {
     int j, c;
-    int wLeft = NUM_CARDS;  // cards left to be chosen in shuffle
+    /* wLeft is the cards left to be chosen in shuffle */
+    int wLeft = NUM_CARDS;
     CARD deck[NUM_CARDS];
     CARD pos[10][10];
 
