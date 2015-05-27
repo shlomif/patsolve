@@ -365,7 +365,7 @@ static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_th
             Freepos = pos;
         }
         if (s > soft_thread->remaining_memory) {
-            soft_thread->Status = FCS_PATS__FAIL;
+            soft_thread->status = FCS_PATS__FAIL;
             return NULL;
         }
 #else
