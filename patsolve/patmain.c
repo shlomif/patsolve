@@ -63,13 +63,7 @@ static const char Usage[] =
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 #define USAGE() print_msg(Usage, Progname)
 
-
-#ifdef DEBUG
-long Init_mem_remain;
-#endif
-
 static char *Progname = NULL;
-
 
 /* Print a message and exit. */
 static void fatalerr(const char *msg, ...)
@@ -572,9 +566,6 @@ int main(int argc, char **argv)
             fatalerr("Cannot open input file '%s' (for reading).", *argv);
         }
     }
-#ifdef DEBUG
-    Init_mem_remain = soft_thread->remaining_memory;
-#endif
     if (start_game_idx < 0) {
 
         /* Read in the initial layout and play it. */
