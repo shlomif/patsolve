@@ -50,13 +50,6 @@
 #define FCS_PATS__KING 13
 
 
-/*
- * Next card in rank.
- * */
-static GCC_INLINE fcs_card_t fcs_pats_next_card(const fcs_card_t card)
-{
-    return card + (1 << 2);
-}
 
 /* Some macros used in get_possible_moves(). */
 
@@ -122,14 +115,12 @@ typedef struct fc_solve_pats__struct {
 /* > max # moves from any position */
 #define FCS_PATS__MAX_NUM_MOVES 64
 
-enum fcs_pats__insert_code_enum {
+typedef enum {
     FCS_PATS__INSERT_CODE_NEW,
     FCS_PATS__INSERT_CODE_FOUND,
     FCS_PATS__INSERT_CODE_FOUND_BETTER,
     FCS_PATS__INSERT_CODE_ERR
-};
-
-typedef enum fcs_pats__insert_code_enum fcs_pats__insert_code_t;
+} fcs_pats__insert_code_t;
 
 typedef enum
 {
