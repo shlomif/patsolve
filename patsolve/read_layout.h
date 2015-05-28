@@ -26,8 +26,10 @@
 #define FC_SOLVE_PATSOLVE_READ_LAYOUT_H
 
 #include "config.h"
-#include "pat.h"
 #include "inline.h"
+
+#include "instance.h"
+#include "pat.h"
 
 static GCC_INLINE void fc_solve_pats__read_layout(fcs_pats_thread_t * const soft_thread, const char * input_s)
 {

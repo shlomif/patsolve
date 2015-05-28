@@ -34,7 +34,6 @@ search. */
 #include <math.h>
 #include "instance.h"
 #include "fnv.h"
-#include "util.h"
 
 #include "inline.h"
 #include "bool.h"

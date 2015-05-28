@@ -39,8 +39,7 @@
 #include "state.h"
 #include "fnv.h"
 #include "alloc_wrap.h"
-
-#include "util.h"
+#include "instance.h"
 
 /* A card is represented as (suit << 4) + rank. */
 
@@ -343,7 +342,8 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fcs_pats_thread_t * const sof
 }
 
 /* A function and some macros for allocating memory. */
-/* Allocate some space and return a pointer to it.  See new() in util.h. */
+/* Allocate some space and return a pointer to it.  See fc_solve_pats__new() .
+ * */
 
 static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_thread, size_t s)
 {

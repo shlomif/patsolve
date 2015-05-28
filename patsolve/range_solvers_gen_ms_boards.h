@@ -35,6 +35,7 @@
 
 #include "inline.h"
 #include "fcs_dllexport.h"
+#include "bool.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,17 +80,16 @@ static GCC_INLINE microsoft_rand_uint_t microsoft_rand__game_num_rand(microsoft_
 typedef int CARD;
 
 
-#define     SUIT(card)      ((card) % 4)
-#define     VALUE(card)     ((card) / 4)
+#define     SUIT(card)      ((card) & (4-1))
+#define     VALUE(card)     ((card) >> 2)
 
 #define     MAXPOS          7
 #define     MAXCOL          8
 
-#ifndef FCS_WITHOUT_GET_BOARD
 static const char * card_to_string_values = "A23456789TJQK";
 static const char * card_to_string_suits = "CDHS";
 
-static GCC_INLINE char * card_to_string(char * s, CARD card, int not_append_ws)
+static GCC_INLINE char * card_to_string(char * const s, const CARD card, const fcs_bool_t not_append_ws)
 {
     s[0] = card_to_string_values[VALUE(card)];
     s[1] = card_to_string_suits[SUIT(card)];
@@ -126,47 +126,50 @@ static GCC_INLINE void get_board_l(const long long gamenumber, char * const ret)
     long long seedx = (microsoft_rand_uint_t)((gamenumber < 0x100000000LL) ? gamenumber : (gamenumber - 0x100000000LL));
     CARD    card[MAXCOL][MAXPOS];    /* current layout of cards, CARDs are ints */
 
-    int  i, j;                /*  generic counters */
-    int  wLeft = 52;          /*  cards left to be chosen in shuffle */
     CARD deck[52];            /* deck of 52 unique cards */
 
     /* shuffle cards */
 
-    for (i = 0; i < 52; i++)      /* put unique card in each deck loc. */
+    for (int i = 0; i < 52; i++)      /* put unique card in each deck loc. */
     {
         deck[i] = i;
     }
 
-    for (i = 0; i < 52; i++)
     {
-        j = microsoft_rand__game_num_rand(&seedx, gamenumber) % wLeft;
-        card[(i%8)][i/8] = deck[j];
-        deck[j] = deck[--wLeft];
+        int  wLeft = 52;          /*  cards left to be chosen in shuffle */
+        for (int i = 0; i < 52; i++)
+        {
+            const int j = microsoft_rand__game_num_rand(&seedx, gamenumber) % wLeft;
+            card[(i%8)][i/8] = deck[j];
+            deck[j] = deck[--wLeft];
+        }
     }
 
     char * append_to = ret;
 
+    for (int stack=0 ; stack < 8 ; stack++ )
     {
-        int stack;
-        int c;
-
-        for(stack=0 ; stack<8 ; stack++ )
+        const int lim = (6 + (stack<4)) - 1;
+        const CARD * const card_stack = card[stack];
+        for (int c=0 ; c < lim ; c++)
         {
-            for(c=0 ; c < (6+(stack<4)) ; c++)
-            {
-                append_to =
-                    card_to_string(
-                        append_to,
-                        card[stack][c],
-                        (c == (6-1+(stack<4)))
-                    );
-            }
-            *(append_to++) = '\n';
+            append_to =
+                card_to_string(
+                    append_to,
+                    card_stack[c],
+                    FALSE
+                );
         }
+        append_to =
+            card_to_string(
+                append_to,
+                card_stack[lim],
+                TRUE
+            );
+        *(append_to++) = '\n';
     }
     *(append_to) = '\0';
 }
-#endif
 
 #ifdef FCS_GEN_BOARDS_WITH_EXTERNAL_API
 /* This is to settle gcc's -Wmissing-prototypes which complains about missing
