@@ -351,14 +351,14 @@ static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_th
 
     if (s > soft_thread->remaining_memory) {
 #if 0
-        POSITION *pos;
+        fcs_pats_position_t *pos;
 
         /* Try to get some space back from the freelist. A vain hope. */
 
-        while (Freepos) {
-            pos = Freepos->queue;
-            fc_solve_pats__free_array(Freepos, u_char, sizeof(POSITION) + Ntpiles);
-            Freepos = pos;
+        while (soft_thread->freed_positions) {
+            pos = soft_thread->freed_positions->queue;
+            fc_solve_pats__free_array(soft_thread->freed_positions, u_char, sizeof(*pos) + Ntpiles);
+            soft_thread->freed_positions = pos;
         }
         if (s > soft_thread->remaining_memory) {
             soft_thread->status = FCS_PATS__FAIL;
@@ -557,9 +557,9 @@ extern void fc_solve_pats__initialize_solving_process(
 #include "msg.h"
 static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_thread)
 {
-    fc_solve_msg("Maxq %d\n", soft_thread->Maxq);
+    fc_solve_msg("max_queue_idx %d\n", soft_thread->max_queue_idx);
     int n = 0;
-    for (int i = 0; i <= soft_thread->Maxq; i++) {
+    for (int i = 0; i <= soft_thread->max_queue_idx; i++) {
         if (soft_thread->Inq[i]) {
             fc_solve_msg("Inq %2d %5d", i, soft_thread->Inq[i]);
             if (n & 1) {
