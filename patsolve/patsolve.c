@@ -160,7 +160,7 @@ static GCC_INLINE void unpack_position(fcs_pats_thread_t * const soft_thread, fc
     }
 }
 
-static GCC_INLINE fcs_pats_position_t * dequeue_position(fcs_pats_thread_t * soft_thread)
+static GCC_INLINE fcs_pats_position_t * dequeue_position(fcs_pats_thread_t * const soft_thread)
 {
     /* This is a kind of prioritized round robin.  We make sweeps
     through the queues, starting at the highest priority and
@@ -494,7 +494,9 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
         if (check_for_exceeded(soft_thread))
         {
             soft_thread->status = FCS_PATS__FAIL;
+#ifdef FCS_PATSOLVE__WITH_FAIL_REASON
             soft_thread->fail_reason = FCS_PATS__FAIL_CHECKED_STATES;
+#endif
             break;
         }
     }
