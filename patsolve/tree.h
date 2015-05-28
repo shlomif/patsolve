@@ -24,8 +24,8 @@
 /*
  * TODO : Add a description of this file.
  */
-#ifndef SPLAY_H
-#define SPLAY_H
+#ifndef FC_SOLVE_PATSOLVE__TREE_H
+#define FC_SOLVE_PATSOLVE__TREE_H
 
 #include <string.h>
 #include <sys/types.h>
@@ -42,4 +42,4 @@ struct fcs_pats__tree_node_struct {
 };
 
 
-#endif
+#endif /* FC_SOLVE_PATSOLVE__TREE_H */
