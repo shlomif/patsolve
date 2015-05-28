@@ -116,8 +116,9 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
         if (col_len > 0) {
             const fcs_card_t card = fcs_col_get_card(col, col_len-1);
             const int o = fcs_card_suit(card);
-            const fcs_card_t found_o = fcs_foundation_value(soft_thread->current_pos.s, o);
-            if (fcs_card_rank(card) == found_o + 1)
+            if (fcs_card_rank(card) ==
+                fcs_foundation_value(soft_thread->current_pos.s, o) + 1
+            )
             {
                 mp->card = card;
                 mp->from = w;
