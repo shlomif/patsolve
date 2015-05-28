@@ -28,7 +28,7 @@
 
 #include "inline.h"
 
-#include "util.h"
+#include "instance.h"
 #include "pat.h"
 #include "tree.h"
 
@@ -143,13 +143,16 @@ static GCC_INLINE fcs_pats__insert_code_t insert_node(
     If the new path to this position was shorter, record the new depth
     so we can prune the original path. */
 
-    fcs_pats__insert_code_t ret_code = FCS_PATS__INSERT_CODE_FOUND;
-    if (d < t->depth && !soft_thread->to_stack) {
+    if (d < t->depth && !soft_thread->to_stack)
+    {
         t->depth = d;
-        ret_code = FCS_PATS__INSERT_CODE_FOUND_BETTER;
         *node = t;
+        return FCS_PATS__INSERT_CODE_FOUND_BETTER;
     }
-    return ret_code;
+    else
+    {
+        return FCS_PATS__INSERT_CODE_FOUND;
+    }
 }
 
 /* Compact position representation.  The position is stored as an
