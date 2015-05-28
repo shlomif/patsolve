@@ -943,7 +943,7 @@ static GCC_INLINE const fcs_bool_t is_win(fcs_pats_thread_t * const soft_thread)
 
 fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int * const nmoves)
 {
-    int numout;
+    int numout = 0;
 
     /* Fill in the soft_thread->possible_moves array. */
 
