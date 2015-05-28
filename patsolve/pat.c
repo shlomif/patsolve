@@ -834,6 +834,14 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, con
     return FALSE;
 }
 
+/*
+ * Next card in rank.
+ * */
+static GCC_INLINE fcs_card_t fcs_pats_next_card(const fcs_card_t card)
+{
+    return card + (1 << 2);
+}
+
 /* Move prioritization.  Given legal, pruned moves, there are still some
 that are a waste of time, especially in the endgame where there are lots of
 possible moves, but few productive ones.  Note that we also prioritize
