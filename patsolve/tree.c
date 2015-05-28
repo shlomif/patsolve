@@ -217,38 +217,38 @@ it was new. */
 
 fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node)
 {
-    int i, k;
-    fcs_pats__tree_t *new;
-    fcs_pats__treelist_t *tl;
 
     /* Get the cluster number from the Out cell contents. */
 
-    i = fcs_foundation_value(soft_thread->current_pos.s, 0) + (fcs_foundation_value(soft_thread->current_pos.s, 1) << 4);
-    k = i;
-    i = fcs_foundation_value(soft_thread->current_pos.s, 2) + (fcs_foundation_value(soft_thread->current_pos.s, 3) << 4);
-    k |= i << 8;
-    *cluster = k;
-
     /* Get the tree for this cluster. */
 
-    tl = cluster_tree(soft_thread, k);
+    fcs_pats__treelist_t * const tl = cluster_tree(soft_thread,
+        (
+            *cluster =
+            (
+                (fcs_foundation_value(soft_thread->current_pos.s, 0) + (fcs_foundation_value(soft_thread->current_pos.s, 1) << 4)) |
+                ((fcs_foundation_value(soft_thread->current_pos.s, 2) + (fcs_foundation_value(soft_thread->current_pos.s, 3) << 4)) << 8)
+            )
+        )
+    );
+
     if (tl == NULL) {
         return FCS_PATS__INSERT_CODE_ERR;
     }
 
     /* Create a compact position representation. */
 
-    new = pack_position(soft_thread);
-    if (new == NULL) {
+    fcs_pats__tree_t * const new_pos = pack_position(soft_thread);
+    if (new_pos == NULL) {
         return FCS_PATS__INSERT_CODE_ERR;
     }
     soft_thread->num_states_in_collection++;
 
-    const fcs_pats__insert_code_t verdict = insert_node(soft_thread, new, d, &tl->tree, node);
+    const fcs_pats__insert_code_t verdict = insert_node(soft_thread, new_pos, d, &tl->tree, node);
 
     if (verdict != FCS_PATS__INSERT_CODE_NEW)
     {
-        give_back_block(soft_thread, (u_char *)new);
+        give_back_block(soft_thread, (u_char *)new_pos);
     }
 
     return verdict;
