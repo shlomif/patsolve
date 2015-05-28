@@ -79,9 +79,9 @@ static GCC_INLINE fcs_pats__treelist_t * cluster_tree(
 
 static fcs_pats__block_t * const new_block(fcs_pats_thread_t * const soft_thread);
 
-static GCC_INLINE int CMP(fcs_pats_thread_t * const soft_thread, const u_char * const a, const u_char * const b)
+static GCC_INLINE int compare_piles(const int bytes_per_pile, const u_char * const a, const u_char * const b)
 {
-    return memcmp(a, b, soft_thread->bytes_per_pile);
+    return memcmp(a, b, bytes_per_pile);
 }
 
 /* Return the previous result of fc_solve_pats__new_from_block() to the block.  This
@@ -115,8 +115,9 @@ static GCC_INLINE fcs_pats__insert_code_t insert_node(
         *tree = n;
         return FCS_PATS__INSERT_CODE_NEW;
     }
+    const typeof(soft_thread->bytes_per_pile) bytes_per_pile = soft_thread->bytes_per_pile;
     while (1) {
-        const int c = CMP(soft_thread, key, ((u_char *)t + sizeof(fcs_pats__tree_t)));
+        const int c = compare_piles(bytes_per_pile, key, ((u_char *)t + sizeof(fcs_pats__tree_t)));
         if (c == 0) {
             break;
         }
