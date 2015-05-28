@@ -215,7 +215,7 @@ static GCC_INLINE fcs_pats__tree_t *pack_position(fcs_pats_thread_t * soft_threa
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
-fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node)
+fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * const soft_thread, int * const cluster, const int d, fcs_pats__tree_t ** const node)
 {
 
     /* Get the cluster number from the Out cell contents. */
