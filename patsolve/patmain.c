@@ -208,18 +208,16 @@ static int freecell_solver_user_set_empty_stacks_filled_by(
     return 0;
 }
 
-static GCC_INLINE void trace_solution(fcs_pats_thread_t * soft_thread, FILE * out)
+static GCC_INLINE void trace_solution(fcs_pats_thread_t * const soft_thread, FILE * const out)
 {
-    int i;
-    fcs_pats__move_t *mp;
-
     /* Go back up the chain of parents and store the moves
     in reverse order. */
 
-    typeof(soft_thread->num_moves_to_win) nmoves = soft_thread->num_moves_to_win;
-    typeof(soft_thread->moves_to_win) mpp0 = soft_thread->moves_to_win;
+    const typeof(soft_thread->num_moves_to_win) nmoves = soft_thread->num_moves_to_win;
+    const typeof(soft_thread->moves_to_win) mpp0 = soft_thread->moves_to_win;
+    const typeof(mpp0) mp_end = mpp0 + nmoves;
 
-    for (i = 0, mp = mpp0; i < nmoves; i++, mp++) {
+    for (const typeof(*mpp0) * mp = mpp0; mp < mp_end; mp++) {
         fc_solve_pats__print_card(mp->card, out);
         fputc(' ', out);
         if (mp->totype == FCS_PATS__TYPE_FREECELL) {
@@ -636,24 +634,3 @@ int main(int argc, char **argv)
     }
 }
 
-#if 0
-void print_move(MOVE *mp)
-{
-  fc_solve_pats__print_card(mp->card, stderr);
-  if (mp->totype == T_TYPE) {
-   print_msg("to temp (%d)\n", mp->pri);
-  } else if (mp->totype == O_TYPE) {
-   print_msg("out (%d)\n", mp->pri);
-  } else {
-   print_msg("to ");
-   if (mp->destcard == NONE) {
-    print_msg("empty pile (%d)", mp->pri);
-   } else {
-    fc_solve_pats__print_card(mp->destcard, stderr);
-    print_msg("(%d)", mp->pri);
-   }
-   fputc('\n', stderr);
-  }
-  fc_solve_pats__print_layout(soft_thread);
-}
-#endif
