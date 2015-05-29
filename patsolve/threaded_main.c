@@ -69,16 +69,6 @@ static const char Usage[] =
 
 static const char *Progname = NULL;
 
-static GCC_INLINE void pats__recycle_soft_thread(
-    fcs_pats_thread_t * soft_thread
-)
-{
-    fc_solve_pats__free_buckets(soft_thread);
-    fc_solve_pats__free_clusters(soft_thread);
-    fc_solve_pats__free_blocks(soft_thread);
-    soft_thread->freed_positions = NULL;
-}
-
 /* Print a message and exit. */
 static void fatalerr(const char *msg, ...)
 {
@@ -613,7 +603,7 @@ static void * worker_thread(void * void_context)
                 fflush(stdout);
             }
 
-            pats__recycle_soft_thread(soft_thread);
+            fc_solve_pats__recycle_soft_thread(soft_thread);
         }
     } while (board_num <= end_board);
 

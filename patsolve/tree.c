@@ -164,24 +164,21 @@ cells are encoded as a cluster number: no two positions with different
 cluster numbers can ever be the same, so we store different clusters in
 different trees.  */
 
-static GCC_INLINE fcs_pats__tree_t *pack_position(fcs_pats_thread_t * soft_thread)
+static GCC_INLINE fcs_pats__tree_t *pack_position(fcs_pats_thread_t * const soft_thread)
 {
     DECLARE_STACKS();
-    int j, k, w;
-    u_char *p;
-    fcs_pats__tree_t *node;
 
     /* Allocate space and store the pile numbers.  The tree node
     will get filled in later, by insert_node(). */
 
-    p = fc_solve_pats__new_from_block(
+    u_char * p = fc_solve_pats__new_from_block(
         soft_thread,
         soft_thread->bytes_per_tree_node
     );
     if (p == NULL) {
         return NULL;
     }
-    node = (fcs_pats__tree_t *)p;
+    fcs_pats__tree_t * const node = (fcs_pats__tree_t *)p;
     p += sizeof(fcs_pats__tree_t);
 
     /* Pack the pile numers j into bytes p.
@@ -192,20 +189,21 @@ static GCC_INLINE fcs_pats__tree_t *pack_position(fcs_pats_thread_t * soft_threa
             p         p         p
     */
 
-    k = 0;
-    for (w = 0; w < LOCAL_STACKS_NUM; w++) {
-        j = soft_thread->current_pos.stack_ids[soft_thread->current_pos.column_idxs[w]];
-        switch (k) {
-        case 0:
-            *p++ = j >> 4;
-            *p = (j & 0xF) << 4;
-            k = 1;
-            break;
-        case 1:
+    fcs_bool_t k = FALSE;
+    for (int w = 0; w < LOCAL_STACKS_NUM; w++)
+    {
+        int j = soft_thread->current_pos.stack_ids[soft_thread->current_pos.column_idxs[w]];
+        if (k)
+        {
             *p++ |= j >> 8;         /* j is positive */
             *p++ = j & 0xFF;
-            k = 0;
-            break;
+            k = FALSE;
+        }
+        else
+        {
+            *p++ = j >> 4;
+            *p = (j & 0xF) << 4;
+            k = TRUE;
         }
     }
 
