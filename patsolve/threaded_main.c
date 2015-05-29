@@ -126,39 +126,6 @@ static void quit(fcs_pats_thread_t * soft_thread, int sig)
 
 #endif
 
-/* Read a layout file.  Format is one pile per line, bottom to top (visible
-card).  Temp cells and Out on the last two lines, if any. */
-
-static GCC_INLINE fcs_bool_t str_fgets(char * line, const int len, char * * input_s)
-{
-    char * end = strchr(*input_s, '\n');
-    if (! end)
-    {
-        end = *input_s + strlen(*input_s);
-    }
-
-    if (end - (*input_s) >= len)
-    {
-        end = (*input_s) + len-1;
-    }
-
-    fcs_bool_t ret = ((*input_s) != end);
-    if (ret)
-    {
-        strncpy(line, *input_s, end-(*input_s));
-        line[end-(*input_s)] = '\0';
-    }
-    else
-    {
-        line[0] = '\0';
-    }
-
-    (*input_s) = (((*end) == '\0') ? end : end+1);
-
-    return ret;
-}
-
-
 static int freecell_solver_user_set_sequences_are_built_by_type(
     fc_solve_instance_t * instance,
     int sequences_are_built_by
@@ -427,7 +394,7 @@ static void fc_solve_pats__configure_soft_thread(
             case 'P':
                 {
                     int i = atoi(curr_arg);
-                    if (i < 0 || i > LastParam) {
+                    if (i < 0 || i > FC_SOLVE_PATS__PARAM_PRESET__LastParam) {
                         fatalerr("invalid parameter code");
                     }
                     set_param(soft_thread, i);
