@@ -153,8 +153,7 @@ static GCC_INLINE void unpack_position(fcs_pats_thread_t * const soft_thread, fc
 
     {
         u_char * p = ( ((u_char *)pos) + sizeof(fcs_pats_position_t) );
-        const typeof(LOCAL_FREECELLS_NUM) Ntpiles = LOCAL_FREECELLS_NUM;
-        for (int i = 0; i < Ntpiles; i++) {
+        for (int i = 0 ; i < LOCAL_FREECELLS_NUM ; i++) {
             fcs_freecell_card(soft_thread->current_pos.s, i) = *(p++);
         }
     }
@@ -278,6 +277,17 @@ static fcs_pats_position_t *new_position(fcs_pats_thread_t * soft_thread, fcs_pa
     return pos;
 }
 
+/* Hash the whole layout.  This is called once, at the start. */
+
+static GCC_INLINE void fc_solve_pats__hash_layout(fcs_pats_thread_t * const soft_thread)
+{
+    DECLARE_STACKS();
+
+    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
+        fc_solve_pats__hashpile(soft_thread, w);
+    }
+}
+
 extern void fc_solve_pats__initialize_solving_process(
     fcs_pats_thread_t * const soft_thread
 )
@@ -306,7 +316,7 @@ memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
     queue_position(soft_thread, pos, 0);
 }
 
-static GCC_INLINE fcs_bool_t check_for_exceeded(fcs_pats_thread_t * const soft_thread)
+static GCC_INLINE const fcs_bool_t check_for_exceeded(fcs_pats_thread_t * const soft_thread)
 {
     return
     (

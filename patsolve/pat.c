@@ -542,17 +542,6 @@ static GCC_INLINE void win(fcs_pats_thread_t * const soft_thread, fcs_pats_posit
     soft_thread->num_moves_to_win = num_moves;
 }
 
-/* Hash the whole layout.  This is called once, at the start. */
-
-
-void fc_solve_pats__hash_layout(fcs_pats_thread_t * const soft_thread)
-{
-    DECLARE_STACKS();
-
-    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
-        fc_solve_pats__hashpile(soft_thread, w);
-    }
-}
 
 /* These two routines make and unmake moves. */
 
@@ -673,14 +662,14 @@ static GCC_INLINE int was_card_moved_or_dest(const fcs_card_t card, fcs_pats__mo
 
 /* Prune redundant moves, if we can prove that they really are redundant. */
 
-#define MAXPREVMOVE 4   /* Increasing this beyond 4 doesn't do much. */
+#define MAX_PREVIOUS_MOVES 4   /* Increasing this beyond 4 doesn't do much. */
 
 static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const mp, fcs_pats_position_t * const pos0)
 {
     DECLARE_STACKS();
     int i, j;
     int zerot;
-    fcs_pats__move_t *m, *prev[MAXPREVMOVE];
+    fcs_pats__move_t *m, *prev[MAX_PREVIOUS_MOVES];
     fcs_pats_position_t *pos;
 
     /* Don't move the same card twice in a row. */
@@ -704,7 +693,7 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, con
     }
     prev[0] = m;
     j = -1;
-    for (i = 1; i < MAXPREVMOVE; i++) {
+    for (i = 1; i < MAX_PREVIOUS_MOVES; i++) {
 
         /* Make a list of the last few moves. */
 
@@ -848,12 +837,12 @@ that are a waste of time, especially in the endgame where there are lots of
 possible moves, but few productive ones.  Note that we also prioritize
 positions when they are added to the queue. */
 
-#define NNEED 8
+#define NUM_PRIORITIZE_PILES 8
 
 static GCC_INLINE void prioritize(fcs_pats_thread_t * const soft_thread, fcs_pats__move_t * const mp0, const int n)
 {
     DECLARE_STACKS();
-    int pile[NNEED];
+    int pile[NUM_PRIORITIZE_PILES];
 
     /* There are 4 cards that we "need": the next cards to go out.  We
     give higher priority to the moves that remove cards from the piles
@@ -893,7 +882,7 @@ static GCC_INLINE void prioritize(fcs_pats_thread_t * const soft_thread, fcs_pat
             if (need[suit] != fc_solve_empty_card &&
                 (card == need[suit] || card == fcs_pats_next_card(need[suit]))) {
                 pile[num_piles++] = w;
-                if (num_piles == NNEED) {
+                if (num_piles == COUNT(pile)) {
                     goto end_of_stacks;
                 }
             }
@@ -950,7 +939,7 @@ static GCC_INLINE const fcs_bool_t is_win(fcs_pats_thread_t * const soft_thread)
 
 /* Generate an array of the moves we can make from this position. */
 
-fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int * const nmoves)
+fcs_pats__move_t * fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int * const nmoves)
 {
     int numout = 0;
 
