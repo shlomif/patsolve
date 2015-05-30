@@ -99,9 +99,9 @@ We also store the move that led to this position from the parent, as well
 as a pointers back to the parent, and the btree of all positions examined so
 far. */
 
-typedef struct fc_solve_pats__struct {
-    struct fc_solve_pats__struct *queue;      /* next position in the queue */
-    struct fc_solve_pats__struct *parent;     /* point back up the move stack */
+typedef struct fc_solve_pats__pos__struct {
+    struct fc_solve_pats__pos__struct *queue;      /* next position in the queue */
+    struct fc_solve_pats__pos__struct *parent;     /* point back up the move stack */
     fcs_pats__tree_t *node;             /* compact position rep.'s tree node */
     fcs_pats__move_t move;              /* move that got us here from the parent */
     unsigned short cluster; /* the cluster this node is in */
@@ -338,10 +338,8 @@ static GCC_INLINE void fc_solve_pats__init_buckets(fcs_pats_thread_t * const sof
 /* Allocate some space and return a pointer to it.  See fc_solve_pats__new() .
  * */
 
-static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_thread, size_t s)
+static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_thread, const size_t s)
 {
-    void *x;
-
     if (s > soft_thread->remaining_memory) {
 #if 0
         fcs_pats_position_t *pos;
@@ -363,7 +361,9 @@ static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_th
 #endif
     }
 
-    if ((x = (void *)malloc(s)) == NULL) {
+    void * const x = malloc(s);
+
+    if (x == NULL) {
         soft_thread->status = FCS_PATS__FAIL;
         return NULL;
     }

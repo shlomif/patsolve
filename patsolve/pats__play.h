@@ -55,7 +55,7 @@ static GCC_INLINE void fc_solve_pats__before_play(
     fc_solve_pats__initialize_solving_process(soft_thread);
 }
 
-static GCC_INLINE void fc_solve_pats__play(fcs_pats_thread_t * soft_thread)
+static GCC_INLINE void fc_solve_pats__play(fcs_pats_thread_t * const soft_thread)
 {
     fc_solve_pats__before_play(soft_thread);
     fc_solve_pats__do_it(soft_thread);
