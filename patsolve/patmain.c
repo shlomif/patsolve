@@ -61,7 +61,6 @@ static const char Usage[] =
   "-S speed mode; find a solution quickly, rather than a good solution\n"
   "-q quiet, -v verbose\n"
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
-#define USAGE() print_msg(Usage, Progname)
 
 static char *Progname = NULL;
 
@@ -82,9 +81,9 @@ static void fatalerr(const char *msg, ...)
 }
 
 
-static void set_param(fcs_pats_thread_t * soft_thread, int pnum)
+static void set_param(fcs_pats_thread_t * const soft_thread, const int param_num)
 {
-    soft_thread->pats_solve_params = freecell_solver_pats__x_y_params_preset[pnum];
+    soft_thread->pats_solve_params = freecell_solver_pats__x_y_params_preset[param_num];
     soft_thread->cutoff = soft_thread->pats_solve_params.x[FC_SOLVE_PATS__NUM_X_PARAM - 1];
 }
 
@@ -217,11 +216,11 @@ static GCC_INLINE void trace_solution(fcs_pats_thread_t * const soft_thread, FIL
     }
 }
 
-static void fc_solve_pats__configure_soft_thread(
-    fcs_pats_thread_t * soft_thread,
-    fc_solve_instance_t * instance,
-    int * argc_ptr,
-    char * * * argv_ptr
+static GCC_INLINE void fc_solve_pats__configure_soft_thread(
+    fcs_pats_thread_t * const soft_thread,
+    fc_solve_instance_t * const instance,
+    int * const argc_ptr,
+    char * * * const argv_ptr
 )
 {
     int argc = *argc_ptr;
@@ -436,7 +435,7 @@ static void fc_solve_pats__configure_soft_thread(
 
             default:
                 print_msg("%s: unknown flag -%c\n", Progname, c);
-                USAGE();
+                print_msg(Usage, Progname);
                 exit(1);
             }
         }
@@ -511,7 +510,7 @@ int main(int argc, char **argv)
     const int end_game_idx = get_idx_from_env("PATSOLVE_END");
 
     fcs_pats_thread_t soft_thread_struct__dont_use_directly;
-    fcs_pats_thread_t * soft_thread = &soft_thread_struct__dont_use_directly;
+    fcs_pats_thread_t * const soft_thread = &soft_thread_struct__dont_use_directly;
 
     fc_solve_instance_t instance_struct;
 

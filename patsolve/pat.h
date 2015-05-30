@@ -350,7 +350,7 @@ static GCC_INLINE void * fc_solve_pats__malloc(fcs_pats_thread_t * const soft_th
 
         while (soft_thread->freed_positions) {
             pos = soft_thread->freed_positions->queue;
-            fc_solve_pats__free_array(soft_thread->freed_positions, u_char, sizeof(*pos) + Ntpiles);
+            fc_solve_pats__free_array(soft_thread->freed_positions, u_char, sizeof(*pos) + LOCAL_FREECELLS_NUM);
             soft_thread->freed_positions = pos;
         }
         if (s > soft_thread->remaining_memory) {
@@ -413,8 +413,6 @@ static GCC_INLINE void fc_solve_pats__free_blocks(fcs_pats_thread_t * const soft
     }
     soft_thread->my_block = NULL;
 }
-
-extern void fc_solve_pats__hash_layout(fcs_pats_thread_t * const soft_thread);
 
 static GCC_INLINE void fc_solve_pats__free_clusters(fcs_pats_thread_t * const soft_thread)
 {
