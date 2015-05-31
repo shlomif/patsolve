@@ -335,6 +335,37 @@ static GCC_INLINE void wrap_up_solve(fcs_pats_thread_t * const soft_thread, cons
     soft_thread->curr_solve_dir = mydir;
 }
 
+static GCC_INLINE void freecell_solver_pats__make_move(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const m)
+{
+    fcs_card_t card;
+
+    const int from = m->from;
+    const int to = m->to;
+
+    /* Remove from pile. */
+
+    if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
+        card = fcs_freecell_card(soft_thread->current_pos.s, from);
+        fcs_empty_freecell(soft_thread->current_pos.s, from);
+    } else {
+        fcs_cards_column_t from_col = fcs_state_get_col(soft_thread->current_pos.s, from);
+        fcs_col_pop_card(from_col, card);
+        fc_solve_pats__hashpile(soft_thread, from);
+    }
+
+    /* Add to pile. */
+
+    if (m->totype == FCS_PATS__TYPE_FREECELL) {
+        fcs_freecell_card(soft_thread->current_pos.s, to) = card;
+    } else if (m->totype == FCS_PATS__TYPE_WASTE) {
+        fcs_cards_column_t to_col = fcs_state_get_col(soft_thread->current_pos.s, to);
+        fcs_col_push_card(to_col, card);
+        fc_solve_pats__hashpile(soft_thread, to);
+    } else {
+        fcs_increment_foundation(soft_thread->current_pos.s, to);
+    }
+}
+
 static GCC_INLINE int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * const is_finished)
 {
     /* short for Depth */
