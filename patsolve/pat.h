@@ -70,7 +70,7 @@ static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a, const fcs_
 }
 #endif
 
-static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const fcs_card_t card)
+static GCC_INLINE const fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const fcs_card_t card)
 {
     return (not_king_only || fcs_card_rank(card) == FCS_PATS__KING);
 }
@@ -283,7 +283,6 @@ typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
 
 extern fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * soft_thread, int *cluster, int d, fcs_pats__tree_t **node);
 extern void fc_solve_pats__do_it(fcs_pats_thread_t *);
-extern void freecell_solver_pats__make_move(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const m);
 extern fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *, int *);
 extern void fc_solve_pats__init_clusters(fcs_pats_thread_t * soft_thread);
 extern u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * soft_thread, size_t);
