@@ -1,4 +1,4 @@
-/* Copyright (c) 2002 Tom Holroyd
+/* Copyright (c) 2010 Shlomi Fish
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -21,39 +21,35 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-/* This is a 32 bit FNV hash.  For more information, see
-http://www.isthe.com/chongo/tech/comp/fnv/index.html */
+/*
+ * portable_int32.h - the Freecell Solver (mostly) portable 32-bit/etc. int
+ * typedefs.
+ */
+#ifndef FC_SOLVE__PORTABLE_INT32_H
+#define FC_SOLVE__PORTABLE_INT32_H
 
-#ifndef FC_SOLVE__PATS__FNV_H
-#define FC_SOLVE__PATS__FNV_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <sys/types.h>
-#include "config.h"
 
-#include "inline.h"
-#include "portable_int32.h"
+    /* Taken from:
+     * http://www.binarytides.com/data-type-u_int8_t-u_int16_t-u_int32_t-on-windows/
+     * */
+#if defined(_WIN32)
 
-#define FNV1_32_INIT 0x811C9DC5
-#define FNV_32_PRIME 0x01000193
+#include <stdint.h>
 
-static GCC_INLINE u_int32_t fnv_hash(const char x, const u_int32_t hash)
-{
-    return ((hash * FNV_32_PRIME) ^ x);
-}
+typedef unsigned char u_char;
+typedef uint8_t u_int8_t;
+typedef uint16_t u_int16_t;
+typedef uint32_t u_int32_t;
 
-/* Hash a 0 terminated string. */
+#endif
 
-static GCC_INLINE u_int32_t fnv_hash_str(const u_char *s)
-{
-    u_int32_t h = FNV1_32_INIT;
+#ifdef __cplusplus
+};
+#endif
 
-    u_char c;
-    while ((c = *(s++)))
-    {
-        h = fnv_hash(c, h);
-    }
-
-    return h;
-}
-
-#endif /* FC_SOLVE__PATS__FNV_H */
+#endif /* #ifndef FC_SOLVE__PORTABLE_INT32_H */

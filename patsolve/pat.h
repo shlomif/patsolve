@@ -28,7 +28,10 @@
 
 #include <stdio.h>
 #include <sys/types.h>
+
 #include "config.h"
+
+#include "portable_int32.h"
 #include "game_type_params.h"
 #include "fcs_enums.h"
 #include "tree.h"
