@@ -212,7 +212,7 @@ soft_thread->num_positions_in_clusters[pos->cluster]--;
     return pos;
 }
 
-static fcs_pats_position_t *new_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *parent, fcs_pats__move_t *m)
+static fcs_pats_position_t *new_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const parent, const fcs_pats__move_t * const m)
 {
     DECLARE_STACKS();
     int t, cluster;

@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include "inline.h"
+#include "portable_int32.h"
 
 typedef u_int64_t LONG;
 typedef void VOID;
