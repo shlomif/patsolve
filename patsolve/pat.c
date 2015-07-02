@@ -38,8 +38,6 @@
 
 /* Names of the cards.  The ordering is defined in pat.h. */
 
-DEFINE_fc_solve_empty_card();
-
 static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_thread, const int stacks_num)
 {
     for (int w = 0 ; w < stacks_num ; w++)
