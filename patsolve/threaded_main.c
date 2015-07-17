@@ -500,9 +500,6 @@ typedef struct
 
 static void * worker_thread(void * void_context)
 {
-    /* 52 cards of 3 chars (suit+rank+whitespace) each,
-     * plus 8 newlines, plus one '\0' terminator*/
-
     const context_t * const context = (const context_t * const)void_context;
 
     pack_item_t user;
