@@ -815,7 +815,7 @@ static GCC_INLINE void prioritize(fcs_pats_thread_t * const soft_thread, fcs_pat
     give higher priority to the moves that remove cards from the piles
     containing these cards. */
 
-    for (int i = 0; i < COUNT(pile); i++) {
+    for (size_t i = 0; i < COUNT(pile); i++) {
         pile[i] = -1;
     }
 

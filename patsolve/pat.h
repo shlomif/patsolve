@@ -144,7 +144,7 @@ typedef enum {
 typedef struct fcs_pats__block_struct {
     u_char *block;
     u_char *ptr;
-    int remain;
+    size_t remain;
     struct fcs_pats__block_struct *next;
 } fcs_pats__block_t;
 
@@ -198,7 +198,7 @@ enum FC_SOLVE_PATS__MYDIR { FC_SOLVE_PATS__UP, FC_SOLVE_PATS__DOWN };
 struct fc_solve__patsolve_thread_struct
 {
     fc_solve_instance_t * instance;
-    long remaining_memory;
+    size_t remaining_memory;
     int bytes_per_pile;
     fcs_pats_position_t *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
     fcs_pats_position_t *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
