@@ -27,6 +27,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+
 #include "config.h"
 
 static void print_msg(const char *msg, ...)
@@ -55,6 +56,8 @@ static void fatalerr(const char *msg, ...)
 
     exit(1);
 }
+
+static const char Usage[];
 
 #define USAGE() print_msg(Usage, Progname)
 
