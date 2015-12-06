@@ -52,45 +52,7 @@ static const char Usage[] =
   "-q quiet, -v verbose\n"
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 
-static void set_param(fcs_pats_thread_t * const soft_thread, const int param_num)
-{
-    soft_thread->pats_solve_params = freecell_solver_pats__x_y_params_preset[param_num];
-    soft_thread->cutoff = soft_thread->pats_solve_params.x[FC_SOLVE_PATS__NUM_X_PARAM - 1];
-}
 
-
-#ifdef DEBUG
-#ifdef HANDLE_SIG_QUIT
-static void quit(fcs_pats_thread_t * soft_thread, int sig)
-{
-    int i, c;
-
-    fc_solve_pats__print_queue(soft_thread);
-    c = 0;
-    for (i = 0; i <= 0xFFFF; i++) {
-        if (soft_thread->num_positions_in_clusters[i]) {
-            print_msg("%04X: %6d", i, soft_thread->num_positions_in_clusters[i]);
-            c++;
-            if (c % 5 == 0) {
-                c = 0;
-                print_msg("\n");
-            } else {
-                print_msg("\t");
-            }
-        }
-    }
-    if (c != 0) {
-        print_msg("\n");
-    }
-    fc_solve_pats__print_layout(soft_thread);
-
-#ifdef HANDLE_SIG_QUIT
-    signal(SIGQUIT, quit);
-#endif
-}
-#endif
-
-#endif
 
 static int freecell_solver_user_set_sequences_are_built_by_type(
     fc_solve_instance_t * instance,
@@ -209,11 +171,6 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
 #endif
 
     Progname = *argv;
-#ifdef DEBUG
-#ifdef HANDLE_SIG_QUIT
-    signal(SIGQUIT, quit);
-#endif
-#endif
 
     /* Parse args twice.  Once to get the operating mode, and the
     next for other options. */
