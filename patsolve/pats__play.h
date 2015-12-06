@@ -90,4 +90,56 @@ static void set_param(fcs_pats_thread_t * const soft_thread, const int param_num
     soft_thread->cutoff = soft_thread->pats_solve_params.x[FC_SOLVE_PATS__NUM_X_PARAM - 1];
 }
 
+static const int freecell_solver_user_set_sequences_are_built_by_type(
+    fc_solve_instance_t * const instance,
+    const int sequences_are_built_by
+    )
+{
+#ifndef FCS_FREECELL_ONLY
+    if ((sequences_are_built_by < 0) || (sequences_are_built_by > 2))
+    {
+        return 1;
+    }
+
+    instance->game_params.game_flags &= (~0x3);
+    instance->game_params.game_flags |= sequences_are_built_by;
+
+#endif
+
+    return 0;
+}
+
+static const int freecell_solver_user_set_empty_stacks_filled_by(
+    fc_solve_instance_t * const instance,
+    const int empty_stacks_fill
+    )
+{
+
+#ifndef FCS_FREECELL_ONLY
+    if ((empty_stacks_fill < 0) || (empty_stacks_fill > 2))
+    {
+        return 1;
+    }
+
+    instance->game_params.game_flags &= (~(0x3 << 2));
+    instance->game_params.game_flags |=
+        (empty_stacks_fill << 2);
+#endif
+
+    return 0;
+}
+
+static GCC_INLINE const int get_idx_from_env(const char * const name)
+{
+    const char * const s = getenv(name);
+    if (!s)
+    {
+        return -1;
+    }
+    else
+    {
+        return atoi(s);
+    }
+}
+
 #endif /* FC_SOLVE_PATSOLVE_PATS_PLAY_H */
