@@ -81,7 +81,7 @@ typedef struct
     fc_solve_instance_t instance_struct;
 } pack_item_t;
 
-static void * worker_thread(void * void_context)
+static void * worker_thread(void * const void_context)
 {
     const context_t * const context = (const context_t * const)void_context;
 
