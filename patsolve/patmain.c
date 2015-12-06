@@ -52,61 +52,6 @@ static const char Usage[] =
   "-q quiet, -v verbose\n"
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 
-
-
-static int freecell_solver_user_set_sequences_are_built_by_type(
-    fc_solve_instance_t * instance,
-    int sequences_are_built_by
-    )
-{
-#ifndef FCS_FREECELL_ONLY
-    if ((sequences_are_built_by < 0) || (sequences_are_built_by > 2))
-    {
-        return 1;
-    }
-
-    instance->game_params.game_flags &= (~0x3);
-    instance->game_params.game_flags |= sequences_are_built_by;
-
-#endif
-
-    return 0;
-}
-
-#if 0
-static int freecell_solver_user_set_sequence_move(
-    fc_solve_instance_t * instance,
-    int unlimited_sequence_move
-    )
-{
-#ifndef FCS_FREECELL_ONLY
-    instance->game_params.game_flags &= (~(1 << 4));
-    instance->game_params.game_flags |=
-        ((unlimited_sequence_move != 0)<< 4);
-
-#endif
-    return 0;
-}
-#endif
-
-static int freecell_solver_user_set_empty_stacks_filled_by(
-    fc_solve_instance_t * instance,
-    int empty_stacks_fill
-    )
-{
-#ifndef FCS_FREECELL_ONLY
-    if ((empty_stacks_fill < 0) || (empty_stacks_fill > 2))
-    {
-        return 1;
-    }
-
-    instance->game_params.game_flags &= (~(0x3 << 2));
-    instance->game_params.game_flags |=
-        (empty_stacks_fill << 2);
-#endif
-    return 0;
-}
-
 static GCC_INLINE void trace_solution(fcs_pats_thread_t * const soft_thread, FILE * const out)
 {
     /* Go back up the chain of parents and store the moves
@@ -418,18 +363,6 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
     return;
 }
 
-static GCC_INLINE int get_idx_from_env(const char * name)
-{
-    const char * s = getenv(name);
-    if (!s)
-    {
-        return -1;
-    }
-    else
-    {
-        return atoi(s);
-    }
-}
 
 int main(int argc, char **argv)
 {
