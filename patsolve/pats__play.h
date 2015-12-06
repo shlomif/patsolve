@@ -84,4 +84,10 @@ static GCC_INLINE void fc_solve_pats__play(fcs_pats_thread_t * const soft_thread
 #endif
 }
 
+static void set_param(fcs_pats_thread_t * const soft_thread, const int param_num)
+{
+    soft_thread->pats_solve_params = freecell_solver_pats__x_y_params_preset[param_num];
+    soft_thread->cutoff = soft_thread->pats_solve_params.x[FC_SOLVE_PATS__NUM_X_PARAM - 1];
+}
+
 #endif /* FC_SOLVE_PATSOLVE_PATS_PLAY_H */
