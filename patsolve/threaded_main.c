@@ -56,31 +56,16 @@ static const char Usage[] =
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 
 static void fc_solve_pats__configure_soft_thread(
-    fcs_pats_thread_t * soft_thread,
-    int * argc_ptr,
-    const char * * * argv_ptr
+    fcs_pats_thread_t * const soft_thread,
+    fc_solve_instance_t * const instance,
+    int * const argc_ptr,
+    const char * * * const argv_ptr
 )
 {
     int argc = *argc_ptr;
     const char * * argv = *argv_ptr;
 
-    soft_thread->is_quiet = FALSE;      /* print entertaining messages, else exit(Status); */
-    soft_thread->Noexit = FALSE;
-    soft_thread->to_stack = FALSE;
-    soft_thread->cutoff = 1;
-    soft_thread->remaining_memory = (50 * 1000 * 1000);
-    soft_thread->freed_positions = NULL;
-    /* Default variation. */
-
-    typeof (soft_thread->instance) instance = soft_thread->instance;
-
-#ifndef FCS_FREECELL_ONLY
-    instance->game_params.game_flags = 0;
-    instance->game_params.game_flags |= FCS_SEQ_BUILT_BY_ALTERNATE_COLOR;
-    instance->game_params.game_flags |= FCS_ES_FILLED_BY_ANY_CARD << 2;
-    INSTANCE_STACKS_NUM = 10;
-    INSTANCE_FREECELLS_NUM = 4;
-#endif
+    pats__init_soft_thread_and_instance(soft_thread, instance);
 
     Progname = *argv;
     /* Parse args twice.  Once to get the operating mode, and the
@@ -360,14 +345,14 @@ static void * worker_thread(void * void_context)
     const context_t * const context = (const context_t * const)void_context;
 
     pack_item_t user;
-    fcs_pats_thread_t * soft_thread = &user.soft_thread_struct__dont_use_directly;
-    soft_thread->instance = &(user.instance_struct);
+    fcs_pats_thread_t * const soft_thread = &user.soft_thread_struct__dont_use_directly;
 
     int argc = context->argc;
     char * * argv = context->argv;
 
     fc_solve_pats__configure_soft_thread(
         soft_thread,
+        &(user.instance_struct),
         &argc,
         (const char * * *)(&argv)
     );

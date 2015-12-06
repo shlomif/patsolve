@@ -142,4 +142,21 @@ static GCC_INLINE const int get_idx_from_env(const char * const name)
     }
 }
 
+
+static GCC_INLINE void pats__init_soft_thread_and_instance(
+    fcs_pats_thread_t * const soft_thread,
+    fc_solve_instance_t * const instance
+)
+{
+    fc_solve_pats__init_soft_thread(soft_thread, instance);
+#ifndef FCS_FREECELL_ONLY
+    instance->game_params.game_flags = 0;
+    instance->game_params.game_flags |= FCS_SEQ_BUILT_BY_ALTERNATE_COLOR;
+    instance->game_params.game_flags |= FCS_ES_FILLED_BY_ANY_CARD << 2;
+    INSTANCE_DECKS_NUM = 1;
+    INSTANCE_STACKS_NUM = 10;
+    INSTANCE_FREECELLS_NUM = 4;
+#endif
+}
+
 #endif /* FC_SOLVE_PATSOLVE_PATS_PLAY_H */
