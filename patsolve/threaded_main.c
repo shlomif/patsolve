@@ -43,17 +43,7 @@
 #include "print_layout.h"
 #include "read_layout.h"
 #include "pats__play.h"
-
-/* Just print a message. */
-
-static void print_msg(const char *msg, ...)
-{
-    va_list ap;
-
-    va_start(ap, msg);
-    vfprintf(stderr, msg, ap);
-    va_end(ap);
-}
+#include "pats__print_msg.h"
 
 static const char Usage[] =
   "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
@@ -64,27 +54,6 @@ static const char Usage[] =
   "-S speed mode; find a solution quickly, rather than a good solution\n"
   "-q quiet, -v verbose\n"
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
-#define USAGE() print_msg(Usage, Progname)
-
-
-static const char *Progname = NULL;
-
-/* Print a message and exit. */
-static void fatalerr(const char *msg, ...)
-{
-    va_list ap;
-
-    if (Progname) {
-        fprintf(stderr, "%s: ", Progname);
-    }
-    va_start(ap, msg);
-    vfprintf(stderr, msg, ap);
-    va_end(ap);
-    fputc('\n', stderr);
-
-    exit(1);
-}
-
 
 static void set_param(fcs_pats_thread_t * soft_thread, int pnum)
 {
