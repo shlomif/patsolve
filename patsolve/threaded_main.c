@@ -55,7 +55,7 @@ static const char Usage[] =
   "-q quiet, -v verbose\n"
   "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 
-static void fc_solve_pats__configure_soft_thread(
+static GCC_INLINE void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread_t * const soft_thread,
     fc_solve_instance_t * const instance,
     int * const argc_ptr,
@@ -68,6 +68,7 @@ static void fc_solve_pats__configure_soft_thread(
     pats__init_soft_thread_and_instance(soft_thread, instance);
 
     Progname = *argv;
+
     /* Parse args twice.  Once to get the operating mode, and the
     next for other options. */
 
@@ -107,7 +108,7 @@ static void fc_solve_pats__configure_soft_thread(
                 freecell_solver_user_set_sequences_are_built_by_type(
                     instance,
                     FCS_SEQ_BUILT_BY_ALTERNATE_COLOR
-                    );
+                );
 #ifndef FCS_FREECELL_ONLY
                 INSTANCE_STACKS_NUM = 8;
                 INSTANCE_FREECELLS_NUM = 4;

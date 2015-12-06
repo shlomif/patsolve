@@ -113,7 +113,7 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
 
     typeof(argc) argc0 = argc;
     typeof(argv) argv0 = argv;
-    char * curr_arg;
+    const char * curr_arg;
     while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv)) {
 
         /* Scan current argument until a flag indicates that the rest
