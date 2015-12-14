@@ -38,15 +38,16 @@ extern "C" {
 
 #include "fcs_move.h"
 #include "fcs_limit.h"
+#include "fcs_enums.h"
 
 #include "inline.h"
 #include "bool.h"
+#include "min_and_max.h"
 
 #include "game_type_limit.h"
 
 #include "internal_move_struct.h"
 #include "indirect_buffer.h"
-#include "fcs_dllexport.h"
 
 #if MAX_NUM_INITIAL_CARDS_IN_A_STACK+12>(MAX_NUM_DECKS*52)
 #define MAX_NUM_CARDS_IN_A_STACK (MAX_NUM_DECKS*52)
@@ -65,8 +66,6 @@ extern "C" {
 #define MAX_NUM_SCANS (FCS_MAX_NUM_SCANS_BUCKETS * (sizeof(unsigned char) * 8))
 
 #define is_scan_visited(ptr_state, scan_id) ((FCS_S_SCAN_VISITED(ptr_state))[(scan_id)>>FCS_CHAR_BIT_SIZE_LOG2] & (1 << ((scan_id)&((1<<(FCS_CHAR_BIT_SIZE_LOG2))-1))))
-#define set_scan_visited(ptr_state, scan_id) { (FCS_S_SCAN_VISITED(ptr_state))[(scan_id)>>FCS_CHAR_BIT_SIZE_LOG2] |= (1 << ((scan_id)&((1<<(FCS_CHAR_BIT_SIZE_LOG2))-1))); }
-
 
 #ifdef DEBUG_STATES
 
@@ -139,11 +138,6 @@ static GCC_INLINE fcs_card_t fcs_char2card(unsigned char c)
 #define fcs_foundation_value(state, found) \
     ( (state).foundations[(found)] )
 
-#define fcs_card_set_suit(card, d) \
-    (card).suit = (d)
-
-#define fcs_card_set_rank(card, num) \
-    (card).rank = (num)
 
 #ifndef FCS_WITHOUT_CARD_FLIPPING
 #define fcs_card_set_flipped(card, flipped) \
@@ -250,14 +244,10 @@ typedef struct fcs_struct_state_t fcs_state_t;
         }     \
     }
 
-#define fcs_duplicate_state_extra(ptr_dest, ptr_src)  \
+#define fcs_duplicate_state_extra(dest_info)  \
     {   \
-        (ptr_dest)->info.stacks_copy_on_write_flags = 0; \
+        (dest_info).stacks_copy_on_write_flags = 0; \
     }
-#define fcs_duplicate_kv_state_extra(ptr_dest, ptr_src) \
-{ \
-    ptr_dest->stacks_copy_on_write_flags = 0; \
-}
 
 typedef char fcs_locs_t;
 
@@ -270,34 +260,6 @@ typedef char fcs_locs_t;
 
 /* These are macros that are common to all three _STATES types. */
 
-/*
- * This macro determines if child can be placed above parent.
- *
- * The variable sequences_are_built_by has to be initialized to
- * the sequences_are_built_by member of the instance.
- *
- * */
-
-#ifdef FCS_FREECELL_ONLY
-
-#define fcs_is_parent_card(child, parent) \
-    ((fcs_card_rank(child)+1 == fcs_card_rank(parent)) && \
-            ((fcs_card_suit(child) & 0x1) != (fcs_card_suit(parent)&0x1)) \
-    )
-
-#else
-
-#define fcs_is_parent_card(child, parent) \
-    ((fcs_card_rank(child)+1 == fcs_card_rank(parent)) && \
-    ((sequences_are_built_by == FCS_SEQ_BUILT_BY_RANK) ?   \
-        1 :                                                          \
-        ((sequences_are_built_by == FCS_SEQ_BUILT_BY_SUIT) ?   \
-            (fcs_card_suit(child) == fcs_card_suit(parent)) :     \
-            ((fcs_card_suit(child) & 0x1) != (fcs_card_suit(parent)&0x1))   \
-        ))                \
-    )
-
-#endif
 
 #define fcs_col_get_rank(col, card_idx) \
     fcs_card_rank(fcs_col_get_card((col), (card_idx)))
@@ -336,10 +298,7 @@ typedef char fcs_locs_t;
 
 #if defined(COMPACT_STATES) || defined(DEBUG_STATES)
 
-#define fcs_duplicate_state_extra(ptr_dest, ptr_src) \
-    {}
-
-#define fcs_duplicate_kv_state_extra(ptr_dest, ptr_src) \
+#define fcs_duplicate_state_extra(dest_info)  \
     {}
 
 #define fcs_copy_stack(state_key, state_val, idx, buffer) {}
@@ -386,11 +345,6 @@ static GCC_INLINE fcs_card_t fcs_make_card(const int rank, const int suit)
     ( (card) >> 6 )
 #endif
 
-#define fcs_card_set_rank(card, num) \
-    (card) = ((fcs_card_t)(((card)&0x03)|((num)<<2)));
-
-#define fcs_card_set_suit(card, suit) \
-    (card) = ((fcs_card_t)(((card)&0xFC)|(suit)));
 
 #ifndef FCS_WITHOUT_CARD_FLIPPING
 #define fcs_card_set_flipped(card, flipped) \
@@ -523,12 +477,18 @@ typedef struct {
     fcs_state_extra_info_t * val;
 } fcs_kv_state_t;
 
-static GCC_INLINE void
-FCS_STATE_keyval_pair_to_kv(fcs_kv_state_t * ret, fcs_state_keyval_pair_t * s)
+static GCC_INLINE const fcs_kv_state_t FCS_STATE_keyval_pair_to_kv(fcs_state_keyval_pair_t * const s)
 {
-    ret->key = &(s->s);
-    ret->val = &(s->info);
+    return (const fcs_kv_state_t) {.key = &(s->s), .val = &(s->info)};
 }
+
+/* Always the same. */
+#define fcs_duplicate_kv_state(ptr_dest, ptr_src) \
+    { \
+    *((ptr_dest)->key) = *((ptr_src)->key); \
+    *((ptr_dest)->val) = *((ptr_src)->val); \
+    fcs_duplicate_state_extra(*((ptr_dest)->val));   \
+    }
 
 /*
  * This type is the struct that is collectible inside the hash.
@@ -543,20 +503,13 @@ FCS_STATE_keyval_pair_to_kv(fcs_kv_state_t * ret, fcs_state_keyval_pair_t * s)
 typedef fcs_state_extra_info_t fcs_collectible_state_t;
 #define FCS_S_ACCESSOR(s, field) ((s)->field)
 
-#define fcs_duplicate_state(ptr_dest, ptr_src) \
-    { \
-    *((ptr_dest)->key) = *((ptr_src)->key); \
-    *((ptr_dest)->val) = *((ptr_src)->val); \
-    fcs_duplicate_state_extra(((ptr_dest)->val), ((ptr_src)->val));   \
-    }
-
-#define fcs_duplicate_kv_state(x,y) fcs_duplicate_state(x,y)
+#define fcs_duplicate_state(x,y) fcs_duplicate_kv_state((x),(y))
 
 #define FCS_STATE_keyval_pair_to_collectible(s) (&((s)->info))
 #define FCS_STATE_kv_to_collectible(s) ((s)->val)
 
 static GCC_INLINE void
-FCS_STATE_collectible_to_kv(fcs_kv_state_t * ret, fcs_collectible_state_t * s)
+FCS_STATE_collectible_to_kv(fcs_kv_state_t * const ret, fcs_collectible_state_t * const s)
 {
     ret->val = s;
 }
@@ -570,21 +523,15 @@ typedef fcs_state_keyval_pair_t fcs_collectible_state_t;
 #define fcs_duplicate_state(ptr_dest, ptr_src) \
     { \
     *(ptr_dest) = *(ptr_src); \
-    fcs_duplicate_state_extra(ptr_dest, ptr_src);   \
+    fcs_duplicate_state_extra((ptr_dest)->info);   \
     }
 
 
-#define fcs_duplicate_kv_state(ptr_dest, ptr_src) \
-    { \
-    *((ptr_dest)->key) = *((ptr_src)->key); \
-    *((ptr_dest)->val) = *((ptr_src)->val); \
-    fcs_duplicate_kv_state_extra(((ptr_dest)->val), ((ptr_src)->val));   \
-    }
 
 #define FCS_STATE_keyval_pair_to_collectible(s) (s)
 #define FCS_STATE_kv_to_collectible(s) ((fcs_collectible_state_t *)((s)->key))
 
-#define FCS_STATE_collectible_to_kv(ret,s) FCS_STATE_keyval_pair_to_kv((ret),(s))
+#define FCS_STATE_collectible_to_kv(ret,s) (*(ret)) = FCS_STATE_keyval_pair_to_kv((s))
 
 #endif
 
@@ -615,28 +562,48 @@ typedef struct {
 
 extern fcs_card_t fc_solve_empty_card;
 #define DEFINE_fc_solve_empty_card() \
-    fcs_card_t fc_solve_empty_card = {0,0};
+    fcs_card_t fc_solve_empty_card = {0,0}
 
 #elif defined(COMPACT_STATES) || defined (INDIRECT_STACK_STATES)
 
 #define fc_solve_empty_card ((fcs_card_t)0)
 
-#define DEFINE_fc_solve_empty_card() \
-    ;
+#define DEFINE_fc_solve_empty_card()
 
 #endif
 
+#ifdef HARD_CODED_NUM_FREECELLS
+#define PASS_FREECELLS(arg)
+#define FREECELLS_NUM__VAL HARD_CODED_NUM_FREECELLS
+#else
+#define PASS_FREECELLS(arg) , arg
+#define FREECELLS_NUM__VAL freecells_num
+#endif
+
+#define FREECELLS_NUM__ARG PASS_FREECELLS(const int freecells_num)
+
+#ifdef HARD_CODED_NUM_STACKS
+#define PASS_STACKS(arg)
+#define STACKS_NUM__VAL HARD_CODED_NUM_STACKS
+#else
+#define PASS_STACKS(arg) , arg
+#define STACKS_NUM__VAL stacks_num
+#endif
+
+#define STACKS_NUM__ARG PASS_STACKS(const int stacks_num)
+
+#define FREECELLS_AND_STACKS_ARGS() FREECELLS_NUM__ARG STACKS_NUM__ARG
+
 extern void fc_solve_canonize_state(
-    fcs_kv_state_t * state_raw,
-    int freecells_num,
-    int stacks_num
-    );
+    fcs_state_t * const ptr_state_key
+    FREECELLS_AND_STACKS_ARGS()
+);
 
 void fc_solve_canonize_state_with_locs(
-    fcs_kv_state_t * state,
-    fcs_state_locs_struct_t * locs,
-    int freecells_num,
-    int stacks_num);
+    fcs_state_t * const ptr_state_key,
+    fcs_state_locs_struct_t * const locs
+    FREECELLS_AND_STACKS_ARGS()
+);
 
 #if (FCS_STATE_STORAGE != FCS_STATE_STORAGE_INDIRECT)
 
@@ -662,28 +629,13 @@ extern int fc_solve_state_compare_with_context(const void * s1, const void * s2,
 extern int fc_solve_state_compare_indirect(const void * s1, const void * s2);
 extern int fc_solve_state_compare_indirect_with_context(const void * s1, const void * s2, void * context);
 #endif
-enum
-{
-    FCS_USER_STATE_TO_C__SUCCESS = 0,
-    FCS_USER_STATE_TO_C__PREMATURE_END_OF_INPUT
-};
 
-
-/*
- * This function converts an entire card from its string representations
- * (e.g: "AH", "KS", "8D"), to a fcs_card_t data type.
- * */
-extern DLLEXPORT fcs_card_t fc_solve_card_user2perl(const char * str);
 
 /*
  * Convert an entire card to its user representation.
  *
  * */
-extern char * fc_solve_card_perl2user(
-    fcs_card_t card,
-    char * str,
-    fcs_bool_t t
-    );
+extern void fc_solve_card_perl2user(const fcs_card_t card, char * const str, const fcs_bool_t t);
 
 /*
  * Converts a rank from its internal representation to a string.
@@ -694,13 +646,13 @@ extern char * fc_solve_card_perl2user(
  *      the card number is out of range or equal to zero
  * t - whether 10 should be printed as T or not.
  * */
-extern char * fc_solve_p2u_rank(
-    int rank_idx,
-    char * str,
-    fcs_bool_t * rank_is_null,
-    fcs_bool_t t
+extern void fc_solve_p2u_rank(
+    const int rank_idx,
+    char * const str,
+    fcs_bool_t * const rank_is_null,
+    const fcs_bool_t t
 #ifndef FCS_WITHOUT_CARD_FLIPPING
-    , fcs_bool_t flipped
+    , const fcs_bool_t flipped
 #endif
     );
 
@@ -709,7 +661,7 @@ extern char * fc_solve_p2u_rank(
  * (e.g: "A", "K", "9") to its card number that can be used by
  * the program.
  * */
-extern DLLEXPORT int fc_solve_u2p_rank(const char * string);
+extern const int fc_solve_u2p_rank(const char * string);
 
 /*
  * This function converts a string containing a suit letter (that is
@@ -718,38 +670,50 @@ extern DLLEXPORT int fc_solve_u2p_rank(const char * string);
  * The suit letter may come somewhat after the beginning of the string.
  *
  * */
-extern DLLEXPORT int fc_solve_u2p_suit(const char * deck);
+extern const int fc_solve_u2p_suit(const char * deck);
+
+/*
+ * This function converts an entire card from its string representations
+ * (e.g: "AH", "KS", "8D"), to a fcs_card_t data type.
+ * */
+static GCC_INLINE fcs_card_t fc_solve_card_parse_str(const char * const str)
+{
+#ifndef FCS_WITHOUT_CARD_FLIPPING
+    fcs_card_set_flipped(card, fcs_u2p_flipped_status(str));
+#endif
+    return fcs_make_card(fc_solve_u2p_rank(str), fc_solve_u2p_suit(str));
+}
 
 #ifdef INDIRECT_STACK_STATES
 #define fc_solve_state_init(state, stacks_num, indirect_stacks_buffer) \
-    fc_solve_state_init_proto(state, stacks_num, indirect_stacks_buffer)
+    fc_solve_state_init_proto(state PASS_STACKS(stacks_num) , indirect_stacks_buffer)
 #else
 #define fc_solve_state_init(state, stacks_num, indirect_stacks_buffer) \
-    fc_solve_state_init_proto(state, stacks_num)
+    fc_solve_state_init_proto(state PASS_STACKS(stacks_num))
 #endif
 
 static GCC_INLINE void fc_solve_state_init_proto(
-    fcs_state_keyval_pair_t * state,
-    int stacks_num
+    fcs_state_keyval_pair_t * const state
+    STACKS_NUM__ARG
     IND_BUF_T_PARAM(indirect_stacks_buffer)
     )
 {
-#if ((!defined(FCS_WITHOUT_CARD_FLIPPING)) || defined(INDIRECT_STACK_STATES))
-    int i;
-#endif
-
-
     memset(&(state->s), 0, sizeof(state->s));
 
 #ifdef INDIRECT_STACK_STATES
-    for(i=0;i<stacks_num;i++)
     {
-        state->s.stacks[i] = &indirect_stacks_buffer[i << 7];
-        memset(state->s.stacks[i], '\0', MAX_NUM_DECKS*52+1);
-    }
-    for(;i<MAX_NUM_STACKS;i++)
-    {
-        state->s.stacks[i] = NULL;
+        int i;
+        for ( i = 0 ; i < STACKS_NUM__VAL ; i++)
+        {
+            memset(
+                state->s.stacks[i] = &indirect_stacks_buffer[i << 7],
+                 '\0', MAX_NUM_DECKS*52+1
+            );
+        }
+        for(;i<MAX_NUM_STACKS;i++)
+        {
+            state->s.stacks[i] = NULL;
+        }
     }
 #endif
     state->info.parent = NULL;
@@ -777,40 +741,36 @@ static const char * const fc_solve_foundations_prefixes[] = { "Decks:", "Deck:",
 #endif
 #endif
 
-#ifdef INDIRECT_STACK_STATES
 #define fc_solve_initial_user_state_to_c(string, out_state, freecells_num, stacks_num, decks_num, indirect_stacks_buffer) \
-    fc_solve_initial_user_state_to_c_proto(string, out_state, freecells_num, stacks_num, decks_num, indirect_stacks_buffer)
-#else
-#define fc_solve_initial_user_state_to_c(string, out_state, freecells_num, stacks_num, decks_num, indirect_stacks_buffer) \
-    fc_solve_initial_user_state_to_c_proto(string, out_state, freecells_num, stacks_num, decks_num)
-#endif
+    fc_solve_initial_user_state_to_c_proto( \
+        string, out_state \
+        PASS_FREECELLS(freecells_num) \
+        PASS_STACKS(stacks_num),\
+        decks_num \
+        PASS_IND_BUF_T(indirect_stacks_buffer) \
+        )
 
-static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
-    const char * string,
-    fcs_state_keyval_pair_t * out_state,
-    int freecells_num,
-    int stacks_num,
-    int decks_num
+/*
+ * TODO: convert to PASS_STACKS and PASS_FREECELLS.
+ * */
+static GCC_INLINE const fcs_bool_t fc_solve_initial_user_state_to_c_proto(
+    const char * const string,
+    fcs_state_keyval_pair_t * const out_state
+    FREECELLS_AND_STACKS_ARGS(),
+    const int decks_num
     IND_BUF_T_PARAM(indirect_stacks_buffer)
     )
 {
-    int s,c;
-    const char * str;
-    fcs_card_t card;
-    fcs_cards_column_t col;
-    int first_line;
-
     const char * const * prefix;
-    int decks_index[4];
 
     fc_solve_state_init(
         out_state,
-        stacks_num,
+        STACKS_NUM__VAL,
         indirect_stacks_buffer
         );
-    str = string;
+    const char * str = string;
 
-    first_line = 1;
+    fcs_bool_t first_line = TRUE;
 
 #define ret (out_state->s)
 /* Handle the end of string - shouldn't happen */
@@ -818,11 +778,11 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
     { \
         if ((*str) == '\0') \
         {  \
-            return FCS_USER_STATE_TO_C__PREMATURE_END_OF_INPUT; \
+            return FALSE; \
         } \
     }
 
-    for (s = 0 ; s < stacks_num ; s++)
+    for (int s = 0 ; s < STACKS_NUM__VAL ; s++)
     {
         /* Move to the next stack */
         if (!first_line)
@@ -835,7 +795,7 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
             str++;
         }
 
-        first_line = 0;
+        first_line = FALSE;
 
         for (prefix = fc_solve_freecells_prefixes ; (*prefix) ; prefix++)
         {
@@ -848,13 +808,13 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
 
         if (*prefix)
         {
-            for (c = 0 ; c < freecells_num ; c++)
+            for (int c = 0 ; c < FREECELLS_NUM__VAL ; c++)
             {
                 fcs_empty_freecell(ret, c);
             }
-            for (c = 0 ; c < freecells_num ; c++)
+            for (int c = 0 ; c < FREECELLS_NUM__VAL ; c++)
             {
-                if (c!=0)
+                if (c != 0)
                 {
                     while(
                             ((*str) != ' ') &&
@@ -880,16 +840,13 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
                 if ((*str == '\r') || (*str == '\n'))
                     break;
 
-                if ((*str == '*') || (*str == '-'))
-                {
-                    card = fc_solve_empty_card;
-                }
-                else
-                {
-                    card = fc_solve_card_user2perl(str);
-                }
-
-                fcs_put_card_in_freecell(ret, c, card);
+                fcs_put_card_in_freecell(ret, c,
+                    (
+                        ((*str == '*') || (*str == '-'))
+                        ? fc_solve_empty_card
+                        : fc_solve_card_parse_str(str)
+                    )
+                );
             }
 
             while (*str != '\n')
@@ -919,6 +876,7 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
                 fcs_set_foundation(ret, d, 0);
             }
 
+            int decks_index[4];
             for(d=0;d<4;d++)
             {
                 decks_index[d] = 0;
@@ -935,7 +893,7 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
                     str++;
                 /* Workaround for fc_solve_u2p_rank's willingness
                  * to designate the string '0' as 10. */
-                c = ((str[0] == '0') ? 0 : fc_solve_u2p_rank(str));
+                const int c = ((str[0] == '0') ? 0 : fc_solve_u2p_rank(str));
                 while (
                         (*str != ' ') &&
                         (*str != '\t') &&
@@ -947,7 +905,7 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
                     str++;
                 }
 
-                fcs_set_foundation(ret, (decks_index[d]*4+d), c);
+                fcs_set_foundation(ret, ((decks_index[d]<<2)+d), c);
                 decks_index[d]++;
                 if (decks_index[d] >= decks_num)
                 {
@@ -965,11 +923,11 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
             str++;
         }
 
-        col = fcs_state_get_col(ret, s);
-        for(c=0 ; c < MAX_NUM_CARDS_IN_A_STACK ; c++)
+        fcs_cards_column_t col = fcs_state_get_col(ret, s);
+        for(int c=0 ; c < MAX_NUM_CARDS_IN_A_STACK ; c++)
         {
             /* Move to the next card */
-            if (c!=0)
+            if (c != 0)
             {
                 while(
                     ((*str) != ' ') &&
@@ -996,93 +954,82 @@ static GCC_INLINE int fc_solve_initial_user_state_to_c_proto(
             {
                 break;
             }
-            card = fc_solve_card_user2perl(str);
-
-            fcs_col_push_card(col, card);
+            fcs_col_push_card(col, fc_solve_card_parse_str(str));
         }
     }
 
-    return FCS_USER_STATE_TO_C__SUCCESS;
+    return TRUE;
 }
 
 #undef ret
 #undef handle_eos
 
-extern DLLEXPORT char * fc_solve_state_as_string(
-    fcs_state_t * key,
-    fcs_state_locs_struct_t * state_locs,
-    int freecells_num,
-    int stacks_num,
-    int decks_num,
-    fcs_bool_t parseable_output,
-    fcs_bool_t canonized_order_output,
-    fcs_bool_t display_10_as_t
-    );
+extern char * fc_solve_state_as_string(
+    const fcs_state_t * const state,
+    const fcs_state_locs_struct_t * const state_locs
+    FREECELLS_AND_STACKS_ARGS()
+    ,
+    const int decks_num,
+    const fcs_bool_t parseable_output,
+    const fcs_bool_t canonized_order_output,
+    const fcs_bool_t display_10_as_t
+);
 
-enum
+typedef enum
 {
     FCS_STATE_VALIDITY__OK = 0,
     FCS_STATE_VALIDITY__MISSING_CARD = 1,
     FCS_STATE_VALIDITY__EXTRA_CARD = 2,
     FCS_STATE_VALIDITY__EMPTY_SLOT = 3,
     FCS_STATE_VALIDITY__PREMATURE_END_OF_INPUT = 4
-};
+} fcs_state_validity_ret_t;
 
-static GCC_INLINE int fc_solve_check_state_validity(
-    fcs_state_keyval_pair_t * state_pair,
-    int freecells_num,
-    int stacks_num,
-    int decks_num,
-    fcs_card_t * misplaced_card)
+static GCC_INLINE const fcs_state_validity_ret_t fc_solve_check_state_validity(
+    const fcs_state_keyval_pair_t * const state_pair
+    FREECELLS_AND_STACKS_ARGS(),
+    const int decks_num,
+    fcs_card_t * const misplaced_card)
 {
     int cards[4][14];
-    int c, s, d, f;
-    int col_len;
 
-    fcs_state_t * state;
-    fcs_cards_column_t col;
-    fcs_card_t card;
-
-    state = &(state_pair->s);
+    const fcs_state_t * const state = &(state_pair->s);
 
     /* Initialize all cards to 0 */
-    for(d=0;d<4;d++)
+    for (int d = 0 ; d < 4 ; d++)
     {
-        for(c=1;c<=13;c++)
+        for(int c = 1 ; c <= 13 ; c++)
         {
             cards[d][c] = 0;
         }
     }
 
     /* Mark the cards in the decks */
-    for(d=0;d<decks_num*4;d++)
+    for (int d=0;d<decks_num*4;d++)
     {
-        for(c=1;c<=fcs_foundation_value(*state, d);c++)
+        for(int c=1;c<=fcs_foundation_value(*state, d);c++)
         {
             cards[d%4][c]++;
         }
     }
 
     /* Mark the cards in the freecells */
-    for(f=0;f<freecells_num;f++)
+    for (int f=0;f<FREECELLS_NUM__VAL;f++)
     {
-        card = fcs_freecell_card(*state, f);
+        const fcs_card_t card = fcs_freecell_card(*state, f);
         if (fcs_card_is_valid(card))
         {
-            cards
-                [fcs_card_suit(card)]
-                [fcs_card_rank(card)] ++;
+            cards[fcs_card_suit(card)][fcs_card_rank(card)]++;
         }
     }
 
     /* Mark the cards in the stacks */
-    for(s=0;s<stacks_num;s++)
+    for (int s = 0 ; s < STACKS_NUM__VAL ; s++)
     {
-        col = fcs_state_get_col(*state, s);
-        col_len = fcs_col_len(col);
-        for(c=0;c<col_len;c++)
+        const fcs_const_cards_column_t col = fcs_state_get_col(*state, s);
+        const int col_len = fcs_col_len(col);
+        for (int c=0;c<col_len;c++)
         {
-            card = fcs_col_get_card(col,c);
+            const fcs_card_t card = fcs_col_get_card(col,c);
             if (fcs_card_is_empty(card))
             {
                 *misplaced_card = fc_solve_empty_card;
@@ -1097,7 +1044,7 @@ static GCC_INLINE int fc_solve_check_state_validity(
 
     /* Now check if there are extra or missing cards */
 
-    for(int suit_idx = 0; suit_idx < 4; suit_idx ++)
+    for (int suit_idx = 0; suit_idx < 4; suit_idx ++)
     {
         for (int rank = 1; rank <= FCS_MAX_RANK ; rank++)
         {
@@ -1130,14 +1077,6 @@ enum
     FCS_VISITED_ALL_TESTS_DONE = 0x8,
     FCS_VISITED_GENERATED_BY_PRUNING = 0x10,
 };
-
-#ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
-#endif
-
-#ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
-#endif
 
 #ifndef DEBUG_STATES
 #define FCS_WITH_CARD_COMPARE_LOOKUP
@@ -1180,8 +1119,8 @@ static GCC_INLINE int fc_solve_stack_compare_for_comparison(const void * const v
     const fcs_card_t * const s1 = (const fcs_card_t * const)v_s1;
     const fcs_card_t * const s2 = (const fcs_card_t * const)v_s2;
 
-    const int min_len = min(s1[0], s2[0]);
     {
+        const int min_len = min(s1[0], s2[0]);
         for(int a=1 ; a <= min_len ; a++)
         {
             int ret = fc_solve_card_compare(s1[a],s2[a]);
@@ -1213,5 +1152,54 @@ static GCC_INLINE int fc_solve_stack_compare_for_comparison(const void * const v
 }
 
 #endif
+
+static GCC_INLINE void set_scan_visited(fcs_collectible_state_t * const ptr_state, int scan_id)
+{
+    (FCS_S_SCAN_VISITED(ptr_state))[scan_id>>FCS_CHAR_BIT_SIZE_LOG2]
+        |= (1 << ((scan_id)&((1<<(FCS_CHAR_BIT_SIZE_LOG2))-1)));
+}
+
+/*
+ * This macro determines if child can be placed above parent.
+ *
+ * The variable sequences_are_built_by has to be initialized to
+ * the sequences_are_built_by member of the instance.
+ *
+ * */
+
+#ifdef FCS_FREECELL_ONLY
+
+static GCC_INLINE const fcs_bool_t fcs_is_parent_card__helper(const fcs_card_t child, const fcs_card_t parent)
+{
+    return
+    ((fcs_card_rank(child)+1 == fcs_card_rank(parent)) && \
+            ((fcs_card_suit(child) & 0x1) != (fcs_card_suit(parent)&0x1)) \
+    );
+}
+#define fcs_is_parent_card(child, parent) fcs_is_parent_card__helper(child, parent)
+
+#else
+
+static GCC_INLINE const fcs_bool_t fcs_is_parent_card__helper(const fcs_card_t child, const fcs_card_t parent, const int sequences_are_built_by)
+{
+    return
+    ((fcs_card_rank(child)+1 == fcs_card_rank(parent)) &&
+    ((sequences_are_built_by == FCS_SEQ_BUILT_BY_RANK) ?
+        TRUE :
+        ((sequences_are_built_by == FCS_SEQ_BUILT_BY_SUIT) ?
+            (fcs_card_suit(child) == fcs_card_suit(parent)) :
+            ((fcs_card_suit(child) & 0x1) != (fcs_card_suit(parent)&0x1))
+        ))
+    );
+}
+#define fcs_is_parent_card(child, parent) fcs_is_parent_card__helper(child, parent, sequences_are_built_by)
+
+#endif
+
+#define FCS_STATE__DUP_keyval_pair(dest, src) \
+    { \
+    (dest) = (src); \
+    fcs_duplicate_state_extra((dest).info);   \
+    }
 
 #endif /* FC_SOLVE__STATE_H */

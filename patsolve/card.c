@@ -43,7 +43,7 @@ DEFINE_fc_solve_empty_card();
  * (e.g: "A", "K", "9") to its card number that can be used by
  * the program.
  * */
-int fc_solve_u2p_rank(const char * string)
+const int fc_solve_u2p_rank(const char * string)
 {
     while (1)
     {
@@ -96,7 +96,7 @@ int fc_solve_u2p_rank(const char * string)
  * The suit letter may come somewhat after the beginning of the string.
  *
  * */
-int fc_solve_u2p_suit(const char * suit)
+const int fc_solve_u2p_suit(const char * suit)
 {
     while (TRUE)
     {
@@ -119,7 +119,7 @@ int fc_solve_u2p_suit(const char * suit)
 }
 
 #ifndef FCS_WITHOUT_CARD_FLIPPING
-static GCC_INLINE int fcs_u2p_flipped_status(const char * str)
+static GCC_INLINE const int fcs_u2p_flipped_status(const char * str)
 {
     while (*str)
     {
@@ -133,19 +133,6 @@ static GCC_INLINE int fcs_u2p_flipped_status(const char * str)
 }
 #endif
 
-/*
- * This function converts an entire card from its string representations
- * (e.g: "AH", "KS", "8D"), to a fcs_card_t data type.
- * */
-fcs_card_t fc_solve_card_user2perl(const char * str)
-{
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-    fcs_card_set_flipped(card, fcs_u2p_flipped_status(str));
-#endif
-    const int rank = fc_solve_u2p_rank(str);
-    const int suit = fc_solve_u2p_suit(str);
-    return fcs_make_card(rank, suit);
-}
 
 
 /*
@@ -157,16 +144,16 @@ fcs_card_t fc_solve_card_user2perl(const char * str)
  *
  * */
 #ifdef CARD_DEBUG_PRES
-static char card_map_3_10[14][4] = { "*", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
-
-static char card_map_3_T[14][4] = { "*", "A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K" };
-
+#define CARD_ZERO() "*"
 #else
-static char card_map_3_10[14][4] = { " ", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
-
-static char card_map_3_T[14][4] = { " ", "A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K" };
-
+#define CARD_ZERO() " "
 #endif
+
+#define GEN_CARD_MAP(t_card) { CARD_ZERO(), "A", "2", "3", "4", "5", "6", "7", "8", "9", t_card, "J", "Q", "K" }
+
+static const char card_map_3_10[14][4] = GEN_CARD_MAP("10");
+
+static const char card_map_3_T[14][4] = GEN_CARD_MAP("T");
 
 /*
  * Converts a rank from its internal representation to a string.
@@ -178,21 +165,16 @@ static char card_map_3_T[14][4] = { " ", "A", "2", "3", "4", "5", "6", "7", "8",
  * t - whether 10 should be printed as T or not.
  * flipped - whether the card is face down
  * */
-char * fc_solve_p2u_rank(
-    int rank_idx,
-    char * str,
-    fcs_bool_t * rank_is_null,
-    fcs_bool_t t
+void fc_solve_p2u_rank(
+    const int rank_idx,
+    char * const str,
+    fcs_bool_t * const rank_is_null,
+    const fcs_bool_t t
 #ifndef FCS_WITHOUT_CARD_FLIPPING
-    , fcs_bool_t flipped
+    , const fcs_bool_t flipped
 #endif
     )
 {
-    char (*card_map_3) [4] = card_map_3_10;
-    if (t)
-    {
-        card_map_3 = card_map_3_T;
-    }
 #if defined(CARD_DEBUG_PRES) || defined(FCS_WITHOUT_CARD_FLIPPING)
 #else
     if (flipped)
@@ -203,30 +185,22 @@ char * fc_solve_p2u_rank(
     else
 #endif
     {
-        if ((rank_idx >= 0) && (rank_idx <= 13))
-        {
-            strcpy(str, card_map_3[rank_idx]);
-            *rank_is_null = (rank_idx == 0);
-        }
-        else
-        {
-            strncpy(str, card_map_3[0], strlen(card_map_3[0])+1);
-            *rank_is_null = TRUE;
-        }
+        const fcs_bool_t out_of_range = ((rank_idx < 1) || (rank_idx > 13));
+        strcpy(str, (t ? card_map_3_T : card_map_3_10)[out_of_range ? 0 : rank_idx]);
+        *rank_is_null = out_of_range;
     }
-    return str;
 }
 
 /*
  * Converts a suit to its user representation.
  *
  * */
-static GCC_INLINE char * fc_solve_p2u_suit(
-        int suit,
-        char * str,
-        fcs_bool_t rank_is_null
+static GCC_INLINE void fc_solve_p2u_suit(
+        const int suit,
+        char * const str,
+        const fcs_bool_t rank_is_null
 #ifndef FCS_WITHOUT_CARD_FLIPPING
-        , fcs_bool_t flipped
+        , const fcs_bool_t flipped
 #endif
         )
 {
@@ -256,14 +230,13 @@ static GCC_INLINE char * fc_solve_p2u_suit(
         strncpy(str, "S", 2);
     else
         strncpy(str, " ", 2);
-    return str;
 }
 
 /*
  * Convert an entire card to its user representation.
  *
  * */
-char * fc_solve_card_perl2user(fcs_card_t card, char * str, fcs_bool_t t)
+void fc_solve_card_perl2user(const fcs_card_t card, char * const str, const fcs_bool_t t)
 {
 #ifdef CARD_DEBUG_PRES
     if (fcs_card_get_flipped(card))
@@ -305,6 +278,4 @@ char * fc_solve_card_perl2user(fcs_card_t card, char * str, fcs_bool_t t)
         strcat(str, ">");
     }
 #endif
-
-    return str;
 }
