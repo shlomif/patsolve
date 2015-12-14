@@ -22,23 +22,22 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 /*
- * indirect_buffer.h - declare the dll_ind_buf_t type.
+ * min_and_max.h - header file for the min(a,b) and max(a,b) macros.
  *
  */
-#ifndef FC_SOLVE__INDIRECT_BUFFER_H
-#define FC_SOLVE__INDIRECT_BUFFER_H
+#ifndef FC_SOLVE__MIN_AND_MAX_H
+#define FC_SOLVE__MIN_AND_MAX_H
 
-#include "config.h"
-
-#ifdef INDIRECT_STACK_STATES
-typedef char dll_ind_buf_t[MAX_NUM_STACKS << 7];
-#define DECLARE_IND_BUF_T(ident) dll_ind_buf_t ident;
-#define IND_BUF_T_PARAM(ident) , dll_ind_buf_t ident
-#define PASS_IND_BUF_T(ident) , ident
-#else
-#define DECLARE_IND_BUF_T(ident)
-#define IND_BUF_T_PARAM(ident)
-#define PASS_IND_BUF_T(ident)
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+#ifndef min
+#define min(a,b) ((a)<(b)?(a):(b))
 #endif
+
+#ifndef max
+#define max(a,b) ((a)>(b)?(a):(b))
+#endif
+
+#endif /* FC_SOLVE__MIN_AND_MAX_H */

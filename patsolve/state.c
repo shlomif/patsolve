@@ -56,40 +56,47 @@ static GCC_INLINE int fcs_stack_compare(const void * s1, const void * s2)
 #endif
 
 #ifdef COMPACT_STATES
+
 #define DECLARE_TEMP_STACK() char temp_stack[(MAX_NUM_CARDS_IN_A_STACK+1)]
 #define STACK_COMPARE(a,b) (fcs_stack_compare((a),(b)))
 #define GET_STACK(c) (state_key->data+(c)*(MAX_NUM_CARDS_IN_A_STACK+1))
 #define COPY_STACK(d,s) (memcpy(d, s, (MAX_NUM_CARDS_IN_A_STACK+1)))
 #define GET_FREECELL(c) (state_key->data[FCS_FREECELLS_OFFSET+(c)])
+
 #elif defined(DEBUG_STATES) || defined(INDIRECT_STACK_STATES)
+
 #ifdef DEBUG_STATES
+
 #define DECLARE_TEMP_STACK() fc_stack_t temp_stack
 #define STACK_COMPARE(a,b) (fcs_stack_compare((&(a)),(&(b))))
+
 #else
+
 #define DECLARE_TEMP_STACK() fcs_card_t * temp_stack
 #define STACK_COMPARE(a,b) (fc_solve_stack_compare_for_comparison(a,b))
+
 #endif
+
 #define GET_STACK(c) (state_key->stacks[c])
 #define COPY_STACK(d,s) (d = s)
 #define GET_FREECELL(c) (state_key->freecells[(c)])
+
 #endif
 
 void fc_solve_canonize_state(
-    fcs_kv_state_t * state_raw,
-    int freecells_num,
-    int stacks_num)
+    fcs_state_t * const ptr_state_key
+    FREECELLS_AND_STACKS_ARGS()
+)
 {
-    int b,c;
-
     DECLARE_TEMP_STACK();
     fcs_card_t temp_freecell;
 
-#define state_key (state_raw->key)
+#define state_key (ptr_state_key)
     /* Insertion-sort the stacks */
 
-    for(b=1;b<stacks_num;b++)
+    for (int b=1 ; b < STACKS_NUM__VAL ; b++)
     {
-        c = b;
+        int c = b;
         while(
             (c>0)    &&
             ((STACK_COMPARE(
@@ -110,11 +117,11 @@ void fc_solve_canonize_state(
 
     /* Insertion-sort the freecells */
 
-    for(b=1;b<freecells_num;b++)
+    for (int b=1 ; b < FREECELLS_NUM__VAL ; b++)
     {
-        c = b;
+        int c = b;
 
-        while(
+        while (
             (c>0)    &&
             ((fc_solve_card_compare(
                 (GET_FREECELL(c)),
@@ -135,23 +142,21 @@ void fc_solve_canonize_state(
 
 
 void fc_solve_canonize_state_with_locs(
-    fcs_kv_state_t * state,
-#define state_key (state->key)
-    fcs_state_locs_struct_t * locs,
-    int freecells_num,
-    int stacks_num)
+    fcs_state_t * const ptr_state_key,
+#define state_key (ptr_state_key)
+    fcs_state_locs_struct_t * const locs
+    FREECELLS_AND_STACKS_ARGS()
+)
 {
-    int b,c;
-
     DECLARE_TEMP_STACK();
     fcs_card_t temp_freecell;
     fcs_locs_t temp_loc;
 
     /* Insertion-sort the stacks */
 
-    for(b=1;b<stacks_num;b++)
+    for ( int b=1 ; b < STACKS_NUM__VAL ; b++)
     {
-        c = b;
+        int c = b;
         while(
             (c>0)    &&
             ((STACK_COMPARE(
@@ -176,9 +181,9 @@ void fc_solve_canonize_state_with_locs(
 
     /* Insertion-sort the freecells */
 
-    for(b=1;b<freecells_num;b++)
+    for (int b=1 ; b < FREECELLS_NUM__VAL ; b++)
     {
-        c = b;
+        int c = b;
 
         while(
             (c>0)    &&
@@ -207,7 +212,7 @@ void fc_solve_canonize_state_with_locs(
 #if (FCS_STATE_STORAGE != FCS_STATE_STORAGE_INDIRECT)
 
 #if (FCS_STATE_STORAGE == FCS_STATE_STORAGE_GLIB_HASH)
-int fc_solve_state_compare_equal(const void * s1, const void * s2)
+int fc_solve_state_compare_equal(const void * const s1, const void * const s2)
 {
     return (!memcmp(s1,s2,sizeof(fcs_state_t)));
 }
@@ -224,7 +229,7 @@ int fc_solve_state_compare_with_context(
 
 #else
 
-int fc_solve_state_compare_indirect(const void * s1, const void * s2)
+int fc_solve_state_compare_indirect(const void * const s1, const void * const s2)
 {
     return memcmp(*(fcs_state_t * *)s1, *(fcs_state_t * *)s2, sizeof(fcs_state_t));
 }
@@ -237,16 +242,16 @@ int fc_solve_state_compare_indirect_with_context(const void * s1, const void * s
 #endif
 
 char * fc_solve_state_as_string(
-    fcs_state_t * state,
-    fcs_state_locs_struct_t * state_locs,
+    const fcs_state_t * const state,
+    const fcs_state_locs_struct_t * const state_locs
 #define FCS_S_STACK_LOCS() (state_locs->stack_locs)
 #define FCS_S_FC_LOCS() (state_locs->fc_locs)
-    int freecells_num,
-    int stacks_num,
-    int decks_num,
-    fcs_bool_t parseable_output,
-    fcs_bool_t canonized_order_output,
-    fcs_bool_t display_10_as_t
+    FREECELLS_AND_STACKS_ARGS()
+    ,
+    const int decks_num,
+    const fcs_bool_t parseable_output,
+    const fcs_bool_t canonized_order_output,
+    const fcs_bool_t display_10_as_t
     )
 {
     char freecell[10], decks[MAX_NUM_DECKS*4][10], stack_card_str[10];
@@ -256,7 +261,7 @@ char * fc_solve_state_as_string(
     fcs_cards_column_t col;
     int col_len;
 
-    char str2[128], str3[128], * str2_ptr, * str3_ptr;
+    char str2[128], * str2_ptr;
 
     fc_solve_append_string_t app_str_struct;
 #define app_str (&app_str_struct)
@@ -266,22 +271,22 @@ char * fc_solve_state_as_string(
 
     if (canonized_order_output)
     {
-        for(a=0;a<stacks_num;a++)
+        for (a = 0 ; a < STACKS_NUM__VAL ; a++)
         {
             stack_locs[a] = a;
         }
-        for(a=0;a<freecells_num;a++)
+        for (a = 0 ; a < FREECELLS_NUM__VAL ; a++)
         {
             freecell_locs[a] = a;
         }
     }
     else
     {
-        for(a=0;a<stacks_num;a++)
+        for (a = 0 ; a < STACKS_NUM__VAL ; a++)
         {
             stack_locs[(int)((FCS_S_STACK_LOCS())[a])] = a;
         }
-        for(a=0;a<freecells_num;a++)
+        for (a = 0 ; a < FREECELLS_NUM__VAL ; a++)
         {
             freecell_locs[(int)((FCS_S_FC_LOCS())[a])] = a;
         }
@@ -306,23 +311,24 @@ char * fc_solve_state_as_string(
 
     if(!parseable_output)
     {
-        for(a=0;a<((freecells_num/4)+((freecells_num%4==0)?0:1));a++)
+        for(a=0;a<((FREECELLS_NUM__VAL/4)+((FREECELLS_NUM__VAL%4==0)?0:1));a++)
         {
+            char dashes_s[128];
+            char * dashes_ptr = dashes_s;
             str2_ptr = str2;
-            str3_ptr = str3;
-            for(b=0;b<min(freecells_num-a*4, 4);b++)
+            for(b=0;b<min(FREECELLS_NUM__VAL-a*4, 4);b++)
             {
-                str2_ptr += sprintf(str2_ptr, "%3s ",
-                    fc_solve_card_perl2user(
-                        fcs_freecell_card(
-                            *state,
-                            freecell_locs[a*4+b]
-                        ),
-                        freecell,
-                        display_10_as_t
-                    )
+                fc_solve_card_perl2user(
+                    fcs_freecell_card(
+                        *state,
+                        freecell_locs[a*4+b]
+                    ),
+                    freecell,
+                    display_10_as_t
                 );
-                str3_ptr += sprintf(str3_ptr, "--- ");
+                str2_ptr += sprintf(str2_ptr, "%3s ", freecell);
+                strcpy(dashes_ptr, "--- ");
+                dashes_ptr = strchr(dashes_ptr, '\0');
             }
             if (a < decks_num)
             {
@@ -345,7 +351,7 @@ char * fc_solve_state_as_string(
             }
             fc_solve_append_string_sprintf(
                 app_str,
-                "%s\n", str3
+                "%s\n", dashes_ptr
                 );
         }
         for(;a<decks_num;a++)
@@ -366,7 +372,7 @@ char * fc_solve_state_as_string(
             "\n\n"
             );
 
-        for(s=0;s<stacks_num;s++)
+        for (s = 0 ; s < STACKS_NUM__VAL ; s++)
         {
             fc_solve_append_string_sprintf(app_str, "%s", " -- ");
         }
@@ -377,7 +383,7 @@ char * fc_solve_state_as_string(
             );
 
         max_num_cards = 0;
-        for(s=0;s<stacks_num;s++)
+        for(s=0;s<STACKS_NUM__VAL;s++)
         {
             col = fcs_state_get_col(*state, stack_locs[s]);
             col_len = fcs_col_len(col);
@@ -389,7 +395,7 @@ char * fc_solve_state_as_string(
 
         for (card_idx = 0 ; card_idx < max_num_cards ; card_idx++)
         {
-            for(s = 0; s<stacks_num; s++)
+            for(s = 0; s<STACKS_NUM__VAL; s++)
             {
                 col = fcs_state_get_col(*state, stack_locs[s]);
                 col_len = fcs_col_len(col);
@@ -402,14 +408,15 @@ char * fc_solve_state_as_string(
                 }
                 else
                 {
+                    fc_solve_card_perl2user(
+                        fcs_col_get_card(col, card_idx),
+                        stack_card_str,
+                        display_10_as_t
+                    );
                     fc_solve_append_string_sprintf(
                         app_str,
                         "%3s ",
-                        fc_solve_card_perl2user(
-                            fcs_col_get_card(col, card_idx),
-                            stack_card_str,
-                            display_10_as_t
-                            )
+                        stack_card_str
                         );
                 }
             }
@@ -433,28 +440,29 @@ char * fc_solve_state_as_string(
 
         fc_solve_append_string_sprintf(app_str, "%s", "\nFreecells: ");
 
-        for(a=0;a<freecells_num;a++)
+        for(a=0;a<FREECELLS_NUM__VAL;a++)
         {
+            fc_solve_card_perl2user(
+                fcs_freecell_card(
+                    *state,
+                    freecell_locs[a]
+                ),
+                freecell,
+                display_10_as_t
+            );
             fc_solve_append_string_sprintf(
                 app_str,
                 "%3s",
-                fc_solve_card_perl2user(
-                    fcs_freecell_card(
-                        *state,
-                        freecell_locs[a]
-                    ),
-                    freecell,
-                    display_10_as_t
-                )
+                freecell
             );
-            if (a < freecells_num-1)
+            if (a < FREECELLS_NUM__VAL-1)
             {
                 fc_solve_append_string_sprintf(app_str, "%s", " ");
             }
         }
         fc_solve_append_string_sprintf(app_str, "%s", "\n");
 
-        for(s=0;s<stacks_num;s++)
+        for(s=0;s<STACKS_NUM__VAL;s++)
         {
             col = fcs_state_get_col(*state, stack_locs[s]);
             col_len = fcs_col_len(col);
@@ -476,6 +484,7 @@ char * fc_solve_state_as_string(
             fc_solve_append_string_sprintf(app_str, "%s", "\n");
         }
     }
+#undef app_str
 
     return fc_solve_append_string_finalize(&app_str_struct);
 }

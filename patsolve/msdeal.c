@@ -22,7 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 /*
- * TODO : Deal Microsoft Freecell / FreeCell-Pro deals.
+ * Deal Microsoft Freecell / FreeCell-Pro deals.
  */
 #include <stdio.h>
 #include <stdlib.h>
