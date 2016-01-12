@@ -43,11 +43,17 @@ DEFINE_fc_solve_empty_card();
  * (e.g: "A", "K", "9") to its card number that can be used by
  * the program.
  * */
+#ifdef FC_SOLVE__STRICTER_BOARD_PARSING
+#define FCS_MAP_CHAR(c) (c)
+#else
+#define FCS_MAP_CHAR(c) (toupper(c))
+#endif
+
 const int fc_solve_u2p_rank(const char * string)
 {
     while (1)
     {
-        switch (toupper(*string))
+        switch (FCS_MAP_CHAR(*string))
         {
             case '\0':
             case ' ':
@@ -61,10 +67,14 @@ const int fc_solve_u2p_rank(const char * string)
                 return 12;
             case 'K':
                 return 13;
+#ifndef FC_SOLVE__STRICTER_BOARD_PARSING
             case '1':
                 return (string[1] == '0')?10:1;
+#endif
             case 'T':
+#ifndef FC_SOLVE__STRICTER_BOARD_PARSING
             case '0':
+#endif
                 return 10;
             case '2':
                 return 2;
@@ -100,7 +110,7 @@ const int fc_solve_u2p_suit(const char * suit)
 {
     while (TRUE)
     {
-        switch(toupper(*suit))
+        switch(FCS_MAP_CHAR(*suit))
         {
             case 'H':
             case ' ':
@@ -151,9 +161,13 @@ static GCC_INLINE const int fcs_u2p_flipped_status(const char * str)
 
 #define GEN_CARD_MAP(t_card) { CARD_ZERO(), "A", "2", "3", "4", "5", "6", "7", "8", "9", t_card, "J", "Q", "K" }
 
+#ifndef FCS_IMPLICIT_T_RANK
 static const char card_map_3_10[14][4] = GEN_CARD_MAP("10");
 
 static const char card_map_3_T[14][4] = GEN_CARD_MAP("T");
+#else
+static const char cards_char_map[15] = ( CARD_ZERO() "A23456789TJQK" );
+#endif
 
 /*
  * Converts a rank from its internal representation to a string.
@@ -168,8 +182,8 @@ static const char card_map_3_T[14][4] = GEN_CARD_MAP("T");
 void fc_solve_p2u_rank(
     const int rank_idx,
     char * const str,
-    fcs_bool_t * const rank_is_null,
-    const fcs_bool_t t
+    fcs_bool_t * const rank_is_null
+    PASS_T(const fcs_bool_t t)
 #ifndef FCS_WITHOUT_CARD_FLIPPING
     , const fcs_bool_t flipped
 #endif
@@ -186,7 +200,16 @@ void fc_solve_p2u_rank(
 #endif
     {
         const fcs_bool_t out_of_range = ((rank_idx < 1) || (rank_idx > 13));
-        strcpy(str, (t ? card_map_3_T : card_map_3_10)[out_of_range ? 0 : rank_idx]);
+#define INDEX() (out_of_range ? 0 : rank_idx)
+#ifdef FCS_IMPLICIT_T_RANK
+        str[0] = cards_char_map[INDEX()];
+        str[1] = '\0';
+#else
+        strcpy(str,
+            (t ? card_map_3_T : card_map_3_10)
+            [INDEX()]);
+#endif
+#undef INDEX
         *rank_is_null = out_of_range;
     }
 }
@@ -236,7 +259,9 @@ static GCC_INLINE void fc_solve_p2u_suit(
  * Convert an entire card to its user representation.
  *
  * */
-void fc_solve_card_perl2user(const fcs_card_t card, char * const str, const fcs_bool_t t)
+void fc_solve_card_perl2user(const fcs_card_t card, char * const str
+    PASS_T(const fcs_bool_t t)
+)
 {
 #ifdef CARD_DEBUG_PRES
     if (fcs_card_get_flipped(card))
@@ -250,8 +275,8 @@ void fc_solve_card_perl2user(const fcs_card_t card, char * const str, const fcs_
     fc_solve_p2u_rank(
         fcs_card_rank(card),
         str,
-        &rank_is_null,
-        t
+        &rank_is_null
+        PASS_T(t)
 #ifndef FCS_WITHOUT_CARD_FLIPPING
         ,
         fcs_card_get_flipped(card)

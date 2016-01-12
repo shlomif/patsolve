@@ -35,7 +35,6 @@
 #include "config.h"
 #include "state.h"
 #include "fcs_enums.h"
-#include "app_str.h"
 #include "unused.h"
 #include "inline.h"
 
@@ -241,105 +240,106 @@ int fc_solve_state_compare_indirect_with_context(const void * s1, const void * s
 
 #endif
 
-char * fc_solve_state_as_string(
-    const fcs_state_t * const state,
-    const fcs_state_locs_struct_t * const state_locs
+void fc_solve_state_as_string(
+    char * output_s,
+    const fcs_state_t * const state
+    , const fcs_state_locs_struct_t * const state_locs
 #define FCS_S_STACK_LOCS() (state_locs->stack_locs)
 #define FCS_S_FC_LOCS() (state_locs->fc_locs)
-    FREECELLS_AND_STACKS_ARGS()
-    ,
-    const int decks_num,
-    const fcs_bool_t parseable_output,
-    const fcs_bool_t canonized_order_output,
-    const fcs_bool_t display_10_as_t
+    FREECELLS_STACKS_DECKS__ARGS()
+    FC_SOLVE__PASS_PARSABLE(const fcs_bool_t parseable_output)
+    , const fcs_bool_t canonized_order_output
+    PASS_T(const fcs_bool_t display_10_as_t)
     )
 {
-    char freecell[10], decks[MAX_NUM_DECKS*4][10], stack_card_str[10];
-    int a, b;
-    fcs_bool_t rank_is_null;
-    int max_num_cards, s, card_idx;
-    fcs_cards_column_t col;
-    int col_len;
+    typedef char one_card_buffer[4];
+    char decks[MAX_NUM_DECKS*4][10];
 
-    char str2[128], * str2_ptr;
-
-    fc_solve_append_string_t app_str_struct;
-#define app_str (&app_str_struct)
+#define fc_solve_append_string_sprintf(unused, ...) output_s += sprintf(output_s, __VA_ARGS__)
+#define app_str 1
+#define append_char(c) *(output_s++) = (c)
 
     int stack_locs[MAX_NUM_STACKS];
     int freecell_locs[MAX_NUM_FREECELLS];
 
     if (canonized_order_output)
     {
-        for (a = 0 ; a < STACKS_NUM__VAL ; a++)
+        for (int i = 0 ; i < STACKS_NUM__VAL ; i++)
         {
-            stack_locs[a] = a;
+            stack_locs[i] = i;
         }
-        for (a = 0 ; a < FREECELLS_NUM__VAL ; a++)
+        for (int i = 0 ; i < FREECELLS_NUM__VAL ; i++)
         {
-            freecell_locs[a] = a;
+            freecell_locs[i] = i;
         }
     }
     else
     {
-        for (a = 0 ; a < STACKS_NUM__VAL ; a++)
+        for (int i = 0 ; i < STACKS_NUM__VAL ; i++)
         {
-            stack_locs[(int)((FCS_S_STACK_LOCS())[a])] = a;
+            stack_locs[(int)((FCS_S_STACK_LOCS())[i])] = i;
         }
-        for (a = 0 ; a < FREECELLS_NUM__VAL ; a++)
+        for (int i = 0 ; i < FREECELLS_NUM__VAL ; i++)
         {
-            freecell_locs[(int)((FCS_S_FC_LOCS())[a])] = a;
+            freecell_locs[(int)((FCS_S_FC_LOCS())[i])] = i;
         }
     }
 
-    for(a=0;a<decks_num*4;a++)
+    for (int i = 0 ; i < (DECKS_NUM__VAL<<2) ; i++)
     {
+        fcs_bool_t unused__rank_is_null;
         fc_solve_p2u_rank(
-            fcs_foundation_value(*state, a),
-            decks[a],
-            &rank_is_null,
-            display_10_as_t
+            fcs_foundation_value(*state, i),
+            decks[i],
+            &unused__rank_is_null
+            PASS_T(display_10_as_t)
 #ifndef FCS_WITHOUT_CARD_FLIPPING
             ,0
 #endif
             );
-        if (decks[a][0] == ' ')
-            decks[a][0] = '0';
+        if (decks[i][0] == ' ')
+            decks[i][0] = '0';
     }
 
+#if 0
     fc_solve_append_string_init(&app_str_struct);
+#endif
 
+#ifndef FC_SOLVE_IMPLICIT_PARSABLE_OUTPUT
     if(!parseable_output)
     {
-        for(a=0;a<((FREECELLS_NUM__VAL/4)+((FREECELLS_NUM__VAL%4==0)?0:1));a++)
+        int i;
+        for ( i = 0 ; i < ((FREECELLS_NUM__VAL/4)+((FREECELLS_NUM__VAL%4==0)?0:1)) ; i++)
         {
             char dashes_s[128];
             char * dashes_ptr = dashes_s;
-            str2_ptr = str2;
-            for(b=0;b<min(FREECELLS_NUM__VAL-a*4, 4);b++)
+            char str2[128];
+            char * str2_ptr = str2;
+            for (int b = 0 ; b < min(FREECELLS_NUM__VAL-i*4, 4) ; b++)
             {
+                one_card_buffer freecell;
                 fc_solve_card_perl2user(
                     fcs_freecell_card(
                         *state,
-                        freecell_locs[a*4+b]
+                        freecell_locs[i*4+b]
                     ),
-                    freecell,
-                    display_10_as_t
+                    freecell
+                    PASS_T(display_10_as_t)
                 );
                 str2_ptr += sprintf(str2_ptr, "%3s ", freecell);
                 strcpy(dashes_ptr, "--- ");
                 dashes_ptr = strchr(dashes_ptr, '\0');
             }
-            if (a < decks_num)
+            if (i < DECKS_NUM__VAL)
             {
                 fc_solve_append_string_sprintf(
                     app_str,
                     "%-16s        H-%1s C-%1s D-%1s S-%1s\n",
                     str2,
-                    decks[a*4],
-                    decks[a*4+1],
-                    decks[a*4+2],
-                    decks[a*4+3]
+                    decks[i*4],
+                    decks[i*4+1],
+                    decks[i*4+2],
+                    decks[i*4+3]
                     );
             }
             else
@@ -351,19 +351,19 @@ char * fc_solve_state_as_string(
             }
             fc_solve_append_string_sprintf(
                 app_str,
-                "%s\n", dashes_ptr
+                "%s\n", dashes_s
                 );
         }
-        for(;a<decks_num;a++)
+        for ( ; i < DECKS_NUM__VAL ; i++)
         {
             fc_solve_append_string_sprintf(
                 app_str,
                 "%-16s        H-%1s C-%1s D-%1s S-%1s\n",
                 "",
-                decks[a*4],
-                decks[a*4+1],
-                decks[a*4+2],
-                decks[a*4+3]
+                decks[i*4],
+                decks[i*4+1],
+                decks[i*4+2],
+                decks[i*4+3]
                 );
         }
         fc_solve_append_string_sprintf(
@@ -372,33 +372,29 @@ char * fc_solve_state_as_string(
             "\n\n"
             );
 
-        for (s = 0 ; s < STACKS_NUM__VAL ; s++)
+        for (int s = 0 ; s < STACKS_NUM__VAL ; s++)
         {
             fc_solve_append_string_sprintf(app_str, "%s", " -- ");
         }
-        fc_solve_append_string_sprintf(
-            app_str,
-            "%s",
-            "\n"
-            );
+        append_char('\n');
 
-        max_num_cards = 0;
-        for(s=0;s<STACKS_NUM__VAL;s++)
+        int max_num_cards = 0;
+        for (int s=0 ; s < STACKS_NUM__VAL ; s++)
         {
-            col = fcs_state_get_col(*state, stack_locs[s]);
-            col_len = fcs_col_len(col);
+            fcs_const_cards_column_t col = fcs_state_get_col(*state, stack_locs[s]);
+            const int col_len = fcs_col_len(col);
             if (col_len > max_num_cards)
             {
                 max_num_cards = col_len;
             }
         }
 
-        for (card_idx = 0 ; card_idx < max_num_cards ; card_idx++)
+        for (int card_idx = 0 ; card_idx < max_num_cards ; card_idx++)
         {
-            for(s = 0; s<STACKS_NUM__VAL; s++)
+            for (int s = 0 ; s < STACKS_NUM__VAL ; s++)
             {
-                col = fcs_state_get_col(*state, stack_locs[s]);
-                col_len = fcs_col_len(col);
+                fcs_const_cards_column_t col = fcs_state_get_col(*state, stack_locs[s]);
+                const int col_len = fcs_col_len(col);
                 if (card_idx >= col_len)
                 {
                     fc_solve_append_string_sprintf(
@@ -408,10 +404,11 @@ char * fc_solve_state_as_string(
                 }
                 else
                 {
+                    one_card_buffer stack_card_str;
                     fc_solve_card_perl2user(
                         fcs_col_get_card(col, card_idx),
-                        stack_card_str,
-                        display_10_as_t
+                        stack_card_str
+                        PASS_T(display_10_as_t)
                     );
                     fc_solve_append_string_sprintf(
                         app_str,
@@ -424,69 +421,100 @@ char * fc_solve_state_as_string(
         }
     }
     else
+#endif
     {
-        fc_solve_append_string_sprintf(app_str, "%s", "Foundations: ");
-        for(a=0;a<decks_num;a++)
+        fc_solve_append_string_sprintf(app_str, "%s", "Foundations:");
+        for (int i = 0 ; i < (DECKS_NUM__VAL<<2) ; i+= 4)
         {
             fc_solve_append_string_sprintf(
                 app_str,
-                "H-%s C-%s D-%s S-%s ",
-                decks[a*4],
-                decks[a*4+1],
-                decks[a*4+2],
-                decks[a*4+3]
+                " H-%s C-%s D-%s S-%s",
+                decks[i],
+                decks[i+1],
+                decks[i+2],
+                decks[i+3]
                 );
         }
+#ifndef FC_SOLVE__REMOVE_TRAILING_WHITESPACE_IN_OUTPUT
+        append_char(' ');
+#endif
 
-        fc_solve_append_string_sprintf(app_str, "%s", "\nFreecells: ");
+        fc_solve_append_string_sprintf(app_str, "%s", "\nFreecells:");
 
-        for(a=0;a<FREECELLS_NUM__VAL;a++)
+#ifdef FC_SOLVE__REMOVE_TRAILING_WHITESPACE_IN_OUTPUT
+        int max_freecell_idx = -1;
+        for (int i = FREECELLS_NUM__VAL-1;i>=0;i--)
         {
+            if (fcs_card_is_valid(fcs_freecell_card(*state, freecell_locs[i])))
+            {
+                max_freecell_idx = i;
+                break;
+            }
+        }
+#else
+        const int max_freecell_idx = FREECELLS_NUM__VAL - 1;
+#endif
+
+        if (max_freecell_idx >= 0)
+        {
+            append_char(' ');
+        }
+        for (int i = 0 ; i <= max_freecell_idx ; i++)
+        {
+            one_card_buffer freecell;
             fc_solve_card_perl2user(
                 fcs_freecell_card(
                     *state,
-                    freecell_locs[a]
+                    freecell_locs[i]
                 ),
-                freecell,
-                display_10_as_t
+                freecell
+                PASS_T(display_10_as_t)
             );
             fc_solve_append_string_sprintf(
                 app_str,
                 "%3s",
                 freecell
             );
-            if (a < FREECELLS_NUM__VAL-1)
+            if (i < max_freecell_idx)
             {
-                fc_solve_append_string_sprintf(app_str, "%s", " ");
+                append_char(' ');
             }
         }
-        fc_solve_append_string_sprintf(app_str, "%s", "\n");
+        append_char('\n');
 
-        for(s=0;s<STACKS_NUM__VAL;s++)
+        for (int s = 0 ; s < STACKS_NUM__VAL ; s++)
         {
-            col = fcs_state_get_col(*state, stack_locs[s]);
-            col_len = fcs_col_len(col);
-            fc_solve_append_string_sprintf(app_str, "%s", ": ");
+            fcs_const_cards_column_t col = fcs_state_get_col(*state, stack_locs[s]);
+            const int col_len = fcs_col_len(col);
+            append_char(':');
 
-            for (card_idx = 0 ; card_idx < col_len ; card_idx++)
+            for (int card_idx = 0 ; card_idx < col_len ; card_idx++)
             {
+                one_card_buffer stack_card_str;
                 fc_solve_card_perl2user(
                     fcs_col_get_card(col, card_idx),
-                    stack_card_str,
-                    display_10_as_t
+                    stack_card_str
+                    PASS_T(display_10_as_t)
                 );
-                fc_solve_append_string_sprintf(app_str, "%s", stack_card_str);
-                if (card_idx < col_len-1)
-                {
-                    fc_solve_append_string_sprintf(app_str, "%s", " ");
-                }
+                fc_solve_append_string_sprintf(app_str, " %s", stack_card_str);
             }
-            fc_solve_append_string_sprintf(app_str, "%s", "\n");
+
+#ifndef FC_SOLVE__REMOVE_TRAILING_WHITESPACE_IN_OUTPUT
+            if (! col_len)
+            {
+                append_char(' ');
+            }
+#endif
+            append_char('\n');
         }
     }
 #undef app_str
 
+    *(output_s) = '\0';
+
+#if 0
     return fc_solve_append_string_finalize(&app_str_struct);
+#endif
 }
 
 #undef FCS_S_FC_LOCS
