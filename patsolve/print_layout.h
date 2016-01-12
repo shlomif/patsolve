@@ -37,21 +37,20 @@ static GCC_INLINE void fc_solve_pats__print_layout(
 
     fcs_state_locs_struct_t locs;
     fc_solve_init_locs(&locs);
-    char * s =
-        fc_solve_state_as_string(
-            &(soft_thread->current_pos.s),
-            &(locs),
-            INSTANCE_FREECELLS_NUM,
-            INSTANCE_STACKS_NUM,
-            INSTANCE_DECKS_NUM,
-            TRUE,
-            FALSE,
-            TRUE
-        );
+    char s[1000];
+    fc_solve_state_as_string(
+        s,
+        &(soft_thread->current_pos.s),
+        &(locs),
+        INSTANCE_FREECELLS_NUM,
+        INSTANCE_STACKS_NUM,
+        INSTANCE_DECKS_NUM,
+        TRUE,
+        FALSE,
+        TRUE
+    );
 
     fprintf(stderr, "%s\n---\n", s);
-
-    free(s);
 }
 
 #endif /* FC_SOLVE_PATSOLVE_PRINT_LAYOUT_H */
