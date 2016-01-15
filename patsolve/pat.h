@@ -548,10 +548,53 @@ static GCC_INLINE void fc_solve_pats__undo_move(fcs_pats_thread_t * const soft_t
     }
 }
 
-extern void fc_solve_pats__initialize_solving_process(
-    fcs_pats_thread_t * const soft_thread
-);
+extern fcs_pats_position_t *fc_solve_pats__new_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const parent, const fcs_pats__move_t * const m);
 
+extern void fc_solve_pats__queue_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int pri);
+
+#if !defined(HARD_CODED_NUM_STACKS)
+#define DECLARE_STACKS() \
+    const fcs_game_type_params_t game_params = soft_thread->instance->game_params
+#else
+#define DECLARE_STACKS() {}
+#endif
+
+static GCC_INLINE void fc_solve_pats__hash_layout(fcs_pats_thread_t * const soft_thread)
+{
+    DECLARE_STACKS();
+
+    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
+        fc_solve_pats__hashpile(soft_thread, w);
+    }
+}
+
+static GCC_INLINE void fc_solve_pats__initialize_solving_process(
+    fcs_pats_thread_t * const soft_thread
+)
+{
+    /* Init the queues. */
+
+    for (int i = 0; i < FC_SOLVE_PATS__NUM_QUEUES; i++) {
+        soft_thread->queue_head[i] = NULL;
+    }
+    soft_thread->max_queue_idx = 0;
+#ifdef DEBUG
+memset(soft_thread->num_positions_in_clusters, 0, sizeof(soft_thread->num_positions_in_clusters));
+memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
+#endif
+
+    /* Queue the initial position to get started. */
+
+    fc_solve_pats__hash_layout(soft_thread);
+    fc_solve_pats__sort_piles(soft_thread);
+    fcs_pats__move_t m;
+    m.card = fc_solve_empty_card;
+    fcs_pats_position_t * pos = fc_solve_pats__new_position(soft_thread, NULL, &m);
+    if (pos == NULL) {
+        return;
+    }
+    fc_solve_pats__queue_position(soft_thread, pos, 0);
+}
 #if 0
 #ifdef DEBUG
 
@@ -576,10 +619,4 @@ static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_threa
 #endif
 #endif
 
-#if !defined(HARD_CODED_NUM_STACKS)
-#define DECLARE_STACKS() \
-    const fcs_game_type_params_t game_params = soft_thread->instance->game_params
-#else
-#define DECLARE_STACKS() {}
-#endif
 #endif /* #ifndef FC_SOLVE_PATSOLVE_PAT_H */
