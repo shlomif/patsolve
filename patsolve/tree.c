@@ -77,7 +77,6 @@ static GCC_INLINE fcs_pats__treelist_t * cluster_tree(
     return tl;
 }
 
-static fcs_pats__block_t * const new_block(fcs_pats_thread_t * const soft_thread);
 
 static GCC_INLINE int compare_piles(const int bytes_per_pile, const u_char * const a, const u_char * const b)
 {
@@ -252,19 +251,9 @@ fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * const soft_thr
     return verdict;
 }
 
-
-/* Clusters are also stored in a hashed array. */
-
-void fc_solve_pats__init_clusters(fcs_pats_thread_t * soft_thread)
-{
-    memset(soft_thread->tree_list, 0, sizeof(soft_thread->tree_list));
-    soft_thread->my_block = new_block(soft_thread);
-}
-
-
 /* my_block storage.  Reduces overhead, and can be freed quickly. */
 
-static fcs_pats__block_t * const new_block(fcs_pats_thread_t * const soft_thread)
+fcs_pats__block_t * const fc_solve_pats__new_block(fcs_pats_thread_t * const soft_thread)
 {
     fcs_pats__block_t * const b = fc_solve_pats__new(soft_thread, fcs_pats__block_t);
     if (b == NULL) {
@@ -291,7 +280,7 @@ u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * const soft_thread, con
 
     b = soft_thread->my_block;
     if (s > b->remain) {
-        b = new_block(soft_thread);
+        b = fc_solve_pats__new_block(soft_thread);
         if (b == NULL) {
             return NULL;
         }
