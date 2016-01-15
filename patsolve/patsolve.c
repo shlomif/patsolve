@@ -72,8 +72,6 @@ static GCC_INLINE void free_position_recursive(fcs_pats_thread_t * const soft_th
     } while (pos->nchild == 0);
 }
 
-static void queue_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t *, int);
-
 /* Like strcpy() but returns the length of the string. */
 static GCC_INLINE int strecpy(char *dest, const char *src)
 {
@@ -212,7 +210,7 @@ soft_thread->num_positions_in_clusters[pos->cluster]--;
     return pos;
 }
 
-static fcs_pats_position_t *new_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const parent, const fcs_pats__move_t * const m)
+fcs_pats_position_t *fc_solve_pats__new_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const parent, const fcs_pats__move_t * const m)
 {
     DECLARE_STACKS();
     int t, cluster;
@@ -278,44 +276,6 @@ static fcs_pats_position_t *new_position(fcs_pats_thread_t * const soft_thread, 
 }
 
 /* Hash the whole layout.  This is called once, at the start. */
-
-static GCC_INLINE void fc_solve_pats__hash_layout(fcs_pats_thread_t * const soft_thread)
-{
-    DECLARE_STACKS();
-
-    for (int w = 0; w < LOCAL_STACKS_NUM; w++) {
-        fc_solve_pats__hashpile(soft_thread, w);
-    }
-}
-
-extern void fc_solve_pats__initialize_solving_process(
-    fcs_pats_thread_t * const soft_thread
-)
-{
-    /* Init the queues. */
-
-    for (int i = 0; i < FC_SOLVE_PATS__NUM_QUEUES; i++) {
-        soft_thread->queue_head[i] = NULL;
-    }
-    soft_thread->max_queue_idx = 0;
-#ifdef DEBUG
-memset(soft_thread->num_positions_in_clusters, 0, sizeof(soft_thread->num_positions_in_clusters));
-memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
-#endif
-
-    /* Queue the initial position to get started. */
-
-    fc_solve_pats__hash_layout(soft_thread);
-    fc_solve_pats__sort_piles(soft_thread);
-    fcs_pats__move_t m;
-    m.card = fc_solve_empty_card;
-    fcs_pats_position_t * pos = new_position(soft_thread, NULL, &m);
-    if (pos == NULL) {
-        return;
-    }
-    queue_position(soft_thread, pos, 0);
-}
-
 static GCC_INLINE const fcs_bool_t check_for_exceeded(fcs_pats_thread_t * const soft_thread)
 {
     return
@@ -454,7 +414,7 @@ static GCC_INLINE int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * 
         fc_solve_pats__sort_piles(soft_thread);
 
         /* See if this is a new position. */
-        L.pos = new_position(soft_thread, parent, L.mp);
+        L.pos = fc_solve_pats__new_position(soft_thread, parent, L.mp);
         if (! L.pos)
         {
             parent->nchild--;
@@ -484,7 +444,7 @@ static GCC_INLINE int solve(fcs_pats_thread_t * const soft_thread, fcs_bool_t * 
             }
             else
             {
-                queue_position(soft_thread, L.pos, (L.mp)->pri);
+                fc_solve_pats__queue_position(soft_thread, L.pos, (L.mp)->pri);
                 fc_solve_pats__undo_move(soft_thread, L.mp);
                 L.q = TRUE;
                 L.mp++;
@@ -549,7 +509,7 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t * const soft_thread)
 that got us here.  The work queue is kept sorted by priority (simply by
 having separate queues). */
 
-static void queue_position(fcs_pats_thread_t * soft_thread, fcs_pats_position_t *pos, int pri)
+void fc_solve_pats__queue_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int pri)
 {
     int nout;
     double x;
