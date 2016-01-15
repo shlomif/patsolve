@@ -275,10 +275,7 @@ fcs_pats__block_t * const fc_solve_pats__new_block(fcs_pats_thread_t * const sof
 
 u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * const soft_thread, const size_t s)
 {
-    u_char *p;
-    fcs_pats__block_t *b;
-
-    b = soft_thread->my_block;
+    fcs_pats__block_t * b = soft_thread->my_block;
     if (s > b->remain) {
         b = fc_solve_pats__new_block(soft_thread);
         if (b == NULL) {
@@ -288,7 +285,7 @@ u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * const soft_thread, con
         soft_thread->my_block = b;
     }
 
-    p = b->ptr;
+    u_char * const p = b->ptr;
     b->remain -= s;
     b->ptr += s;
 
