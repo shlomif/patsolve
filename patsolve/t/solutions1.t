@@ -9,24 +9,12 @@ use Test::Trap qw( trap $trap :flow:stderr(systemsafe):stdout(systemsafe):warn )
 
 use File::Basename qw(dirname);
 use File::Spec;
+use Path::Tiny;
 
 my $base_dir = dirname(__FILE__);
 my $data_dir = File::Spec->catdir($base_dir, 'data');
 
-sub _slurp
-{
-    my $filename = shift;
-
-    open my $in, '<', $filename
-        or die "Cannot open '$filename' for slurping - $!";
-
-    local $/;
-    my $contents = <$in>;
-
-    close($in);
-
-    return $contents;
-}
+sub _slurp_win { return path("win")->slurp_utf8; }
 
 sub remove_trailing_whitespace
 {
@@ -74,7 +62,7 @@ Freecells:
 EOF
 
     # TEST
-    is (_slurp('win'), <<'EOF', '24 win contents');
+    is (_slurp_win(), <<'EOF', '24 win contents');
 AS out
 7C to 8D
 QD to KC
@@ -204,7 +192,7 @@ Freecells:
 EOF
 
     # TEST
-    is (_slurp('win'), <<'EOF', '24 win contents');
+    is (_slurp_win(), <<'EOF', '24 win contents');
 AS out
 2H to temp
 4S to temp
@@ -418,7 +406,7 @@ Freecells:  2H  6H
 EOF
 
     # TEST
-    is (_slurp('win'), <<'EOF', 'seahaven 1 win contents');
+    is (_slurp_win(), <<'EOF', 'seahaven 1 win contents');
 8D to temp
 3S to temp
 AH out
@@ -537,7 +525,7 @@ Freecells:  2H  6H
 EOF
 
     # TEST
-    is (_slurp('win'), <<'EOF', 'seahaven 1 -S win contents');
+    is (_slurp_win(), <<'EOF', 'seahaven 1 -S win contents');
 8D to temp
 3S to temp
 AH out
@@ -670,7 +658,7 @@ Freecells:
 EOF
 
     # TEST
-    is (_slurp('win'), <<'EOF', '3 win contents');
+    is (_slurp_win(), <<'EOF', '3 win contents');
 AH out
 2H out
 4S to temp
