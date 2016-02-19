@@ -517,37 +517,6 @@ static GCC_INLINE void fc_solve_pats__hashpile(fcs_pats_thread_t * const soft_th
     soft_thread->current_pos.stack_ids[w] = -1;
 }
 
-static GCC_INLINE void fc_solve_pats__undo_move(fcs_pats_thread_t * const soft_thread, const fcs_pats__move_t * const m)
-{
-    const typeof(m->from) from = m->from;
-    const typeof(m->to) to = m->to;
-
-    /* Remove from 'to' pile. */
-
-    fcs_card_t card;
-    if (m->totype == FCS_PATS__TYPE_FREECELL) {
-        card = fcs_freecell_card(soft_thread->current_pos.s, to);
-        fcs_empty_freecell(soft_thread->current_pos.s, to);
-    } else if (m->totype == FCS_PATS__TYPE_WASTE) {
-        fcs_cards_column_t to_col = fcs_state_get_col(soft_thread->current_pos.s, to);
-        fcs_col_pop_card(to_col, card);
-        fc_solve_pats__hashpile(soft_thread, to);
-    } else {
-        card = fcs_make_card(fcs_foundation_value(soft_thread->current_pos.s, to), to);
-        fcs_foundation_value(soft_thread->current_pos.s, to)--;
-    }
-
-    /* Add to 'from' pile. */
-
-    if (m->fromtype == FCS_PATS__TYPE_FREECELL) {
-        fcs_freecell_card(soft_thread->current_pos.s, from) = card;
-    } else {
-        fcs_cards_column_t from_col = fcs_state_get_col(soft_thread->current_pos.s, from);
-        fcs_col_push_card(from_col, card);
-        fc_solve_pats__hashpile(soft_thread, from);
-    }
-}
-
 extern fcs_pats_position_t *fc_solve_pats__new_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const parent, const fcs_pats__move_t * const m);
 
 extern void fc_solve_pats__queue_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int pri);
