@@ -113,13 +113,18 @@ int main(int argc, char **argv)
         &argv
     );
 
-    FILE * infile = stdin;
+    FILE * in_fh = stdin;
+    fcs_bool_t in_fh_should_be_closed = FALSE;
     if (argc && **argv != '-') {
-        infile = fopen(*argv, "r");
+        in_fh = fopen(*argv, "r");
 
-        if (! infile)
+        if (! in_fh)
         {
             fatalerr("Cannot open input file '%s' (for reading).", *argv);
+        }
+        else
+        {
+            in_fh_should_be_closed = TRUE;
         }
     }
     if (start_game_idx < 0) {
@@ -128,7 +133,12 @@ int main(int argc, char **argv)
 
         char board_string[4096];
         memset(board_string, '\0', sizeof(board_string));
-        fread(board_string, sizeof(board_string[0]), COUNT(board_string)-1, infile);
+        fread(board_string, sizeof(board_string[0]), COUNT(board_string)-1, in_fh);
+        if (in_fh_should_be_closed) {
+            fclose(in_fh);
+            in_fh = NULL;
+            in_fh_should_be_closed = FALSE;
+        }
         fc_solve_pats__read_layout(soft_thread, board_string);
         if (!soft_thread->is_quiet) {
             fc_solve_pats__print_layout(soft_thread);
