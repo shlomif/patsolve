@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
-import sys, re, string
+import sys
+import re
+import string
 from util import *
 
 usage("""[-n <n>] filename ...""")
@@ -19,8 +21,10 @@ if len(args) < 1:
 
 parse = re.compile(r"running (.*) fitness = ([-+0-9.e]+)")
 
+
 def sgn(x):
-    if x < 0: return -1
+    if x < 0:
+        return -1
     return 1
 
 fit = {}
@@ -33,11 +37,12 @@ for filename in args:
             s = string.split(p.group(1))
             s[11] = str(sgn(int(s[11])))
             s = string.join(s)
-            if fit.has_key(s):
+            if s in fit:
                 fit[s].append(float(p.group(2)))
             else:
                 fit[s] = [float(p.group(2))]
     f.close()
+
 
 def add(a, b):
     return a + b
@@ -50,6 +55,6 @@ for id in fit.keys():
     m.append((avg, id, len(l)))
 
 m.sort(lambda x, y: sgn(x[0] - y[0]))
-#m.sort(lambda x, y: sgn(y[2] - x[2]))
+# m.sort(lambda x, y: sgn(y[2] - x[2]))
 for i in xrange(N):
     print m[i][1], 'fitness =', m[i][0], '(%d)' % m[i][2]

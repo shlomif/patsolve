@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
-import sys, string
+import sys
+import string
+
 # from util import *
 
 # usage("""filename""")
