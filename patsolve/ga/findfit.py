@@ -1,21 +1,35 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 import sys
+import argparse
 import re
 import string
-from util import *
+import os
+from functools import reduce
 
-usage("""[-n <n>] filename ...""")
+if sys.version_info > (3,):
+    long = int
+    xrange = range
+
+
+def printusage():
+    print("""[-n <n>] filename ...""")
+
+if os.getenv('USAGE'):
+    printusage()
+    sys.exit(0)
 
 N = 10
 
-optlist, args = parseargs("n:")
+parser = argparse.ArgumentParser()
+parser.add_argument('-n', help='n')
+parser.add_argument('files', nargs='*')
+args = parser.parse_args()
 
-for opt, arg in optlist:
-    if opt == '-n':
-        N = int(arg)
+if args.n is not None:
+    N = int(args.n)
 
-if len(args) < 1:
+if len(args.files) < 1:
     printusage()
     sys.exit(1)
 
@@ -29,7 +43,7 @@ def sgn(x):
 
 fit = {}
 
-for filename in args:
+for filename in args.files:
     f = open(filename, 'r')
     for line in f.xreadlines():
         p = parse.match(line)
@@ -57,4 +71,4 @@ for id in fit.keys():
 m.sort(lambda x, y: sgn(x[0] - y[0]))
 # m.sort(lambda x, y: sgn(y[2] - x[2]))
 for i in xrange(N):
-    print m[i][1], 'fitness =', m[i][0], '(%d)' % m[i][2]
+    print(m[i][1], 'fitness =', m[i][0], '(%d)' % m[i][2])
