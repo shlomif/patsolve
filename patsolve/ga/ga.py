@@ -1,8 +1,12 @@
 #! /usr/bin/env python
 
-import sys, os, time, string, re, rng
+import sys
+import os
+import time
+import string
+import re
+import rng
 from rng import torat
-from util import *
 
 usage("[-c crossprob] [-m mutateprob] [-n Npop] [-l #games] [pop]")
 
@@ -31,8 +35,9 @@ if len(args) > 1:
     printusage()
     sys.exit(1)
 
-seed = int((time.time() * 10000.) % (1<<30))
+seed = int((time.time() * 10000.) % (1 << 30))
 rng.seed(seed)
+
 
 def mutate(l, p):
     """mutate(list, probability) -> list
@@ -43,7 +48,8 @@ def mutate(l, p):
 
     (p, q) = torat(p)
     m = [1] * 24 + [2] * 12 + [3] * 6 + [4] * 3 + [5] * 2 + [6] * 1
-    def flip(x, p = p, q = q, m = m):
+
+    def flip(x, p=p, q=q, m=m):
         if rng.flip(p, q):
             y = m[rng.random() % len(m)]
             if rng.flip(1, 2):
@@ -52,6 +58,7 @@ def mutate(l, p):
         return x
 
     return map(flip, l)
+
 
 def cross(l1, l2, p):
     """cross(list, list, probability) -> list
@@ -73,6 +80,7 @@ def cross(l1, l2, p):
 
     return l
 
+
 def breed(l1, l2):
     """breed(list, list) -> list
 
@@ -80,7 +88,8 @@ def breed(l1, l2):
 
     return mutate(cross(l1, l2, crossprob), mutateprob)
 
-def initpop(nl = None):
+
+def initpop(nl=None):
     """The initial population is a list of length Npop of lists of
     length Nparam."""
 
@@ -97,8 +106,8 @@ def initpop(nl = None):
         Npop = len(l)
         Nparam = len(l[0])
     else:
-        oldcanon = [5, 4, 6, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 1]
-        canon0 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        # oldcanon = [5, 4, 6, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 1]
+        # canon0 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         canon1 = [2, 6, 2, 0, -5, -9, -5, -11, 3, 1, -5, 2, 2, 0]
         canon2 = [1, 1, 6, -2, -1, -2, -2, -3, 0, -1, 2, 4, 6, 1]
         Nparam = len(canon1)
@@ -106,6 +115,7 @@ def initpop(nl = None):
 #                l = [mutate(canon0, .9) for x in xrange(Npop)]
 
     return l
+
 
 def newpop(result):
     """The result of a generation is a list of pairs, where each
@@ -131,9 +141,12 @@ def newpop(result):
 
     return pop
 
+
 def sgn(x):
-    if x < 0: return -1
+    if x < 0:
+        return -1
     return 1
+
 
 def refill(pop):
     """Get rid of duplicates."""
@@ -158,6 +171,7 @@ def refill(pop):
 
     return newpop
 
+
 def run(pop):
     """Test each member of the population and save it with its
     fitness value."""
@@ -169,6 +183,7 @@ def run(pop):
         i += 1
 
     return result
+
 
 def get_ycoeff(l):
     """Find the quadratic through (0, l[0]), (25, l[1]), and (50, l[2]).
@@ -190,6 +205,7 @@ pos = re.compile(r"([0-9]+) positions generated.")
 upos = re.compile(r"([0-9]+) unique positions.")
 memrem = re.compile(r"Mem_remain = ([0-9]+)")
 malloc = re.compile(r".*memory.*")
+
 
 def fitness(l):
     """Run the individual and return the fitness value."""
@@ -240,6 +256,7 @@ def fitness(l):
         printf('fitness = %g\n', fit)
     return fit
 
+
 def ga():
     """Run the GA over many generations."""
 
@@ -248,9 +265,9 @@ def ga():
     pop = initpop(args)
     while 1:
         f = open('curpop', 'w')
-        fprintf(f, '# %s\n', Opts)
+        f.write("# %s\n" % Opts)
         for l in pop:
-            fprintf(f, '%s\n', string.join(map(str, l)))
+            f.write("%s\n" % string.join(map(str, l)))
         f.close()
         pop = refill(pop)
         result = run(pop)
