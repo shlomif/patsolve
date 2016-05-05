@@ -19,6 +19,8 @@ SET (MAX_NUM_INITIAL_CARDS_IN_A_STACK 20 CACHE STRING
     "Maximal Number of Initial Cards in a Stack")
 SET (MAX_NUM_DECKS 2 CACHE STRING "Maximal Number of Decks (1 or 2)")
 SET (FCS_WITHOUT_CARD_FLIPPING "1" CACHE BOOL "Exclude the flipping of cards from the binary.")
+SET (FC_SOLVE_SRC_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../.." CACHE STRING "Path to the Freecell Solver sources")
+
 SET(COMPILER_FLAGS_TO_CHECK
     "-Wall" "-Werror=implicit-function-declaration"
     # Remove this for now because it interferes with the symbols stuff.
@@ -243,4 +245,4 @@ ADD_CUSTOM_TARGET (
 )
 
 # So it can find config.h
-INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/patsolve-specific" "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE_DIRECTORIES(BEFORE "${FC_SOLVE_SRC_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/patsolve-specific" "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_CURRENT_BINARY_DIR} )
