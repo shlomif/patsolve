@@ -35,23 +35,21 @@
 #include "config.h"
 #include "state.h"
 #include "fcs_enums.h"
-#include "unused.h"
-#include "inline.h"
+
+#include "p2u_rank.h"
 
 #ifdef DEBUG_STATES
-static GCC_INLINE int fcs_stack_compare(const void * s1, const void * s2)
-{
-#define GET_CARD(s) (((const fc_stack_t *)(s))->cards[0])
-    return fc_solve_card_compare(GET_CARD(s1), GET_CARD(s2));
-#undef GET_CARD
-}
+#define GET_CARD(s) (((const fc_stack_t * const)(s))->cards[0])
 #elif defined(COMPACT_STATES)
+#define GET_CARD(s) (((const fcs_card_t * const)(s))[1])
+#endif
+
+#ifdef GET_CARD
 static GCC_INLINE int fcs_stack_compare(const void * s1, const void * s2)
 {
-#define GET_CARD(s) (((const fcs_card_t *)(s))[1])
     return fc_solve_card_compare(GET_CARD(s1), GET_CARD(s2));
-#undef GET_CARD
 }
+#undef GET_CARD
 #endif
 
 #ifdef COMPACT_STATES
@@ -208,8 +206,6 @@ void fc_solve_canonize_state_with_locs(
 #undef state_key
 
 
-#if (FCS_STATE_STORAGE != FCS_STATE_STORAGE_INDIRECT)
-
 #if (FCS_STATE_STORAGE == FCS_STATE_STORAGE_GLIB_HASH)
 int fc_solve_state_compare_equal(const void * const s1, const void * const s2)
 {
@@ -226,19 +222,25 @@ int fc_solve_state_compare_with_context(
     return memcmp(s1,s2,sizeof(fcs_state_t));
 }
 
-#else
-
-int fc_solve_state_compare_indirect(const void * const s1, const void * const s2)
+static GCC_INLINE void render_freecell_card(
+    const fcs_card_t card
+    , char * const freecell
+    PASS_T(const fcs_bool_t display_10_as_t)
+)
 {
-    return memcmp(*(fcs_state_t * *)s1, *(fcs_state_t * *)s2, sizeof(fcs_state_t));
+    if (fcs_card_is_empty(card))
+    {
+        freecell[0] = '\0';
+    }
+    else
+    {
+        fc_solve_card_perl2user(
+            card,
+            freecell
+            PASS_T(display_10_as_t)
+        );
+    }
 }
-
-int fc_solve_state_compare_indirect_with_context(const void * s1, const void * s2, void * context)
-{
-    return memcmp(*(fcs_state_t * *)s1, *(fcs_state_t * *)s2, sizeof(fcs_state_t));
-}
-
-#endif
 
 void fc_solve_state_as_string(
     char * output_s,
@@ -287,15 +289,10 @@ void fc_solve_state_as_string(
 
     for (int i = 0 ; i < (DECKS_NUM__VAL<<2) ; i++)
     {
-        fcs_bool_t unused__rank_is_null;
         fc_solve_p2u_rank(
             fcs_foundation_value(*state, i),
-            decks[i],
-            &unused__rank_is_null
+            decks[i]
             PASS_T(display_10_as_t)
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-            ,0
-#endif
             );
         if (decks[i][0] == ' ')
             decks[i][0] = '0';
@@ -313,12 +310,12 @@ void fc_solve_state_as_string(
         {
             char dashes_s[128];
             char * dashes_ptr = dashes_s;
-            char str2[128];
-            char * str2_ptr = str2;
+            char freecells_s[128];
+            char * freecells_s_end = freecells_s;
             for (int b = 0 ; b < min(FREECELLS_NUM__VAL-i*4, 4) ; b++)
             {
                 one_card_buffer freecell;
-                fc_solve_card_perl2user(
+                render_freecell_card(
                     fcs_freecell_card(
                         *state,
                         freecell_locs[i*4+b]
@@ -326,7 +323,7 @@ void fc_solve_state_as_string(
                     freecell
                     PASS_T(display_10_as_t)
                 );
-                str2_ptr += sprintf(str2_ptr, "%3s ", freecell);
+                freecells_s_end += sprintf(freecells_s_end, "%3s ", freecell);
                 strcpy(dashes_ptr, "--- ");
                 dashes_ptr = strchr(dashes_ptr, '\0');
             }
@@ -335,7 +332,7 @@ void fc_solve_state_as_string(
                 fc_solve_append_string_sprintf(
                     app_str,
                     "%-16s        H-%1s C-%1s D-%1s S-%1s\n",
-                    str2,
+                    freecells_s,
                     decks[i*4],
                     decks[i*4+1],
                     decks[i*4+2],
@@ -346,7 +343,7 @@ void fc_solve_state_as_string(
             {
                 fc_solve_append_string_sprintf(
                     app_str,
-                    "%s\n", str2
+                    "%s\n", freecells_s
                     );
             }
             fc_solve_append_string_sprintf(
@@ -462,11 +459,8 @@ void fc_solve_state_as_string(
         for (int i = 0 ; i <= max_freecell_idx ; i++)
         {
             one_card_buffer freecell;
-            fc_solve_card_perl2user(
-                fcs_freecell_card(
-                    *state,
-                    freecell_locs[i]
-                ),
+            render_freecell_card(
+                fcs_freecell_card( *state, freecell_locs[i]),
                 freecell
                 PASS_T(display_10_as_t)
             );

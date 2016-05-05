@@ -32,18 +32,15 @@
 extern "C" {
 #endif
 
+#include <ctype.h>
 #include <string.h>
 
 #include "config.h"
 
 #include "fcs_move.h"
-#include "fcs_limit.h"
 #include "fcs_enums.h"
 
-#include "inline.h"
-#include "bool.h"
-#include "min_and_max.h"
-
+#include "rinutils.h"
 #include "game_type_limit.h"
 
 #include "internal_move_struct.h"
@@ -72,8 +69,7 @@ extern "C" {
 typedef struct
 {
     short rank;
-    char suit;
-    char flags;
+    short suit;
 } fcs_card_t;
 
 typedef struct
@@ -99,7 +95,7 @@ typedef int fcs_locs_t;
 
 static GCC_INLINE fcs_card_t fcs_make_card(const int rank, const int suit)
 {
-    fcs_card_t ret = { .rank = rank, .suit = suit, .flags = 0 };
+    fcs_card_t ret = { .rank = rank, .suit = suit };
 
     return ret;
 }
@@ -127,25 +123,13 @@ static GCC_INLINE fcs_card_t fcs_char2card(unsigned char c)
 #define fcs_card_suit(card) \
     ((int)( (card).suit ))
 
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-#define fcs_card_get_flipped(card) \
-    ( (card).flags )
-#endif
-
 #define fcs_freecell_card(state, f) \
     ( (state).freecells[(f)] )
 
 #define fcs_foundation_value(state, found) \
     ( (state).foundations[(found)] )
 
-
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-#define fcs_card_set_flipped(card, flipped) \
-    (card).flags = (flipped)
-#endif
-
 #elif defined(COMPACT_STATES)    /* #ifdef DEBUG_STATES */
-
 
 typedef char fcs_card_t;
 typedef fcs_card_t * fcs_cards_column_t;
@@ -258,11 +242,8 @@ typedef char fcs_locs_t;
           #elif defined INDIRECT_STACK_STATES
         */
 
-/* These are macros that are common to all three _STATES types. */
+/* These are macros or functions that are common to all three _STATES types. */
 
-
-#define fcs_col_get_rank(col, card_idx) \
-    fcs_card_rank(fcs_col_get_card((col), (card_idx)))
 
 #define fcs_freecell_card_suit(state, f) \
     ( fcs_card_suit(fcs_freecell_card((state),(f))) )
@@ -289,9 +270,6 @@ typedef char fcs_locs_t;
   fcs_col_get_card((col), ((fcs_col_len(col))++)) = (from); \
 }
 
-#define fcs_col_push_col_card(dest_col, src_col, card_idx) \
-    fcs_col_push_card((dest_col), fcs_col_get_card((src_col), (card_idx)))
-
 #define fcs_card_is_empty(card) (fcs_card_rank(card) == 0)
 #define fcs_card_is_valid(card) (fcs_card_rank(card) != 0)
 #define fcs_freecell_is_empty(state, idx) (fcs_card_is_empty(fcs_freecell_card(state, idx)))
@@ -310,11 +288,6 @@ typedef char fcs_locs_t;
 
 #define fcs_empty_freecell(state, f) \
     fcs_put_card_in_freecell((state), (f), fc_solve_empty_card)
-
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-#define fcs_col_flip_card(col, c) \
-    (fcs_card_set_flipped(fcs_col_get_card((col), (c)), 0))
-#endif
 
 /* These are macros that are common to COMPACT_STATES and
  * INDIRECT_STACK_STATES */
@@ -340,18 +313,18 @@ static GCC_INLINE fcs_card_t fcs_make_card(const int rank, const int suit)
 #define fcs_card_suit(card) \
     ( (card) & 0x03 )
 
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-#define fcs_card_get_flipped(card) \
-    ( (card) >> 6 )
 #endif
 
+static GCC_INLINE fcs_card_t fcs_col_get_rank(const fcs_const_cards_column_t col, const int card_idx)
+{
+    return fcs_card_rank(fcs_col_get_card(col, card_idx));
+}
+#define FCS_RANK_KING 13
 
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-#define fcs_card_set_flipped(card, flipped) \
-    (card) = ((fcs_card_t)(((card)&((fcs_card_t)0x3F))|((fcs_card_t)((flipped)<<6))))
-#endif
-
-#endif
+static GCC_INLINE fcs_bool_t fcs_col_is_king(const fcs_const_cards_column_t col, const int card_idx)
+{
+    return (fcs_col_get_rank(col, card_idx) == FCS_RANK_KING);
+}
 
 struct fcs_state_keyval_pair_struct;
 
@@ -531,7 +504,11 @@ typedef fcs_state_keyval_pair_t fcs_collectible_state_t;
 #define FCS_STATE_keyval_pair_to_collectible(s) (s)
 #define FCS_STATE_kv_to_collectible(s) ((fcs_collectible_state_t *)((s)->key))
 
-#define FCS_STATE_collectible_to_kv(ret,s) (*(ret)) = FCS_STATE_keyval_pair_to_kv((s))
+static GCC_INLINE void
+FCS_STATE_collectible_to_kv(fcs_kv_state_t * const ret, fcs_collectible_state_t * const s)
+{
+    *ret = FCS_STATE_keyval_pair_to_kv(s);
+}
 
 #endif
 
@@ -622,30 +599,21 @@ void fc_solve_canonize_state_with_locs(
     FREECELLS_AND_STACKS_ARGS()
 );
 
-#if (FCS_STATE_STORAGE != FCS_STATE_STORAGE_INDIRECT)
-
 #if (FCS_STATE_STORAGE != FCS_STATE_STORAGE_LIBREDBLACK_TREE)
 typedef void * fcs_compare_context_t;
 #else
 typedef const void * fcs_compare_context_t;
 #endif
 
-#if (FCS_STATE_STORAGE != FCS_STATE_STORAGE_INDIRECT)
 static GCC_INLINE int fc_solve_state_compare(const void * s1, const void * s2)
 {
     return memcmp(s1,s2,sizeof(fcs_state_t));
 }
-#endif
 
 #if (FCS_STATE_STORAGE == FCS_STATE_STORAGE_GLIB_HASH)
 extern int fc_solve_state_compare_equal(const void * s1, const void * s2);
 #endif
 extern int fc_solve_state_compare_with_context(const void * s1, const void * s2, fcs_compare_context_t context);
-
-#else
-extern int fc_solve_state_compare_indirect(const void * s1, const void * s2);
-extern int fc_solve_state_compare_indirect_with_context(const void * s1, const void * s2, void * context);
-#endif
 
 
 /*
@@ -656,30 +624,17 @@ extern void fc_solve_card_perl2user(const fcs_card_t card, char * const str
     PASS_T(const fcs_bool_t t));
 
 /*
- * Converts a rank from its internal representation to a string.
- *
- * rank_idx - the rank
- * str - the string to output to.
- * rank_is_null - a pointer to a bool that indicates whether
- *      the card number is out of range or equal to zero
- * t - whether 10 should be printed as T or not.
- * */
-extern void fc_solve_p2u_rank(
-    const int rank_idx,
-    char * const str,
-    fcs_bool_t * const rank_is_null
-    PASS_T(const fcs_bool_t t)
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-    , const fcs_bool_t flipped
-#endif
-    );
-
-/*
  * This function converts a card number from its user representation
  * (e.g: "A", "K", "9") to its card number that can be used by
  * the program.
  * */
 extern const int fc_solve_u2p_rank(const char * string);
+
+#ifdef FC_SOLVE__STRICTER_BOARD_PARSING
+#define FC_SOLVE_MAP_CHAR(c) (c)
+#else
+#define FC_SOLVE_MAP_CHAR(c) (toupper(c))
+#endif
 
 /*
  * This function converts a string containing a suit letter (that is
@@ -688,7 +643,27 @@ extern const int fc_solve_u2p_rank(const char * string);
  * The suit letter may come somewhat after the beginning of the string.
  *
  * */
-extern const int fc_solve_u2p_suit(const char * deck);
+static GCC_INLINE const int fc_solve_u2p_suit(const char * suit)
+{
+    while (TRUE)
+    {
+        switch(FC_SOLVE_MAP_CHAR(*suit))
+        {
+            case 'H':
+            case ' ':
+            case '\0':
+                return 0;
+            case 'C':
+                return 1;
+            case 'D':
+                return 2;
+            case 'S':
+                return 3;
+            default:
+                suit++;
+        }
+    }
+}
 
 /*
  * This function converts an entire card from its string representations
@@ -696,9 +671,6 @@ extern const int fc_solve_u2p_suit(const char * deck);
  * */
 static GCC_INLINE fcs_card_t fc_solve_card_parse_str(const char * const str)
 {
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-    fcs_card_set_flipped(card, fcs_u2p_flipped_status(str));
-#endif
     return fcs_make_card(fc_solve_u2p_rank(str), fc_solve_u2p_suit(str));
 }
 
@@ -768,9 +740,6 @@ static const char * const fc_solve_foundations_prefixes[] = { "Decks:", "Deck:",
         PASS_IND_BUF_T(indirect_stacks_buffer) \
         )
 
-/*
- * TODO: convert to PASS_STACKS and PASS_FREECELLS.
- * */
 static GCC_INLINE const fcs_bool_t fc_solve_initial_user_state_to_c_proto(
     const char * const string,
     fcs_state_keyval_pair_t * const out_state
@@ -1212,5 +1181,18 @@ static GCC_INLINE const fcs_bool_t fcs_is_parent_card__helper(const fcs_card_t c
     (dest) = (src); \
     fcs_duplicate_state_extra((dest).info);   \
     }
+
+static GCC_INLINE void fcs_col_transfer_cards(fcs_cards_column_t dest_col, fcs_cards_column_t src_col, const int cards_num)
+{
+    fcs_card_t * const src_cards_ptr = &fcs_col_get_card(src_col, ( fcs_col_len(src_col) -= cards_num ) );
+    const size_t cards_size = (((size_t)cards_num) * sizeof(fcs_card_t));
+    memcpy(
+        &fcs_col_get_card(dest_col, fcs_col_len(dest_col)),
+        src_cards_ptr,
+        cards_size
+    );
+    fcs_col_len(dest_col) += cards_num;
+    memset(src_cards_ptr, 0, cards_size);
+}
 
 #endif /* FC_SOLVE__STATE_H */

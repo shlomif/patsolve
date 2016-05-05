@@ -31,15 +31,13 @@
 #ifndef FC_SOLVE__RANGE_SOLVERS_GEN_MS_BOARDS_H
 #define FC_SOLVE__RANGE_SOLVERS_GEN_MS_BOARDS_H
 
-#include "portable_int32.h"
-
-#include "inline.h"
-#include "fcs_dllexport.h"
-#include "bool.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <string.h>
+
+#include "rinutils.h"
 
 typedef u_int32_t microsoft_rand_uint_t;
 
@@ -57,19 +55,12 @@ static GCC_INLINE microsoft_rand_uint_t microsoft_rand_randp(microsoft_rand_t * 
     return ((*my_rand) >> 16) & 0xffff;
 }
 
-static GCC_INLINE microsoft_rand_uint_t microsoft_rand__game_num_rand(microsoft_rand_t * seedx_ptr, long long gnGameNumber)
+static GCC_INLINE microsoft_rand_uint_t microsoft_rand__game_num_rand(microsoft_rand_t * const seedx_ptr, const long long gnGameNumber)
 {
     if (gnGameNumber < 0x100000000LL)
     {
-        microsoft_rand_uint_t ret = microsoft_rand_rand(seedx_ptr);
-        if (gnGameNumber < 0x80000000)
-        {
-            return ret;
-        }
-        else
-        {
-            return (ret | 0x8000);
-        }
+        const microsoft_rand_uint_t ret = microsoft_rand_rand(seedx_ptr);
+        return ((gnGameNumber < 0x80000000) ? ret : (ret | 0x8000));
     }
     else
     {
@@ -89,20 +80,10 @@ typedef int CARD;
 static const char * card_to_string_values = "A23456789TJQK";
 static const char * card_to_string_suits = "CDHS";
 
-static GCC_INLINE char * card_to_string(char * const s, const CARD card, const fcs_bool_t not_append_ws)
+static GCC_INLINE void card_to_string(char * const s, const CARD card)
 {
     s[0] = card_to_string_values[VALUE(card)];
     s[1] = card_to_string_suits[SUIT(card)];
-
-    if (not_append_ws)
-    {
-        return &(s[2]);
-    }
-    else
-    {
-        s[2] = ' ';
-        return &(s[3]);
-    }
 }
 
 #ifdef FCS_GEN_BOARDS_WITH_EXTERNAL_API
@@ -116,15 +97,24 @@ static GCC_INLINE char * card_to_string(char * const s, const CARD card, const f
  * we'll devise a header for this routine.
  *
  * */
-void DLLEXPORT fc_solve_get_board_l(long long gamenumber, char * ret);
+void DLLEXPORT fc_solve_get_board_l(const long long gamenumber, char * const ret);
 
-extern void DLLEXPORT fc_solve_get_board_l(long long gamenumber, char * ret)
+extern void DLLEXPORT fc_solve_get_board_l(const long long gamenumber, char * const ret)
 #else
 static GCC_INLINE void get_board_l(const long long gamenumber, char * const ret)
 #endif
 {
     long long seedx = (microsoft_rand_uint_t)((gamenumber < 0x100000000LL) ? gamenumber : (gamenumber - 0x100000000LL));
-    CARD    card[MAXCOL][MAXPOS];    /* current layout of cards, CARDs are ints */
+    strcpy(ret,
+        "XX XX XX XX XX XX XX\n"
+        "XX XX XX XX XX XX XX\n"
+        "XX XX XX XX XX XX XX\n"
+        "XX XX XX XX XX XX XX\n"
+        "XX XX XX XX XX XX\n"
+        "XX XX XX XX XX XX\n"
+        "XX XX XX XX XX XX\n"
+        "XX XX XX XX XX XX\n"
+    );
 
     CARD deck[52];            /* deck of 52 unique cards */
 
@@ -136,39 +126,20 @@ static GCC_INLINE void get_board_l(const long long gamenumber, char * const ret)
     }
 
     {
-        int  wLeft = 52;          /*  cards left to be chosen in shuffle */
+        int  num_cards_left = 52;          /*  cards left to be chosen in shuffle */
         for (int i = 0; i < 52; i++)
         {
-            const int j = microsoft_rand__game_num_rand(&seedx, gamenumber) % wLeft;
-            card[(i%8)][i/8] = deck[j];
-            deck[j] = deck[--wLeft];
-        }
-    }
-
-    char * append_to = ret;
-
-    for (int stack=0 ; stack < 8 ; stack++ )
-    {
-        const int lim = (6 + (stack<4)) - 1;
-        const CARD * const card_stack = card[stack];
-        for (int c=0 ; c < lim ; c++)
-        {
-            append_to =
-                card_to_string(
-                    append_to,
-                    card_stack[c],
-                    FALSE
-                );
-        }
-        append_to =
+            const int j
+                = microsoft_rand__game_num_rand(&seedx, gamenumber) % num_cards_left;
+            const int col = (i & (8-1));
+            const int card_idx = i >> 3;
             card_to_string(
-                append_to,
-                card_stack[lim],
-                TRUE
+                &ret[3 * (col * 7 - ((col > 4) ? (col-4) : 0) + card_idx)],
+                deck[j]
             );
-        *(append_to++) = '\n';
+            deck[j] = deck[--num_cards_left];
+        }
     }
-    *(append_to) = '\0';
 }
 
 #ifdef FCS_GEN_BOARDS_WITH_EXTERNAL_API
@@ -190,9 +161,9 @@ static GCC_INLINE void get_board(long gamenumber, char * ret)
 #endif
 {
 #ifdef FCS_GEN_BOARDS_WITH_EXTERNAL_API
-    return fc_solve_get_board_l((long long)gamenumber, ret);
+    fc_solve_get_board_l((long long)gamenumber, ret);
 #else
-    return get_board_l((long long)gamenumber, ret);
+    get_board_l((long long)gamenumber, ret);
 #endif
 }
 
