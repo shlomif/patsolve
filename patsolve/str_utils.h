@@ -24,8 +24,7 @@
 /*
  * str_utils.h - string utilities.
  */
-#ifndef FC_SOLVE__STR_UTILS_H
-#define FC_SOLVE__STR_UTILS_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C"
@@ -65,6 +64,4 @@ static GCC_INLINE const char * const try_str_prefix(
 
 #ifdef __cplusplus
 };
-#endif
-
 #endif

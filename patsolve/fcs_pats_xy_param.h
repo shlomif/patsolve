@@ -27,8 +27,7 @@
  *
  */
 
-#ifndef FC_SOLVE__FCS_PATS_XY_PARAM_H
-#define FC_SOLVE__FCS_PATS_XY_PARAM_H
+#pragma once
 
 #define FC_SOLVE_PATS__NUM_X_PARAM 11
 #define FC_SOLVE_PATS__NUM_Y_PARAM 3
@@ -37,5 +36,3 @@ typedef struct {
     int x[FC_SOLVE_PATS__NUM_X_PARAM];
     double y[FC_SOLVE_PATS__NUM_Y_PARAM];
 } fcs_pats_xy_param_t;
-
-#endif

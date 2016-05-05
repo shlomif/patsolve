@@ -22,8 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef FC_SOLVE_PATSOLVE_PRINT_LAYOUT_H
-#define FC_SOLVE_PATSOLVE_PRINT_LAYOUT_H
+#pragma once
 
 #include "pat.h"
 
@@ -52,5 +51,3 @@ static GCC_INLINE void fc_solve_pats__print_layout(
 
     fprintf(stderr, "%s\n---\n", s);
 }
-
-#endif /* FC_SOLVE_PATSOLVE_PRINT_LAYOUT_H */

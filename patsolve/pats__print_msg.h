@@ -22,8 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef FC_SOLVE_PATSOLVE_PATS_PRINT_MSG_H
-#define FC_SOLVE_PATSOLVE_PATS_PRINT_MSG_H
+#pragma once
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -60,5 +59,3 @@ static void fatalerr(const char *msg, ...)
 static const char Usage[];
 
 #define USAGE() print_msg(Usage, Progname)
-
-#endif /* FC_SOLVE_PATSOLVE_PATS_PRINT_MSG_H */

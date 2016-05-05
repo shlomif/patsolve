@@ -29,9 +29,7 @@
  *
  */
 
-#ifndef FC_SOLVE__LIKELY_H
-#define FC_SOLVE__LIKELY_H
-
+#pragma once
 #include "config.h"
 
 #if defined(__GNUC__)
@@ -41,6 +39,3 @@
 #define unlikely(expr) expr
 #define likely(expr) expr
 #endif
-
-
-#endif /* FC_SOLVE__LIKELY_H */

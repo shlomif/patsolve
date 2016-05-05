@@ -22,8 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef FC_SOLVE_PATSOLVE_PATS_PLAY_H
-#define FC_SOLVE_PATSOLVE_PATS_PLAY_H
+#pragma once
 
 #include "config.h"
 #include "pat.h"
@@ -420,5 +419,3 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
 
     return;
 }
-
-#endif /* FC_SOLVE_PATSOLVE_PATS_PLAY_H */

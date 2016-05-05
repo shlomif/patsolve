@@ -24,8 +24,7 @@
 /*
  * game_type_params.h: provide fcs_game_type_params_t
  */
-#ifndef FC_SOLVE__GAME_TYPE_PARAMS_H
-#define FC_SOLVE__GAME_TYPE_PARAMS_H
+#pragma once
 
 #include "config.h"
 #include "game_type_limit.h"
@@ -100,6 +99,3 @@ typedef struct {
 #endif
 
 } fcs_game_type_params_t;
-
-#endif /* #ifndef FC_SOLVE__GAME_TYPE_PARAMS_H */
-

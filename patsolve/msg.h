@@ -23,8 +23,7 @@
  */
 /* Standard utilities. */
 
-#ifndef FC_SOLVE__MSG_H
-#define FC_SOLVE__MSG_H
+#pragma once
 
 #include <stdio.h>
 
@@ -46,5 +45,3 @@ static GCC_INLINE void fc_solve_msg(const char *msg, ...)
 #ifdef  __cplusplus
 }
 #endif
-
-#endif  /* FC_SOLVE__MSG_H */

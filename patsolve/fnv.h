@@ -24,8 +24,7 @@
 /* This is a 32 bit FNV hash.  For more information, see
 http://www.isthe.com/chongo/tech/comp/fnv/index.html */
 
-#ifndef FC_SOLVE__PATS__FNV_H
-#define FC_SOLVE__PATS__FNV_H
+#pragma once
 
 #include <sys/types.h>
 #include "config.h"
@@ -55,5 +54,3 @@ static GCC_INLINE u_int32_t fnv_hash_str(const u_char *s)
 
     return h;
 }
-
-#endif /* FC_SOLVE__PATS__FNV_H */
