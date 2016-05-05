@@ -22,8 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef FC_SOLVE_PATSOLVE_READ_LAYOUT_H
-#define FC_SOLVE_PATSOLVE_READ_LAYOUT_H
+#pragma once
 
 #include "config.h"
 #include "inline.h"
@@ -41,5 +40,3 @@ static GCC_INLINE void fc_solve_pats__read_layout(fcs_pats_thread_t * const soft
     fc_solve_initial_user_state_to_c(input_s, &kv, LOCAL_FREECELLS_NUM, LOCAL_STACKS_NUM, 1, soft_thread->current_pos.indirect_stacks_buffer);
     soft_thread->current_pos.s = kv.s;
 }
-
-#endif /* FC_SOLVE_PATSOLVE_READ_LAYOUT_H */

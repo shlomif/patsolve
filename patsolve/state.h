@@ -25,8 +25,7 @@
  * state.h - header file for state functions and macros for Freecell Solver
  *
  */
-#ifndef FC_SOLVE__STATE_H
-#define FC_SOLVE__STATE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -1194,5 +1193,3 @@ static GCC_INLINE void fcs_col_transfer_cards(fcs_cards_column_t dest_col, fcs_c
     fcs_col_len(dest_col) += cards_num;
     memset(src_cards_ptr, 0, cards_size);
 }
-
-#endif /* FC_SOLVE__STATE_H */

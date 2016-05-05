@@ -24,8 +24,7 @@
 /*
  * TODO : Add a description of this file.
  */
-#ifndef FC_SOLVE_PATSOLVE__TREE_H
-#define FC_SOLVE_PATSOLVE__TREE_H
+#pragma once
 
 #include <string.h>
 #include <sys/types.h>
@@ -40,6 +39,3 @@ struct fcs_pats__tree_node_struct {
     fcs_pats__tree_t *right;
     short depth;
 };
-
-
-#endif /* FC_SOLVE_PATSOLVE__TREE_H */

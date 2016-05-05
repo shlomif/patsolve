@@ -22,8 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef FC_SOLVE_PATSOLVE_PRINT_CARD_H
-#define FC_SOLVE_PATSOLVE_PRINT_CARD_H
+#pragma once
 
 #include "pat.h"
 #include "inline.h"
@@ -39,5 +38,3 @@ static GCC_INLINE void fc_solve_pats__print_card(const fcs_card_t card, FILE * c
             fc_solve_pats__Suits_string[(int)fcs_card_suit(card)]);
     }
 }
-
-#endif /* FC_SOLVE_PATSOLVE_PRINT_CARD_H */

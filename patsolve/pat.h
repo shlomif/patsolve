@@ -23,9 +23,7 @@
  */
 /* Solve Freecell and Seahaven type patience (solitaire) games. */
 
-#ifndef FC_SOLVE_PATSOLVE_PAT_H
-#define FC_SOLVE_PATSOLVE_PAT_H
-
+#pragma once
 #include <stdio.h>
 #include <sys/types.h>
 
@@ -587,5 +585,3 @@ static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_threa
 }
 #endif
 #endif
-
-#endif /* #ifndef FC_SOLVE_PATSOLVE_PAT_H */
