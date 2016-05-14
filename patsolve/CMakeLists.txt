@@ -171,7 +171,8 @@ INCLUDE(CPack)
 ADD_LIBRARY(fcs_patsolve_lib
     SHARED
     "${FC_SOLVE_SRC_PATH}/card.c"
-    pat.c patsolve.c state.c tree.c
+    "${FC_SOLVE_SRC_PATH}/state.c"
+    pat.c patsolve.c tree.c
 )
 
 ADD_EXECUTABLE(patsolve
