@@ -38,7 +38,7 @@ static void print_msg(const char *msg, ...)
     va_end(ap);
 }
 
-static char *Progname = NULL;
+static const char *Progname = NULL;
 
 /* Print a message and exit. */
 static void fatalerr(const char *msg, ...)
