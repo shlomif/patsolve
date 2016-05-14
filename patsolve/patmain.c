@@ -110,7 +110,7 @@ int main(int argc, char **argv)
         soft_thread,
         &instance_struct,
         &argc,
-        &argv
+        (const char ***)(&argv)
     );
 
     FILE * in_fh = stdin;
