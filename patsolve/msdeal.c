@@ -33,7 +33,6 @@
 #include "portable_int32.h"
 
 typedef u_int64_t LONG;
-typedef void VOID;
 typedef u_int32_t UINT;
 typedef int CARD;
 
@@ -41,7 +40,7 @@ typedef int CARD;
 
 static LONG seedx;
 
-static GCC_INLINE VOID srandp(UINT s)
+static GCC_INLINE void srandp(UINT s)
 {
     seedx = (LONG) s;
 }
@@ -52,7 +51,7 @@ static GCC_INLINE UINT randp(void)
     return (seedx >> 16) & 0xffff;
 }
 
-static GCC_INLINE VOID srando(UINT s)
+static GCC_INLINE void srando(UINT s)
 {
     seedx = (LONG) s;
 }

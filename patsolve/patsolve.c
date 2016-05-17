@@ -270,7 +270,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(fcs_pats_thread_t * const soft_
             i++;
         }
     }
-    pos->ntemp = i;
+    pos->num_cards_in_freecells = i;
 
     return pos;
 }
@@ -542,21 +542,20 @@ having separate queues). */
 
 void fc_solve_pats__queue_position(fcs_pats_thread_t * const soft_thread, fcs_pats_position_t * const pos, int pri)
 {
-    int nout;
     double x;
 
     /* In addition to the priority of a move, a position gets an
     additional priority depending on the number of cards out.  We use a
-    "queue squashing function" to map nout to priority.  */
+    "queue squashing function" to map num_cards_out to priority.  */
 
-    nout = fcs_foundation_value(soft_thread->current_pos.s, 0) + fcs_foundation_value(soft_thread->current_pos.s, 1) + fcs_foundation_value(soft_thread->current_pos.s, 2) + fcs_foundation_value(soft_thread->current_pos.s, 3);
+    const int num_cards_out = fcs_foundation_value(soft_thread->current_pos.s, 0) + fcs_foundation_value(soft_thread->current_pos.s, 1) + fcs_foundation_value(soft_thread->current_pos.s, 2) + fcs_foundation_value(soft_thread->current_pos.s, 3);
 
     /* y_param[0] * nout^2 + y_param[1] * nout + y_param[2] */
 
     const typeof(soft_thread->pats_solve_params.y[0]) * const y_param
         = soft_thread->pats_solve_params.y;
 
-    x = (y_param[0] * nout + y_param[1]) * nout + y_param[2];
+    x = (y_param[0] * num_cards_out + y_param[1]) * num_cards_out + y_param[2];
     {
         /*
          * GCC gives a warning with some flags if we cast the result

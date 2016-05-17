@@ -107,7 +107,7 @@ typedef struct fc_solve_pats__pos__struct {
     fcs_pats__move_t move;              /* move that got us here from the parent */
     unsigned short cluster; /* the cluster this node is in */
     short depth;            /* number of moves so far */
-    u_char ntemp;           /* number of cards in T */
+    u_char num_cards_in_freecells;           /* number of cards in T */
     u_char nchild;          /* number of child nodes left */
 } fcs_pats_position_t;
 
