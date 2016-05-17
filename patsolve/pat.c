@@ -697,7 +697,7 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, con
     zerot = 0;
     pos = pos0;
     for (i = 0; i < j; i++) {
-        zerot |= (pos->ntemp == LOCAL_FREECELLS_NUM);
+        zerot |= (pos->num_cards_in_freecells == LOCAL_FREECELLS_NUM);
         pos = pos->parent;
     }
 
@@ -765,7 +765,7 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, con
         first move, prune.  There are other cases, but they
         are more complicated. */
 
-        if (pos->ntemp != LOCAL_FREECELLS_NUM && !zerot) {
+        if (pos->num_cards_in_freecells != LOCAL_FREECELLS_NUM && !zerot) {
             return TRUE;
         }
 

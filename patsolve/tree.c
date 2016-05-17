@@ -236,7 +236,7 @@ fcs_pats__insert_code_t fc_solve_pats__insert(fcs_pats_thread_t * const soft_thr
     /* Create a compact position representation. */
 
     fcs_pats__tree_t * const new_pos = pack_position(soft_thread);
-    if (new_pos == NULL) {
+    if (! new_pos) {
         return FCS_PATS__INSERT_CODE_ERR;
     }
     soft_thread->num_states_in_collection++;
