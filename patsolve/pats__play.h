@@ -377,7 +377,7 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
     if (soft_thread->to_stack && soft_thread->Noexit) {
         fatalerr("-S and -E may not be used together.");
     }
-    if (soft_thread->remaining_memory < BLOCKSIZE * 2) {
+    if (soft_thread->remaining_memory < (FC_SOLVE__PATS__BLOCKSIZE * 2)) {
         fatalerr("-M too small.");
     }
     if (LOCAL_STACKS_NUM > MAX_NUM_STACKS) {

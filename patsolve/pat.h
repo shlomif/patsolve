@@ -146,7 +146,7 @@ typedef struct fcs_pats__block_struct {
     struct fcs_pats__block_struct *next;
 } fcs_pats__block_t;
 
-#define BLOCKSIZE (32 * 4096)
+#define FC_SOLVE__PATS__BLOCKSIZE (32 * 4096)
 
 typedef struct fcs_pats__treelist_struct {
     fcs_pats__tree_t *tree;
@@ -415,7 +415,7 @@ static GCC_INLINE void fc_solve_pats__free_blocks(fcs_pats_thread_t * const soft
     typeof(soft_thread->my_block) b = soft_thread->my_block;
     while (b) {
         typeof (b->next) next = b->next;
-        fc_solve_pats__free_array(soft_thread, b->block, u_char, BLOCKSIZE);
+        fc_solve_pats__free_array(soft_thread, b->block, u_char, FC_SOLVE__PATS__BLOCKSIZE);
         fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
         b = next;
     }
