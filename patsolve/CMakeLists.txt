@@ -208,10 +208,6 @@ FOREACH (CFLAG_TO_CHECK ${COMPILER_FLAGS_TO_CHECK})
     ENDIF ()
 ENDFOREACH()
 
-# Settings for Freecell
-# TODO: allow customisations.
-ADD_DEFINITIONS("-DNWPILES=8")
-
 TARGET_LINK_LIBRARIES (patsolve "m")
 
 IF (FCS_WITH_TEST_SUITE)
