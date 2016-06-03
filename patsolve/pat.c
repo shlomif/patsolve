@@ -38,7 +38,7 @@
 
 /* Names of the cards.  The ordering is defined in pat.h. */
 
-static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_thread, const int stacks_num)
+static GCC_INLINE int calc_empty_col_idx(fcs_pats_thread_t * const soft_thread, const int stacks_num)
 {
     for (int w = 0 ; w < stacks_num ; w++)
     {
@@ -51,7 +51,7 @@ static GCC_INLINE const int calc_empty_col_idx(fcs_pats_thread_t * const soft_th
 }
 
 /* Automove logic.  Freecell games must avoid certain types of automoves. */
-static GCC_INLINE const fcs_bool_t good_automove(fcs_pats_thread_t * const soft_thread, const int o, const int r)
+static GCC_INLINE fcs_bool_t good_automove(fcs_pats_thread_t * const soft_thread, const int o, const int r)
 {
 #ifndef FCS_FREECELL_ONLY
     const fc_solve_instance_t * const instance = soft_thread->instance;
@@ -894,7 +894,7 @@ end_of_stacks:
     }
 }
 
-static GCC_INLINE const fcs_bool_t is_win(fcs_pats_thread_t * const soft_thread)
+static GCC_INLINE fcs_bool_t is_win(fcs_pats_thread_t * const soft_thread)
 {
     for (int o = 0; o < 4; o++) {
         if (fcs_foundation_value(soft_thread->current_pos.s, o) != FCS_PATS__KING) {

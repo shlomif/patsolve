@@ -276,7 +276,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(fcs_pats_thread_t * const soft_
 }
 
 /* Hash the whole layout.  This is called once, at the start. */
-static GCC_INLINE const fcs_bool_t check_for_exceeded(fcs_pats_thread_t * const soft_thread)
+static GCC_INLINE fcs_bool_t check_for_exceeded(fcs_pats_thread_t * const soft_thread)
 {
     return
     (

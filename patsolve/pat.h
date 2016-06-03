@@ -71,7 +71,7 @@ static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a, const fcs_
 }
 #endif
 
-static GCC_INLINE const fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const fcs_card_t card)
+static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(const fcs_bool_t not_king_only, const fcs_card_t card)
 {
     return (not_king_only || fcs_card_rank(card) == FCS_PATS__KING);
 }
@@ -288,7 +288,7 @@ extern fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t * soft_threa
 extern u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * soft_thread, size_t);
 extern void fc_solve_pats__sort_piles(fcs_pats_thread_t * soft_thread);
 
-extern fcs_pats__block_t * const fc_solve_pats__new_block(fcs_pats_thread_t * const soft_thread);
+extern fcs_pats__block_t * fc_solve_pats__new_block(fcs_pats_thread_t * const soft_thread);
 
 /* Clusters are also stored in a hashed array. */
 
