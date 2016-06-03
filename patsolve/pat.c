@@ -1056,9 +1056,6 @@ void fc_solve_pats__sort_piles(fcs_pats_thread_t * const soft_thread)
     }
 
     /* Sort them. */
-
-    /* TODO : Add a temp pointer to column_idxs */
-
     soft_thread->current_pos.column_idxs[0] = 0;
     for (int i = 1; i < LOCAL_STACKS_NUM; i++) {
         const typeof(i) w = i - 1;

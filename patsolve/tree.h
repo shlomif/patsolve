@@ -22,7 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 /*
- * TODO : Add a description of this file.
+ * tree.h : header of the patsolve's splay tree.
  */
 #pragma once
 
