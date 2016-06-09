@@ -75,25 +75,20 @@ typedef struct {
     int update_total_num_iters_threshold;
 } context_t;
 
-typedef struct
-{
-    fcs_pats_thread_t soft_thread_struct__dont_use_directly;
-    fc_solve_instance_t instance_struct;
-} pack_item_t;
-
 static void * worker_thread(void * const void_context)
 {
     const context_t * const context = (const context_t * const)void_context;
 
-    pack_item_t user;
-    fcs_pats_thread_t * const soft_thread = &user.soft_thread_struct__dont_use_directly;
+    fcs_pats_thread_t soft_thread_struct__dont_use_directly;
+    fcs_pats_thread_t * const soft_thread = &soft_thread_struct__dont_use_directly;
 
     int argc = context->argc;
     char * * argv = context->argv;
 
+    fc_solve_instance_t instance_struct;
     fc_solve_pats__configure_soft_thread(
         soft_thread,
-        &(user.instance_struct),
+        &(instance_struct),
         &argc,
         (const char * * *)(&argv)
     );
