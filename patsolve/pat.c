@@ -913,15 +913,15 @@ fcs_pats__move_t * fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_threa
     /* Fill in the soft_thread->possible_moves array. */
 
     fcs_bool_t a;
-    int n = get_possible_moves(soft_thread, &a, &numout);
-    int alln = n;
+    const int total_num_moves = get_possible_moves(soft_thread, &a, &numout);
+    int n = total_num_moves;
 
     if (!a) {
 
         /* Throw out some obviously bad (non-auto)moves. */
         typeof(soft_thread->possible_moves[0]) * mp =
             soft_thread->possible_moves;
-        const typeof(mp) mp_end = mp+alln;
+        const typeof(mp) mp_end = mp+total_num_moves;
         for (;mp<mp_end;mp++) {
 
 #ifndef FCS_FREECELL_ONLY
@@ -974,7 +974,7 @@ fcs_pats__move_t * fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_threa
     don't need a priority. */
 
     if (!a) {
-        prioritize(soft_thread, soft_thread->possible_moves, alln);
+        prioritize(soft_thread, soft_thread->possible_moves, total_num_moves);
     }
 
     /* Now copy to safe storage and return.  Non-auto moves out get put
@@ -992,7 +992,7 @@ fcs_pats__move_t * fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_threa
         *nmoves = n;
         if (a || numout == 0)
         {
-            for (int i = 0; i < alln; i++) {
+            for (int i = 0; i < total_num_moves; i++) {
                 if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
                     *mp = soft_thread->possible_moves[i];      /* struct copy */
                     mp++;
@@ -1001,7 +1001,7 @@ fcs_pats__move_t * fc_solve_pats__get_moves(fcs_pats_thread_t * const soft_threa
         }
         else
         {
-            for (int i = numout; i < alln; i++) {
+            for (int i = numout; i < total_num_moves; i++) {
                 if (soft_thread->possible_moves[i].card != fc_solve_empty_card) {
                     *mp = soft_thread->possible_moves[i];      /* struct copy */
                     mp++;
