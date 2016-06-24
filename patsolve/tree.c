@@ -259,12 +259,12 @@ fcs_pats__block_t * fc_solve_pats__new_block(fcs_pats_thread_t * const soft_thre
     if (b == NULL) {
         return NULL;
     }
-    b->block = fc_solve_pats__new_array(soft_thread, u_char, FC_SOLVE__PATS__BLOCKSIZE);
-    if (b->block == NULL) {
+    const typeof(b->block) block = fc_solve_pats__new_array(soft_thread, u_char, FC_SOLVE__PATS__BLOCKSIZE);
+    if ((b->block = block) == NULL) {
         fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
         return NULL;
     }
-    b->ptr = b->block;
+    b->ptr = block;
     b->remain = FC_SOLVE__PATS__BLOCKSIZE;
     b->next = NULL;
 
