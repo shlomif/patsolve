@@ -142,7 +142,7 @@ typedef enum {
 typedef struct fcs_pats__block_struct {
     u_char *block;
     u_char *ptr;
-    size_t remain;
+    size_t remaining;
     struct fcs_pats__block_struct *next;
 } fcs_pats__block_t;
 

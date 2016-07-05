@@ -194,7 +194,8 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
 #endif
 
     const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
-    if (empty_col_idx >= 0) {
+    const fcs_bool_t has_empty_col = (empty_col_idx >= 0);
+    if (has_empty_col) {
         for (int i = 0; i < LOCAL_STACKS_NUM; i++) {
             const fcs_cards_column_t i_col = fcs_state_get_col(soft_thread->current_pos.s, i);
             const int i_col_len = fcs_col_len(i_col);
@@ -298,7 +299,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t * const soft_thread, 
 
     /* Check for moves from soft_thread->current_pos.freecells to one of any empty soft_thread->current_pos.stacks cells. */
 
-    if (empty_col_idx >= 0) {
+    if (has_empty_col) {
         for (int t = 0; t < LOCAL_FREECELLS_NUM; t++) {
             const fcs_card_t card = fcs_freecell_card(soft_thread->current_pos.s, t);
             if (card != fc_solve_empty_card && fcs_pats_is_king_only(not_King_only, card)) {
@@ -635,7 +636,6 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, con
 {
     DECLARE_STACKS();
     int i, j;
-    int zerot;
     fcs_pats__move_t *m, *prev[MAX_PREVIOUS_MOVES];
     fcs_pats_position_t *pos;
 
@@ -694,10 +694,10 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, con
     prev[j-1], there may be a dependency.  We also want to know if there
     were any empty soft_thread->current_pos.freecells cells on move prev[j]. */
 
-    zerot = 0;
+    fcs_bool_t was_all_freecells_occupied = FALSE;
     pos = pos0;
     for (i = 0; i < j; i++) {
-        zerot |= (pos->num_cards_in_freecells == LOCAL_FREECELLS_NUM);
+        was_all_freecells_occupied = was_all_freecells_occupied || (pos->num_cards_in_freecells == LOCAL_FREECELLS_NUM);
         pos = pos->parent;
     }
 
@@ -713,7 +713,7 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, con
         /* If the number of soft_thread->current_pos.freecells cells goes to zero, we have a soft_thread->current_pos.freecells
         dependency, and we can't prune. */
 
-        if (zerot) {
+        if (was_all_freecells_occupied) {
             return FALSE;
         }
 
@@ -765,7 +765,7 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t * const soft_thread, con
         first move, prune.  There are other cases, but they
         are more complicated. */
 
-        if (pos->num_cards_in_freecells != LOCAL_FREECELLS_NUM && !zerot) {
+        if (pos->num_cards_in_freecells != LOCAL_FREECELLS_NUM && !was_all_freecells_occupied) {
             return TRUE;
         }
 
