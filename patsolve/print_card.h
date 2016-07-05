@@ -27,12 +27,14 @@
 #include "pat.h"
 #include "inline.h"
 
-static const char * const fc_solve_pats__Ranks_string = " A23456789TJQK";
-static const char * const fc_solve_pats__Suits_string = "HCDS";
+static const char *const fc_solve_pats__Ranks_string = " A23456789TJQK";
+static const char *const fc_solve_pats__Suits_string = "HCDS";
 
-static GCC_INLINE void fc_solve_pats__print_card(const fcs_card_t card, FILE * const out_fh)
+static GCC_INLINE void fc_solve_pats__print_card(
+    const fcs_card_t card, FILE *const out_fh)
 {
-    if (fcs_card_rank(card) != fc_solve_empty_card) {
+    if (fcs_card_rank(card) != fc_solve_empty_card)
+    {
         fprintf(out_fh, "%c%c",
             fc_solve_pats__Ranks_string[(int)fcs_card_rank(card)],
             fc_solve_pats__Suits_string[(int)fcs_card_suit(card)]);

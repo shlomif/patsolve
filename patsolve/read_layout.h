@@ -30,13 +30,16 @@
 #include "instance.h"
 #include "pat.h"
 
-static GCC_INLINE void fc_solve_pats__read_layout(fcs_pats_thread_t * const soft_thread, const char * const input_s)
+static GCC_INLINE void fc_solve_pats__read_layout(
+    fcs_pats_thread_t *const soft_thread, const char *const input_s)
 {
 #if !defined(HARD_CODED_NUM_STACKS)
-    const fcs_game_type_params_t game_params = soft_thread->instance->game_params;
+    const fcs_game_type_params_t game_params =
+        soft_thread->instance->game_params;
 #endif
 
     fcs_state_keyval_pair_t kv;
-    fc_solve_initial_user_state_to_c(input_s, &kv, LOCAL_FREECELLS_NUM, LOCAL_STACKS_NUM, 1, soft_thread->current_pos.indirect_stacks_buffer);
+    fc_solve_initial_user_state_to_c(input_s, &kv, LOCAL_FREECELLS_NUM,
+        LOCAL_STACKS_NUM, 1, soft_thread->current_pos.indirect_stacks_buffer);
     soft_thread->current_pos.s = kv.s;
 }

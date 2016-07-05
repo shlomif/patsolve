@@ -27,27 +27,18 @@
 #include "pat.h"
 
 static GCC_INLINE void fc_solve_pats__print_layout(
-    fcs_pats_thread_t * const soft_thread
-)
+    fcs_pats_thread_t *const soft_thread)
 {
 #ifndef FCS_FREECELL_ONLY
-    fc_solve_instance_t * const instance = soft_thread->instance;
+    fc_solve_instance_t *const instance = soft_thread->instance;
 #endif
 
     fcs_state_locs_struct_t locs;
     fc_solve_init_locs(&locs);
     char s[1000];
-    fc_solve_state_as_string(
-        s,
-        &(soft_thread->current_pos.s),
-        &(locs),
-        INSTANCE_FREECELLS_NUM,
-        INSTANCE_STACKS_NUM,
-        INSTANCE_DECKS_NUM,
-        TRUE,
-        FALSE,
-        TRUE
-    );
+    fc_solve_state_as_string(s, &(soft_thread->current_pos.s), &(locs),
+        INSTANCE_FREECELLS_NUM, INSTANCE_STACKS_NUM, INSTANCE_DECKS_NUM, TRUE,
+        FALSE, TRUE);
 
     fprintf(stderr, "%s\n---\n", s);
 }

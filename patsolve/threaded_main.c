@@ -46,18 +46,16 @@
 #include "pats__print_msg.h"
 
 static const char Usage[] =
-  "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
-  "-s Seahaven (same suit), -f Freecell (red/black)\n"
-  "-k only Kings start a pile, -a any card starts a pile\n"
-  "-w<n> number of work piles, -t<n> number of free cells\n"
-  "-E don't exit after one solution; continue looking for better ones\n"
-  "-S speed mode; find a solution quickly, rather than a good solution\n"
-  "-q quiet, -v verbose\n"
-  "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
+    "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
+    "-s Seahaven (same suit), -f Freecell (red/black)\n"
+    "-k only Kings start a pile, -a any card starts a pile\n"
+    "-w<n> number of work piles, -t<n> number of free cells\n"
+    "-E don't exit after one solution; continue looking for better ones\n"
+    "-S speed mode; find a solution quickly, rather than a good solution\n"
+    "-q quiet, -v verbose\n"
+    "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 
-static const pthread_mutex_t initial_mutex_constant =
-    PTHREAD_MUTEX_INITIALIZER
-    ;
+static const pthread_mutex_t initial_mutex_constant = PTHREAD_MUTEX_INITIALIZER;
 
 static int next_board_num;
 static pthread_mutex_t next_board_num_lock;
@@ -65,9 +63,10 @@ static pthread_mutex_t next_board_num_lock;
 fcs_int64_t total_num_iters = 0;
 static pthread_mutex_t total_num_iters_lock;
 
-typedef struct {
+typedef struct
+{
     int argc;
-    char * * argv;
+    char **argv;
     int arg;
     int stop_at;
     int end_board;
@@ -75,29 +74,27 @@ typedef struct {
     int update_total_num_iters_threshold;
 } context_t;
 
-static void * worker_thread(void * const void_context)
+static void *worker_thread(void *const void_context)
 {
-    const context_t * const context = (const context_t * const)void_context;
+    const context_t *const context = (const context_t *const)void_context;
 
     fcs_pats_thread_t soft_thread_struct__dont_use_directly;
-    fcs_pats_thread_t * const soft_thread = &soft_thread_struct__dont_use_directly;
+    fcs_pats_thread_t *const soft_thread =
+        &soft_thread_struct__dont_use_directly;
 
     int argc = context->argc;
-    char * * argv = context->argv;
+    char **argv = context->argv;
 
     fc_solve_instance_t instance_struct;
     fc_solve_pats__configure_soft_thread(
-        soft_thread,
-        &(instance_struct),
-        &argc,
-        (const char * * *)(&argv)
-    );
+        soft_thread, &(instance_struct), &argc, (const char ***)(&argv));
 
     int board_num;
     const int end_board = context->end_board;
     const int board_num_step = context->board_num_step;
-    const int update_total_num_iters_threshold = context->update_total_num_iters_threshold;
-    const int past_end_board = end_board+1;
+    const int update_total_num_iters_threshold =
+        context->update_total_num_iters_threshold;
+    const int past_end_board = end_board + 1;
     fcs_portable_time_t mytime;
     fcs_int_limit_t total_num_iters_temp = 0;
     const int stop_at = context->stop_at;
@@ -110,7 +107,7 @@ static void * worker_thread(void * const void_context)
 
         const int quota_end = min(proposed_quota_end, past_end_board);
 
-        for ( ; board_num < quota_end ; board_num++ )
+        for (; board_num < quota_end; board_num++)
         {
             fcs_state_string_t board_string;
             get_board(board_num, board_string);
@@ -133,15 +130,13 @@ static void * worker_thread(void * const void_context)
                 fcs_int64_t total_num_iters_copy;
 
                 pthread_mutex_lock(&total_num_iters_lock);
-                total_num_iters_copy = (total_num_iters += total_num_iters_temp);
+                total_num_iters_copy =
+                    (total_num_iters += total_num_iters_temp);
                 pthread_mutex_unlock(&total_num_iters_lock);
                 total_num_iters_temp = 0;
 
                 FCS_PRINT_REACHED_BOARD(
-                    mytime,
-                    board_num,
-                    total_num_iters_copy
-                );
+                    mytime, board_num, total_num_iters_copy);
                 fflush(stdout);
             }
 
@@ -160,7 +155,8 @@ int main(int argc, char **argv)
 {
     next_board_num_lock = initial_mutex_constant;
     total_num_iters_lock = initial_mutex_constant;
-    const int start_game_idx = get_idx_from_env("PATSOLVE_START");         /* for range solving */
+    const int start_game_idx =
+        get_idx_from_env("PATSOLVE_START"); /* for range solving */
     const int end_game_idx = get_idx_from_env("PATSOLVE_END");
 
     {
@@ -173,33 +169,32 @@ int main(int argc, char **argv)
 
         fcs_portable_time_t mytime;
         FCS_PRINT_STARTED_AT(mytime);
-        context_t context = {.argc = argc, .argv = argv,
-            .stop_at = stop_at, .end_board = end_game_idx,
+        context_t context = {
+            .argc = argc,
+            .argv = argv,
+            .stop_at = stop_at,
+            .end_board = end_game_idx,
             .board_num_step = board_num_step,
-            .update_total_num_iters_threshold = update_total_num_iters_threshold,
+            .update_total_num_iters_threshold =
+                update_total_num_iters_threshold,
         };
 
-        pthread_t * const workers = SMALLOC(workers, num_workers);
-        for ( int idx = 0 ; idx < num_workers ; idx++)
+        pthread_t *const workers = SMALLOC(workers, num_workers);
+        for (int idx = 0; idx < num_workers; idx++)
         {
-            const int check = pthread_create(
-                &workers[idx],
-                NULL,
-                worker_thread,
-                &context
-            );
+            const int check =
+                pthread_create(&workers[idx], NULL, worker_thread, &context);
             if (check)
             {
-                fprintf(stderr,
-                    "Worker Thread No. %d Initialization failed with error %d!\n",
-                    idx, check
-                );
+                fprintf(stderr, "Worker Thread No. %d Initialization failed "
+                                "with error %d!\n",
+                    idx, check);
                 exit(-1);
             }
         }
 
         /* Wait for all threads to finish. */
-        for( int idx = 0 ; idx < num_workers ; idx++)
+        for (int idx = 0; idx < num_workers; idx++)
         {
             pthread_join(workers[idx], NULL);
         }
