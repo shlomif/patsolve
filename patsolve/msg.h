@@ -29,7 +29,7 @@
 
 #include "inline.h"
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -42,6 +42,6 @@ static GCC_INLINE void fc_solve_msg(const char *msg, ...)
     va_end(ap);
 }
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif

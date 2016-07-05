@@ -34,7 +34,8 @@
 
 typedef struct fcs_pats__tree_node_struct fcs_pats__tree_t;
 
-struct fcs_pats__tree_node_struct {
+struct fcs_pats__tree_node_struct
+{
     fcs_pats__tree_t *left;
     fcs_pats__tree_t *right;
     short depth;

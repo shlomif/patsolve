@@ -40,10 +40,7 @@ typedef int CARD;
 
 static LONG seedx;
 
-static GCC_INLINE void srandp(UINT s)
-{
-    seedx = (LONG) s;
-}
+static GCC_INLINE void srandp(UINT s) { seedx = (LONG)s; }
 
 static GCC_INLINE UINT randp(void)
 {
@@ -51,10 +48,7 @@ static GCC_INLINE UINT randp(void)
     return (seedx >> 16) & 0xffff;
 }
 
-static GCC_INLINE void srando(UINT s)
-{
-    seedx = (LONG) s;
-}
+static GCC_INLINE void srando(UINT s) { seedx = (LONG)s; }
 
 static GCC_INLINE UINT rando(void)
 {
@@ -74,48 +68,64 @@ int main(int argc, char **argv)
     CARD pos[10][10];
 
     int Nwpiles = 8;
-    if (argc > 2 && argv[1][0] == 's') {
+    if (argc > 2 && argv[1][0] == 's')
+    {
         Nwpiles = 10;
         argv++;
         argc--;
     }
 
-    if (argc != 2) {
+    if (argc != 2)
+    {
         fprintf(stderr, "usage: %s number\n", argv[0]);
         exit(1);
     }
     const LONG gnGameNumber = strtoul(argv[1], NULL, 10);
 
     memset(pos, 0, sizeof(pos));
-    for (int i = 0; i < NUM_CARDS; i++) {
+    for (int i = 0; i < NUM_CARDS; i++)
+    {
         deck[i] = i + 1;
     }
 
-    if (gnGameNumber < 0x100000000) {
-        srando((UINT) gnGameNumber);
-    } else {
-        srandp((UINT) (gnGameNumber - 0x100000000));
+    if (gnGameNumber < 0x100000000)
+    {
+        srando((UINT)gnGameNumber);
+    }
+    else
+    {
+        srandp((UINT)(gnGameNumber - 0x100000000));
     }
 
-    for (int i = 0; i < NUM_CARDS; i++) {
-        if (gnGameNumber < 0x100000000) {
-            if (gnGameNumber < 0x80000000) {
+    for (int i = 0; i < NUM_CARDS; i++)
+    {
+        if (gnGameNumber < 0x100000000)
+        {
+            if (gnGameNumber < 0x80000000)
+            {
                 j = rando() % wLeft;
-            } else {
+            }
+            else
+            {
                 j = (rando() | 0x8000) % wLeft;
             }
-        } else {
+        }
+        else
+        {
             j = (randp() + 1) % wLeft;
         }
         pos[i % Nwpiles][i / Nwpiles] = deck[j];
         deck[j] = deck[--wLeft];
-        if (Nwpiles == 10 && i == 49) {
+        if (Nwpiles == 10 && i == 49)
+        {
             break;
         }
     }
-    for (int i = 0; i < Nwpiles; i++) {
+    for (int i = 0; i < Nwpiles; i++)
+    {
         j = 0;
-        while (pos[i][j]) {
+        while (pos[i][j])
+        {
             c = pos[i][j] - 1;
             j++;
             printf("%c%c ", Rank[c / 4], Suit[c % 4]);
@@ -124,13 +134,16 @@ int main(int argc, char **argv)
     }
     /* leftover cards to temp */
     c = -1;
-    for (int i = 0; i < 4; i++) {
-        if (wLeft) {
+    for (int i = 0; i < 4; i++)
+    {
+        if (wLeft)
+        {
             j = --wLeft;
             c = deck[j] - 1;
             printf("%c%c ", Rank[c / 4], Suit[c % 4]);
         }
     }
-    if (c >= 0) putchar('\n');
+    if (c >= 0)
+        putchar('\n');
     return 0;
 }

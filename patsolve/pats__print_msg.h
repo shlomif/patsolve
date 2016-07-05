@@ -45,7 +45,8 @@ static void fatalerr(const char *msg, ...)
 {
     va_list ap;
 
-    if (Progname) {
+    if (Progname)
+    {
         fprintf(stderr, "%s: ", Progname);
     }
     va_start(ap, msg);

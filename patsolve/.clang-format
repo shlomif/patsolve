@@ -1,0 +1,6 @@
+---
+BasedOnStyle:  LLVM
+AlignAfterOpenBracket: DontAlign
+BreakBeforeBraces: Allman
+IndentWidth:     4
+SortIncludes:    false
