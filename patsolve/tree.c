@@ -92,7 +92,7 @@ static GCC_INLINE void give_back_block(fcs_pats_thread_t * const soft_thread, u_
     typeof(soft_thread->my_block) b = soft_thread->my_block;
     const size_t s = b->ptr - p;
     b->ptr -= s;
-    b->remain += s;
+    b->remaining += s;
 }
 
 /* Add it to the binary tree for this cluster.  The piles are stored
@@ -265,7 +265,7 @@ fcs_pats__block_t * fc_solve_pats__new_block(fcs_pats_thread_t * const soft_thre
         return NULL;
     }
     b->ptr = block;
-    b->remain = FC_SOLVE__PATS__BLOCKSIZE;
+    b->remaining = FC_SOLVE__PATS__BLOCKSIZE;
     b->next = NULL;
 
     return b;
@@ -276,7 +276,7 @@ fcs_pats__block_t * fc_solve_pats__new_block(fcs_pats_thread_t * const soft_thre
 u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * const soft_thread, const size_t s)
 {
     fcs_pats__block_t * b = soft_thread->my_block;
-    if (s > b->remain) {
+    if (s > b->remaining) {
         b = fc_solve_pats__new_block(soft_thread);
         if (b == NULL) {
             return NULL;
@@ -286,7 +286,7 @@ u_char *fc_solve_pats__new_from_block(fcs_pats_thread_t * const soft_thread, con
     }
 
     u_char * const p = b->ptr;
-    b->remain -= s;
+    b->remaining -= s;
     b->ptr += s;
 
     return p;
