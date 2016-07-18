@@ -314,8 +314,18 @@ static GCC_INLINE void fc_solve_pats__init_clusters(
     soft_thread->my_block = fc_solve_pats__new_block(soft_thread);
 }
 
-/* Initialize the hash buckets. */
+/* In order to keep the fcs_pats__tree_t structure aligned, we need to add
+up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
+better than storing the fcs_pats__tree_t nodes and keys separately, as that
+requires a pointer.  On Intel for -f bytes_per_tree_node winds up being
+a multiple of 8 currently anyway so it doesn't matter. */
+static GCC_INLINE int fc_solve_pats__align(const int i)
+{
+    const typeof(i) ALIGN_BITS = 0x7;
+    return ((i & ALIGN_BITS) ? ((i | ALIGN_BITS) + 1) : i);
+}
 
+/* Initialize the hash buckets. */
 static GCC_INLINE void fc_solve_pats__init_buckets(
     fcs_pats_thread_t *const soft_thread)
 {
@@ -331,28 +341,10 @@ static GCC_INLINE void fc_solve_pats__init_buckets(
 
     memset(soft_thread->buckets_list, 0, sizeof(soft_thread->buckets_list));
     soft_thread->next_pile_idx = 0;
-    soft_thread->bytes_per_tree_node =
-        sizeof(fcs_pats__tree_t) + soft_thread->bytes_per_pile;
-
-/* In order to keep the fcs_pats__tree_t structure aligned, we need to add
-up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
-better than storing the fcs_pats__tree_t nodes and keys separately, as that
-requires a pointer.  On Intel for -f bytes_per_tree_node winds up being
-a multiple of 8 currently anyway so it doesn't matter. */
-
-//#define ALIGN_BITS 0x3
-#define ALIGN_BITS 0x7
-    if (soft_thread->bytes_per_tree_node & ALIGN_BITS)
-    {
-        soft_thread->bytes_per_tree_node |= ALIGN_BITS;
-        soft_thread->bytes_per_tree_node++;
-    }
-    soft_thread->position_size = sizeof(fcs_pats_position_t) + freecells_num;
-    if (soft_thread->position_size & ALIGN_BITS)
-    {
-        soft_thread->position_size |= ALIGN_BITS;
-        soft_thread->position_size++;
-    }
+    soft_thread->bytes_per_tree_node = fc_solve_pats__align(
+        sizeof(fcs_pats__tree_t) + soft_thread->bytes_per_pile);
+    soft_thread->position_size =
+        fc_solve_pats__align(sizeof(fcs_pats_position_t) + freecells_num);
 }
 
 /* A function and some macros for allocating memory. */
