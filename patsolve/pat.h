@@ -247,7 +247,7 @@ struct fc_solve__patsolve_thread_struct
 
     fcs_pats_xy_param_t pats_solve_params;
 
-    int position_size;
+    size_t position_size;
 
     fcs_pats__bucket_list_t *buckets_list[FC_SOLVE_BUCKETLIST_NBUCKETS];
     /* The next pile number to be assigned. */
@@ -255,7 +255,7 @@ struct fc_solve__patsolve_thread_struct
     /* reverse lookup for unpack to get the bucket
                        from the pile */
     fcs_pats__bucket_list_t *bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
-    int bytes_per_tree_node;
+    size_t bytes_per_tree_node;
     int Noexit;        /* -E means don't exit */
     int num_solutions; /* number of solutions found in -E mode */
     /* -S means stack, not queue, the moves to be done. This is a boolean
@@ -319,7 +319,7 @@ up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
 better than storing the fcs_pats__tree_t nodes and keys separately, as that
 requires a pointer.  On Intel for -f bytes_per_tree_node winds up being
 a multiple of 8 currently anyway so it doesn't matter. */
-static GCC_INLINE int fc_solve_pats__align(const int i)
+static GCC_INLINE int fc_solve_pats__align(const size_t i)
 {
     const typeof(i) ALIGN_BITS = 0x7;
     return ((i & ALIGN_BITS) ? ((i | ALIGN_BITS) + 1) : i);
