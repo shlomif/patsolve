@@ -319,7 +319,7 @@ up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
 better than storing the fcs_pats__tree_t nodes and keys separately, as that
 requires a pointer.  On Intel for -f bytes_per_tree_node winds up being
 a multiple of 8 currently anyway so it doesn't matter. */
-static GCC_INLINE int fc_solve_pats__align(const size_t i)
+static GCC_INLINE size_t fc_solve_pats__align(const size_t i)
 {
     const typeof(i) ALIGN_BITS = 0x7;
     return ((i & ALIGN_BITS) ? ((i | ALIGN_BITS) + 1) : i);
