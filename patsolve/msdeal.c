@@ -67,10 +67,10 @@ int main(int argc, char **argv)
     CARD deck[NUM_CARDS];
     CARD pos[10][10];
 
-    int Nwpiles = 8;
+    size_t stacks_num = 8;
     if (argc > 2 && argv[1][0] == 's')
     {
-        Nwpiles = 10;
+        stacks_num = 10;
         argv++;
         argc--;
     }
@@ -114,14 +114,14 @@ int main(int argc, char **argv)
         {
             j = (randp() + 1) % wLeft;
         }
-        pos[i % Nwpiles][i / Nwpiles] = deck[j];
+        pos[i % stacks_num][i / stacks_num] = deck[j];
         deck[j] = deck[--wLeft];
-        if (Nwpiles == 10 && i == 49)
+        if (stacks_num == 10 && i == 49)
         {
             break;
         }
     }
-    for (int i = 0; i < Nwpiles; i++)
+    for (size_t i = 0; i < stacks_num; i++)
     {
         j = 0;
         while (pos[i][j])
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
     }
     /* leftover cards to temp */
     c = -1;
-    for (int i = 0; i < 4; i++)
+    for (size_t i = 0; i < 4; i++)
     {
         if (wLeft)
         {
