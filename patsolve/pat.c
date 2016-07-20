@@ -1103,7 +1103,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
             /* Report the win. */
             win(soft_thread, pos);
 
-            if (soft_thread->Noexit)
+            if (soft_thread->dont_exit_on_sol)
             {
                 soft_thread->num_solutions++;
             }

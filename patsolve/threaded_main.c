@@ -137,7 +137,6 @@ static void *worker_thread(void *const void_context)
 
                 FCS_PRINT_REACHED_BOARD(
                     mytime, board_num, total_num_iters_copy);
-                fflush(stdout);
             }
 
             fc_solve_pats__recycle_soft_thread(soft_thread);

@@ -256,8 +256,8 @@ struct fc_solve__patsolve_thread_struct
                        from the pile */
     fcs_pats__bucket_list_t *bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
     size_t bytes_per_tree_node;
-    int Noexit;        /* -E means don't exit */
-    int num_solutions; /* number of solutions found in -E mode */
+    fcs_bool_t dont_exit_on_sol; /* -E means don't exit */
+    int num_solutions;           /* number of solutions found in -E mode */
     /* -S means stack, not queue, the moves to be done. This is a boolean
      * value.
      * Default should be FALSE.
@@ -496,7 +496,7 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
     soft_thread->instance = instance;
     soft_thread->is_quiet =
         FALSE; /* print entertaining messages, else exit(Status); */
-    soft_thread->Noexit = FALSE;
+    soft_thread->dont_exit_on_sol = FALSE;
     soft_thread->to_stack = FALSE;
     soft_thread->cutoff = 1;
     soft_thread->remaining_memory = (50 * 1000 * 1000);
