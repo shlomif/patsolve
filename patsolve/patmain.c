@@ -109,7 +109,6 @@ static GCC_INLINE void trace_solution(
 
 int main(int argc, char **argv)
 {
-    u_int64_t gn;
     const long long start_game_idx =
         get_idx_from_env("PATSOLVE_START"); /* for range solving */
     const long long end_game_idx = get_idx_from_env("PATSOLVE_END");
@@ -202,12 +201,13 @@ int main(int argc, char **argv)
 
         /* Range mode.  Play lots of consecutive games. */
 
-        for (gn = start_game_idx; gn < end_game_idx; gn++)
+        for (u_int64_t game_num = start_game_idx; game_num < end_game_idx;
+             game_num++)
         {
-            printf("#%ld\n", (long)gn);
+            printf("#%ld\n", (long)game_num);
             char board_string[4096];
             memset(board_string, '\0', sizeof(board_string));
-            get_board_l(gn, board_string);
+            get_board_l(game_num, board_string);
             fc_solve_pats__read_layout(soft_thread, board_string);
             fc_solve_pats__play(soft_thread);
             fc_solve_pats__recycle_soft_thread(soft_thread);
