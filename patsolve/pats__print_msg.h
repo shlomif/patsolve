@@ -38,16 +38,16 @@ static void print_msg(const char *msg, ...)
     va_end(ap);
 }
 
-static const char *Progname = NULL;
+static const char *program_name = NULL;
 
 /* Print a message and exit. */
 static void fatalerr(const char *msg, ...)
 {
     va_list ap;
 
-    if (Progname)
+    if (program_name)
     {
-        fprintf(stderr, "%s: ", Progname);
+        fprintf(stderr, "%s: ", program_name);
     }
     va_start(ap, msg);
     vfprintf(stderr, msg, ap);
@@ -59,4 +59,4 @@ static void fatalerr(const char *msg, ...)
 
 static const char Usage[];
 
-#define USAGE() print_msg(Usage, Progname)
+#define USAGE() print_msg(Usage, program_name)
