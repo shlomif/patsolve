@@ -164,7 +164,7 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
 
     pats__init_soft_thread_and_instance(soft_thread, instance);
 
-    Progname = *argv;
+    program_name = *argv;
 
     /* Parse args twice.  Once to get the operating mode, and the
     next for other options. */
@@ -384,7 +384,7 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
             break;
 
             default:
-                print_msg("%s: unknown flag -%c\n", Progname, c);
+                print_msg("%s: unknown flag -%c\n", program_name, c);
                 USAGE();
                 exit(1);
             }
