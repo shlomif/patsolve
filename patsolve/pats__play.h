@@ -65,7 +65,8 @@ static GCC_INLINE void fc_solve_pats__play(fcs_pats_thread_t *const soft_thread)
         {
             printf("Out of memory.\n");
         }
-        else if (soft_thread->Noexit && soft_thread->num_solutions > 0)
+        else if (soft_thread->dont_exit_on_sol &&
+                 soft_thread->num_solutions > 0)
         {
             printf("No shorter solutions.\n");
         }
@@ -326,7 +327,7 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'E':
-                soft_thread->Noexit = TRUE;
+                soft_thread->dont_exit_on_sol = TRUE;
                 break;
 
             case 'c':
@@ -394,7 +395,7 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
         soft_thread->instance->game_params;
 #endif
 
-    if (soft_thread->to_stack && soft_thread->Noexit)
+    if (soft_thread->to_stack && soft_thread->dont_exit_on_sol)
     {
         fatalerr("-S and -E may not be used together.");
     }
