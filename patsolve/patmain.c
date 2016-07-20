@@ -110,9 +110,9 @@ static GCC_INLINE void trace_solution(
 int main(int argc, char **argv)
 {
     u_int64_t gn;
-    const int start_game_idx =
+    const long long start_game_idx =
         get_idx_from_env("PATSOLVE_START"); /* for range solving */
-    const int end_game_idx = get_idx_from_env("PATSOLVE_END");
+    const long long end_game_idx = get_idx_from_env("PATSOLVE_END");
 
     fcs_pats_thread_t soft_thread_struct__dont_use_directly;
     fcs_pats_thread_t *const soft_thread =
