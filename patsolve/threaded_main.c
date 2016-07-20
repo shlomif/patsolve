@@ -57,7 +57,7 @@ static const char Usage[] =
 
 static const pthread_mutex_t initial_mutex_constant = PTHREAD_MUTEX_INITIALIZER;
 
-static int next_board_num;
+static long long next_board_num;
 static pthread_mutex_t next_board_num_lock;
 
 fcs_int64_t total_num_iters = 0;
@@ -89,7 +89,7 @@ static void *worker_thread(void *const void_context)
     fc_solve_pats__configure_soft_thread(
         soft_thread, &(instance_struct), &argc, (const char ***)(&argv));
 
-    int board_num;
+    long long board_num;
     const int end_board = context->end_board;
     const int board_num_step = context->board_num_step;
     const int update_total_num_iters_threshold =
@@ -154,9 +154,9 @@ int main(int argc, char **argv)
 {
     next_board_num_lock = initial_mutex_constant;
     total_num_iters_lock = initial_mutex_constant;
-    const int start_game_idx =
+    const long long start_game_idx =
         get_idx_from_env("PATSOLVE_START"); /* for range solving */
-    const int end_game_idx = get_idx_from_env("PATSOLVE_END");
+    const long long end_game_idx = get_idx_from_env("PATSOLVE_END");
 
     {
         int board_num_step = 1;

@@ -128,7 +128,7 @@ static const int freecell_solver_user_set_empty_stacks_filled_by(
     return 0;
 }
 
-static GCC_INLINE const int get_idx_from_env(const char *const name)
+static GCC_INLINE const long long get_idx_from_env(const char *const name)
 {
     const char *const s = getenv(name);
     if (!s)
@@ -137,7 +137,7 @@ static GCC_INLINE const int get_idx_from_env(const char *const name)
     }
     else
     {
-        return atoi(s);
+        return atoll(s);
     }
 }
 
