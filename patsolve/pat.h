@@ -509,8 +509,8 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
     fc_solve_pats__soft_thread_reset_helper(soft_thread);
 
     soft_thread->max_solve_depth = FCS_PATS__SOLVE_LEVEL_GROW_BY;
-    soft_thread->solve_stack =
-        SMALLOC(soft_thread->solve_stack, soft_thread->max_solve_depth);
+    soft_thread->solve_stack = (typeof(soft_thread->solve_stack))SMALLOC(
+        soft_thread->solve_stack, soft_thread->max_solve_depth);
 }
 
 static GCC_INLINE void fc_solve_pats__destroy_soft_thread(

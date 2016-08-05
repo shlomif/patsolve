@@ -109,9 +109,9 @@ static GCC_INLINE void trace_solution(
 
 int main(int argc, char **argv)
 {
-    const long long start_game_idx =
+    const long long start_board_idx =
         get_idx_from_env("PATSOLVE_START"); /* for range solving */
-    const long long end_game_idx = get_idx_from_env("PATSOLVE_END");
+    const long long end_board_idx = get_idx_from_env("PATSOLVE_END");
 
     fcs_pats_thread_t soft_thread_struct__dont_use_directly;
     fcs_pats_thread_t *const soft_thread =
@@ -137,7 +137,7 @@ int main(int argc, char **argv)
             in_fh_should_be_closed = TRUE;
         }
     }
-    if (start_game_idx < 0)
+    if (start_board_idx < 0)
     {
 
         /* Read in the initial layout and play it. */
@@ -201,13 +201,13 @@ int main(int argc, char **argv)
 
         /* Range mode.  Play lots of consecutive games. */
 
-        for (u_int64_t game_num = start_game_idx; game_num < end_game_idx;
-             game_num++)
+        for (u_int64_t board_num = start_board_idx; board_num < end_board_idx;
+             board_num++)
         {
-            printf("#%ld\n", (long)game_num);
+            printf("#%ld\n", (long)board_num);
             char board_string[4096];
             memset(board_string, '\0', sizeof(board_string));
-            get_board_l(game_num, board_string);
+            get_board_l(board_num, board_string);
             fc_solve_pats__read_layout(soft_thread, board_string);
             fc_solve_pats__play(soft_thread);
             fc_solve_pats__recycle_soft_thread(soft_thread);
