@@ -69,7 +69,7 @@ typedef struct
     char **argv;
     int arg;
     int stop_at;
-    int end_board;
+    int end_board_idx;
     int board_num_step;
     int update_total_num_iters_threshold;
 } context_t;
@@ -90,11 +90,11 @@ static void *worker_thread(void *const void_context)
         soft_thread, &(instance_struct), &argc, (const char ***)(&argv));
 
     long long board_num;
-    const int end_board = context->end_board;
+    const int end_board_idx = context->end_board_idx;
     const int board_num_step = context->board_num_step;
     const int update_total_num_iters_threshold =
         context->update_total_num_iters_threshold;
-    const int past_end_board = end_board + 1;
+    const int past_end_board = end_board_idx + 1;
     fcs_portable_time_t mytime;
     fcs_int_limit_t total_num_iters_temp = 0;
     const int stop_at = context->stop_at;
@@ -141,7 +141,7 @@ static void *worker_thread(void *const void_context)
 
             fc_solve_pats__recycle_soft_thread(soft_thread);
         }
-    } while (board_num <= end_board);
+    } while (board_num <= end_board_idx);
 
     pthread_mutex_lock(&total_num_iters_lock);
     total_num_iters += total_num_iters_temp;
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
             .argc = argc,
             .argv = argv,
             .stop_at = stop_at,
-            .end_board = end_game_idx,
+            .end_board_idx = end_game_idx,
             .board_num_step = board_num_step,
             .update_total_num_iters_threshold =
                 update_total_num_iters_threshold,
