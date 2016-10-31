@@ -214,7 +214,7 @@ struct fc_solve__patsolve_thread_struct
     int max_queue_idx;
 #ifdef DEBUG
     int num_positions_in_clusters[0x10000];
-    int Inq[FC_SOLVE_PATS__NUM_QUEUES];
+    int num_positions_in_queue[FC_SOLVE_PATS__NUM_QUEUES];
 #endif
     fcs_pats_position_t *freed_positions; /* position freelist */
 
@@ -577,7 +577,8 @@ static GCC_INLINE void fc_solve_pats__initialize_solving_process(
 #ifdef DEBUG
     memset(soft_thread->num_positions_in_clusters, 0,
         sizeof(soft_thread->num_positions_in_clusters));
-    memset(soft_thread->Inq, 0, sizeof(soft_thread->Inq));
+    memset(soft_thread->num_positions_in_queue, 0,
+        sizeof(soft_thread->num_positions_in_queue));
 #endif
 
     /* Queue the initial position to get started. */
@@ -603,8 +604,8 @@ static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_threa
     fc_solve_msg("max_queue_idx %d\n", soft_thread->max_queue_idx);
     int n = 0;
     for (int i = 0; i <= soft_thread->max_queue_idx; i++) {
-        if (soft_thread->Inq[i]) {
-            fc_solve_msg("Inq %2d %5d", i, soft_thread->Inq[i]);
+        if (soft_thread->num_positions_in_queue[i]) {
+            fc_solve_msg("num_positions_in_queue %2d %5d", i, soft_thread->num_positions_in_queue[i]);
             if (n & 1) {
                 fc_solve_msg("\n");
             } else {

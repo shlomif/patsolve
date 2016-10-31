@@ -166,7 +166,7 @@ int main(int argc, char **argv)
         next_board_num = start_game_idx;
 
         fcs_portable_time_t mytime;
-        FCS_PRINT_STARTED_AT(mytime);
+        fc_solve_print_started_at();
         context_t context = {
             .argc = argc,
             .argv = argv,
