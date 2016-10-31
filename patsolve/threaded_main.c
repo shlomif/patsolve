@@ -24,7 +24,6 @@
 /* Main().  Parse args, read the position, and call the solver. */
 
 #include <ctype.h>
-#include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <pthread.h>
