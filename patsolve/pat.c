@@ -714,13 +714,11 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t *const soft_thread,
     const fcs_pats__move_t *const mp, fcs_pats_position_t *const pos0)
 {
     DECLARE_STACKS();
-    int i, j;
+    int j;
     fcs_pats__move_t *m, *prev[MAX_PREVIOUS_MOVES];
-    fcs_pats_position_t *pos;
 
     /* Don't move the same card twice in a row. */
-
-    pos = pos0;
+    fcs_pats_position_t *pos = pos0;
     if (pos->depth == 0)
     {
         return FALSE;
@@ -742,7 +740,7 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t *const soft_thread,
     }
     prev[0] = m;
     j = -1;
-    for (i = 1; i < MAX_PREVIOUS_MOVES; i++)
+    for (int i = 1; i < MAX_PREVIOUS_MOVES; i++)
     {
 
         /* Make a list of the last few moves. */
@@ -782,7 +780,7 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t *const soft_thread,
 
     fcs_bool_t was_all_freecells_occupied = FALSE;
     pos = pos0;
-    for (i = 0; i < j; i++)
+    for (int i = 0; i < j; i++)
     {
         was_all_freecells_occupied =
             was_all_freecells_occupied ||
