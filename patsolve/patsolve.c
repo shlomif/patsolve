@@ -200,7 +200,7 @@ static GCC_INLINE fcs_pats_position_t *dequeue_position(
         soft_thread->queue_head[soft_thread->dequeue__qpos];
     soft_thread->queue_head[soft_thread->dequeue__qpos] = pos->queue;
 #ifdef DEBUG
-    soft_thread->Inq[soft_thread->dequeue__qpos]--;
+    soft_thread->num_positions_in_queue[soft_thread->dequeue__qpos]--;
 #endif
 
     /* Decrease soft_thread->max_queue_idx if that queue emptied. */
@@ -406,15 +406,13 @@ static GCC_INLINE void fc_solve_pats__undo_move(
 static GCC_INLINE int solve(
     fcs_pats_thread_t *const soft_thread, fcs_bool_t *const is_finished)
 {
-/* short for Depth */
-#define D (soft_thread->curr_solve_depth)
-/* Short for Level */
-#define L (soft_thread->solve_stack[D])
-#define UP_L (soft_thread->solve_stack[D + 1])
+#define DEPTH (soft_thread->curr_solve_depth)
+#define LEVEL (soft_thread->solve_stack[DEPTH])
+#define UP_LEVEL (soft_thread->solve_stack[DEPTH + 1])
     typeof(soft_thread->curr_solve_dir) mydir = soft_thread->curr_solve_dir;
 
     *is_finished = FALSE;
-    while (D >= 0)
+    while (DEPTH >= 0)
     {
 
         if (check_for_exceeded(soft_thread))
@@ -423,7 +421,7 @@ static GCC_INLINE int solve(
             return TRUE;
         }
 
-        typeof(L.parent) parent = L.parent;
+        typeof(LEVEL.parent) parent = LEVEL.parent;
         /* If we've won already (or failed), we just go through the motions
         but always return FALSE from any position.  This enables the cleanup
         of the move stack and eventual destruction of the position store. */
@@ -431,73 +429,74 @@ static GCC_INLINE int solve(
         if ((soft_thread->status != FCS_PATS__NOSOL) ||
             (parent->node->depth < parent->depth))
         {
-            L.q = FALSE;
-            D--;
+            LEVEL.q = FALSE;
+            DEPTH--;
             mydir = FC_SOLVE_PATS__DOWN;
             continue;
         }
 
         /* Generate an array of all the moves we can make. */
         int nmoves;
-        if (!L.mp0)
+        if (!LEVEL.mp0)
         {
-            L.mp0 = fc_solve_pats__get_moves(soft_thread, parent, &nmoves);
-            if (!L.mp0)
+            LEVEL.mp0 = fc_solve_pats__get_moves(soft_thread, parent, &nmoves);
+            if (!LEVEL.mp0)
             {
-                L.q = FALSE;
-                D--;
+                LEVEL.q = FALSE;
+                DEPTH--;
                 mydir = FC_SOLVE_PATS__DOWN;
                 continue;
             }
-            L.mp_end = L.mp0 + (parent->nchild = nmoves);
-            L.mp = L.mp0;
-            L.q = FALSE;
+            LEVEL.mp_end = LEVEL.mp0 + (parent->nchild = nmoves);
+            LEVEL.mp = LEVEL.mp0;
+            LEVEL.q = FALSE;
         }
         else
         {
-            nmoves = L.mp_end - L.mp0;
+            nmoves = LEVEL.mp_end - LEVEL.mp0;
         }
 
         /* Make each move and either solve or queue the result. */
 
         if (mydir == FC_SOLVE_PATS__DOWN)
         {
-            if (UP_L.q)
+            if (UP_LEVEL.q)
             {
-                L.q = TRUE;
+                LEVEL.q = TRUE;
             }
             else
             {
-                free_position_non_recursive(soft_thread, L.pos);
+                free_position_non_recursive(soft_thread, LEVEL.pos);
             }
-            fc_solve_pats__undo_move(soft_thread, L.mp);
+            fc_solve_pats__undo_move(soft_thread, LEVEL.mp);
             mydir = FC_SOLVE_PATS__UP;
-            L.mp++;
+            LEVEL.mp++;
         }
 
-        if (L.mp == L.mp_end)
+        if (LEVEL.mp == LEVEL.mp_end)
         {
             fc_solve_pats__free_array(
-                soft_thread, L.mp0, fcs_pats__move_t, nmoves);
-            L.mp0 = NULL;
-            D--;
+                soft_thread, LEVEL.mp0, fcs_pats__move_t, nmoves);
+            LEVEL.mp0 = NULL;
+            DEPTH--;
             mydir = FC_SOLVE_PATS__DOWN;
             continue;
         }
         else
         {
-            freecell_solver_pats__make_move(soft_thread, L.mp);
+            freecell_solver_pats__make_move(soft_thread, LEVEL.mp);
 
             /* Calculate indices for the new piles. */
             fc_solve_pats__sort_piles(soft_thread);
 
             /* See if this is a new position. */
-            L.pos = fc_solve_pats__new_position(soft_thread, parent, L.mp);
-            if (!L.pos)
+            LEVEL.pos =
+                fc_solve_pats__new_position(soft_thread, parent, LEVEL.mp);
+            if (!LEVEL.pos)
             {
                 parent->nchild--;
-                fc_solve_pats__undo_move(soft_thread, L.mp);
-                L.mp++;
+                fc_solve_pats__undo_move(soft_thread, LEVEL.mp);
+                LEVEL.mp++;
                 mydir = FC_SOLVE_PATS__UP;
             }
             else
@@ -508,10 +507,10 @@ static GCC_INLINE int solve(
                    reduces the quality of solutions).  Otherwise, save it for
                    later. */
 
-                if (L.pos->cluster != parent->cluster ||
+                if (LEVEL.pos->cluster != parent->cluster ||
                     nmoves < soft_thread->cutoff)
                 {
-                    if (D + 1 >= soft_thread->max_solve_depth)
+                    if (DEPTH + 1 >= soft_thread->max_solve_depth)
                     {
                         soft_thread->max_solve_depth +=
                             FCS_PATS__SOLVE_LEVEL_GROW_BY;
@@ -519,18 +518,18 @@ static GCC_INLINE int solve(
                             SREALLOC(soft_thread->solve_stack,
                                 soft_thread->max_solve_depth);
                     }
-                    UP_L.parent = L.pos;
-                    UP_L.mp0 = NULL;
-                    D++;
+                    UP_LEVEL.parent = LEVEL.pos;
+                    UP_LEVEL.mp0 = NULL;
+                    DEPTH++;
                     mydir = FC_SOLVE_PATS__UP;
                 }
                 else
                 {
                     fc_solve_pats__queue_position(
-                        soft_thread, L.pos, (L.mp)->pri);
-                    fc_solve_pats__undo_move(soft_thread, L.mp);
-                    L.q = TRUE;
-                    L.mp++;
+                        soft_thread, LEVEL.pos, (LEVEL.mp)->pri);
+                    fc_solve_pats__undo_move(soft_thread, LEVEL.mp);
+                    LEVEL.q = TRUE;
+                    LEVEL.mp++;
                     mydir = FC_SOLVE_PATS__UP;
                 }
             }
@@ -540,11 +539,11 @@ static GCC_INLINE int solve(
     }
     *is_finished = TRUE;
     wrap_up_solve(soft_thread, mydir);
-    typeof(UP_L.q) ret = UP_L.q;
+    typeof(UP_LEVEL.q) ret = UP_LEVEL.q;
     return ret;
-#undef L
-#undef UP_L
-#undef D
+#undef LEVEL
+#undef UP_LEVEL
+#undef DEPTH
 }
 
 DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t *const soft_thread)
@@ -659,7 +658,7 @@ void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
         }
     }
 #ifdef DEBUG
-    soft_thread->Inq[pri]++;
+    soft_thread->num_positions_in_queue[pri]++;
     soft_thread->num_positions_in_clusters[pos->cluster]++;
 #endif
 }
