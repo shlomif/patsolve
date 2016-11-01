@@ -105,7 +105,7 @@ static GCC_INLINE fcs_bool_t good_automove(
  * soft_thread->possible_moves[]. */
 
 static GCC_INLINE int get_possible_moves(fcs_pats_thread_t *const soft_thread,
-    fcs_bool_t *const a, int *const numout)
+    fcs_bool_t *const a, int *const num_cards_out)
 {
 #ifndef FCS_FREECELL_ONLY
     const fc_solve_instance_t *const instance = soft_thread->instance;
@@ -200,7 +200,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t *const soft_thread,
     /* No more automoves, but remember if there were any moves out. */
 
     *a = FALSE;
-    *numout = num_moves;
+    *num_cards_out = num_moves;
 
     /* Check for moves from non-singleton soft_thread->current_pos.stacks cells
     to one of any
@@ -1050,12 +1050,13 @@ static GCC_INLINE fcs_bool_t is_win(fcs_pats_thread_t *const soft_thread)
 fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
     fcs_pats_position_t *const pos, int *const nmoves)
 {
-    int numout = 0;
+    int num_cards_out = 0;
 
     /* Fill in the soft_thread->possible_moves array. */
 
     fcs_bool_t a;
-    const int total_num_moves = get_possible_moves(soft_thread, &a, &numout);
+    const int total_num_moves =
+        get_possible_moves(soft_thread, &a, &num_cards_out);
     int n = total_num_moves;
 
     if (!a)
@@ -1138,7 +1139,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
             return NULL;
         }
         *nmoves = n;
-        if (a || numout == 0)
+        if (a || num_cards_out == 0)
         {
             for (int i = 0; i < total_num_moves; i++)
             {
@@ -1151,7 +1152,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
         }
         else
         {
-            for (int i = numout; i < total_num_moves; i++)
+            for (int i = num_cards_out; i < total_num_moves; i++)
             {
                 if (soft_thread->possible_moves[i].card != fc_solve_empty_card)
                 {
@@ -1159,7 +1160,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
                     mp++;
                 }
             }
-            for (int i = 0; i < numout; i++)
+            for (int i = 0; i < num_cards_out; i++)
             {
                 if (soft_thread->possible_moves[i].card != fc_solve_empty_card)
                 {
