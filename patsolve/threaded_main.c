@@ -30,7 +30,6 @@
 
 #include "inline.h"
 #include "count.h"
-#include "portable_int64.h"
 #include "portable_time.h"
 #include "alloc_wrap.h"
 
@@ -59,7 +58,7 @@ static const pthread_mutex_t initial_mutex_constant = PTHREAD_MUTEX_INITIALIZER;
 static long long next_board_num;
 static pthread_mutex_t next_board_num_lock;
 
-fcs_int64_t total_num_iters = 0;
+long long total_num_iters = 0;
 static pthread_mutex_t total_num_iters_lock;
 
 typedef struct
@@ -126,7 +125,7 @@ static void *worker_thread(void *const void_context)
 
             if (board_num % stop_at == 0)
             {
-                fcs_int64_t total_num_iters_copy;
+                long long total_num_iters_copy;
 
                 pthread_mutex_lock(&total_num_iters_lock);
                 total_num_iters_copy =
