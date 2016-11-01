@@ -508,7 +508,7 @@ static GCC_INLINE int solve(
                    later. */
 
                 if (LEVEL.pos->cluster != parent->cluster ||
-                    nmoves < soft_thread->cutoff)
+                    nmoves < soft_thread->num_moves_to_cut_off)
                 {
                     if (DEPTH + 1 >= soft_thread->max_solve_depth)
                     {
