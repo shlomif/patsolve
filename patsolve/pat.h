@@ -111,7 +111,7 @@ typedef struct fc_solve_pats__pos__struct
     unsigned short cluster;        /* the cluster this node is in */
     short depth;                   /* number of moves so far */
     u_char num_cards_in_freecells; /* number of cards in T */
-    u_char nchild;                 /* number of child nodes left */
+    u_char num_childs;             /* number of child nodes left */
 } fcs_pats_position_t;
 
 /* Temp storage for possible moves. */

@@ -42,7 +42,7 @@ search. */
 fcs_pats_position_t structs.  We have to be careful, though, because there are
 many
 threads running through the game tree starting from the queued positions.
-The nchild element keeps track of descendents, and when there are none left
+The num_childs element keeps track of descendents, and when there are none left
 in the parent we can free it too after solve() returns and we get called
 recursively (rec == TRUE). */
 
@@ -55,7 +55,7 @@ static GCC_INLINE void free_position_non_recursive(
 {
     pos->queue = soft_thread->freed_positions;
     soft_thread->freed_positions = pos;
-    pos->parent->nchild--;
+    pos->parent->num_childs--;
 }
 
 static GCC_INLINE void free_position_recursive(
@@ -70,8 +70,8 @@ static GCC_INLINE void free_position_recursive(
         {
             return;
         }
-        pos->nchild--;
-    } while (pos->nchild == 0);
+        pos->num_childs--;
+    } while (pos->num_childs == 0);
 }
 
 /* Like strcpy() but returns the length of the string. */
@@ -280,7 +280,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     pos->move = *m; /* struct copy */
     pos->cluster = cluster;
     pos->depth = depth;
-    pos->nchild = 0;
+    pos->num_childs = 0;
 
     p += sizeof(fcs_pats_position_t);
     int i = 0;
@@ -447,7 +447,7 @@ static GCC_INLINE int solve(
                 mydir = FC_SOLVE_PATS__DOWN;
                 continue;
             }
-            LEVEL.mp_end = LEVEL.mp0 + (parent->nchild = nmoves);
+            LEVEL.mp_end = LEVEL.mp0 + (parent->num_childs = nmoves);
             LEVEL.mp = LEVEL.mp0;
             LEVEL.q = FALSE;
         }
@@ -494,7 +494,7 @@ static GCC_INLINE int solve(
                 fc_solve_pats__new_position(soft_thread, parent, LEVEL.mp);
             if (!LEVEL.pos)
             {
-                parent->nchild--;
+                parent->num_childs--;
                 fc_solve_pats__undo_move(soft_thread, LEVEL.mp);
                 LEVEL.mp++;
                 mydir = FC_SOLVE_PATS__UP;
