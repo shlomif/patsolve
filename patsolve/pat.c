@@ -938,15 +938,15 @@ static GCC_INLINE void prioritize(fcs_pats_thread_t *const soft_thread,
     }
 
 #define NUM_SUITS 4
-    fcs_card_t need[NUM_SUITS];
+    fcs_card_t needed_cards[NUM_SUITS];
     for (int suit = 0; suit < NUM_SUITS; suit++)
     {
-        need[suit] = fc_solve_empty_card;
+        needed_cards[suit] = fc_solve_empty_card;
         const fcs_card_t rank =
             fcs_foundation_value(soft_thread->current_pos.s, suit);
         if (rank != FCS_PATS__KING)
         {
-            need[suit] = fcs_make_card(rank + 1, suit);
+            needed_cards[suit] = fcs_make_card(rank + 1, suit);
         }
     }
 
@@ -970,8 +970,9 @@ static GCC_INLINE void prioritize(fcs_pats_thread_t *const soft_thread,
             not only the card we need next, but the card
             after that as well. */
 
-            if (need[suit] != fc_solve_empty_card &&
-                (card == need[suit] || card == fcs_pats_next_card(need[suit])))
+            if (needed_cards[suit] != fc_solve_empty_card &&
+                (card == needed_cards[suit] ||
+                    card == fcs_pats_next_card(needed_cards[suit])))
             {
                 pile[num_piles++] = w;
                 if (num_piles == COUNT(pile))
@@ -1011,7 +1012,7 @@ end_of_stacks:;
                 {
                     const fcs_card_t card =
                         fcs_col_get_card(col, fcs_col_len(col) - 2);
-                    if (card == need[(int)fcs_card_suit(card)])
+                    if (card == needed_cards[(int)fcs_card_suit(card)])
                     {
                         mp->pri += soft_thread->pats_solve_params.x[1];
                     }
