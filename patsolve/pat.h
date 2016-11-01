@@ -264,7 +264,7 @@ struct fc_solve__patsolve_thread_struct
      * */
     int to_stack;
     /* Switch between depth- and breadth-first. Default is "1".*/
-    int cutoff;
+    int num_moves_to_cut_off;
     /* win, lose, or fail */
     fc_solve_pats__status_code_t status;
 #ifdef FCS_PATSOLVE__WITH_FAIL_REASON
@@ -498,7 +498,7 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
         FALSE; /* print entertaining messages, else exit(Status); */
     soft_thread->dont_exit_on_sol = FALSE;
     soft_thread->to_stack = FALSE;
-    soft_thread->cutoff = 1;
+    soft_thread->num_moves_to_cut_off = 1;
     soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->freed_positions = NULL;
     soft_thread->max_num_checked_states = -1;
@@ -595,6 +595,14 @@ static GCC_INLINE void fc_solve_pats__initialize_solving_process(
     }
     fc_solve_pats__queue_position(soft_thread, pos, 0);
 }
+
+static GCC_INLINE void fc_solve_pats__set_cut_off(
+    fcs_pats_thread_t *const soft_thread)
+{
+    soft_thread->num_moves_to_cut_off =
+        soft_thread->pats_solve_params.x[FC_SOLVE_PATS__NUM_X_PARAM - 1];
+}
+
 #if 0
 #ifdef DEBUG
 

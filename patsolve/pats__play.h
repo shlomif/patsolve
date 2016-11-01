@@ -90,8 +90,7 @@ static void set_param(fcs_pats_thread_t *const soft_thread, const int param_num)
 {
     soft_thread->pats_solve_params =
         freecell_solver_pats__x_y_params_preset[param_num];
-    soft_thread->cutoff =
-        soft_thread->pats_solve_params.x[FC_SOLVE_PATS__NUM_X_PARAM - 1];
+    fc_solve_pats__set_cut_off(soft_thread);
 }
 
 static const int freecell_solver_user_set_sequences_are_built_by_type(
@@ -331,7 +330,7 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'c':
-                soft_thread->cutoff = atoi(curr_arg);
+                soft_thread->num_moves_to_cut_off = atoi(curr_arg);
                 curr_arg = NULL;
                 break;
 
