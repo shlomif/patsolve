@@ -62,8 +62,8 @@ static const char Suit[] = "CDHS";
 int main(int argc, char **argv)
 {
     int j, c;
-    /* wLeft is the cards left to be chosen in shuffle */
-    int wLeft = NUM_CARDS;
+    /* num_left_cards is the cards left to be chosen in shuffle */
+    int num_left_cards = NUM_CARDS;
     CARD deck[NUM_CARDS];
     CARD pos[10][10];
 
@@ -103,19 +103,19 @@ int main(int argc, char **argv)
         {
             if (gnGameNumber < 0x80000000)
             {
-                j = rando() % wLeft;
+                j = rando() % num_left_cards;
             }
             else
             {
-                j = (rando() | 0x8000) % wLeft;
+                j = (rando() | 0x8000) % num_left_cards;
             }
         }
         else
         {
-            j = (randp() + 1) % wLeft;
+            j = (randp() + 1) % num_left_cards;
         }
         pos[i % stacks_num][i / stacks_num] = deck[j];
-        deck[j] = deck[--wLeft];
+        deck[j] = deck[--num_left_cards];
         if (stacks_num == 10 && i == 49)
         {
             break;
@@ -136,9 +136,9 @@ int main(int argc, char **argv)
     c = -1;
     for (size_t i = 0; i < 4; i++)
     {
-        if (wLeft)
+        if (num_left_cards)
         {
-            j = --wLeft;
+            j = --num_left_cards;
             c = deck[j] - 1;
             printf("%c%c ", Rank[c / 4], Suit[c % 4]);
         }

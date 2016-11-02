@@ -169,7 +169,9 @@ int main(int argc, char **argv)
             fc_solve_pats__do_it(soft_thread);
         } while (soft_thread->status == FCS_PATS__FAIL);
 #endif
-        if (soft_thread->status == FCS_PATS__WIN)
+        switch (soft_thread->status)
+        {
+        case FCS_PATS__WIN:
         {
             FILE *out = fopen("win", "w");
             if (!out)
@@ -178,22 +180,22 @@ int main(int argc, char **argv)
                 exit(1);
             }
             trace_solution(soft_thread, out);
-
             fclose(out);
         }
-        else if (soft_thread->status == FCS_PATS__FAIL)
-        {
+        break;
+
+        case FCS_PATS__FAIL:
             printf("%s\n", "Ran out of memory.");
-        }
-        else if (soft_thread->status == FCS_PATS__NOSOL)
-        {
+            break;
+
+        case FCS_PATS__NOSOL:
             printf("%s\n", "Failed to solve.");
+            break;
         }
-        int ret = ((int)(soft_thread->status));
         fc_solve_pats__recycle_soft_thread(soft_thread);
         fc_solve_pats__destroy_soft_thread(soft_thread);
 
-        return ret;
+        return ((int)(soft_thread->status));
     }
     else
     {
