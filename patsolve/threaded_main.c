@@ -84,8 +84,9 @@ static void *worker_thread(void *const void_context)
     char **argv = context->argv;
 
     fc_solve_instance_t instance_struct;
-    fc_solve_pats__configure_soft_thread(
-        soft_thread, &(instance_struct), &argc, (const char ***)(&argv));
+    fcs_bool_t is_quiet = FALSE;
+    fc_solve_pats__configure_soft_thread(soft_thread, &(instance_struct), &argc,
+        (const char ***)(&argv), &is_quiet);
 
     long long board_num;
     const int end_board_idx = context->end_board_idx;
@@ -111,7 +112,7 @@ static void *worker_thread(void *const void_context)
             get_board(board_num, board_string);
 
             fc_solve_pats__read_layout(soft_thread, board_string);
-            fc_solve_pats__play(soft_thread);
+            fc_solve_pats__play(soft_thread, is_quiet);
             fflush(stdout);
 
             total_num_iters_temp += soft_thread->num_checked_states;

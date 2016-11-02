@@ -276,8 +276,6 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__block_t *my_block;
 
     int dequeue__minpos, dequeue__qpos;
-
-    fcs_bool_t is_quiet;
     fcs_pats__move_t *moves_to_win;
     int num_moves_to_win;
 
@@ -494,8 +492,6 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
     fcs_pats_thread_t *const soft_thread, fc_solve_instance_t *const instance)
 {
     soft_thread->instance = instance;
-    soft_thread->is_quiet =
-        FALSE; /* print entertaining messages, else exit(Status); */
     soft_thread->dont_exit_on_sol = FALSE;
     soft_thread->to_stack = FALSE;
     soft_thread->num_moves_to_cut_off = 1;

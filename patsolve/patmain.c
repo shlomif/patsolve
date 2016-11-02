@@ -51,8 +51,8 @@ static const char Usage[] =
     "-q quiet, -v verbose\n"
     "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 
-static GCC_INLINE void trace_solution(
-    fcs_pats_thread_t *const soft_thread, FILE *const out)
+static GCC_INLINE void trace_solution(fcs_pats_thread_t *const soft_thread,
+    FILE *const out, const fcs_bool_t is_quiet)
 {
     /* Go back up the chain of parents and store the moves
     in reverse order. */
@@ -93,7 +93,7 @@ static GCC_INLINE void trace_solution(
     soft_thread->moves_to_win = NULL;
     soft_thread->num_moves_to_win = 0;
 
-    if (!soft_thread->is_quiet)
+    if (!is_quiet)
     {
         printf("A winner.\n");
         printf("%d moves.\n", nmoves);
@@ -117,9 +117,9 @@ int main(int argc, char **argv)
         &soft_thread_struct__dont_use_directly;
 
     fc_solve_instance_t instance_struct;
-
-    fc_solve_pats__configure_soft_thread(
-        soft_thread, &instance_struct, &argc, (const char ***)(&argv));
+    fcs_bool_t is_quiet = FALSE;
+    fc_solve_pats__configure_soft_thread(soft_thread, &instance_struct, &argc,
+        (const char ***)(&argv), &is_quiet);
 
     FILE *in_fh = stdin;
     fcs_bool_t in_fh_should_be_closed = FALSE;
@@ -152,7 +152,7 @@ int main(int argc, char **argv)
             in_fh_should_be_closed = FALSE;
         }
         fc_solve_pats__read_layout(soft_thread, board_string);
-        if (!soft_thread->is_quiet)
+        if (!is_quiet)
         {
             fc_solve_pats__print_layout(soft_thread);
         }
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
                 fprintf(stderr, "%s\n", "Cannot open 'win' for writing.");
                 exit(1);
             }
-            trace_solution(soft_thread, out);
+            trace_solution(soft_thread, out, is_quiet);
             fclose(out);
         }
         break;
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
             memset(board_string, '\0', sizeof(board_string));
             get_board_l(board_num, board_string);
             fc_solve_pats__read_layout(soft_thread, board_string);
-            fc_solve_pats__play(soft_thread);
+            fc_solve_pats__play(soft_thread, is_quiet);
             fc_solve_pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
         }

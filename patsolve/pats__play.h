@@ -55,11 +55,12 @@ static GCC_INLINE void fc_solve_pats__before_play(
     fc_solve_pats__initialize_solving_process(soft_thread);
 }
 
-static GCC_INLINE void fc_solve_pats__play(fcs_pats_thread_t *const soft_thread)
+static GCC_INLINE void fc_solve_pats__play(
+    fcs_pats_thread_t *const soft_thread, const fcs_bool_t is_quiet)
 {
     fc_solve_pats__before_play(soft_thread);
     fc_solve_pats__do_it(soft_thread);
-    if (soft_thread->status != FCS_PATS__WIN && !soft_thread->is_quiet)
+    if (soft_thread->status != FCS_PATS__WIN && !is_quiet)
     {
         if (soft_thread->status == FCS_PATS__FAIL)
         {
@@ -156,7 +157,8 @@ static GCC_INLINE void pats__init_soft_thread_and_instance(
 
 static GCC_INLINE void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread_t *const soft_thread, fc_solve_instance_t *const instance,
-    int *const argc_ptr, const char ***const argv_ptr)
+    int *const argc_ptr, const char ***const argv_ptr,
+    fcs_bool_t *const is_quiet)
 {
     int argc = *argc_ptr;
     const char **argv = *argv_ptr;
@@ -340,11 +342,11 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'v':
-                soft_thread->is_quiet = FALSE;
+                *is_quiet = FALSE;
                 break;
 
             case 'q':
-                soft_thread->is_quiet = TRUE;
+                *is_quiet = TRUE;
                 break;
 
             case 'X':
@@ -429,7 +431,7 @@ The name '-' also specifies stdin. */
 
     /* Announce which variation this is. */
 
-    if (!soft_thread->is_quiet)
+    if (!*(is_quiet))
     {
         printf("%s", (GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
                          FCS_SEQ_BUILT_BY_SUIT)
