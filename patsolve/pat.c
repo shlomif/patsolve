@@ -510,8 +510,7 @@ static GCC_INLINE int get_pilenum(
 
     /* Look for the pile in this bucket. */
 
-    fcs_pats__bucket_list_t *l, *last;
-    last = NULL;
+    fcs_pats__bucket_list_t *l, *last = NULL;
     const fcs_cards_column_t w_col =
         fcs_state_get_col(soft_thread->current_pos.s, w);
     const int w_col_len = fcs_col_len(w_col);
