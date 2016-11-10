@@ -206,7 +206,7 @@ struct fc_solve__patsolve_thread_struct
 {
     fc_solve_instance_t *instance;
     size_t remaining_memory;
-    int bytes_per_pile;
+    size_t bytes_per_pile;
     fcs_pats_position_t *queue_head
         [FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
     fcs_pats_position_t
