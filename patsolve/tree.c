@@ -83,7 +83,7 @@ static GCC_INLINE fcs_pats__treelist_t *cluster_tree(
 }
 
 static GCC_INLINE int compare_piles(
-    const int bytes_per_pile, const u_char *const a, const u_char *const b)
+    const size_t bytes_per_pile, const u_char *const a, const u_char *const b)
 {
     return memcmp(a, b, bytes_per_pile);
 }
@@ -120,8 +120,7 @@ static GCC_INLINE fcs_pats__insert_code_t insert_node(
         *tree = n;
         return FCS_PATS__INSERT_CODE_NEW;
     }
-    const typeof(soft_thread->bytes_per_pile) bytes_per_pile =
-        soft_thread->bytes_per_pile;
+    const_SLOT(bytes_per_pile, soft_thread);
     while (1)
     {
         const int c = compare_piles(
