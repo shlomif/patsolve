@@ -106,6 +106,7 @@ static GCC_INLINE void trace_solution(fcs_pats_thread_t *const soft_thread,
     }
 }
 
+#include "read_state.h"
 int main(int argc, char **argv)
 {
     const long long start_board_idx =
@@ -122,7 +123,6 @@ int main(int argc, char **argv)
         (const char ***)(&argv), &is_quiet);
 
     FILE *in_fh = stdin;
-    fcs_bool_t in_fh_should_be_closed = FALSE;
     if (argc && **argv != '-')
     {
         in_fh = fopen(*argv, "r");
@@ -131,27 +131,14 @@ int main(int argc, char **argv)
         {
             fatalerr("Cannot open input file '%s' (for reading).", *argv);
         }
-        else
-        {
-            in_fh_should_be_closed = TRUE;
-        }
     }
     if (start_board_idx < 0)
     {
 
         /* Read in the initial layout and play it. */
 
-        char board_string[4096];
-        memset(board_string, '\0', sizeof(board_string));
-        fread(board_string, sizeof(board_string[0]), COUNT(board_string) - 1,
-            in_fh);
-        if (in_fh_should_be_closed)
-        {
-            fclose(in_fh);
-            in_fh = NULL;
-            in_fh_should_be_closed = FALSE;
-        }
-        fc_solve_pats__read_layout(soft_thread, board_string);
+        const fcs_user_state_str_t user_state = read_state(in_fh);
+        fc_solve_pats__read_layout(soft_thread, user_state.s);
         if (!is_quiet)
         {
             fc_solve_pats__print_layout(soft_thread);
