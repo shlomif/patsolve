@@ -275,7 +275,7 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
     fcs_pats__block_t *my_block;
 
-    int dequeue__minpos, dequeue__qpos;
+    ssize_t dequeue__minpos, dequeue__qpos;
     fcs_pats__move_t *moves_to_win;
     int num_moves_to_win;
 
