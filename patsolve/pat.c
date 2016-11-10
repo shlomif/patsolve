@@ -313,7 +313,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                     fcs_state_get_col(soft_thread->current_pos.s, w);
                 if (fcs_col_len(w_col) > 0)
                 {
-                    fcs_card_t w_card =
+                    const fcs_card_t w_card =
                         fcs_col_get_card(w_col, fcs_col_len(w_col) - 1);
                     if ((fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
                             fcs_pats_is_suitable(card, w_card
