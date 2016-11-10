@@ -108,10 +108,10 @@ static void *worker_thread(void *const void_context)
 
         for (; board_num < quota_end; board_num++)
         {
-            fcs_state_string_t board_string;
-            get_board(board_num, board_string);
+            fcs_state_string_t state_string;
+            get_board(board_num, state_string);
 
-            fc_solve_pats__read_layout(soft_thread, board_string);
+            fc_solve_pats__read_layout(soft_thread, state_string);
             fc_solve_pats__play(soft_thread, is_quiet);
             fflush(stdout);
 

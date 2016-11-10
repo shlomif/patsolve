@@ -193,10 +193,10 @@ int main(int argc, char **argv)
              board_num++)
         {
             printf("#%ld\n", (long)board_num);
-            char board_string[4096];
-            memset(board_string, '\0', sizeof(board_string));
-            get_board_l(board_num, board_string);
-            fc_solve_pats__read_layout(soft_thread, board_string);
+            char state_string[4096];
+            memset(state_string, '\0', sizeof(state_string));
+            get_board_l(board_num, state_string);
+            fc_solve_pats__read_layout(soft_thread, state_string);
             fc_solve_pats__play(soft_thread, is_quiet);
             fc_solve_pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
