@@ -5,14 +5,15 @@ use warnings;
 
 use Test::More tests => 20;
 
-use Test::Trap qw( trap $trap :flow:stderr(systemsafe):stdout(systemsafe):warn );
+use Test::Trap
+    qw( trap $trap :flow:stderr(systemsafe):stdout(systemsafe):warn );
 
 use File::Basename qw(dirname);
 use File::Spec;
 use Path::Tiny;
 
 my $base_dir = dirname(__FILE__);
-my $data_dir = File::Spec->catdir($base_dir, 'data');
+my $data_dir = File::Spec->catdir( $base_dir, 'data' );
 
 sub _slurp_win { return path("win")->slurp_utf8; }
 
@@ -31,11 +32,12 @@ unlink("win");
 {
     trap
     {
-        system("./patsolve", "-f", File::Spec->catfile($data_dir, '24.board'));
+        system( "./patsolve", "-f",
+            File::Spec->catfile( $data_dir, '24.board' ) );
     };
 
     # TEST
-    is ($trap->stdout(), <<'EOF', '24 stdout');
+    is( $trap->stdout(), <<'EOF', '24 stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -43,10 +45,10 @@ A winner.
 EOF
 
     # TEST
-    ok (!defined($trap->exit()), '0 exit status.');
+    ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', '24 stderr');
+    is( remove_trailing_whitespace( $trap->stderr() ), <<'EOF', '24 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
@@ -62,7 +64,7 @@ Freecells:
 EOF
 
     # TEST
-    is (_slurp_win(), <<'EOF', '24 win contents');
+    is( _slurp_win(), <<'EOF', '24 win contents' );
 AS out
 7C to 8D
 QD to KC
@@ -161,11 +163,14 @@ EOF
 {
     trap
     {
-        system("./patsolve", "-f", "-S", File::Spec->catfile($data_dir, '24.board'));
+        system(
+            "./patsolve", "-f",
+            "-S", File::Spec->catfile( $data_dir, '24.board' )
+        );
     };
 
     # TEST
-    is ($trap->stdout(), <<'EOF', '24 -S stdout');
+    is( $trap->stdout(), <<'EOF', '24 -S stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -173,10 +178,10 @@ A winner.
 EOF
 
     # TEST
-    ok (!defined($trap->exit()), '0 exit status.');
+    ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', '24 stderr');
+    is( remove_trailing_whitespace( $trap->stderr() ), <<'EOF', '24 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
@@ -192,7 +197,7 @@ Freecells:
 EOF
 
     # TEST
-    is (_slurp_win(), <<'EOF', '24 win contents');
+    is( _slurp_win(), <<'EOF', '24 win contents' );
 AS out
 2H to temp
 4S to temp
@@ -371,13 +376,13 @@ EOF
 {
     trap
     {
-        system("./patsolve", "-s",
-            File::Spec->catfile($data_dir, "1.seahaven.board"),
+        system( "./patsolve", "-s",
+            File::Spec->catfile( $data_dir, "1.seahaven.board" ),
         );
     };
 
     # TEST
-    is ($trap->stdout(), <<'EOF', 'seahaven 1 STDOUT');
+    is( $trap->stdout(), <<'EOF', 'seahaven 1 STDOUT' );
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
@@ -385,10 +390,10 @@ A winner.
 EOF
 
     # TEST
-    ok (!defined($trap->exit()), '0 exit status.');
+    ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', 'sea1 stderr');
+    is( remove_trailing_whitespace( $trap->stderr() ), <<'EOF', 'sea1 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:  2H  6H
 : JD 9S JS 4D 6D
@@ -406,7 +411,7 @@ Freecells:  2H  6H
 EOF
 
     # TEST
-    is (_slurp_win(), <<'EOF', 'seahaven 1 win contents');
+    is( _slurp_win(), <<'EOF', 'seahaven 1 win contents' );
 8D to temp
 3S to temp
 AH out
@@ -490,13 +495,13 @@ EOF
 {
     trap
     {
-        system("./patsolve", "-s", "-S",
-            File::Spec->catfile($data_dir, "1.seahaven.board"),
+        system( "./patsolve", "-s", "-S",
+            File::Spec->catfile( $data_dir, "1.seahaven.board" ),
         );
     };
 
     # TEST
-    is ($trap->stdout(), <<'EOF', 'seahaven 1 -S STDOUT');
+    is( $trap->stdout(), <<'EOF', 'seahaven 1 -S STDOUT' );
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
@@ -504,10 +509,11 @@ A winner.
 EOF
 
     # TEST
-    ok (!defined($trap->exit()), '0 exit status.');
+    ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', 'sea1 -S stderr');
+    is( remove_trailing_whitespace( $trap->stderr() ),
+        <<'EOF', 'sea1 -S stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:  2H  6H
 : JD 9S JS 4D 6D
@@ -525,7 +531,7 @@ Freecells:  2H  6H
 EOF
 
     # TEST
-    is (_slurp_win(), <<'EOF', 'seahaven 1 -S win contents');
+    is( _slurp_win(), <<'EOF', 'seahaven 1 -S win contents' );
 8D to temp
 3S to temp
 AH out
@@ -627,11 +633,14 @@ EOF
 {
     trap
     {
-        system("./patsolve", "-f", "-S", File::Spec->catfile($data_dir, '3.board'));
+        system(
+            "./patsolve", "-f",
+            "-S", File::Spec->catfile( $data_dir, '3.board' )
+        );
     };
 
     # TEST
-    is ($trap->stdout(), <<'EOF', '3 -S stdout');
+    is( $trap->stdout(), <<'EOF', '3 -S stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -639,10 +648,10 @@ A winner.
 EOF
 
     # TEST
-    ok (!defined($trap->exit()), '0 exit status.');
+    ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is (remove_trailing_whitespace($trap->stderr()), <<'EOF', '3 stderr');
+    is( remove_trailing_whitespace( $trap->stderr() ), <<'EOF', '3 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : KC 7D TC 4H 6C 9S 8C
@@ -658,7 +667,7 @@ Freecells:
 EOF
 
     # TEST
-    is (_slurp_win(), <<'EOF', '3 win contents');
+    is( _slurp_win(), <<'EOF', '3 win contents' );
 AH out
 2H out
 4S to temp
