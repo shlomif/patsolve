@@ -15,8 +15,7 @@ use Getopt::Long;
 use Env::Path;
 use File::Basename qw( basename dirname );
 
-
-my $bindir = dirname( __FILE__ );
+my $bindir     = dirname(__FILE__);
 my $abs_bindir = File::Spec->rel2abs($bindir);
 
 # Whether to use prove instead of runprove.
@@ -25,66 +24,56 @@ my $num_jobs = $ENV{TEST_JOBS};
 
 sub _is_parallized
 {
-    return ($use_prove && $num_jobs);
+    return ( $use_prove && $num_jobs );
 }
 
 sub _calc_prove
 {
-    return ['prove', (defined($num_jobs) ? sprintf("-j%d", $num_jobs) : ())];
+    return [ 'prove',
+        ( defined($num_jobs) ? sprintf( "-j%d", $num_jobs ) : () ) ];
 }
 
 sub run_tests
 {
     my $tests = shift;
 
-    exec(($use_prove ? @{_calc_prove()} : 'runprove'), @$tests);
+    exec( ( $use_prove ? @{ _calc_prove() } : 'runprove' ), @$tests );
 }
 
 my $tests_glob = "*.{exe,py,t}";
 
 GetOptions(
-    '--glob=s' => \$tests_glob,
-    '--prove!' => \$use_prove,
+    '--glob=s'   => \$tests_glob,
+    '--prove!'   => \$use_prove,
     '--jobs|j=n' => \$num_jobs,
 ) or die "--glob='tests_glob'";
 
 {
     my $fcs_path = Cwd::getcwd();
-    local $ENV{FCS_PATH} = $fcs_path;
+    local $ENV{FCS_PATH}     = $fcs_path;
     local $ENV{FCS_SRC_PATH} = $abs_bindir;
 
     local $ENV{FREECELL_SOLVER_QUIET} = 1;
     Env::Path->PATH->Prepend(
-        File::Spec->catdir(Cwd::getcwd(), "board_gen"),
-        File::Spec->catdir($abs_bindir, "t", "scripts"),
+        File::Spec->catdir( Cwd::getcwd(), "board_gen" ),
+        File::Spec->catdir( $abs_bindir, "t", "scripts" ),
     );
 
-    Env::Path->CPATH->Prepend(
-        $abs_bindir,
-    );
+    Env::Path->CPATH->Prepend( $abs_bindir, );
 
-    Env::Path->LD_LIBRARY_PATH->Prepend(
-        $fcs_path
-    );
+    Env::Path->LD_LIBRARY_PATH->Prepend($fcs_path);
 
-    foreach my $add_lib (Env::Path->PERL5LIB() , Env::Path->PYTHONPATH())
+    foreach my $add_lib ( Env::Path->PERL5LIB(), Env::Path->PYTHONPATH() )
     {
-        $add_lib->Append(
-            File::Spec->catdir($abs_bindir, "t", "t", "lib"),
-        );
+        $add_lib->Append( File::Spec->catdir( $abs_bindir, "t", "t", "lib" ), );
     }
 
     my $get_config_fn = sub {
         my $basename = shift;
 
-        return
-        File::Spec->rel2abs(
-            File::Spec->catdir(
-                $bindir,
-                "t", "config", $basename
-            ),
-        )
-        ;
+        return File::Spec->rel2abs(
+            File::Spec->catdir( $bindir, "t", "config", $basename ),
+        );
     };
 
     local $ENV{HARNESS_ALT_INTRP_FILE} =
@@ -92,17 +81,18 @@ GetOptions(
 
     local $ENV{HARNESS_TRIM_FNS} = 'keep:1';
 
-    local $ENV{HARNESS_PLUGINS} = join(' ', qw(
-        BreakOnFailure ColorSummary ColorFileVerdicts AlternateInterpreters
-        TrimDisplayedFilenames
-        )
+    local $ENV{HARNESS_PLUGINS} = join(
+        ' ', qw(
+            BreakOnFailure ColorSummary ColorFileVerdicts AlternateInterpreters
+            TrimDisplayedFilenames
+            )
     );
 
-    my $is_ninja = (-e "build.ninja");
+    my $is_ninja = ( -e "build.ninja" );
 
-    if (! $is_ninja)
+    if ( !$is_ninja )
     {
-        if (system("make", "-s"))
+        if ( system( "make", "-s" ) )
         {
             die "make failed";
         }
@@ -110,33 +100,26 @@ GetOptions(
 
     # Put the valgrind test last because it takes a long time.
     my @tests =
-        sort
-        {
-            (
-                (($a =~ /valgrind/) <=> ($b =~ /valgrind/))
-                    *
-                (_is_parallized() ? -1 : 1)
-            )
-                ||
-            (basename($a) cmp basename($b))
-                ||
-            ($a cmp $b)
-        }
-        (glob("t/$tests_glob"),
-            (
-                ($fcs_path ne $abs_bindir)
-                ? (glob("$abs_bindir/t/$tests_glob"))
-                : ()
-            ),
-        )
-        ;
+        sort {
+        ( ( ( $a =~ /valgrind/ ) <=> ( $b =~ /valgrind/ ) ) *
+                ( _is_parallized() ? -1 : 1 ) )
+            || ( basename($a) cmp basename($b) )
+            || ( $a cmp $b )
+        } (
+        glob("t/$tests_glob"),
+        (
+              ( $fcs_path ne $abs_bindir )
+            ? ( glob("$abs_bindir/t/$tests_glob") )
+            : ()
+        ),
+        );
 
-    if (! $ENV{FCS_TEST_BUILD})
+    if ( !$ENV{FCS_TEST_BUILD} )
     {
         @tests = grep { !/build-process/ } @tests;
     }
 
-    if ($ENV{FCS_TEST_WITHOUT_VALGRIND})
+    if ( $ENV{FCS_TEST_WITHOUT_VALGRIND} )
     {
         @tests = grep { !/valgrind/ } @tests;
     }
@@ -144,7 +127,7 @@ GetOptions(
     {
         print STDERR "FCS_PATH = $ENV{FCS_PATH}\n";
         print STDERR "FCS_SRC_PATH = $ENV{FCS_SRC_PATH}\n";
-        run_tests(\@tests);
+        run_tests( \@tests );
     }
 }
 
