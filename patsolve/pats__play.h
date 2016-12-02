@@ -378,8 +378,7 @@ static GCC_INLINE void fc_solve_pats__configure_soft_thread(
         }
     }
 #if !defined(HARD_CODED_NUM_STACKS) || !defined(HARD_CODED_NUM_FREECELLS)
-    const fcs_game_type_params_t game_params =
-        soft_thread->instance->game_params;
+    const_SLOT(game_params, soft_thread->instance);
 #endif
 
     if (soft_thread->to_stack && soft_thread->dont_exit_on_sol)
