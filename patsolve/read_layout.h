@@ -20,8 +20,7 @@ static GCC_INLINE void fc_solve_pats__read_layout(
     fcs_pats_thread_t *const soft_thread, const char *const input_s)
 {
 #if !defined(HARD_CODED_NUM_STACKS)
-    const fcs_game_type_params_t game_params =
-        soft_thread->instance->game_params;
+    const_SLOT(game_params, soft_thread->instance);
 #endif
 
     fcs_state_keyval_pair_t kv;
