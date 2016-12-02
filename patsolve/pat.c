@@ -604,7 +604,7 @@ static GCC_INLINE int prune_seahaven(
     fcs_pats_thread_t *const soft_thread, const fcs_pats__move_t *const mp)
 {
     const fc_solve_instance_t *const instance = soft_thread->instance;
-    const fcs_game_type_params_t game_params = instance->game_params;
+    const_SLOT(game_params, instance);
 
     if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
             FCS_SEQ_BUILT_BY_SUIT) ||

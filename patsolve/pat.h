@@ -527,13 +527,9 @@ extern void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
     fcs_pats_position_t *const pos, int pri);
 
 #if !defined(HARD_CODED_NUM_STACKS)
-#define DECLARE_STACKS()                                                       \
-    const fcs_game_type_params_t game_params =                                 \
-        soft_thread->instance->game_params
+#define DECLARE_STACKS() const_SLOT(game_params, soft_thread->instance)
 #else
-#define DECLARE_STACKS()                                                       \
-    {                                                                          \
-    }
+#define DECLARE_STACKS()
 #endif
 
 static GCC_INLINE void fc_solve_pats__hash_layout(
