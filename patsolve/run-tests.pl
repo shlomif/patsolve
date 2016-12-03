@@ -5,8 +5,6 @@ use warnings;
 
 use autodie;
 
-# use File::Which;
-# use File::Basename;
 use Cwd;
 use File::Spec;
 use File::Copy;
@@ -89,7 +87,6 @@ GetOptions(
     );
 
     my $is_ninja = ( -e "build.ninja" );
-
     if ( !$is_ninja )
     {
         if ( system( "make", "-s" ) )
