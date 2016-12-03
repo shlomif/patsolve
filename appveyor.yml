@@ -1,0 +1,27 @@
+---
+# Shamelessly taken from https://github.com/plicease/Dist-Zilla-PluginBundle-Author-Plicease/blob/master/.appveyor.yml
+# Thanks!
+install:
+    - choco install strawberryperl -version 5.20.1.1
+    - SET PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
+    - perl -v
+    - if not exist C:\Perl5 mkdir C:\Perl5
+    - SET PATH=C:\msys64\bin;C:\Perl5\bin;C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
+    - SET PERL5LIB=C:/Perl5/lib/perl5
+    - SET PERL_LOCAL_LIB_ROOT=C:/Perl5
+    - SET PERL_MB_OPT=--install_base C:/Perl5
+    - SET PERL_MM_OPT=INSTALL_BASE=C:/Perl5
+    - cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Path::Tiny Test::Differences Test::More Test::TrailingSpace Test::Trap
+    - hg clone https://bitbucket.org/shlomif/shlomif-cmake-modules patsolve/cmake/sfc
+    - copy patsolve\cmake\sfc\shlomif-cmake-modules\Shlomif_Common.cmake patsolve\cmake\
+    - git clone git://github.com/shlomif/fc-solve.git
+build: off
+test_script:
+    - set CMAKE_MAKE_PROGRAM=C:\strawberry\c\bin\gmake.exe
+    - perl CI-testing/continuous-integration-testing.pl --gen="MSYS Makefiles"
+
+cache:
+    - C:\Perl5
+
+shallow_clone: true
+
