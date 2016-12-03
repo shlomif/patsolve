@@ -10,7 +10,7 @@ install:
       # - sudo easy_install3 pip
     - which python3
       # - /usr/bin/env python3 -m sys -m random2 -c 'print(sys.executable)'
-    - sudo cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spce File::Which Getopt::Long IO::All Path::Tiny Test::Differences Test::More Test::Trap
+    - sudo cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Path::Tiny Test::Differences Test::More Test::Trap
     - ( a="$(pwd)"; tgt="patsolve/cmake/"; mkdir B2 && cd B2 && hg clone https://bitbucket.org/shlomif/shlomif-cmake-modules && cd shlomif-cmake-modules/shlomif-cmake-modules && cp -f "$(pwd)"/Shlomif_Common.cmake "$a"/"$tgt"/ )
 perl:
     - "5.24"
