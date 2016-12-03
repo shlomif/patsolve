@@ -2,14 +2,8 @@ os: linux
 dist: trusty
 before_install:
     - sudo apt-get update -qq
-    - sudo apt-get install -y cmake cmake-data ninja-build python3-pip ack-grep cpanminus mercurial perl libperl-dev valgrind
-    - sudo dpkg-divert --local --divert /usr/bin/ack --rename --add /usr/bin/ack-grep
-      # For cmake-3.x - probably not needed in trusty.
-      # - sudo add-apt-repository ppa:george-edison55/precise-backports -y
+    - sudo apt-get install -y cmake cmake-data ninja-build python3-pip cpanminus mercurial perl libperl-dev valgrind
 install:
-      # - sudo easy_install3 pip
-    - which python3
-      # - /usr/bin/env python3 -m sys -m random2 -c 'print(sys.executable)'
     - sudo cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Path::Tiny Test::Differences Test::More Test::TrailingSpace Test::Trap
     - ( a="$(pwd)"; tgt="patsolve/cmake/"; mkdir B2 && cd B2 && hg clone https://bitbucket.org/shlomif/shlomif-cmake-modules && cd shlomif-cmake-modules/shlomif-cmake-modules && cp -f "$(pwd)"/Shlomif_Common.cmake "$a"/"$tgt"/ )
     - git clone git://github.com/shlomif/fc-solve.git
