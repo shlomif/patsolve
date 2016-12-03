@@ -30,7 +30,7 @@ GetOptions(
 
 local $ENV{RUN_TESTS_VERBOSE} = 1;
 
-do_system({cmd => ["cd patsolve && mkdir B && cd B && cmake " . (defined($cmake_gen) ? qq#-G "$cmake_gen"# : "") . " -DFC_SOLVE_SRC_PATH=" . getcwd() . "${SEP}fc-solve${SEP}fc-solve${SEP}source ../patsolve && $MAKE && $MAKE check"]});
+do_system({cmd => ["mkdir B && cd B && cmake " . (defined($cmake_gen) ? qq#-G "$cmake_gen"# : "") . " -DFC_SOLVE_SRC_PATH=" . getcwd() . "${SEP}fc-solve${SEP}fc-solve${SEP}source ../patsolve && $MAKE && $MAKE check"]});
 
 do_system({cmd => ["cd black-hole-solitaire${SEP}Games-Solitaire-BlackHole-Solver && dzil test --all"]});
 
