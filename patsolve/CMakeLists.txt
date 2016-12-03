@@ -135,18 +135,14 @@ ADD_LIBRARY(fcs_patsolve_lib
     STATIC
     "${FC_SOLVE_SRC_PATH}/card.c"
     "${FC_SOLVE_SRC_PATH}/state.c"
-    pat.c patsolve.c tree.c
+    param.c pat.c patsolve.c tree.c
 )
 
-ADD_EXECUTABLE(patsolve
-    param.c patmain.c
-    )
+ADD_EXECUTABLE(patsolve patmain.c)
 
 TARGET_LINK_LIBRARIES(patsolve fcs_patsolve_lib)
 
-ADD_EXECUTABLE(threaded-pats
-    param.c threaded_main.c
-    )
+ADD_EXECUTABLE(threaded-pats threaded_main.c)
 
 TARGET_LINK_LIBRARIES(threaded-pats fcs_patsolve_lib "pthread" "m")
 
