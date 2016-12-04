@@ -510,7 +510,7 @@ EOF
     };
 
     # TEST
-    is( $trap->stdout(), <<'EOF', 'seahaven 1 -S STDOUT' );
+    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), 'seahaven 1 -S STDOUT' );
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
