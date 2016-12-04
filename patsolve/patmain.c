@@ -176,7 +176,7 @@ int main(int argc, char **argv)
 
         /* Range mode.  Play lots of consecutive games. */
 
-        for (u_int64_t board_num = start_board_idx; board_num < end_board_idx;
+        for (long long board_num = start_board_idx; board_num < end_board_idx;
              board_num++)
         {
             printf("#%ld\n", (long)board_num);
