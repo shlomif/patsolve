@@ -5,6 +5,7 @@ use warnings;
 use autodie;
 
 use Cwd qw/getcwd/;
+use File::Path qw/mkpath/;
 use Getopt::Long qw/GetOptions/;
 
 sub do_system
@@ -30,7 +31,8 @@ GetOptions(
 
 local $ENV{RUN_TESTS_VERBOSE} = 1;
 
-do_system({cmd => ["mkdir B && cd B && cmake " . (defined($cmake_gen) ? qq#-G "$cmake_gen"# : "") . qq# -DFC_SOLVE_SRC_PATH="# . getcwd() . qq#${SEP}fc-solve${SEP}fc-solve${SEP}source" ../patsolve && $MAKE && $MAKE check#]});
-
-do_system({cmd => ["cd black-hole-solitaire${SEP}Games-Solitaire-BlackHole-Solver && dzil test --all"]});
-
+my $CWD = getcwd();
+mkpath("B");
+chdir("B");
+do_system({cmd => ["cmake " . (defined($cmake_gen) ? qq#-G "$cmake_gen"# : "") . qq# -DFC_SOLVE_SRC_PATH="$CWD${SEP}fc-solve${SEP}fc-solve${SEP}source" ../patsolve && $MAKE && $MAKE check#]});
+chdir($CWD);
