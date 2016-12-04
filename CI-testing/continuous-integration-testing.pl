@@ -35,7 +35,7 @@ my $CWD = getcwd();
 mkpath("B");
 chdir("B");
 do_system({cmd => ["cmake " . (defined($cmake_gen) ? qq#-G "$cmake_gen"# : "")
-            . (defined($ENV{CMAKE_MAKE_PROGRAM}) ? "-DCMAKE_MAKE_PROGRAM=$ENV{CMAKE_MAKE_PROGRAM}" : ())
+            . ' ' . (defined($ENV{CMAKE_MAKE_PROGRAM}) ? "-DCMAKE_MAKE_PROGRAM=$ENV{CMAKE_MAKE_PROGRAM}" : ())
             . qq# -DFC_SOLVE_SRC_PATH="$CWD${SEP}fc-solve${SEP}fc-solve${SEP}source" ../patsolve#]});
 do_system({cmd => [$MAKE]});
 do_system({cmd => [$MAKE, 'check',]});
