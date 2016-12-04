@@ -18,7 +18,7 @@
 #include "inline.h"
 #include "portable_int32.h"
 
-typedef u_int64_t LONG;
+typedef unsigned long long LONG;
 typedef u_int32_t UINT;
 typedef int CARD;
 
