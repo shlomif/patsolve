@@ -35,14 +35,15 @@ sub run_tests
 {
     my $tests = shift;
 
-    my @cmd = (($use_prove ? @{_calc_prove()} : 'runprove'), @$tests);
-    if ($ENV{RUN_TESTS_VERBOSE})
+    my @cmd = ( ( $use_prove ? @{ _calc_prove() } : 'runprove' ), @$tests );
+    if ( $ENV{RUN_TESTS_VERBOSE} )
     {
         print "Running [@cmd]\n";
     }
+
     # Workaround for Windows spawning-SNAFU.
     my $exit_code = system(@cmd);
-    exit($exit_code ? (-1) : 0);
+    exit( $exit_code ? (-1) : 0 );
 }
 
 my $tests_glob = "*.{exe,py,t}";

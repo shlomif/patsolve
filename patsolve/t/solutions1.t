@@ -46,7 +46,7 @@ unlink("win");
     };
 
     # TEST
-    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), '24 stdout' );
+    is( _normalize_lf( $trap->stdout() ), _normalize_lf(<<'EOF'), '24 stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -57,7 +57,8 @@ EOF
     ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ), _normalize_lf(<<'EOF'), '24 stderr' );
+    is( remove_trailing_whitespace( $trap->stderr() ),
+        _normalize_lf(<<'EOF'), '24 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
@@ -179,7 +180,8 @@ EOF
     };
 
     # TEST
-    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), '24 -S stdout' );
+    is( _normalize_lf( $trap->stdout() ),
+        _normalize_lf(<<'EOF'), '24 -S stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -190,7 +192,8 @@ EOF
     ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ), _normalize_lf(<<'EOF'), '24 stderr' );
+    is( remove_trailing_whitespace( $trap->stderr() ),
+        _normalize_lf(<<'EOF'), '24 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
@@ -391,7 +394,8 @@ EOF
     };
 
     # TEST
-    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), 'seahaven 1 STDOUT' );
+    is( _normalize_lf( $trap->stdout() ),
+        _normalize_lf(<<'EOF'), 'seahaven 1 STDOUT' );
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
@@ -402,7 +406,8 @@ EOF
     ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ), _normalize_lf(<<'EOF'), 'sea1 stderr' );
+    is( remove_trailing_whitespace( $trap->stderr() ),
+        _normalize_lf(<<'EOF'), 'sea1 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:  2H  6H
 : JD 9S JS 4D 6D
@@ -510,7 +515,8 @@ EOF
     };
 
     # TEST
-    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), 'seahaven 1 -S STDOUT' );
+    is( _normalize_lf( $trap->stdout() ),
+        _normalize_lf(<<'EOF'), 'seahaven 1 -S STDOUT' );
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
@@ -649,7 +655,8 @@ EOF
     };
 
     # TEST
-    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), '3 -S stdout' );
+    is( _normalize_lf( $trap->stdout() ),
+        _normalize_lf(<<'EOF'), '3 -S stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -660,7 +667,8 @@ EOF
     ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ), _normalize_lf(<<'EOF'), '3 stderr' );
+    is( remove_trailing_whitespace( $trap->stderr() ),
+        _normalize_lf(<<'EOF'), '3 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : KC 7D TC 4H 6C 9S 8C
