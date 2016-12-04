@@ -11,19 +11,28 @@ use Test::Trap
 use File::Basename qw(dirname);
 use File::Spec;
 use Path::Tiny;
+use Socket qw(:crlf);
+
+sub _normalize_lf
+{
+    my ($s) = @_;
+    $s =~ s#$CRLF#$LF#g;
+    return $s;
+}
 
 my $base_dir = dirname(__FILE__);
 my $data_dir = File::Spec->catdir( $base_dir, 'data' );
 
-sub _slurp_win { return path("win")->slurp_utf8; }
+sub _slurp_win { return _normalize_lf( path("win")->slurp_utf8 ); }
 
 sub remove_trailing_whitespace
 {
     my ($s) = @_;
 
-    $s =~ s#[ \t]+$##gms;
+    my $ret = _normalize_lf($s);
+    $ret =~ s#[ \t]+$##gms;
 
-    return $s;
+    return $ret;
 }
 
 # Cleanup.
@@ -37,7 +46,7 @@ unlink("win");
     };
 
     # TEST
-    is( $trap->stdout(), <<'EOF', '24 stdout' );
+    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), '24 stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -48,7 +57,7 @@ EOF
     ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ), <<'EOF', '24 stderr' );
+    is( remove_trailing_whitespace( $trap->stderr() ), _normalize_lf(<<'EOF'), '24 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
@@ -64,7 +73,7 @@ Freecells:
 EOF
 
     # TEST
-    is( _slurp_win(), <<'EOF', '24 win contents' );
+    is( _slurp_win(), _normalize_lf(<<'EOF'), '24 win contents' );
 AS out
 7C to 8D
 QD to KC
@@ -170,7 +179,7 @@ EOF
     };
 
     # TEST
-    is( $trap->stdout(), <<'EOF', '24 -S stdout' );
+    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), '24 -S stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -181,7 +190,7 @@ EOF
     ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ), <<'EOF', '24 stderr' );
+    is( remove_trailing_whitespace( $trap->stderr() ), _normalize_lf(<<'EOF'), '24 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
@@ -197,7 +206,7 @@ Freecells:
 EOF
 
     # TEST
-    is( _slurp_win(), <<'EOF', '24 win contents' );
+    is( _slurp_win(), _normalize_lf(<<'EOF'), '24 win contents' );
 AS out
 2H to temp
 4S to temp
@@ -382,7 +391,7 @@ EOF
     };
 
     # TEST
-    is( $trap->stdout(), <<'EOF', 'seahaven 1 STDOUT' );
+    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), 'seahaven 1 STDOUT' );
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
@@ -393,7 +402,7 @@ EOF
     ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ), <<'EOF', 'sea1 stderr' );
+    is( remove_trailing_whitespace( $trap->stderr() ), _normalize_lf(<<'EOF'), 'sea1 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:  2H  6H
 : JD 9S JS 4D 6D
@@ -531,7 +540,7 @@ Freecells:  2H  6H
 EOF
 
     # TEST
-    is( _slurp_win(), <<'EOF', 'seahaven 1 -S win contents' );
+    is( _slurp_win(), _normalize_lf(<<'EOF'), 'seahaven 1 -S win contents' );
 8D to temp
 3S to temp
 AH out
@@ -640,7 +649,7 @@ EOF
     };
 
     # TEST
-    is( $trap->stdout(), <<'EOF', '3 -S stdout' );
+    is( _normalize_lf($trap->stdout()), _normalize_lf(<<'EOF'), '3 -S stdout' );
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -651,7 +660,7 @@ EOF
     ok( !defined( $trap->exit() ), '0 exit status.' );
 
     # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ), <<'EOF', '3 stderr' );
+    is( remove_trailing_whitespace( $trap->stderr() ), _normalize_lf(<<'EOF'), '3 stderr' );
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : KC 7D TC 4H 6C 9S 8C
@@ -667,7 +676,7 @@ Freecells:
 EOF
 
     # TEST
-    is( _slurp_win(), <<'EOF', '3 win contents' );
+    is( _slurp_win(), _normalize_lf(<<'EOF'), '3 win contents' );
 AH out
 2H out
 4S to temp
