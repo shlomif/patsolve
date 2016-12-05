@@ -401,28 +401,19 @@ EOF
 }
 
 {
-    trap
-    {
-        system( "./patsolve", "-s",
-            File::Spec->catfile( $data_dir, "1.seahaven.board" ),
-        );
-    };
-
-    # TEST
-    is( _normalize_lf( $trap->stdout() ),
-        _normalize_lf(<<'EOF'), 'seahaven 1 STDOUT' );
+    # TEST*$pat_test
+    pat_test(
+        {
+            blurb => "seahaven 1",
+            cmd_line =>
+                [ "-s", File::Spec->catfile( $data_dir, "1.seahaven.board" ), ],
+            stdout => <<'EOF',
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
 76 moves.
 EOF
-
-    # TEST
-    ok( !defined( $trap->exit() ), '0 exit status.' );
-
-    # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ),
-        _normalize_lf(<<'EOF'), 'sea1 stderr' );
+            stderr => <<'EOF',
 Foundations: H-0 C-0 D-0 S-0
 Freecells:  2H  6H
 : JD 9S JS 4D 6D
@@ -439,8 +430,7 @@ Freecells:  2H  6H
 ---
 EOF
 
-    # TEST
-    is( _slurp_win(), <<'EOF', 'seahaven 1 win contents' );
+            win => <<'EOF',
 8D to temp
 3S to temp
 AH out
@@ -519,6 +509,8 @@ QC out
 KC out
 EOF
 
+        }
+    );
 }
 
 {
@@ -661,6 +653,7 @@ EOF
 }
 
 {
+    # TEST*$pat_test
     pat_test(
         {
             blurb => '3 -S',
