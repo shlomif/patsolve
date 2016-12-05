@@ -66,6 +66,9 @@ sub pat_test
         "$blurb : stderr"
     );
 
+    # TEST:$pat_test++;
+    is( _slurp_win(), _normalize_lf( $args->{win} ), "$blurb : win contents" );
+
     return;
 }
 
@@ -95,12 +98,7 @@ Freecells:
 
 ---
 EOF
-
-        }
-    );
-
-    # TEST
-    is( _slurp_win(), _normalize_lf(<<'EOF'), '24 win contents' );
+            win => <<'EOF',
 AS out
 7C to 8D
 QD to KC
@@ -193,7 +191,8 @@ KH out
 KS out
 KC out
 EOF
-
+        }
+    );
 }
 
 {
@@ -223,11 +222,7 @@ Freecells:
 
 ---
 EOF
-        }
-    );
-
-    # TEST
-    is( _slurp_win(), _normalize_lf(<<'EOF'), '24 win contents' );
+            win => <<'EOF',
 AS out
 2H to temp
 4S to temp
@@ -401,6 +396,8 @@ KC out
 KD out
 EOF
 
+        }
+    );
 }
 
 {
