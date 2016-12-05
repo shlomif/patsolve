@@ -661,29 +661,18 @@ EOF
 }
 
 {
-    trap
-    {
-        system(
-            "./patsolve", "-f",
-            "-S", File::Spec->catfile( $data_dir, '3.board' )
-        );
-    };
-
-    # TEST
-    is( _normalize_lf( $trap->stdout() ),
-        _normalize_lf(<<'EOF'), '3 -S stdout' );
+    pat_test(
+        {
+            blurb => '3 -S',
+            cmd_line =>
+                [ '-f', "-S", File::Spec->catfile( $data_dir, '3.board' ) ],
+            stdout => <<'EOF',
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
 91 moves.
 EOF
-
-    # TEST
-    ok( !defined( $trap->exit() ), '0 exit status.' );
-
-    # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ),
-        _normalize_lf(<<'EOF'), '3 stderr' );
+            stderr => <<'EOF',
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : KC 7D TC 4H 6C 9S 8C
@@ -697,9 +686,7 @@ Freecells:
 
 ---
 EOF
-
-    # TEST
-    is( _slurp_win(), _normalize_lf(<<'EOF'), '3 win contents' );
+            win => <<'EOF',
 AH out
 2H out
 4S to temp
@@ -792,5 +779,6 @@ QH out
 KH out
 KS out
 EOF
-
+        }
+    );
 }
