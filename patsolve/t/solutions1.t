@@ -58,6 +58,15 @@ sub pat_test
 
     # TEST:$pat_test++;
     ok( !defined( $trap->exit() ), "$blurb : 0 exit status." );
+
+    # TEST:$pat_test++;
+    is(
+        remove_trailing_whitespace( $trap->stderr() ),
+        _normalize_lf( $args->{stderr} ),
+        "$blurb : stderr"
+    );
+
+    return;
 }
 
 {
@@ -72,13 +81,7 @@ Freecell; any card may start a pile.
 A winner.
 91 moves.
 EOF
-
-        }
-    );
-
-    # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ),
-        _normalize_lf(<<'EOF'), '24 stderr' );
+            stderr => <<'EOF',
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
@@ -92,6 +95,9 @@ Freecells:
 
 ---
 EOF
+
+        }
+    );
 
     # TEST
     is( _slurp_win(), _normalize_lf(<<'EOF'), '24 win contents' );
@@ -203,12 +209,7 @@ Freecell; any card may start a pile.
 A winner.
 171 moves.
 EOF
-        }
-    );
-
-    # TEST
-    is( remove_trailing_whitespace( $trap->stderr() ),
-        _normalize_lf(<<'EOF'), '24 stderr' );
+            stderr => <<'EOF',
 Foundations: H-0 C-0 D-0 S-0
 Freecells:
 : 4C 2C 9C 8C QS 4S 2H
@@ -222,6 +223,8 @@ Freecells:
 
 ---
 EOF
+        }
+    );
 
     # TEST
     is( _slurp_win(), _normalize_lf(<<'EOF'), '24 win contents' );
