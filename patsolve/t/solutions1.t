@@ -38,23 +38,43 @@ sub remove_trailing_whitespace
 # Cleanup.
 unlink("win");
 
+# TEST:$pat_test=0;
+sub pat_test
 {
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my ($args) = @_;
+    my $blurb = $args->{blurb};
     trap
     {
-        system( "./patsolve", "-f",
-            File::Spec->catfile( $data_dir, '24.board' ) );
+        system( "./patsolve", "-f", @{ $args->{cmd_line} } );
     };
 
-    # TEST
-    is( _normalize_lf( $trap->stdout() ), _normalize_lf(<<'EOF'), '24 stdout' );
+    # TEST:$pat_test++;
+    is(
+        _normalize_lf( $trap->stdout() ),
+        _normalize_lf( $args->{stdout} ),
+        "$blurb stdout"
+    );
+
+    # TEST:$pat_test++;
+    ok( !defined( $trap->exit() ), "$blurb : 0 exit status." );
+}
+
+{
+    # TEST*$pat_test
+    pat_test(
+        {
+            blurb    => '24',
+            cmd_line => [ '-f', File::Spec->catfile( $data_dir, '24.board' ) ],
+            stdout   => <<'EOF',
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
 91 moves.
 EOF
 
-    # TEST
-    ok( !defined( $trap->exit() ), '0 exit status.' );
+        }
+    );
 
     # TEST
     is( remove_trailing_whitespace( $trap->stderr() ),
@@ -171,25 +191,20 @@ EOF
 }
 
 {
-    trap
-    {
-        system(
-            "./patsolve", "-f",
-            "-S", File::Spec->catfile( $data_dir, '24.board' )
-        );
-    };
-
-    # TEST
-    is( _normalize_lf( $trap->stdout() ),
-        _normalize_lf(<<'EOF'), '24 -S stdout' );
+    # TEST*$pat_test
+    pat_test(
+        {
+            blurb => '24 -S',
+            cmd_line =>
+                [ '-f', '-S', File::Spec->catfile( $data_dir, '24.board' ) ],
+            stdout => <<'EOF',
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
 171 moves.
 EOF
-
-    # TEST
-    ok( !defined( $trap->exit() ), '0 exit status.' );
+        }
+    );
 
     # TEST
     is( remove_trailing_whitespace( $trap->stderr() ),
