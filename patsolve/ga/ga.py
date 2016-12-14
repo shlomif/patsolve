@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 import sys
 import os
@@ -8,7 +8,9 @@ import re
 import rng
 from rng import torat
 
-usage("[-c crossprob] [-m mutateprob] [-n Npop] [-l #games] [pop]")
+
+def printusage():
+    print ("[-c crossprob] [-m mutateprob] [-n Npop] [-l #games] [pop]")
 
 crossprob = .1
 mutateprob = .1
@@ -18,6 +20,11 @@ Len = 20
 Gen = 0
 Opts = '-skS -M20'
 Mem = 10 * 1000 * 1000
+
+
+def parseargs():
+    # TODO: implement
+    return ([], [])
 
 optlist, args = parseargs("c:m:n:l:")
 
@@ -129,7 +136,7 @@ def newpop(result):
     The new population is returned."""
 
     result.sort()
-    printf('%d: %g, %s\n', Gen, result[0][0], result[0][1])
+    print('%d: %g, %s' % (Gen, result[0][0], result[0][1]))
     pop = [0] * Npop
     cut = int(Npop * .5)
     for i in xrange(cut):
@@ -190,9 +197,9 @@ def get_ycoeff(l):
     Return the coefficients as a string, e.g., '.5 1.2 2.'"""
 
     f = open('/tmp/x', 'w')
-    fprintf(f, '0 %d\n', l[0])
-    fprintf(f, '25 %d\n', l[1])
-    fprintf(f, '50 %d\n', l[2])
+    f.write('0 %d\n' % l[0])
+    f.write('25 %d\n' % l[1])
+    f.write('50 %d\n' % l[2])
     f.close()
     os.system('fit/dofit /tmp/x > /tmp/coeff')
     f = open('/tmp/coeff', 'r')
@@ -220,7 +227,7 @@ def fitness(l):
     cmd = '/home/tomh/src/patsolve/xpatsolve %s -N%d %d %s > %s'
     cmd %= (Opts, Start, Start + Len, param, resname)
 
-    printf('running %s ', param)
+    print(('running %s ') % param),
     sys.stdout.flush()
     t0 = os.times()[2]
     os.system(cmd)
@@ -245,15 +252,15 @@ def fitness(l):
     f.close()
 
     if n == 0:
-        printf('no result\n')
+        print('no result')
         return 1000000
 #        fit = Mem - float(sum) / n
 #        fit = float(sum) / n
     fit = (t1 - t0) / Len
     if mem > 0:
-        printf('fitness = %g, oom = %d\n', fit, mem)
+        print('fitness = %g, oom = %d' % (fit, mem))
     else:
-        printf('fitness = %g\n', fit)
+        print('fitness = %g' % fit)
     return fit
 
 
