@@ -12,7 +12,7 @@
 
 #include "pat.h"
 
-static GCC_INLINE void fc_solve_pats__print_layout(
+static inline void fc_solve_pats__print_layout(
     fcs_pats_thread_t *const soft_thread)
 {
 #ifndef FCS_FREECELL_ONLY

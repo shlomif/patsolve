@@ -37,7 +37,7 @@ recursively (rec == TRUE). */
    freelist (using the queue member), so we can use it again later.
 */
 
-static GCC_INLINE void free_position_non_recursive(
+static inline void free_position_non_recursive(
     fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const pos)
 {
     pos->queue = soft_thread->freed_positions;
@@ -45,7 +45,7 @@ static GCC_INLINE void free_position_non_recursive(
     pos->parent->num_childs--;
 }
 
-static GCC_INLINE void free_position_recursive(
+static inline void free_position_recursive(
     fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *pos)
 {
     do
@@ -62,7 +62,7 @@ static GCC_INLINE void free_position_recursive(
 }
 
 /* Like strcpy() but returns the length of the string. */
-static GCC_INLINE int strecpy(char *dest, const char *src)
+static inline int strecpy(char *dest, const char *src)
 {
     int i = 0;
     while ((*dest++ = *src++) != '\0')
@@ -78,7 +78,7 @@ it, along with the pointer to its parent and the move we used to get here. */
 
 /* Return the position on the head of the queue, or NULL if there isn't one. */
 
-static GCC_INLINE void unpack_position(
+static inline void unpack_position(
     fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const pos)
 {
     DECLARE_STACKS();
@@ -150,7 +150,7 @@ static GCC_INLINE void unpack_position(
     }
 }
 
-static GCC_INLINE fcs_pats_position_t *dequeue_position(
+static inline fcs_pats_position_t *dequeue_position(
     fcs_pats_thread_t *const soft_thread)
 {
     /* This is a kind of prioritized round robin.  We make sweeps
@@ -286,7 +286,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
 }
 
 /* Hash the whole layout.  This is called once, at the start. */
-static GCC_INLINE fcs_bool_t check_for_exceeded(
+static inline fcs_bool_t check_for_exceeded(
     fcs_pats_thread_t *const soft_thread)
 {
     return ((soft_thread->status == FCS_PATS__NOSOL) &&
@@ -299,13 +299,13 @@ static GCC_INLINE fcs_bool_t check_for_exceeded(
 recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
 
-static GCC_INLINE void wrap_up_solve(
+static inline void wrap_up_solve(
     fcs_pats_thread_t *const soft_thread, const enum FC_SOLVE_PATS__MYDIR mydir)
 {
     soft_thread->curr_solve_dir = mydir;
 }
 
-static GCC_INLINE void freecell_solver_pats__make_move(
+static inline void freecell_solver_pats__make_move(
     fcs_pats_thread_t *const soft_thread, const fcs_pats__move_t *const m)
 {
     fcs_card_t card;
@@ -347,7 +347,7 @@ static GCC_INLINE void freecell_solver_pats__make_move(
     }
 }
 
-static GCC_INLINE void fc_solve_pats__undo_move(
+static inline void fc_solve_pats__undo_move(
     fcs_pats_thread_t *const soft_thread, const fcs_pats__move_t *const m)
 {
     const typeof(m->from) from = m->from;
@@ -390,7 +390,7 @@ static GCC_INLINE void fc_solve_pats__undo_move(
     }
 }
 
-static GCC_INLINE int solve(
+static inline int solve(
     fcs_pats_thread_t *const soft_thread, fcs_bool_t *const is_finished)
 {
 #define DEPTH (soft_thread->curr_solve_depth)

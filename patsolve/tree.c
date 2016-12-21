@@ -23,7 +23,7 @@
 clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
-static GCC_INLINE fcs_pats__treelist_t *cluster_tree(
+static inline fcs_pats__treelist_t *cluster_tree(
     fcs_pats_thread_t *const soft_thread, const int cluster)
 {
 
@@ -69,7 +69,7 @@ static GCC_INLINE fcs_pats__treelist_t *cluster_tree(
     return tl;
 }
 
-static GCC_INLINE int compare_piles(
+static inline int compare_piles(
     const size_t bytes_per_pile, const u_char *const a, const u_char *const b)
 {
     return memcmp(a, b, bytes_per_pile);
@@ -81,7 +81,7 @@ can ONLY be called once, immediately after the call to
 fc_solve_pats__new_from_block().
 That is, no other calls to give_back_block() are allowed. */
 
-static GCC_INLINE void give_back_block(
+static inline void give_back_block(
     fcs_pats_thread_t *const soft_thread, u_char *const p)
 {
     typeof(soft_thread->my_block) b = soft_thread->my_block;
@@ -93,7 +93,7 @@ static GCC_INLINE void give_back_block(
 /* Add it to the binary tree for this cluster.  The piles are stored
 following the fcs_pats__tree_t structure. */
 
-static GCC_INLINE fcs_pats__insert_code_t insert_node(
+static inline fcs_pats__insert_code_t insert_node(
     fcs_pats_thread_t *const soft_thread, fcs_pats__tree_t *const n,
     const int d, fcs_pats__tree_t **const tree, fcs_pats__tree_t **const node)
 {
@@ -162,7 +162,7 @@ cells are encoded as a cluster number: no two positions with different
 cluster numbers can ever be the same, so we store different clusters in
 different trees.  */
 
-static GCC_INLINE fcs_pats__tree_t *pack_position(
+static inline fcs_pats__tree_t *pack_position(
     fcs_pats_thread_t *const soft_thread)
 {
     DECLARE_STACKS();

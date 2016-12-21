@@ -30,19 +30,19 @@ typedef int CARD;
 
 #define NUM_CARDS 52
 
-static GCC_INLINE void fc_solve_pats__srand(LONG * seedx_ptr, UINT s)
+static inline void fc_solve_pats__srand(LONG * seedx_ptr, UINT s)
 {
     *(seedx_ptr) = (LONG) s;
 }
 
-static GCC_INLINE UINT fc_solve_pats__rand(LONG * seedx_ptr)
+static inline UINT fc_solve_pats__rand(LONG * seedx_ptr)
 {
     *(seedx_ptr) = *(seedx_ptr) * 214013L + 2531011L;
     return (((*seedx_ptr) >> 16) & 0xffff);
 }
 
 
-static GCC_INLINE UINT fc_solve_pats__game_num_rand(LONG * seedx_ptr, LONG gnGameNumber)
+static inline UINT fc_solve_pats__game_num_rand(LONG * seedx_ptr, LONG gnGameNumber)
 {
     UINT ret = fc_solve_pats__rand(seedx_ptr);
     if (gnGameNumber < 0x100000000LL)
@@ -62,7 +62,7 @@ static GCC_INLINE UINT fc_solve_pats__game_num_rand(LONG * seedx_ptr, LONG gnGam
     }
 }
 
-static GCC_INLINE void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
+static inline void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thread, LONG gnGameNumber)
 {
 #if !defined(HARD_CODED_NUM_FREECELLS)
     const fcs_game_type_params_t game_params = soft_thread->instance->game_params;

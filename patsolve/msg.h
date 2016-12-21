@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-static GCC_INLINE void fc_solve_msg(const char *msg, ...)
+static inline void fc_solve_msg(const char *msg, ...)
 {
     va_list ap;
 

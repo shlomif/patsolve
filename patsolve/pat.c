@@ -25,7 +25,7 @@
 
 /* Names of the cards.  The ordering is defined in pat.h. */
 
-static GCC_INLINE int calc_empty_col_idx(
+static inline int calc_empty_col_idx(
     fcs_pats_thread_t *const soft_thread, const int stacks_num)
 {
     for (int w = 0; w < stacks_num; w++)
@@ -39,7 +39,7 @@ static GCC_INLINE int calc_empty_col_idx(
 }
 
 /* Automove logic.  Freecell games must avoid certain types of automoves. */
-static GCC_INLINE fcs_bool_t good_automove(
+static inline fcs_bool_t good_automove(
     fcs_pats_thread_t *const soft_thread, const int o, const int r)
 {
 #ifndef FCS_FREECELL_ONLY
@@ -91,7 +91,7 @@ static GCC_INLINE fcs_bool_t good_automove(
 /* Get the possible moves from a position, and store them in
  * soft_thread->possible_moves[]. */
 
-static GCC_INLINE int get_possible_moves(fcs_pats_thread_t *const soft_thread,
+static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
     fcs_bool_t *const a, int *const num_cards_out)
 {
 #ifndef FCS_FREECELL_ONLY
@@ -402,7 +402,7 @@ static GCC_INLINE int get_possible_moves(fcs_pats_thread_t *const soft_thread,
 /* Moves that can't be undone get slightly higher priority, since it means
 we are moving a card for the first time. */
 
-static GCC_INLINE fcs_bool_t is_irreversible_move(
+static inline fcs_bool_t is_irreversible_move(
 #ifndef FCS_FREECELL_ONLY
     const fcs_card_t game_variant_suit_mask,
     const fcs_card_t game_variant_desired_suit_value,
@@ -443,7 +443,7 @@ static GCC_INLINE fcs_bool_t is_irreversible_move(
     return FALSE;
 }
 
-static GCC_INLINE void mark_irreversible(
+static inline void mark_irreversible(
     fcs_pats_thread_t *const soft_thread, const int n)
 {
 #ifndef FCS_FREECELL_ONLY
@@ -484,8 +484,7 @@ piles appear in any given game.  We'll use the pile's hash to find
 a hash bucket that contains a short list of piles, along with their
 identifiers. */
 
-static GCC_INLINE int get_pilenum(
-    fcs_pats_thread_t *const soft_thread, const int w)
+static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
 {
 
     /* For a given pile, get its unique pile id.  If it doesn't have
@@ -561,7 +560,7 @@ static GCC_INLINE int get_pilenum(
 
 /* Win.  Print out the move stack. */
 
-static GCC_INLINE void win(
+static inline void win(
     fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const pos)
 {
     if (soft_thread->moves_to_win)
@@ -600,7 +599,7 @@ a row, and if there is a smaller card of the same suit below the run, then
 the position is unsolvable.  This cuts out a lot of useless searching, so
 it's worth checking.  */
 
-static GCC_INLINE int prune_seahaven(
+static inline int prune_seahaven(
     fcs_pats_thread_t *const soft_thread, const fcs_pats__move_t *const mp)
 {
     const fc_solve_instance_t *const instance = soft_thread->instance;
@@ -657,7 +656,7 @@ static GCC_INLINE int prune_seahaven(
 /* This utility routine is used to check if a card is ever moved in
 a sequence of moves. */
 
-static GCC_INLINE int was_card_moved(
+static inline int was_card_moved(
     const fcs_card_t card, fcs_pats__move_t *const *const mpp, const int j)
 {
     for (int i = 0; i < j; i++)
@@ -673,7 +672,7 @@ static GCC_INLINE int was_card_moved(
 /* This utility routine is used to check if a card is ever used as a
 destination in a sequence of moves. */
 
-static GCC_INLINE int is_card_dest(
+static inline int is_card_dest(
     const fcs_card_t card, fcs_pats__move_t *const *const mpp, const int j)
 {
     for (int i = 0; i < j; i++)
@@ -686,7 +685,7 @@ static GCC_INLINE int is_card_dest(
     return FALSE;
 }
 
-static GCC_INLINE int was_card_moved_or_dest(
+static inline int was_card_moved_or_dest(
     const fcs_card_t card, fcs_pats__move_t *const *const mpp, const int j)
 {
     return (was_card_moved(card, mpp, j) || is_card_dest(card, mpp, j));
@@ -696,7 +695,7 @@ static GCC_INLINE int was_card_moved_or_dest(
 
 #define MAX_PREVIOUS_MOVES 4 /* Increasing this beyond 4 doesn't do much. */
 
-static GCC_INLINE int prune_redundant(fcs_pats_thread_t *const soft_thread,
+static inline int prune_redundant(fcs_pats_thread_t *const soft_thread,
     const fcs_pats__move_t *const mp, fcs_pats_position_t *const pos0)
 {
     DECLARE_STACKS();
@@ -896,7 +895,7 @@ static GCC_INLINE int prune_redundant(fcs_pats_thread_t *const soft_thread,
 /*
  * Next card in rank.
  * */
-static GCC_INLINE fcs_card_t fcs_pats_next_card(const fcs_card_t card)
+static inline fcs_card_t fcs_pats_next_card(const fcs_card_t card)
 {
     return card + (1 << 2);
 }
@@ -908,7 +907,7 @@ positions when they are added to the queue. */
 
 #define NUM_PRIORITIZE_PILES 8
 
-static GCC_INLINE void prioritize(fcs_pats_thread_t *const soft_thread,
+static inline void prioritize(fcs_pats_thread_t *const soft_thread,
     fcs_pats__move_t *const mp0, const int n)
 {
     DECLARE_STACKS();
@@ -1018,7 +1017,7 @@ end_of_stacks:;
     }
 }
 
-static GCC_INLINE fcs_bool_t is_win(fcs_pats_thread_t *const soft_thread)
+static inline fcs_bool_t is_win(fcs_pats_thread_t *const soft_thread)
 {
     for (int o = 0; o < 4; o++)
     {
@@ -1162,7 +1161,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
 
 /* Comparison function for sorting the soft_thread->current_pos.stacks piles. */
 
-static GCC_INLINE int wcmp(
+static inline int wcmp(
     fcs_pats_thread_t *const soft_thread, const int a, const int b)
 {
     if (soft_thread->pats_solve_params.x[9] < 0)

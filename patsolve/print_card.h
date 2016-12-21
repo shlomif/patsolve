@@ -16,7 +16,7 @@
 static const char *const fc_solve_pats__Ranks_string = " A23456789TJQK";
 static const char *const fc_solve_pats__Suits_string = "HCDS";
 
-static GCC_INLINE void fc_solve_pats__print_card(
+static inline void fc_solve_pats__print_card(
     const fcs_card_t card, FILE *const out_fh)
 {
     if (fcs_card_rank(card) != fc_solve_empty_card)

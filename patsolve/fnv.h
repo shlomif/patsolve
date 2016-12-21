@@ -21,14 +21,14 @@ http://www.isthe.com/chongo/tech/comp/fnv/index.html */
 #define FNV1_32_INIT 0x811C9DC5
 #define FNV_32_PRIME 0x01000193
 
-static GCC_INLINE u_int32_t fnv_hash(const char x, const u_int32_t hash)
+static inline u_int32_t fnv_hash(const char x, const u_int32_t hash)
 {
     return ((hash * FNV_32_PRIME) ^ x);
 }
 
 /* Hash a 0 terminated string. */
 
-static GCC_INLINE u_int32_t fnv_hash_str(const u_char *s)
+static inline u_int32_t fnv_hash_str(const u_char *s)
 {
     u_int32_t h = FNV1_32_INIT;
 

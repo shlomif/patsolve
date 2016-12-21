@@ -16,7 +16,7 @@
 #include "instance.h"
 #include "pat.h"
 
-static GCC_INLINE void fc_solve_pats__read_layout(
+static inline void fc_solve_pats__read_layout(
     fcs_pats_thread_t *const soft_thread, const char *const input_s)
 {
 #if !defined(HARD_CODED_NUM_STACKS)

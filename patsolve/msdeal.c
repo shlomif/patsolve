@@ -26,17 +26,17 @@ typedef int CARD;
 
 static LONG seedx;
 
-static GCC_INLINE void srandp(UINT s) { seedx = (LONG)s; }
+static inline void srandp(UINT s) { seedx = (LONG)s; }
 
-static GCC_INLINE UINT randp(void)
+static inline UINT randp(void)
 {
     seedx = seedx * 214013L + 2531011L;
     return (seedx >> 16) & 0xffff;
 }
 
-static GCC_INLINE void srando(UINT s) { seedx = (LONG)s; }
+static inline void srando(UINT s) { seedx = (LONG)s; }
 
-static GCC_INLINE UINT rando(void)
+static inline UINT rando(void)
 {
     seedx = seedx * 214013L + 2531011L;
     return (seedx >> 16) & 0x7fff;

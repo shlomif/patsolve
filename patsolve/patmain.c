@@ -38,7 +38,7 @@ static const char Usage[] =
     "-q quiet, -v verbose\n"
     "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 
-static GCC_INLINE void trace_solution(fcs_pats_thread_t *const soft_thread,
+static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
     FILE *const out, const fcs_bool_t is_quiet)
 {
     /* Go back up the chain of parents and store the moves

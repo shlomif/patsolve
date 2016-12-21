@@ -20,8 +20,7 @@
 
 #include "pats__print_msg.h"
 
-static GCC_INLINE void fc_solve_pats__before_play(
-    fcs_pats_thread_t *soft_thread)
+static inline void fc_solve_pats__before_play(fcs_pats_thread_t *soft_thread)
 {
     /* Initialize the hash tables. */
 
@@ -41,7 +40,7 @@ static GCC_INLINE void fc_solve_pats__before_play(
     fc_solve_pats__initialize_solving_process(soft_thread);
 }
 
-static GCC_INLINE void fc_solve_pats__play(
+static inline void fc_solve_pats__play(
     fcs_pats_thread_t *const soft_thread, const fcs_bool_t is_quiet)
 {
     fc_solve_pats__before_play(soft_thread);
@@ -114,7 +113,7 @@ static const int freecell_solver_user_set_empty_stacks_filled_by(
     return 0;
 }
 
-static GCC_INLINE const long long get_idx_from_env(const char *const name)
+static inline const long long get_idx_from_env(const char *const name)
 {
     const char *const s = getenv(name);
     if (!s)
@@ -127,7 +126,7 @@ static GCC_INLINE const long long get_idx_from_env(const char *const name)
     }
 }
 
-static GCC_INLINE void pats__init_soft_thread_and_instance(
+static inline void pats__init_soft_thread_and_instance(
     fcs_pats_thread_t *const soft_thread, fc_solve_instance_t *const instance)
 {
     fc_solve_pats__init_soft_thread(soft_thread, instance);
@@ -141,7 +140,7 @@ static GCC_INLINE void pats__init_soft_thread_and_instance(
 #endif
 }
 
-static GCC_INLINE void fc_solve_pats__configure_soft_thread(
+static inline void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread_t *const soft_thread, fc_solve_instance_t *const instance,
     int *const argc_ptr, const char ***const argv_ptr,
     fcs_bool_t *const is_quiet)

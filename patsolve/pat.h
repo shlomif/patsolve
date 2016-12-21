@@ -42,7 +42,7 @@
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
 */
 #ifdef FCS_FREECELL_ONLY
-static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(
+static inline fcs_bool_t fcs_pats_is_suitable(
     const fcs_card_t a, const fcs_card_t b)
 {
     const fcs_card_t suit_mask = FCS_PATS__COLOR;
@@ -50,14 +50,14 @@ static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(
     return (((a ^ b) & suit_mask) == suit_val);
 }
 #else
-static GCC_INLINE fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a,
+static inline fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a,
     const fcs_card_t b, const fcs_card_t suit_mask, const fcs_card_t suit_val)
 {
     return (((a ^ b) & suit_mask) == suit_val);
 }
 #endif
 
-static GCC_INLINE fcs_bool_t fcs_pats_is_king_only(
+static inline fcs_bool_t fcs_pats_is_king_only(
     const fcs_bool_t not_king_only, const fcs_card_t card)
 {
     return (not_king_only || fcs_card_rank(card) == FCS_PATS__KING);
@@ -292,7 +292,7 @@ extern fcs_pats__block_t *fc_solve_pats__new_block(
 
 /* Clusters are also stored in a hashed array. */
 
-static GCC_INLINE void fc_solve_pats__init_clusters(
+static inline void fc_solve_pats__init_clusters(
     fcs_pats_thread_t *const soft_thread)
 {
     memset(soft_thread->tree_list, 0, sizeof(soft_thread->tree_list));
@@ -304,14 +304,14 @@ up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
 better than storing the fcs_pats__tree_t nodes and keys separately, as that
 requires a pointer.  On Intel for -f bytes_per_tree_node winds up being
 a multiple of 8 currently anyway so it doesn't matter. */
-static GCC_INLINE size_t fc_solve_pats__align(const size_t i)
+static inline size_t fc_solve_pats__align(const size_t i)
 {
     const typeof(i) ALIGN_BITS = 0x7;
     return ((i & ALIGN_BITS) ? ((i | ALIGN_BITS) + 1) : i);
 }
 
 /* Initialize the hash buckets. */
-static GCC_INLINE void fc_solve_pats__init_buckets(
+static inline void fc_solve_pats__init_buckets(
     fcs_pats_thread_t *const soft_thread)
 {
 #if !defined(HARD_CODED_NUM_STACKS) || !defined(HARD_CODED_NUM_FREECELLS)
@@ -336,7 +336,7 @@ static GCC_INLINE void fc_solve_pats__init_buckets(
 /* Allocate some space and return a pointer to it.  See fc_solve_pats__new() .
  * */
 
-static GCC_INLINE void *fc_solve_pats__malloc(
+static inline void *fc_solve_pats__malloc(
     fcs_pats_thread_t *const soft_thread, const size_t s)
 {
     if (s > soft_thread->remaining_memory)
@@ -376,9 +376,8 @@ static GCC_INLINE void *fc_solve_pats__malloc(
 #define fc_solve_pats__new(soft_thread, type)                                  \
     ((type *)fc_solve_pats__malloc(soft_thread, sizeof(type)))
 
-static GCC_INLINE void fc_solve_pats__release(
-    fcs_pats_thread_t *const soft_thread, void *const ptr,
-    const size_t count_freed)
+static inline void fc_solve_pats__release(fcs_pats_thread_t *const soft_thread,
+    void *const ptr, const size_t count_freed)
 {
     free(ptr);
 
@@ -393,7 +392,7 @@ static GCC_INLINE void fc_solve_pats__release(
 #define fc_solve_pats__free_array(soft_thread, ptr, type, size)                \
     fc_solve_pats__release((soft_thread), (ptr), ((size) * sizeof(type)))
 
-static GCC_INLINE void fc_solve_pats__free_buckets(
+static inline void fc_solve_pats__free_buckets(
     fcs_pats_thread_t *const soft_thread)
 {
     for (int i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++)
@@ -411,7 +410,7 @@ static GCC_INLINE void fc_solve_pats__free_buckets(
     }
 }
 
-static GCC_INLINE void fc_solve_pats__free_blocks(
+static inline void fc_solve_pats__free_blocks(
     fcs_pats_thread_t *const soft_thread)
 {
     typeof(soft_thread->my_block) b = soft_thread->my_block;
@@ -426,7 +425,7 @@ static GCC_INLINE void fc_solve_pats__free_blocks(
     soft_thread->my_block = NULL;
 }
 
-static GCC_INLINE void fc_solve_pats__free_clusters(
+static inline void fc_solve_pats__free_clusters(
     fcs_pats_thread_t *const soft_thread)
 {
     for (int i = 0; i < FCS_PATS__TREE_LIST_NUM_BUCKETS; i++)
@@ -442,7 +441,7 @@ static GCC_INLINE void fc_solve_pats__free_clusters(
     }
 }
 
-static GCC_INLINE void fc_solve_pats__soft_thread_reset_helper(
+static inline void fc_solve_pats__soft_thread_reset_helper(
     fcs_pats_thread_t *const soft_thread)
 {
     soft_thread->freed_positions = NULL;
@@ -459,7 +458,7 @@ static GCC_INLINE void fc_solve_pats__soft_thread_reset_helper(
     soft_thread->curr_solve_pos = NULL;
 }
 
-static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
+static inline void fc_solve_pats__recycle_soft_thread(
     fcs_pats_thread_t *const soft_thread)
 {
     fc_solve_pats__free_buckets(soft_thread);
@@ -475,7 +474,7 @@ static GCC_INLINE void fc_solve_pats__recycle_soft_thread(
     fc_solve_pats__soft_thread_reset_helper(soft_thread);
 }
 
-static GCC_INLINE void fc_solve_pats__init_soft_thread(
+static inline void fc_solve_pats__init_soft_thread(
     fcs_pats_thread_t *const soft_thread, fc_solve_instance_t *const instance)
 {
     soft_thread->instance = instance;
@@ -496,7 +495,7 @@ static GCC_INLINE void fc_solve_pats__init_soft_thread(
         soft_thread->solve_stack, soft_thread->max_solve_depth);
 }
 
-static GCC_INLINE void fc_solve_pats__destroy_soft_thread(
+static inline void fc_solve_pats__destroy_soft_thread(
     fcs_pats_thread_t *const soft_thread)
 {
     free(soft_thread->solve_stack);
@@ -506,7 +505,7 @@ static GCC_INLINE void fc_solve_pats__destroy_soft_thread(
 }
 
 /* Hash a pile. */
-static GCC_INLINE void fc_solve_pats__hashpile(
+static inline void fc_solve_pats__hashpile(
     fcs_pats_thread_t *const soft_thread, const int w)
 {
     fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
@@ -532,7 +531,7 @@ extern void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
 #define DECLARE_STACKS()
 #endif
 
-static GCC_INLINE void fc_solve_pats__hash_layout(
+static inline void fc_solve_pats__hash_layout(
     fcs_pats_thread_t *const soft_thread)
 {
     DECLARE_STACKS();
@@ -543,7 +542,7 @@ static GCC_INLINE void fc_solve_pats__hash_layout(
     }
 }
 
-static GCC_INLINE void fc_solve_pats__initialize_solving_process(
+static inline void fc_solve_pats__initialize_solving_process(
     fcs_pats_thread_t *const soft_thread)
 {
     /* Init the queues. */
@@ -575,7 +574,7 @@ static GCC_INLINE void fc_solve_pats__initialize_solving_process(
     fc_solve_pats__queue_position(soft_thread, pos, 0);
 }
 
-static GCC_INLINE void fc_solve_pats__set_cut_off(
+static inline void fc_solve_pats__set_cut_off(
     fcs_pats_thread_t *const soft_thread)
 {
     soft_thread->num_moves_to_cut_off =
@@ -586,7 +585,7 @@ static GCC_INLINE void fc_solve_pats__set_cut_off(
 #ifdef DEBUG
 
 #include "msg.h"
-static GCC_INLINE void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_thread)
+static inline void fc_solve_pats__print_queue(fcs_pats_thread_t * soft_thread)
 {
     fc_solve_msg("max_queue_idx %d\n", soft_thread->max_queue_idx);
     int n = 0;
