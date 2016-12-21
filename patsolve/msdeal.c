@@ -15,7 +15,6 @@
 #include <sys/types.h>
 #include <string.h>
 
-#include "inline.h"
 #include "portable_int32.h"
 
 typedef unsigned long long LONG;

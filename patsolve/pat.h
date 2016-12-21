@@ -21,7 +21,6 @@
 #include "fcs_enums.h"
 #include "tree.h"
 #include "param.h"
-#include "inline.h"
 #include "bool.h"
 #include "fcs_dllexport.h"
 #include "state.h"

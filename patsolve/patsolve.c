@@ -22,7 +22,6 @@ search. */
 #include "instance.h"
 #include "fnv.h"
 
-#include "inline.h"
 #include "bool.h"
 
 /* We can't free the stored piles in the trees, but we can free some of the

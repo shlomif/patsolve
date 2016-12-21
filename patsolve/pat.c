@@ -16,7 +16,6 @@
 #include <sys/types.h>
 
 #include "alloc_wrap.h"
-#include "inline.h"
 #include "count.h"
 
 #include "instance.h"

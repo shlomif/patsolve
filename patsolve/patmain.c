@@ -14,7 +14,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#include "inline.h"
 #include "count.h"
 
 #include "pat.h"

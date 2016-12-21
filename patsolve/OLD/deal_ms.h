@@ -16,8 +16,6 @@
 
 #include "pat.h"
 
-#include "inline.h"
-
 #ifdef WIN32
 typedef unsigned __int64 LONG;
 typedef unsigned __int32 UINT;

@@ -15,7 +15,6 @@ http://www.isthe.com/chongo/tech/comp/fnv/index.html */
 #include <sys/types.h>
 #include "config.h"
 
-#include "inline.h"
 #include "portable_int32.h"
 
 #define FNV1_32_INIT 0x811C9DC5

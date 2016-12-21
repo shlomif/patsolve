@@ -11,7 +11,6 @@
 #pragma once
 
 #include "pat.h"
-#include "inline.h"
 
 static const char *const fc_solve_pats__Ranks_string = " A23456789TJQK";
 static const char *const fc_solve_pats__Suits_string = "HCDS";

@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-#include "inline.h"
 #include "count.h"
 #include "portable_time.h"
 #include "alloc_wrap.h"

@@ -13,8 +13,6 @@
 
 #include <stdio.h>
 
-#include "inline.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

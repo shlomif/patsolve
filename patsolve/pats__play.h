@@ -12,7 +12,6 @@
 
 #include "config.h"
 #include "pat.h"
-#include "inline.h"
 
 #ifdef DEBUG
 #include "msg.h"

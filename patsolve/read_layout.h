@@ -11,7 +11,6 @@
 #pragma once
 
 #include "config.h"
-#include "inline.h"
 
 #include "instance.h"
 #include "pat.h"
