@@ -10,7 +10,7 @@ from rng import torat
 
 
 def printusage():
-    print ("[-c crossprob] [-m mutateprob] [-n Npop] [-l #games] [pop]")
+    print("[-c crossprob] [-m mutateprob] [-n Npop] [-l #games] [pop]")
 
 crossprob = .1
 mutateprob = .1
