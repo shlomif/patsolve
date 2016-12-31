@@ -14,11 +14,11 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <string.h>
-
+#include <stdint.h>
 #include "portable_int32.h"
 
 typedef unsigned long long LONG;
-typedef u_int32_t UINT;
+typedef uint32_t UINT;
 typedef int CARD;
 
 #define NUM_CARDS 52

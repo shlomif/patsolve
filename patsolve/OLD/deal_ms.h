@@ -21,8 +21,8 @@ typedef unsigned __int64 LONG;
 typedef unsigned __int32 UINT;
 typedef int CARD;
 #else
-typedef u_int64_t LONG;
-typedef u_int32_t UINT;
+typedef uint64_t LONG;
+typedef uint32_t UINT;
 typedef int CARD;
 #endif
 

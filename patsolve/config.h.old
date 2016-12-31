@@ -24,7 +24,6 @@ to only allow kings on empty work piles (see the Makefile). */
 #ifdef WIN32
 typedef unsigned char u_char;
 typedef unsigned __int64 u_int64_t;
-typedef unsigned __int32 u_int32_t;
 #endif
 
 #endif

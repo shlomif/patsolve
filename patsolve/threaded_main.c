@@ -79,7 +79,6 @@ static void *worker_thread(void *const void_context)
     const int update_total_num_iters_threshold =
         context->update_total_num_iters_threshold;
     const int past_end_board = end_board_idx + 1;
-    fcs_portable_time_t mytime;
     fcs_int_limit_t total_num_iters_temp = 0;
     const int stop_at = context->stop_at;
     do
@@ -119,8 +118,7 @@ static void *worker_thread(void *const void_context)
                 pthread_mutex_unlock(&total_num_iters_lock);
                 total_num_iters_temp = 0;
 
-                FCS_PRINT_REACHED_BOARD(
-                    mytime, board_num, total_num_iters_copy);
+                fc_solve_print_reached(board_num, total_num_iters_copy);
             }
 
             fc_solve_pats__recycle_soft_thread(soft_thread);
@@ -150,7 +148,6 @@ int main(int argc, char **argv)
 
         next_board_num = start_game_idx;
 
-        fcs_portable_time_t mytime;
         fc_solve_print_started_at();
         context_t context = {
             .argc = argc,
@@ -181,9 +178,7 @@ int main(int argc, char **argv)
         {
             pthread_join(workers[idx], NULL);
         }
-
-        FCS_PRINT_FINISHED(mytime, total_num_iters);
-
+        fc_solve_print_finished(total_num_iters);
         free(workers);
     }
 

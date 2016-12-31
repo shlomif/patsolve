@@ -149,9 +149,9 @@ typedef struct fcs_pats__treelist_struct
 
 typedef struct fcs_pats__bucket_list_struct
 {
-    u_char *pile;   /* 0 terminated copy of the pile */
-    u_int32_t hash; /* the pile's hash code */
-    int pilenum;    /* the unique id for this pile */
+    u_char *pile;  /* 0 terminated copy of the pile */
+    uint32_t hash; /* the pile's hash code */
+    int pilenum;   /* the unique id for this pile */
     struct fcs_pats__bucket_list_struct *next;
 } fcs_pats__bucket_list_t;
 
@@ -218,7 +218,7 @@ struct fc_solve__patsolve_thread_struct
         int column_inv_idxs[MAX_NUM_STACKS];
 #endif
         /* Every different pile has a hash and a unique id. */
-        u_int32_t stack_hashes[MAX_NUM_STACKS];
+        uint32_t stack_hashes[MAX_NUM_STACKS];
         int stack_ids[MAX_NUM_STACKS];
     } current_pos;
 
