@@ -578,10 +578,10 @@ static inline void win(
     {
         return; /* how sad, so close... */
     }
-    typeof(mpp0) mpp = mpp0 + num_moves - 1;
+    var_AUTO(moves_ptr, mpp0 + num_moves);
     for (fcs_pats_position_t *p = pos; p->parent; p = p->parent)
     {
-        *(mpp--) = (p->move);
+        *(--moves_ptr) = (p->move);
     }
 
     soft_thread->moves_to_win = mpp0;
@@ -656,11 +656,11 @@ static inline int prune_seahaven(
 a sequence of moves. */
 
 static inline int was_card_moved(
-    const fcs_card_t card, fcs_pats__move_t *const *const mpp, const int j)
+    const fcs_card_t card, fcs_pats__move_t *const *const moves, const int j)
 {
     for (int i = 0; i < j; i++)
     {
-        if (mpp[i]->card == card)
+        if (moves[i]->card == card)
         {
             return TRUE;
         }
@@ -672,11 +672,11 @@ static inline int was_card_moved(
 destination in a sequence of moves. */
 
 static inline int is_card_dest(
-    const fcs_card_t card, fcs_pats__move_t *const *const mpp, const int j)
+    const fcs_card_t card, fcs_pats__move_t *const *const moves, const int j)
 {
     for (int i = 0; i < j; i++)
     {
-        if (mpp[i]->destcard == card)
+        if (moves[i]->destcard == card)
         {
             return TRUE;
         }
@@ -685,9 +685,9 @@ static inline int is_card_dest(
 }
 
 static inline int was_card_moved_or_dest(
-    const fcs_card_t card, fcs_pats__move_t *const *const mpp, const int j)
+    const fcs_card_t card, fcs_pats__move_t *const *const moves, const int j)
 {
-    return (was_card_moved(card, mpp, j) || is_card_dest(card, mpp, j));
+    return (was_card_moved(card, moves, j) || is_card_dest(card, moves, j));
 }
 
 /* Prune redundant moves, if we can prove that they really are redundant. */
