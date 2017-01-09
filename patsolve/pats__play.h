@@ -242,45 +242,28 @@ static inline void fc_solve_pats__configure_soft_thread(
 
     if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
             FCS_SEQ_BUILT_BY_SUIT) &&
-        !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) &&
-        !soft_thread->to_stack)
+        !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
     {
-        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__FreecellBest);
-    }
-    else if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
-                 FCS_SEQ_BUILT_BY_SUIT) &&
-             !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) &&
-             soft_thread->to_stack)
-    {
-        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__FreecellSpeed);
+        set_param(soft_thread, soft_thread->to_stack
+                                   ? FC_SOLVE_PATS__PARAM_PRESET__FreecellSpeed
+                                   : FC_SOLVE_PATS__PARAM_PRESET__FreecellBest);
     }
     else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
                  FCS_SEQ_BUILT_BY_SUIT) &&
-             !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) &&
-             !soft_thread->to_stack)
+             !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
     {
-        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__SeahavenBest);
+        set_param(soft_thread, soft_thread->to_stack
+                                   ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenSpeed
+                                   : FC_SOLVE_PATS__PARAM_PRESET__SeahavenBest);
     }
     else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
                  FCS_SEQ_BUILT_BY_SUIT) &&
-             !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) &&
-             soft_thread->to_stack)
+             (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
     {
-        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__SeahavenSpeed);
-    }
-    else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
-                 FCS_SEQ_BUILT_BY_SUIT) &&
-             (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) &&
-             !soft_thread->to_stack)
-    {
-        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__SeahavenKing);
-    }
-    else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
-                 FCS_SEQ_BUILT_BY_SUIT) &&
-             (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) &&
-             soft_thread->to_stack)
-    {
-        set_param(soft_thread, FC_SOLVE_PATS__PARAM_PRESET__SeahavenKingSpeed);
+        set_param(
+            soft_thread, soft_thread->to_stack
+                             ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenKingSpeed
+                             : FC_SOLVE_PATS__PARAM_PRESET__SeahavenKing);
     }
     else
     {
