@@ -51,10 +51,10 @@ typedef struct
     int argc;
     char **argv;
     int arg;
-    int stop_at;
-    int end_board_idx;
-    int board_num_step;
-    int update_total_num_iters_threshold;
+    long long stop_at;
+    long long end_board_idx;
+    long long board_num_step;
+    long long update_total_num_iters_threshold;
 } context_t;
 
 static void *worker_thread(void *const void_context)
@@ -74,21 +74,21 @@ static void *worker_thread(void *const void_context)
         (const char ***)(&argv), &is_quiet);
 
     long long board_num;
-    const int end_board_idx = context->end_board_idx;
-    const int board_num_step = context->board_num_step;
-    const int update_total_num_iters_threshold =
+    const long long end_board_idx = context->end_board_idx;
+    const long long board_num_step = context->board_num_step;
+    const long long update_total_num_iters_threshold =
         context->update_total_num_iters_threshold;
-    const int past_end_board = end_board_idx + 1;
+    const long long past_end_board = end_board_idx + 1;
     fcs_int_limit_t total_num_iters_temp = 0;
-    const int stop_at = context->stop_at;
+    const long long stop_at = context->stop_at;
     do
     {
         pthread_mutex_lock(&next_board_num_lock);
         board_num = next_board_num;
-        const int proposed_quota_end = (next_board_num += board_num_step);
+        const long long proposed_quota_end = (next_board_num += board_num_step);
         pthread_mutex_unlock(&next_board_num_lock);
 
-        const int quota_end = min(proposed_quota_end, past_end_board);
+        const long long quota_end = min(proposed_quota_end, past_end_board);
 
         for (; board_num < quota_end; board_num++)
         {
@@ -142,9 +142,9 @@ int main(int argc, char **argv)
 
     {
         int board_num_step = 1;
-        int update_total_num_iters_threshold = 1000000;
+        long long update_total_num_iters_threshold = 1000000;
         int num_workers = 4;
-        int stop_at = 100;
+        long long stop_at = 100;
 
         next_board_num = start_game_idx;
 
