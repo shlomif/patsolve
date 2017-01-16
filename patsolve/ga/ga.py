@@ -9,8 +9,13 @@ import rng
 from rng import torat
 
 
+if sys.version_info > (3,):
+    xrange = range
+
+
 def printusage():
     print("[-c crossprob] [-m mutateprob] [-n Npop] [-l #games] [pop]")
+
 
 crossprob = .1
 mutateprob = .1
@@ -25,6 +30,7 @@ Mem = 10 * 1000 * 1000
 def parseargs():
     # TODO: implement
     return ([], [])
+
 
 optlist, args = parseargs("c:m:n:l:")
 
@@ -207,6 +213,7 @@ def get_ycoeff(l):
     f.close()
     return string.join(map(str, map(float, l)))
 
+
 move = re.compile(r"([0-9]+) moves.")
 pos = re.compile(r"([0-9]+) positions generated.")
 upos = re.compile(r"([0-9]+) unique positions.")
@@ -282,5 +289,6 @@ def ga():
 #                Start = Start + Len
         Start = rng.random() % 1000000000
         Gen += 1
+
 
 ga()

@@ -15,6 +15,7 @@ if sys.version_info > (3,):
 def printusage():
     print("""[-n <n>] filename ...""")
 
+
 if os.getenv('USAGE'):
     printusage()
     sys.exit(0)
@@ -41,6 +42,7 @@ def sgn(x):
         return -1
     return 1
 
+
 fit = {}
 
 for filename in args.files:
@@ -60,6 +62,7 @@ for filename in args.files:
 
 def add(a, b):
     return a + b
+
 
 m = []
 
