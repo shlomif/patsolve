@@ -921,9 +921,8 @@ static inline void prioritize(fcs_pats_thread_t *const soft_thread,
         pile[i] = -1;
     }
 
-#define NUM_SUITS 4
-    fcs_card_t needed_cards[NUM_SUITS];
-    for (int suit = 0; suit < NUM_SUITS; suit++)
+    fcs_card_t needed_cards[FCS_NUM_SUITS];
+    for (int suit = 0; suit < FCS_NUM_SUITS; suit++)
     {
         needed_cards[suit] = fc_solve_empty_card;
         const fcs_card_t rank =
