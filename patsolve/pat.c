@@ -573,18 +573,19 @@ static inline void win(
     {
         num_moves++;
     }
-    typeof(soft_thread->moves_to_win) mpp0 = SMALLOC(mpp0, num_moves);
-    if (!mpp0)
+    typeof(soft_thread->moves_to_win) moves_to_win =
+        SMALLOC(moves_to_win, num_moves);
+    if (!moves_to_win)
     {
         return; /* how sad, so close... */
     }
-    var_AUTO(moves_ptr, mpp0 + num_moves);
+    var_AUTO(moves_ptr, moves_to_win + num_moves);
     for (fcs_pats_position_t *p = pos; p->parent; p = p->parent)
     {
         *(--moves_ptr) = (p->move);
     }
 
-    soft_thread->moves_to_win = mpp0;
+    soft_thread->moves_to_win = moves_to_win;
     soft_thread->num_moves_to_win = num_moves;
 }
 

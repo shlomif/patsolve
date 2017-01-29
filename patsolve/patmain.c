@@ -42,12 +42,11 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
     /* Go back up the chain of parents and store the moves
     in reverse order. */
 
-    const typeof(soft_thread->num_moves_to_win) nmoves =
-        soft_thread->num_moves_to_win;
-    const typeof(soft_thread->moves_to_win) mpp0 = soft_thread->moves_to_win;
-    const typeof(mpp0) mp_end = mpp0 + nmoves;
+    const_AUTO(nmoves, soft_thread->num_moves_to_win);
+    const_SLOT(moves_to_win, soft_thread);
+    const_AUTO(mp_end, moves_to_win + nmoves);
 
-    for (const typeof(*mpp0) *mp = mpp0; mp < mp_end; mp++)
+    for (const typeof(*moves_to_win) *mp = moves_to_win; mp < mp_end; mp++)
     {
         fc_solve_pats__print_card(mp->card, out);
         fputc(' ', out);

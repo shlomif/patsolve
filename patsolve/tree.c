@@ -82,7 +82,7 @@ That is, no other calls to give_back_block() are allowed. */
 static inline void give_back_block(
     fcs_pats_thread_t *const soft_thread, u_char *const p)
 {
-    typeof(soft_thread->my_block) b = soft_thread->my_block;
+    var_AUTO(b, soft_thread->my_block);
     const size_t s = b->ptr - p;
     b->ptr -= s;
     b->remaining += s;
@@ -185,22 +185,19 @@ static inline fcs_pats__tree_t *pack_position(
             p         p         p
     */
 
-    fcs_bool_t k = FALSE;
     for (int w = 0; w < LOCAL_STACKS_NUM; w++)
     {
-        int j = soft_thread->current_pos
-                    .stack_ids[soft_thread->current_pos.column_idxs[w]];
-        if (k)
+        const int j = soft_thread->current_pos
+                          .stack_ids[soft_thread->current_pos.column_idxs[w]];
+        if (w & 0x1)
         {
             *p++ |= j >> 8; /* j is positive */
             *p++ = j & 0xFF;
-            k = FALSE;
         }
         else
         {
             *p++ = j >> 4;
             *p = (j & 0xF) << 4;
-            k = TRUE;
         }
     }
 
@@ -283,7 +280,7 @@ fcs_pats__block_t *fc_solve_pats__new_block(
 u_char *fc_solve_pats__new_from_block(
     fcs_pats_thread_t *const soft_thread, const size_t s)
 {
-    fcs_pats__block_t *b = soft_thread->my_block;
+    var_AUTO(b, soft_thread->my_block);
     if (s > b->remaining)
     {
         b = fc_solve_pats__new_block(soft_thread);

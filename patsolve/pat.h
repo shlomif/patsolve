@@ -248,7 +248,7 @@ struct fc_solve__patsolve_thread_struct
      * value.
      * Default should be FALSE.
      * */
-    int to_stack;
+    fcs_bool_t to_stack;
     /* Switch between depth- and breadth-first. Default is "1".*/
     int num_moves_to_cut_off;
     /* win, lose, or fail */
@@ -412,10 +412,10 @@ static inline void fc_solve_pats__free_buckets(
 static inline void fc_solve_pats__free_blocks(
     fcs_pats_thread_t *const soft_thread)
 {
-    typeof(soft_thread->my_block) b = soft_thread->my_block;
+    var_AUTO(b, soft_thread->my_block);
     while (b)
     {
-        typeof(b->next) next = b->next;
+        const_AUTO(next, b->next);
         fc_solve_pats__free_array(
             soft_thread, b->block, u_char, FC_SOLVE__PATS__BLOCKSIZE);
         fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);

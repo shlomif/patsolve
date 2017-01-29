@@ -403,7 +403,7 @@ The name '-' also specifies stdin. */
                          FCS_SEQ_BUILT_BY_SUIT)
                          ? "Seahaven; "
                          : "Freecell; ");
-        if ((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
+        if (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)
         {
             printf("%s", "only Kings are allowed to start a pile.\n");
         }
