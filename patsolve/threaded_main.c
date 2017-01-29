@@ -137,44 +137,41 @@ int main(int argc, char **argv)
         get_idx_from_env("PATSOLVE_START"); /* for range solving */
     const long long end_game_idx = get_idx_from_env("PATSOLVE_END");
 
+    int board_num_step = 1;
+    int num_workers = 4;
+    long long stop_at = 100;
+
+    next_board_num = start_game_idx;
+
+    fc_solve_print_started_at();
+    context_t context = {
+        .argc = argc,
+        .argv = argv,
+        .stop_at = stop_at,
+        .end_board_idx = end_game_idx,
+        .board_num_step = board_num_step,
+    };
+
+    pthread_t workers[num_workers];
+    for (int idx = 0; idx < num_workers; idx++)
     {
-        int board_num_step = 1;
-        int num_workers = 4;
-        long long stop_at = 100;
-
-        next_board_num = start_game_idx;
-
-        fc_solve_print_started_at();
-        context_t context = {
-            .argc = argc,
-            .argv = argv,
-            .stop_at = stop_at,
-            .end_board_idx = end_game_idx,
-            .board_num_step = board_num_step,
-        };
-
-        pthread_t *const workers = SMALLOC(workers, num_workers);
-        for (int idx = 0; idx < num_workers; idx++)
+        const int check =
+            pthread_create(&workers[idx], NULL, worker_thread, &context);
+        if (check)
         {
-            const int check =
-                pthread_create(&workers[idx], NULL, worker_thread, &context);
-            if (check)
-            {
-                fprintf(stderr, "Worker Thread No. %d Initialization failed "
-                                "with error %d!\n",
-                    idx, check);
-                exit(-1);
-            }
+            fprintf(stderr, "Worker Thread No. %d Initialization failed "
+                            "with error %d!\n",
+                idx, check);
+            exit(-1);
         }
-
-        /* Wait for all threads to finish. */
-        for (int idx = 0; idx < num_workers; idx++)
-        {
-            pthread_join(workers[idx], NULL);
-        }
-        fc_solve_print_finished(total_num_iters);
-        free(workers);
     }
+
+    /* Wait for all threads to finish. */
+    for (int idx = 0; idx < num_workers; idx++)
+    {
+        pthread_join(workers[idx], NULL);
+    }
+    fc_solve_print_finished(total_num_iters);
 
     return 0;
 }
