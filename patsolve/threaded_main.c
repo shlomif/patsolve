@@ -49,22 +49,16 @@ static fcs_int_limit_t update_total_num_iters_threshold = 1000000;
 const long long board_num_step = 32;
 const long long stop_at = 100;
 int context_argc;
+char **context_argv;
 
-typedef struct
+static void *worker_thread(void *context)
 {
-    char **argv;
-} context_t;
-
-static void *worker_thread(void *const void_context)
-{
-    const context_t *const context = (const context_t *const)void_context;
-
     fcs_pats_thread_t soft_thread_struct__dont_use_directly;
     fcs_pats_thread_t *const soft_thread =
         &soft_thread_struct__dont_use_directly;
 
     int argc = context_argc;
-    char **argv = context->argv;
+    char **argv = context_argv;
 
     fc_solve_instance_t instance_struct;
     fcs_bool_t is_quiet = FALSE;
@@ -137,15 +131,12 @@ int main(int argc, char **argv)
 
     fc_solve_print_started_at();
     context_argc = argc;
-    context_t context = {
-        .argv = argv,
-    };
-
+    context_argv = argv;
     pthread_t workers[num_workers];
     for (int idx = 0; idx < num_workers; idx++)
     {
         const int check =
-            pthread_create(&workers[idx], NULL, worker_thread, &context);
+            pthread_create(&workers[idx], NULL, worker_thread, NULL);
         if (check)
         {
             fprintf(stderr, "Worker Thread No. %d Initialization failed "
