@@ -44,6 +44,7 @@ static pthread_mutex_t next_board_num_lock;
 
 long long total_num_iters = 0;
 static pthread_mutex_t total_num_iters_lock;
+static fcs_int_limit_t update_total_num_iters_threshold = 1000000;
 
 typedef struct
 {
@@ -53,7 +54,6 @@ typedef struct
     long long stop_at;
     long long end_board_idx;
     long long board_num_step;
-    long long update_total_num_iters_threshold;
 } context_t;
 
 static void *worker_thread(void *const void_context)
@@ -75,8 +75,6 @@ static void *worker_thread(void *const void_context)
     long long board_num;
     const long long end_board_idx = context->end_board_idx;
     const long long board_num_step = context->board_num_step;
-    const long long update_total_num_iters_threshold =
-        context->update_total_num_iters_threshold;
     const long long past_end_board = end_board_idx + 1;
     fcs_int_limit_t total_num_iters_temp = 0;
     const long long stop_at = context->stop_at;
@@ -141,7 +139,6 @@ int main(int argc, char **argv)
 
     {
         int board_num_step = 1;
-        long long update_total_num_iters_threshold = 1000000;
         int num_workers = 4;
         long long stop_at = 100;
 
@@ -154,8 +151,6 @@ int main(int argc, char **argv)
             .stop_at = stop_at,
             .end_board_idx = end_game_idx,
             .board_num_step = board_num_step,
-            .update_total_num_iters_threshold =
-                update_total_num_iters_threshold,
         };
 
         pthread_t *const workers = SMALLOC(workers, num_workers);
