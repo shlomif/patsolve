@@ -40,6 +40,7 @@ static const char Usage[] =
 static const pthread_mutex_t initial_mutex_constant = PTHREAD_MUTEX_INITIALIZER;
 
 static long long next_board_num;
+long long end_board_idx, past_end_board;
 static pthread_mutex_t next_board_num_lock;
 
 long long total_num_iters = 0;
@@ -52,7 +53,6 @@ typedef struct
 {
     int argc;
     char **argv;
-    long long end_board_idx;
 } context_t;
 
 static void *worker_thread(void *const void_context)
@@ -72,8 +72,6 @@ static void *worker_thread(void *const void_context)
         (const char ***)(&argv), &is_quiet);
 
     long long board_num;
-    const long long end_board_idx = context->end_board_idx;
-    const long long past_end_board = end_board_idx + 1;
     fcs_int_limit_t total_num_iters_temp = 0;
     do
     {
@@ -132,14 +130,14 @@ int main(int argc, char **argv)
     total_num_iters_lock = initial_mutex_constant;
     const long long start_game_idx =
         get_idx_from_env("PATSOLVE_START"); /* for range solving */
-    const long long end_game_idx = get_idx_from_env("PATSOLVE_END");
+    past_end_board = (end_board_idx = get_idx_from_env("PATSOLVE_END")) + 1;
 
     int num_workers = 4;
     next_board_num = start_game_idx;
 
     fc_solve_print_started_at();
     context_t context = {
-        .argc = argc, .argv = argv, .end_board_idx = end_game_idx,
+        .argc = argc, .argv = argv,
     };
 
     pthread_t workers[num_workers];
