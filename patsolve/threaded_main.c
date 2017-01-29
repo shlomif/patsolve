@@ -51,7 +51,6 @@ typedef struct
 {
     int argc;
     char **argv;
-    int arg;
     long long stop_at;
     long long end_board_idx;
 } context_t;
