@@ -46,12 +46,12 @@ long long total_num_iters = 0;
 static pthread_mutex_t total_num_iters_lock;
 static fcs_int_limit_t update_total_num_iters_threshold = 1000000;
 const long long board_num_step = 32;
+const long long stop_at = 100;
 
 typedef struct
 {
     int argc;
     char **argv;
-    long long stop_at;
     long long end_board_idx;
 } context_t;
 
@@ -75,7 +75,6 @@ static void *worker_thread(void *const void_context)
     const long long end_board_idx = context->end_board_idx;
     const long long past_end_board = end_board_idx + 1;
     fcs_int_limit_t total_num_iters_temp = 0;
-    const long long stop_at = context->stop_at;
     do
     {
         pthread_mutex_lock(&next_board_num_lock);
@@ -136,16 +135,11 @@ int main(int argc, char **argv)
     const long long end_game_idx = get_idx_from_env("PATSOLVE_END");
 
     int num_workers = 4;
-    long long stop_at = 100;
-
     next_board_num = start_game_idx;
 
     fc_solve_print_started_at();
     context_t context = {
-        .argc = argc,
-        .argv = argv,
-        .stop_at = stop_at,
-        .end_board_idx = end_game_idx,
+        .argc = argc, .argv = argv, .end_board_idx = end_game_idx,
     };
 
     pthread_t workers[num_workers];
