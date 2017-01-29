@@ -48,10 +48,10 @@ static pthread_mutex_t total_num_iters_lock;
 static fcs_int_limit_t update_total_num_iters_threshold = 1000000;
 const long long board_num_step = 32;
 const long long stop_at = 100;
+int context_argc;
 
 typedef struct
 {
-    int argc;
     char **argv;
 } context_t;
 
@@ -63,7 +63,7 @@ static void *worker_thread(void *const void_context)
     fcs_pats_thread_t *const soft_thread =
         &soft_thread_struct__dont_use_directly;
 
-    int argc = context->argc;
+    int argc = context_argc;
     char **argv = context->argv;
 
     fc_solve_instance_t instance_struct;
@@ -136,8 +136,9 @@ int main(int argc, char **argv)
     next_board_num = start_game_idx;
 
     fc_solve_print_started_at();
+    context_argc = argc;
     context_t context = {
-        .argc = argc, .argv = argv,
+        .argv = argv,
     };
 
     pthread_t workers[num_workers];
