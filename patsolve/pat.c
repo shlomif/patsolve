@@ -495,26 +495,28 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
 
     /* Look for the pile in this bucket. */
 
-    fcs_pats__bucket_list_t *l, *last = NULL;
+    fcs_pats__bucket_list_t *list_iter = soft_thread->buckets_list[bucket],
+                            *last_item = NULL;
     const fcs_cards_column_t w_col =
         fcs_state_get_col(soft_thread->current_pos.s, w);
     const int w_col_len = fcs_col_len(w_col);
     const char *w_col_data = (const char *)w_col + 1;
-    for (l = soft_thread->buckets_list[bucket]; l; l = l->next)
+    for (; list_iter; list_iter = list_iter->next)
     {
-        if (l->hash == soft_thread->current_pos.stack_hashes[w])
+        if (list_iter->hash == soft_thread->current_pos.stack_hashes[w])
         {
-            if (memcmp((const char *)l->pile, w_col_data, w_col_len) == 0)
+            if (memcmp((const char *)list_iter->pile, w_col_data, w_col_len) ==
+                0)
             {
                 break;
             }
         }
-        last = l;
+        last_item = list_iter;
     }
 
     /* If we didn't find it, make a new one and add it to the list. */
 
-    if (!l)
+    if (!list_iter)
     {
         if (soft_thread->next_pile_idx == FC_SOLVE__MAX_NUM_PILES)
         {
@@ -523,38 +525,40 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
 #endif
             return -1;
         }
-        l = fc_solve_pats__new(soft_thread, fcs_pats__bucket_list_t);
-        if (l == NULL)
+        list_iter = fc_solve_pats__new(soft_thread, fcs_pats__bucket_list_t);
+        if (list_iter == NULL)
         {
             return -1;
         }
-        l->pile = fc_solve_pats__new_array(soft_thread, u_char, w_col_len + 1);
-        if (l->pile == NULL)
+        list_iter->pile =
+            fc_solve_pats__new_array(soft_thread, u_char, w_col_len + 1);
+        if (list_iter->pile == NULL)
         {
-            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
+            fc_solve_pats__free_ptr(
+                soft_thread, list_iter, fcs_pats__bucket_list_t);
             return -1;
         }
 
         /* Store the new pile along with its hash.  Maintain
         a reverse mapping so we can unpack the piles swiftly. */
 
-        memcpy((char *)l->pile, w_col_data, w_col_len + 1);
-        l->hash = soft_thread->current_pos.stack_hashes[w];
-        l->next = NULL;
-        if (last == NULL)
+        memcpy((char *)list_iter->pile, w_col_data, w_col_len + 1);
+        list_iter->hash = soft_thread->current_pos.stack_hashes[w];
+        list_iter->next = NULL;
+        if (last_item)
         {
-            soft_thread->buckets_list[bucket] = l;
+            last_item->next = list_iter;
         }
         else
         {
-            last->next = l;
+            soft_thread->buckets_list[bucket] = list_iter;
         }
-        soft_thread->bucket_from_pile_lookup[l->pilenum =
+        soft_thread->bucket_from_pile_lookup[list_iter->pilenum =
                                                  soft_thread->next_pile_idx++] =
-            l;
+            list_iter;
     }
 
-    return l->pilenum;
+    return list_iter->pilenum;
 }
 
 /* Win.  Print out the move stack. */

@@ -524,8 +524,7 @@ static inline int solve(
     }
     *is_finished = TRUE;
     wrap_up_solve(soft_thread, mydir);
-    typeof(UP_LEVEL.q) ret = UP_LEVEL.q;
-    return ret;
+    return UP_LEVEL.q;
 #undef LEVEL
 #undef UP_LEVEL
 #undef DEPTH
