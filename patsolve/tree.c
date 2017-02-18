@@ -31,7 +31,7 @@ static inline fcs_pats__treelist_t *cluster_tree(
 
     /* Find the tree in this bucket with that cluster number. */
 
-    fcs_pats__treelist_t *last = NULL;
+    fcs_pats__treelist_t *last_item = NULL;
     fcs_pats__treelist_t *tl;
     for (tl = soft_thread->tree_list[bucket]; tl; tl = tl->next)
     {
@@ -39,7 +39,7 @@ static inline fcs_pats__treelist_t *cluster_tree(
         {
             break;
         }
-        last = tl;
+        last_item = tl;
     }
 
     /* If we didn't find it, make a new one and add it to the list. */
@@ -54,13 +54,13 @@ static inline fcs_pats__treelist_t *cluster_tree(
         tl->tree = NULL;
         tl->cluster = cluster;
         tl->next = NULL;
-        if (last == NULL)
+        if (last_item)
         {
-            soft_thread->tree_list[bucket] = tl;
+            last_item->next = tl;
         }
         else
         {
-            last->next = tl;
+            soft_thread->tree_list[bucket] = tl;
         }
     }
 

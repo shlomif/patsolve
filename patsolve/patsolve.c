@@ -158,13 +158,13 @@ static inline fcs_pats_position_t *dequeue_position(
     but we still get lots of low priority action (instead of
     ignoring it completely). */
 
-    fcs_bool_t last = FALSE;
+    fcs_bool_t is_last = FALSE;
     do
     {
         soft_thread->dequeue__qpos--;
         if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos)
         {
-            if (last)
+            if (is_last)
             {
                 return NULL;
             }
@@ -176,7 +176,7 @@ static inline fcs_pats_position_t *dequeue_position(
             }
             if (soft_thread->dequeue__minpos == 0)
             {
-                last = TRUE;
+                is_last = TRUE;
             }
         }
     } while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL);
