@@ -176,8 +176,8 @@ typedef struct fc_solve_instance_struct fc_solve_instance_t;
 typedef struct
 {
     fcs_pats_position_t *parent;
-    int nmoves;
-    fcs_pats__move_t *mp0, *mp_end, *mp;
+    int num_moves;
+    fcs_pats__move_t *mp0, *moves_end, *mp;
     fcs_bool_t q;
     fcs_pats_position_t *pos;
 } fcs_pats__solve_depth_t;

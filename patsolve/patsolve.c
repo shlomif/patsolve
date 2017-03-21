@@ -421,10 +421,10 @@ static inline int solve(
         }
 
         /* Generate an array of all the moves we can make. */
-        int nmoves;
+        int num_moves;
         if (!LEVEL.mp0)
         {
-            LEVEL.mp0 = fc_solve_pats__get_moves(soft_thread, parent, &nmoves);
+            LEVEL.mp0 = fc_solve_pats__get_moves(soft_thread, parent, &num_moves);
             if (!LEVEL.mp0)
             {
                 LEVEL.q = FALSE;
@@ -432,13 +432,13 @@ static inline int solve(
                 mydir = FC_SOLVE_PATS__DOWN;
                 continue;
             }
-            LEVEL.mp_end = LEVEL.mp0 + (parent->num_childs = nmoves);
+            LEVEL.moves_end = LEVEL.mp0 + (parent->num_childs = num_moves);
             LEVEL.mp = LEVEL.mp0;
             LEVEL.q = FALSE;
         }
         else
         {
-            nmoves = LEVEL.mp_end - LEVEL.mp0;
+            num_moves = LEVEL.moves_end - LEVEL.mp0;
         }
 
         /* Make each move and either solve or queue the result. */
@@ -458,10 +458,10 @@ static inline int solve(
             LEVEL.mp++;
         }
 
-        if (LEVEL.mp == LEVEL.mp_end)
+        if (LEVEL.mp == LEVEL.moves_end)
         {
             fc_solve_pats__free_array(
-                soft_thread, LEVEL.mp0, fcs_pats__move_t, nmoves);
+                soft_thread, LEVEL.mp0, fcs_pats__move_t, num_moves);
             LEVEL.mp0 = NULL;
             DEPTH--;
             mydir = FC_SOLVE_PATS__DOWN;
@@ -493,7 +493,7 @@ static inline int solve(
                    later. */
 
                 if (LEVEL.pos->cluster != parent->cluster ||
-                    nmoves < soft_thread->num_moves_to_cut_off)
+                    num_moves < soft_thread->num_moves_to_cut_off)
                 {
                     if (DEPTH + 1 >= soft_thread->max_solve_depth)
                     {

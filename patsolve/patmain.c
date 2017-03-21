@@ -42,11 +42,11 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
     /* Go back up the chain of parents and store the moves
     in reverse order. */
 
-    const_AUTO(nmoves, soft_thread->num_moves_to_win);
+    const_AUTO(num_moves, soft_thread->num_moves_to_win);
     const_SLOT(moves_to_win, soft_thread);
-    const_AUTO(mp_end, moves_to_win + nmoves);
+    const_AUTO(moves_end, moves_to_win + num_moves);
 
-    for (const typeof(*moves_to_win) *mp = moves_to_win; mp < mp_end; mp++)
+    for (const typeof(*moves_to_win) *mp = moves_to_win; mp < moves_end; mp++)
     {
         fc_solve_pats__print_card(mp->card, out);
         fputc(' ', out);
@@ -80,7 +80,7 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
     if (!is_quiet)
     {
         printf("A winner.\n");
-        printf("%d moves.\n", nmoves);
+        printf("%d moves.\n", num_moves);
 #ifdef DEBUG
         printf(
             "%d positions generated.\n", soft_thread->num_states_in_collection);

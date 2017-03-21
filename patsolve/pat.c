@@ -463,8 +463,8 @@ static inline void mark_irreversible(
         soft_thread->pats_solve_params.x[8];
 
     fcs_pats__move_t *mp = soft_thread->possible_moves;
-    const fcs_pats__move_t *const mp_end = mp + n;
-    for (; mp < mp_end; mp++)
+    const fcs_pats__move_t *const moves_end = mp + n;
+    for (; mp < moves_end; mp++)
     {
         if (is_irreversible_move(
 #ifndef FCS_FREECELL_ONLY
@@ -978,8 +978,8 @@ end_of_stacks:;
     covers a card we need, decrease its priority.  These priority
     increments and decrements were determined empirically. */
 
-    const typeof(mp0) mp_end = mp0 + n;
-    for (fcs_pats__move_t *mp = mp0; mp < mp_end; mp++)
+    const typeof(mp0) moves_end = mp0 + n;
+    for (fcs_pats__move_t *mp = mp0; mp < moves_end; mp++)
     {
         if (mp->card != fc_solve_empty_card)
         {
@@ -1036,7 +1036,7 @@ static inline fcs_bool_t is_win(fcs_pats_thread_t *const soft_thread)
 /* Generate an array of the moves we can make from this position. */
 
 fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
-    fcs_pats_position_t *const pos, int *const nmoves)
+    fcs_pats_position_t *const pos, int *const num_moves)
 {
     int num_cards_out = 0;
 
@@ -1053,8 +1053,8 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
         /* Throw out some obviously bad (non-auto)moves. */
         typeof(soft_thread->possible_moves[0]) *mp =
             soft_thread->possible_moves;
-        const typeof(mp) mp_end = mp + total_num_moves;
-        for (; mp < mp_end; mp++)
+        const typeof(mp) moves_end = mp + total_num_moves;
+        for (; mp < moves_end; mp++)
         {
 
 #ifndef FCS_FREECELL_ONLY
@@ -1126,7 +1126,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
         {
             return NULL;
         }
-        *nmoves = n;
+        *num_moves = n;
         if (a || num_cards_out == 0)
         {
             for (int i = 0; i < total_num_moves; i++)
