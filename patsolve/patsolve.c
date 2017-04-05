@@ -394,7 +394,7 @@ static inline int solve(
 #define DEPTH (soft_thread->curr_solve_depth)
 #define LEVEL (soft_thread->solve_stack[DEPTH])
 #define UP_LEVEL (soft_thread->solve_stack[DEPTH + 1])
-    typeof(soft_thread->curr_solve_dir) mydir = soft_thread->curr_solve_dir;
+    var_AUTO(mydir, soft_thread->curr_solve_dir);
 
     *is_finished = FALSE;
     while (DEPTH >= 0)
@@ -424,7 +424,8 @@ static inline int solve(
         int num_moves;
         if (!LEVEL.mp0)
         {
-            LEVEL.mp0 = fc_solve_pats__get_moves(soft_thread, parent, &num_moves);
+            LEVEL.mp0 =
+                fc_solve_pats__get_moves(soft_thread, parent, &num_moves);
             if (!LEVEL.mp0)
             {
                 LEVEL.q = FALSE;
