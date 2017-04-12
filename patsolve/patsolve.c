@@ -161,16 +161,14 @@ static inline fcs_pats_position_t *dequeue_position(
     fcs_bool_t is_last = FALSE;
     do
     {
-        soft_thread->dequeue__qpos--;
-        if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos)
+        if ((--soft_thread->dequeue__qpos) < soft_thread->dequeue__minpos)
         {
             if (is_last)
             {
                 return NULL;
             }
             soft_thread->dequeue__qpos = soft_thread->max_queue_idx;
-            soft_thread->dequeue__minpos--;
-            if (soft_thread->dequeue__minpos < 0)
+            if ((--soft_thread->dequeue__minpos) < 0)
             {
                 soft_thread->dequeue__minpos = soft_thread->max_queue_idx;
             }
@@ -185,7 +183,7 @@ static inline fcs_pats_position_t *dequeue_position(
         soft_thread->queue_head[soft_thread->dequeue__qpos];
     soft_thread->queue_head[soft_thread->dequeue__qpos] = pos->queue;
 #ifdef DEBUG
-    soft_thread->num_positions_in_queue[soft_thread->dequeue__qpos]--;
+    --soft_thread->num_positions_in_queue[soft_thread->dequeue__qpos];
 #endif
 
     /* Decrease soft_thread->max_queue_idx if that queue emptied. */
@@ -194,9 +192,8 @@ static inline fcs_pats_position_t *dequeue_position(
            soft_thread->dequeue__qpos == soft_thread->max_queue_idx &&
            soft_thread->max_queue_idx > 0)
     {
-        soft_thread->max_queue_idx--;
-        soft_thread->dequeue__qpos--;
-        if (soft_thread->dequeue__qpos < soft_thread->dequeue__minpos)
+        --soft_thread->max_queue_idx;
+        if ((--soft_thread->dequeue__qpos) < soft_thread->dequeue__minpos)
         {
             soft_thread->dequeue__minpos = soft_thread->dequeue__qpos;
         }
