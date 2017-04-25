@@ -122,13 +122,10 @@ int main(int argc, char **argv)
 {
     next_board_num_lock = initial_mutex_constant;
     total_num_iters_lock = initial_mutex_constant;
-    const long long start_game_idx =
-        get_idx_from_env("PATSOLVE_START"); /* for range solving */
+    next_board_num = get_idx_from_env("PATSOLVE_START");
     past_end_board = (end_board_idx = get_idx_from_env("PATSOLVE_END")) + 1;
 
     int num_workers = 4;
-    next_board_num = start_game_idx;
-
     fc_solve_print_started_at();
     context_argc = argc;
     context_argv = argv;
