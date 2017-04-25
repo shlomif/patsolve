@@ -10,9 +10,6 @@
 
 /* Position storage.  A forest of binary trees labeled by cluster. */
 
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "instance.h"
 #include "pat.h"
 #include "tree.h"

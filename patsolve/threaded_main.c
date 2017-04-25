@@ -10,7 +10,6 @@
 /* Main().  Parse args, read the position, and call the solver. */
 
 #include <stdarg.h>
-#include <stdlib.h>
 #include <pthread.h>
 
 #include "count.h"

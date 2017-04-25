@@ -14,9 +14,6 @@ priority to positions with more cards out, so the solution found is not
 guaranteed to be the shortest, but it'll be better than with a depth-first
 search. */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <math.h>
 #include "instance.h"
 #include "fnv.h"

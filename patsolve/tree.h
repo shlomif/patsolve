@@ -12,8 +12,6 @@
  */
 #pragma once
 
-#include <string.h>
-#include <sys/types.h>
 #include "config.h"
 
 /* A splay tree. */
