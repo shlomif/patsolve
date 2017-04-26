@@ -10,8 +10,6 @@
 
 /* Common routines & arrays. */
 
-#include <sys/types.h>
-
 #include "alloc_wrap.h"
 #include "count.h"
 

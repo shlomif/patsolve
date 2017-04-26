@@ -11,8 +11,6 @@
 http://www.isthe.com/chongo/tech/comp/fnv/index.html */
 
 #pragma once
-
-#include <sys/types.h>
 #include "config.h"
 
 #include "portable_int32.h"

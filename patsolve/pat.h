@@ -11,8 +11,6 @@
 /* Solve Freecell and Seahaven type patience (solitaire) games. */
 
 #pragma once
-#include <sys/types.h>
-
 #include "config.h"
 
 #include "portable_int32.h"
