@@ -7,19 +7,14 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-/* Main().  Parse args, read the position, and call the solver. */
-
 #include <stdarg.h>
 #include <pthread.h>
 
 #include "count.h"
 #include "portable_time.h"
-#include "alloc_wrap.h"
 
 #include "pat.h"
-#include "tree.h"
 #include "range_solvers_gen_ms_boards.h"
-#include "state.h"
 
 #include "print_layout.h"
 #include "read_layout.h"
