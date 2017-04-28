@@ -12,7 +12,6 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
 #include <string.h>
 #include <stdint.h>
 #include "portable_int32.h"
