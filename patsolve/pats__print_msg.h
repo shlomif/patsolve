@@ -14,15 +14,7 @@
 #include <stdio.h>
 
 #include "config.h"
-
-static void print_msg(const char *msg, ...)
-{
-    va_list ap;
-
-    va_start(ap, msg);
-    vfprintf(stderr, msg, ap);
-    va_end(ap);
-}
+#include "msg.h"
 
 static const char *program_name = NULL;
 
@@ -45,4 +37,4 @@ static void fatalerr(const char *msg, ...)
 
 static const char Usage[];
 
-#define USAGE() print_msg(Usage, program_name)
+#define USAGE() fc_solve_msg(Usage, program_name)

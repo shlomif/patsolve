@@ -12,11 +12,6 @@
 
 #include "config.h"
 #include "pat.h"
-
-#ifdef DEBUG
-#include "msg.h"
-#endif
-
 #include "pats__print_msg.h"
 
 static inline void fc_solve_pats__before_play(fcs_pats_thread_t *soft_thread)
@@ -352,7 +347,7 @@ static inline void fc_solve_pats__configure_soft_thread(
             break;
 
             default:
-                print_msg("%s: unknown flag -%c\n", program_name, c);
+                fc_solve_msg("%s: unknown flag -%c\n", program_name, c);
                 USAGE();
                 exit(1);
             }
