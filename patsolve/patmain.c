@@ -47,16 +47,15 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
     {
         fc_solve_pats__print_card(mp->card, out);
         fputc(' ', out);
-        if (mp->totype == FCS_PATS__TYPE_FREECELL)
+        switch (mp->totype)
         {
+        case FCS_PATS__TYPE_FREECELL:
             fprintf(out, "to temp\n");
-        }
-        else if (mp->totype == FCS_PATS__TYPE_FOUNDATION)
-        {
+            break;
+        case FCS_PATS__TYPE_FOUNDATION:
             fprintf(out, "out\n");
-        }
-        else
-        {
+            break;
+        default:
             fprintf(out, "to ");
             if (mp->destcard == fc_solve_empty_card)
             {
@@ -67,6 +66,7 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
                 fc_solve_pats__print_card(mp->destcard, out);
             }
             fputc('\n', out);
+            break;
         }
     }
 

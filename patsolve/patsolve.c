@@ -201,7 +201,7 @@ static inline fcs_pats_position_t *dequeue_position(
     unpack_position(soft_thread, pos);
 
 #ifdef DEBUG
-    soft_thread->num_positions_in_clusters[pos->cluster]--;
+    --soft_thread->num_positions_in_clusters[pos->cluster];
 #endif
     return pos;
 }
@@ -322,20 +322,18 @@ static inline void freecell_solver_pats__make_move(
 
     /* Add to pile. */
 
-    if (m->totype == FCS_PATS__TYPE_FREECELL)
+    switch (m->totype)
     {
+    case FCS_PATS__TYPE_FREECELL:
         fcs_freecell_card(soft_thread->current_pos.s, to) = card;
-    }
-    else if (m->totype == FCS_PATS__TYPE_WASTE)
-    {
-        fcs_cards_column_t to_col =
-            fcs_state_get_col(soft_thread->current_pos.s, to);
-        fcs_col_push_card(to_col, card);
+        break;
+    case FCS_PATS__TYPE_WASTE:
+        fcs_state_push(&soft_thread->current_pos.s, to, card);
         fc_solve_pats__hashpile(soft_thread, to);
-    }
-    else
-    {
+        break;
+    default:
         fcs_increment_foundation(soft_thread->current_pos.s, to);
+        break;
     }
 }
 
@@ -348,25 +346,22 @@ static inline void fc_solve_pats__undo_move(
     /* Remove from 'to' pile. */
 
     fcs_card_t card;
-    if (m->totype == FCS_PATS__TYPE_FREECELL)
+    switch (m->totype)
     {
+    case FCS_PATS__TYPE_FREECELL:
         card = fcs_freecell_card(soft_thread->current_pos.s, to);
         fcs_empty_freecell(soft_thread->current_pos.s, to);
-    }
-    else if (m->totype == FCS_PATS__TYPE_WASTE)
-    {
-        fcs_cards_column_t to_col =
-            fcs_state_get_col(soft_thread->current_pos.s, to);
-        fcs_col_pop_card(to_col, card);
+        break;
+    case FCS_PATS__TYPE_WASTE:
+        card = fcs_state_pop_col_card(&soft_thread->current_pos.s, to);
         fc_solve_pats__hashpile(soft_thread, to);
-    }
-    else
-    {
+        break;
+    default:
         card = fcs_make_card(
             fcs_foundation_value(soft_thread->current_pos.s, to), to);
-        fcs_foundation_value(soft_thread->current_pos.s, to)--;
+        --fcs_foundation_value(soft_thread->current_pos.s, to);
+        break;
     }
-
     /* Add to 'from' pile. */
 
     if (m->fromtype == FCS_PATS__TYPE_FREECELL)
@@ -375,9 +370,7 @@ static inline void fc_solve_pats__undo_move(
     }
     else
     {
-        fcs_cards_column_t from_col =
-            fcs_state_get_col(soft_thread->current_pos.s, from);
-        fcs_col_push_card(from_col, card);
+        fcs_state_push(&soft_thread->current_pos.s, from, card);
         fc_solve_pats__hashpile(soft_thread, from);
     }
 }
@@ -637,8 +630,8 @@ void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
         }
     }
 #ifdef DEBUG
-    soft_thread->num_positions_in_queue[pri]++;
-    soft_thread->num_positions_in_clusters[pos->cluster]++;
+    ++soft_thread->num_positions_in_queue[pri];
+    ++soft_thread->num_positions_in_clusters[pos->cluster];
 #endif
 }
 
