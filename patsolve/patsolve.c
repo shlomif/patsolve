@@ -409,24 +409,25 @@ static inline int solve(
 
         /* Generate an array of all the moves we can make. */
         int num_moves;
-        if (!LEVEL.mp0)
+        if (!LEVEL.moves_start)
         {
-            LEVEL.mp0 =
+            LEVEL.moves_start =
                 fc_solve_pats__get_moves(soft_thread, parent, &num_moves);
-            if (!LEVEL.mp0)
+            if (!LEVEL.moves_start)
             {
                 LEVEL.q = FALSE;
                 DEPTH--;
                 mydir = FC_SOLVE_PATS__DOWN;
                 continue;
             }
-            LEVEL.moves_end = LEVEL.mp0 + (parent->num_childs = num_moves);
-            LEVEL.mp = LEVEL.mp0;
+            LEVEL.moves_end =
+                LEVEL.moves_start + (parent->num_childs = num_moves);
+            LEVEL.mp = LEVEL.moves_start;
             LEVEL.q = FALSE;
         }
         else
         {
-            num_moves = LEVEL.moves_end - LEVEL.mp0;
+            num_moves = LEVEL.moves_end - LEVEL.moves_start;
         }
 
         /* Make each move and either solve or queue the result. */
@@ -449,8 +450,8 @@ static inline int solve(
         if (LEVEL.mp == LEVEL.moves_end)
         {
             fc_solve_pats__free_array(
-                soft_thread, LEVEL.mp0, fcs_pats__move_t, num_moves);
-            LEVEL.mp0 = NULL;
+                soft_thread, LEVEL.moves_start, fcs_pats__move_t, num_moves);
+            LEVEL.moves_start = NULL;
             DEPTH--;
             mydir = FC_SOLVE_PATS__DOWN;
             continue;
@@ -492,7 +493,7 @@ static inline int solve(
                                 soft_thread->max_solve_depth);
                     }
                     UP_LEVEL.parent = LEVEL.pos;
-                    UP_LEVEL.mp0 = NULL;
+                    UP_LEVEL.moves_start = NULL;
                     DEPTH++;
                     mydir = FC_SOLVE_PATS__UP;
                 }
@@ -533,7 +534,7 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t *const soft_thread)
             }
             soft_thread->solve_stack[0].parent = soft_thread->curr_solve_pos =
                 pos;
-            soft_thread->solve_stack[0].mp0 = NULL;
+            soft_thread->solve_stack[0].moves_start = NULL;
             soft_thread->curr_solve_depth = 0;
             soft_thread->curr_solve_dir = FC_SOLVE_PATS__UP;
         }

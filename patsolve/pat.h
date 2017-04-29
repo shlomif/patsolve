@@ -174,7 +174,7 @@ typedef struct
 {
     fcs_pats_position_t *parent;
     int num_moves;
-    fcs_pats__move_t *mp0, *moves_end, *mp;
+    fcs_pats__move_t *moves_start, *moves_end, *mp;
     fcs_bool_t q;
     fcs_pats_position_t *pos;
 } fcs_pats__solve_depth_t;
