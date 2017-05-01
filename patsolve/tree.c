@@ -21,13 +21,10 @@ the cluster number, then locate its tree, creating it if necessary. */
 static inline fcs_pats__treelist_t *cluster_tree(
     fcs_pats_thread_t *const soft_thread, const int cluster)
 {
-
     /* Pick a bucket, any bucket. */
-
     const int bucket = cluster % FCS_PATS__TREE_LIST_NUM_BUCKETS;
 
     /* Find the tree in this bucket with that cluster number. */
-
     fcs_pats__treelist_t *last_item = NULL;
     fcs_pats__treelist_t *tl;
     for (tl = soft_thread->tree_list[bucket]; tl; tl = tl->next)
@@ -41,10 +38,9 @@ static inline fcs_pats__treelist_t *cluster_tree(
 
     /* If we didn't find it, make a new one and add it to the list. */
 
-    if (tl == NULL)
+    if (!tl)
     {
-        tl = fc_solve_pats__new(soft_thread, fcs_pats__treelist_t);
-        if (tl == NULL)
+        if (!(tl = fc_solve_pats__new(soft_thread, fcs_pats__treelist_t)))
         {
             return NULL;
         }
