@@ -571,10 +571,10 @@ static inline void win(
         soft_thread->moves_to_win = NULL;
     }
 
-    int num_moves = 0;
+    size_t num_moves = 0;
     for (fcs_pats_position_t *p = pos; p->parent; p = p->parent)
     {
-        num_moves++;
+        ++num_moves;
     }
     typeof(soft_thread->moves_to_win) moves_to_win =
         SMALLOC(moves_to_win, num_moves);

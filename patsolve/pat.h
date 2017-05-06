@@ -260,7 +260,7 @@ struct fc_solve__patsolve_thread_struct
 
     ssize_t dequeue__minpos, dequeue__qpos;
     fcs_pats__move_t *moves_to_win;
-    int num_moves_to_win;
+    size_t num_moves_to_win;
 
 #define FCS_PATS__SOLVE_LEVEL_GROW_BY 16
     int curr_solve_depth, max_solve_depth;

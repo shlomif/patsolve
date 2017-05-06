@@ -402,7 +402,7 @@ static inline int solve(
             (parent->node->depth < parent->depth))
         {
             LEVEL.q = FALSE;
-            DEPTH--;
+            --DEPTH;
             mydir = FC_SOLVE_PATS__DOWN;
             continue;
         }
@@ -416,7 +416,7 @@ static inline int solve(
             if (!LEVEL.moves_start)
             {
                 LEVEL.q = FALSE;
-                DEPTH--;
+                --DEPTH;
                 mydir = FC_SOLVE_PATS__DOWN;
                 continue;
             }
@@ -452,7 +452,7 @@ static inline int solve(
             fc_solve_pats__free_array(
                 soft_thread, LEVEL.moves_start, fcs_pats__move_t, num_moves);
             LEVEL.moves_start = NULL;
-            DEPTH--;
+            --DEPTH;
             mydir = FC_SOLVE_PATS__DOWN;
             continue;
         }
@@ -494,7 +494,7 @@ static inline int solve(
                     }
                     UP_LEVEL.parent = LEVEL.pos;
                     UP_LEVEL.moves_start = NULL;
-                    DEPTH++;
+                    ++DEPTH;
                     mydir = FC_SOLVE_PATS__UP;
                 }
                 else

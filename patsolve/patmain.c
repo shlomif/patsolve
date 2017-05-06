@@ -77,7 +77,7 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
     if (!is_quiet)
     {
         printf("A winner.\n");
-        printf("%d moves.\n", num_moves);
+        printf("%ld moves.\n", (long)num_moves);
 #ifdef DEBUG
         printf(
             "%d positions generated.\n", soft_thread->num_states_in_collection);
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
         {
         case FCS_PATS__WIN:
         {
-            FILE *out = fopen("win", "w");
+            FILE *const out = fopen("win", "w");
             if (!out)
             {
                 fprintf(stderr, "%s\n", "Cannot open 'win' for writing.");
