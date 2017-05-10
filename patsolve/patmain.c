@@ -43,11 +43,12 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
     const_SLOT(moves_to_win, soft_thread);
     const_AUTO(moves_end, moves_to_win + num_moves);
 
-    for (const typeof(*moves_to_win) *mp = moves_to_win; mp < moves_end; mp++)
+    for (const typeof(*moves_to_win) *move_ptr = moves_to_win;
+         move_ptr < moves_end; move_ptr++)
     {
-        fc_solve_pats__print_card(mp->card, out);
+        fc_solve_pats__print_card(move_ptr->card, out);
         fputc(' ', out);
-        switch (mp->totype)
+        switch (move_ptr->totype)
         {
         case FCS_PATS__TYPE_FREECELL:
             fprintf(out, "to temp\n");
@@ -57,13 +58,13 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
             break;
         default:
             fprintf(out, "to ");
-            if (mp->destcard == fc_solve_empty_card)
+            if (move_ptr->destcard == fc_solve_empty_card)
             {
                 fprintf(out, "empty pile");
             }
             else
             {
-                fc_solve_pats__print_card(mp->destcard, out);
+                fc_solve_pats__print_card(move_ptr->destcard, out);
             }
             fputc('\n', out);
             break;

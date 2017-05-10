@@ -422,7 +422,7 @@ static inline int solve(
             }
             LEVEL.moves_end =
                 LEVEL.moves_start + (parent->num_childs = num_moves);
-            LEVEL.mp = LEVEL.moves_start;
+            LEVEL.move_ptr = LEVEL.moves_start;
             LEVEL.q = FALSE;
         }
         else
@@ -442,12 +442,12 @@ static inline int solve(
             {
                 free_position_non_recursive(soft_thread, LEVEL.pos);
             }
-            fc_solve_pats__undo_move(soft_thread, LEVEL.mp);
+            fc_solve_pats__undo_move(soft_thread, LEVEL.move_ptr);
             mydir = FC_SOLVE_PATS__UP;
-            LEVEL.mp++;
+            LEVEL.move_ptr++;
         }
 
-        if (LEVEL.mp == LEVEL.moves_end)
+        if (LEVEL.move_ptr == LEVEL.moves_end)
         {
             fc_solve_pats__free_array(
                 soft_thread, LEVEL.moves_start, fcs_pats__move_t, num_moves);
@@ -458,19 +458,19 @@ static inline int solve(
         }
         else
         {
-            freecell_solver_pats__make_move(soft_thread, LEVEL.mp);
+            freecell_solver_pats__make_move(soft_thread, LEVEL.move_ptr);
 
             /* Calculate indices for the new piles. */
             fc_solve_pats__sort_piles(soft_thread);
 
             /* See if this is a new position. */
-            LEVEL.pos =
-                fc_solve_pats__new_position(soft_thread, parent, LEVEL.mp);
+            LEVEL.pos = fc_solve_pats__new_position(
+                soft_thread, parent, LEVEL.move_ptr);
             if (!LEVEL.pos)
             {
                 parent->num_childs--;
-                fc_solve_pats__undo_move(soft_thread, LEVEL.mp);
-                LEVEL.mp++;
+                fc_solve_pats__undo_move(soft_thread, LEVEL.move_ptr);
+                LEVEL.move_ptr++;
                 mydir = FC_SOLVE_PATS__UP;
             }
             else
@@ -500,10 +500,10 @@ static inline int solve(
                 else
                 {
                     fc_solve_pats__queue_position(
-                        soft_thread, LEVEL.pos, (LEVEL.mp)->pri);
-                    fc_solve_pats__undo_move(soft_thread, LEVEL.mp);
+                        soft_thread, LEVEL.pos, (LEVEL.move_ptr)->pri);
+                    fc_solve_pats__undo_move(soft_thread, LEVEL.move_ptr);
                     LEVEL.q = TRUE;
-                    LEVEL.mp++;
+                    LEVEL.move_ptr++;
                     mydir = FC_SOLVE_PATS__UP;
                 }
             }
