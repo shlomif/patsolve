@@ -209,17 +209,17 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                 const fcs_card_t card = fcs_col_get_card(i_col, i_col_len - 1);
                 if (fcs_pats_is_king_only(not_King_only, card))
                 {
-                    move_ptr->card = card;
-                    move_ptr->from = i;
-                    move_ptr->fromtype = FCS_PATS__TYPE_WASTE;
-                    move_ptr->to = empty_col_idx;
-                    move_ptr->totype = FCS_PATS__TYPE_WASTE;
-                    move_ptr->srccard = fcs_col_get_card(i_col, i_col_len - 2);
-
-                    move_ptr->destcard = fc_solve_empty_card;
-                    move_ptr->pri = soft_thread->pats_solve_params.x[3];
+                    *(move_ptr++) = (typeof(*move_ptr)){
+                        .card = card,
+                        .from = i,
+                        .fromtype = FCS_PATS__TYPE_WASTE,
+                        .to = empty_col_idx,
+                        .totype = FCS_PATS__TYPE_WASTE,
+                        .srccard = fcs_col_get_card(i_col, i_col_len - 2),
+                        .destcard = fc_solve_empty_card,
+                        .pri = soft_thread->pats_solve_params.x[3],
+                    };
                     num_moves++;
-                    move_ptr++;
                 }
             }
         }
