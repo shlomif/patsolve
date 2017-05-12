@@ -307,16 +307,15 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
 #endif
                                 )))
                     {
-                        move_ptr->card = card;
-                        move_ptr->from = t;
-                        move_ptr->fromtype = FCS_PATS__TYPE_FREECELL;
-                        move_ptr->to = w;
-                        move_ptr->totype = FCS_PATS__TYPE_WASTE;
-                        move_ptr->srccard = fc_solve_empty_card;
-                        move_ptr->destcard = w_card;
-                        move_ptr->pri = soft_thread->pats_solve_params.x[5];
+                        *(move_ptr++) = (typeof(*move_ptr)){.card = card,
+                            .from = t,
+                            .fromtype = FCS_PATS__TYPE_FREECELL,
+                            .to = w,
+                            .totype = FCS_PATS__TYPE_WASTE,
+                            .srccard = fc_solve_empty_card,
+                            .destcard = w_card,
+                            .pri = soft_thread->pats_solve_params.x[5]};
                         num_moves++;
-                        move_ptr++;
                     }
                 }
             }
@@ -335,16 +334,15 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
             if (card != fc_solve_empty_card &&
                 fcs_pats_is_king_only(not_King_only, card))
             {
-                move_ptr->card = card;
-                move_ptr->from = t;
-                move_ptr->fromtype = FCS_PATS__TYPE_FREECELL;
-                move_ptr->to = empty_col_idx;
-                move_ptr->totype = FCS_PATS__TYPE_WASTE;
-                move_ptr->srccard = fc_solve_empty_card;
-                move_ptr->destcard = fc_solve_empty_card;
-                move_ptr->pri = soft_thread->pats_solve_params.x[6];
+                *(move_ptr++) = (typeof(*move_ptr)){.card = card,
+                    .from = t,
+                    .fromtype = FCS_PATS__TYPE_FREECELL,
+                    .to = empty_col_idx,
+                    .totype = FCS_PATS__TYPE_WASTE,
+                    .srccard = fc_solve_empty_card,
+                    .destcard = fc_solve_empty_card,
+                    .pri = soft_thread->pats_solve_params.x[6]};
                 num_moves++;
-                move_ptr++;
             }
         }
     }
