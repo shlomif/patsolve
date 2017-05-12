@@ -366,7 +366,8 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
             {
                 fcs_cards_column_t w_col =
                     fcs_state_get_col(soft_thread->current_pos.s, w);
-                if (fcs_col_len(w_col) > 0)
+                const_AUTO(w_col_len, fcs_col_len(w_col));
+                if (w_col_len > 0)
                 {
                     const fcs_card_t card =
                         fcs_col_get_card(w_col, fcs_col_len(w_col) - 1);
@@ -376,10 +377,10 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                     move_ptr->to = t;
                     move_ptr->totype = FCS_PATS__TYPE_FREECELL;
                     move_ptr->srccard = fc_solve_empty_card;
-                    if (fcs_col_len(w_col) > 1)
+                    if (w_col_len > 1)
                     {
                         move_ptr->srccard =
-                            fcs_col_get_card(w_col, fcs_col_len(w_col) - 2);
+                            fcs_col_get_card(w_col, w_col_len - 2);
                     }
                     move_ptr->destcard = fc_solve_empty_card;
                     move_ptr->pri = soft_thread->pats_solve_params.x[7];
