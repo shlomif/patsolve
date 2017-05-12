@@ -152,19 +152,17 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
             if (fcs_card_rank(card) ==
                 fcs_foundation_value(soft_thread->current_pos.s, o) + 1)
             {
-                move_ptr->card = card;
-                move_ptr->from = t;
-                move_ptr->fromtype = FCS_PATS__TYPE_FREECELL;
-                move_ptr->to = o;
-                move_ptr->totype = FCS_PATS__TYPE_FOUNDATION;
-                move_ptr->srccard = fc_solve_empty_card;
-                move_ptr->destcard = fc_solve_empty_card;
-                move_ptr->pri = 0; /* unused */
+                *(move_ptr++) = (typeof(*move_ptr)){.card = card,
+                    .from = t,
+                    .fromtype = FCS_PATS__TYPE_FREECELL,
+                    .to = o,
+                    .totype = FCS_PATS__TYPE_FOUNDATION,
+                    .srccard = fc_solve_empty_card,
+                    .destcard = fc_solve_empty_card,
+                    .pri = 0}; /* unused */
                 num_moves++;
-                move_ptr++;
 
                 /* If it's an automove, just do it. */
-
                 if (good_automove(soft_thread, o, fcs_card_rank(card)))
                 {
                     *a = TRUE;
