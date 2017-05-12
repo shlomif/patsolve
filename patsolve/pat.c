@@ -369,9 +369,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                 const_AUTO(w_col_len, fcs_col_len(w_col));
                 if (w_col_len > 0)
                 {
-                    const fcs_card_t card =
-                        fcs_col_get_card(w_col, fcs_col_len(w_col) - 1);
-                    move_ptr->card = card;
+                    move_ptr->card = fcs_col_get_card(w_col, w_col_len - 1);
                     move_ptr->from = w;
                     move_ptr->fromtype = FCS_PATS__TYPE_WASTE;
                     move_ptr->to = t;
