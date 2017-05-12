@@ -93,10 +93,10 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
 #endif
     DECLARE_STACKS();
 
-    /* Check for moves from soft_thread->current_pos.stacks to
-     * soft_thread->current_pos.foundations. */
+/* Check for moves from soft_thread->current_pos.stacks to
+ * soft_thread->current_pos.foundations. */
 
-    int num_moves = 0;
+#define NUM_MOVES (move_ptr - soft_thread->possible_moves)
     typeof(soft_thread->possible_moves[0]) *move_ptr =
         soft_thread->possible_moves;
     for (int w = 0; w < LOCAL_STACKS_NUM; ++w)
@@ -121,14 +121,11 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                                        : fc_solve_empty_card),
                     .destcard = fc_solve_empty_card,
                     .pri = 0}; /* unused */
-                num_moves++;
-
                 /* If it's an automove, just do it. */
-
                 if (good_automove(soft_thread, o, fcs_card_rank(card)))
                 {
                     *a = TRUE;
-                    if (num_moves != 1)
+                    if (NUM_MOVES != 1)
                     {
                         soft_thread->possible_moves[0] = move_ptr[-1];
                     }
@@ -160,13 +157,11 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                     .srccard = fc_solve_empty_card,
                     .destcard = fc_solve_empty_card,
                     .pri = 0}; /* unused */
-                num_moves++;
-
                 /* If it's an automove, just do it. */
                 if (good_automove(soft_thread, o, fcs_card_rank(card)))
                 {
                     *a = TRUE;
-                    if (num_moves != 1)
+                    if (NUM_MOVES != 1)
                     {
                         soft_thread->possible_moves[0] = move_ptr[-1];
                     }
@@ -179,7 +174,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
     /* No more automoves, but remember if there were any moves out. */
 
     *a = FALSE;
-    *num_cards_out = num_moves;
+    *num_cards_out = NUM_MOVES;
 
     /* Check for moves from non-singleton soft_thread->current_pos.stacks cells
     to one of any
@@ -216,7 +211,6 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                         .destcard = fc_solve_empty_card,
                         .pri = soft_thread->pats_solve_params.x[3],
                     };
-                    num_moves++;
                 }
             }
         }
@@ -270,7 +264,6 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                                         : fc_solve_empty_card),
                             .destcard = w_card,
                             .pri = soft_thread->pats_solve_params.x[4]};
-                        num_moves++;
                     }
                 }
             }
@@ -311,7 +304,6 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                             .srccard = fc_solve_empty_card,
                             .destcard = w_card,
                             .pri = soft_thread->pats_solve_params.x[5]};
-                        num_moves++;
                     }
                 }
             }
@@ -338,7 +330,6 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                     .srccard = fc_solve_empty_card,
                     .destcard = fc_solve_empty_card,
                     .pri = soft_thread->pats_solve_params.x[6]};
-                num_moves++;
             }
         }
     }
@@ -377,13 +368,11 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                         .destcard = fc_solve_empty_card,
                         .pri = soft_thread->pats_solve_params.x[7],
                     };
-                    num_moves++;
                 }
             }
         }
     }
-
-    return num_moves;
+    return NUM_MOVES;
 }
 
 /* Moves that can't be undone get slightly higher priority, since it means
