@@ -369,18 +369,19 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                 const_AUTO(w_col_len, fcs_col_len(w_col));
                 if (w_col_len > 0)
                 {
-                    move_ptr->card = fcs_col_get_card(w_col, w_col_len - 1);
-                    move_ptr->from = w;
-                    move_ptr->fromtype = FCS_PATS__TYPE_WASTE;
-                    move_ptr->to = t;
-                    move_ptr->totype = FCS_PATS__TYPE_FREECELL;
-                    move_ptr->srccard =
-                        (w_col_len > 1) ? fcs_col_get_card(w_col, w_col_len - 2)
-                                        : fc_solve_empty_card;
-                    move_ptr->destcard = fc_solve_empty_card;
-                    move_ptr->pri = soft_thread->pats_solve_params.x[7];
+                    *(move_ptr++) = (typeof(*move_ptr)){
+                        .card = fcs_col_get_card(w_col, w_col_len - 1),
+                        .from = w,
+                        .fromtype = FCS_PATS__TYPE_WASTE,
+                        .to = t,
+                        .totype = FCS_PATS__TYPE_FREECELL,
+                        .srccard = ((w_col_len > 1)
+                                        ? fcs_col_get_card(w_col, w_col_len - 2)
+                                        : fc_solve_empty_card),
+                        .destcard = fc_solve_empty_card,
+                        .pri = soft_thread->pats_solve_params.x[7],
+                    };
                     num_moves++;
-                    move_ptr++;
                 }
             }
         }
