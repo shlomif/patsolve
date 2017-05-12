@@ -376,12 +376,9 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                     move_ptr->fromtype = FCS_PATS__TYPE_WASTE;
                     move_ptr->to = t;
                     move_ptr->totype = FCS_PATS__TYPE_FREECELL;
-                    move_ptr->srccard = fc_solve_empty_card;
-                    if (w_col_len > 1)
-                    {
-                        move_ptr->srccard =
-                            fcs_col_get_card(w_col, w_col_len - 2);
-                    }
+                    move_ptr->srccard =
+                        (w_col_len > 1) ? fcs_col_get_card(w_col, w_col_len - 2)
+                                        : fc_solve_empty_card;
                     move_ptr->destcard = fc_solve_empty_card;
                     move_ptr->pri = soft_thread->pats_solve_params.x[7];
                     num_moves++;
