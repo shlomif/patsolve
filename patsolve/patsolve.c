@@ -340,11 +340,9 @@ static inline void freecell_solver_pats__make_move(
 static inline void fc_solve_pats__undo_move(
     fcs_pats_thread_t *const soft_thread, const fcs_pats__move_t *const m)
 {
-    const typeof(m->from) from = m->from;
-    const typeof(m->to) to = m->to;
-
+    const_SLOT(from, m);
+    const_SLOT(to, m);
     /* Remove from 'to' pile. */
-
     fcs_card_t card;
     switch (m->totype)
     {
