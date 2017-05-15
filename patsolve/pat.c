@@ -391,10 +391,10 @@ static inline fcs_bool_t is_irreversible_move(
     }
     else if (move_ptr->fromtype == FCS_PATS__TYPE_WASTE)
     {
-        const fcs_card_t srccard = move_ptr->srccard;
+        const_SLOT(srccard, move_ptr);
         if (srccard != fc_solve_empty_card)
         {
-            const fcs_card_t card = move_ptr->card;
+            const_SLOT(card, move_ptr);
             if ((fcs_card_rank(card) != fcs_card_rank(srccard) - 1) ||
                 !fcs_pats_is_suitable(card, srccard
 #ifndef FCS_FREECELL_ONLY
