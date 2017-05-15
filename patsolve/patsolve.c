@@ -301,12 +301,10 @@ static inline void freecell_solver_pats__make_move(
     fcs_pats_thread_t *const soft_thread, const fcs_pats__move_t *const m)
 {
     fcs_card_t card;
-
-    const int from = m->from;
-    const int to = m->to;
+    const_SLOT(from, m);
+    const_SLOT(to, m);
 
     /* Remove from pile. */
-
     if (m->fromtype == FCS_PATS__TYPE_FREECELL)
     {
         card = fcs_freecell_card(soft_thread->current_pos.s, from);
@@ -564,12 +562,9 @@ having separate queues). */
 void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
     fcs_pats_position_t *const pos, int pri)
 {
-    double x;
-
     /* In addition to the priority of a move, a position gets an
     additional priority depending on the number of cards out.  We use a
     "queue squashing function" to map num_cards_out to priority.  */
-
     const int num_cards_out =
         fcs_foundation_value(soft_thread->current_pos.s, 0) +
         fcs_foundation_value(soft_thread->current_pos.s, 1) +
@@ -577,20 +572,17 @@ void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
         fcs_foundation_value(soft_thread->current_pos.s, 3);
 
     /* y_param[0] * nout^2 + y_param[1] * nout + y_param[2] */
-
     const typeof(soft_thread->pats_solve_params.y[0]) *const y_param =
         soft_thread->pats_solve_params.y;
-
-    x = (y_param[0] * num_cards_out + y_param[1]) * num_cards_out + y_param[2];
-    {
-        /*
-         * GCC gives a warning with some flags if we cast the result
-         * of floor to an int directly. As a result, we need to use
-         * an intermediate variable.
-         * */
-        const double rounded_x = (floor(x + .5));
-        pri += (int)rounded_x;
-    }
+    const double x =
+        (y_param[0] * num_cards_out + y_param[1]) * num_cards_out + y_param[2];
+    /*
+     * GCC gives a warning with some flags if we cast the result
+     * of floor to an int directly. As a result, we need to use
+     * an intermediate variable.
+     * */
+    const double rounded_x = (floor(x + .5));
+    pri += (int)rounded_x;
 
     if (pri < 0)
     {
