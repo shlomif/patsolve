@@ -561,7 +561,7 @@ static inline void fc_solve_pats__initialize_solving_process(
     fc_solve_pats__sort_piles(soft_thread);
     fcs_pats__move_t m;
     m.card = fc_solve_empty_card;
-    fcs_pats_position_t *pos =
+    fcs_pats_position_t *const pos =
         fc_solve_pats__new_position(soft_thread, NULL, &m);
     if (pos == NULL)
     {

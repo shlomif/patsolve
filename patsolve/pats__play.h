@@ -312,9 +312,7 @@ static inline void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'X':
-
                 /* use -c for the last X param */
-
                 for (int i = 0; i < FC_SOLVE_PATS__NUM_X_PARAM - 1; i++)
                 {
                     soft_thread->pats_solve_params.x[i] = atoi(argv[i + 1]);
@@ -336,7 +334,7 @@ static inline void fc_solve_pats__configure_soft_thread(
 
             case 'P':
             {
-                int i = atoi(curr_arg);
+                const_AUTO(i, atoi(curr_arg));
                 if (i < 0 || i > FC_SOLVE_PATS__PARAM_PRESET__LastParam)
                 {
                     fatalerr("invalid parameter code");

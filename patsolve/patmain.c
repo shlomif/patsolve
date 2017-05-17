@@ -175,7 +175,7 @@ int main(int argc, char **argv)
              board_num++)
         {
             printf("#%ld\n", (long)board_num);
-            char state_string[4096];
+            char state_string[1000];
             memset(state_string, '\0', sizeof(state_string));
             get_board_l(board_num, state_string);
             fc_solve_pats__read_layout(soft_thread, state_string);

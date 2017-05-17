@@ -213,7 +213,6 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     DECLARE_STACKS();
     int t, cluster;
     u_char *p;
-    fcs_pats_position_t *pos;
 
     /* Search the list of stored positions.  If this position is found,
     then ignore it and return (unless this position is better). */
@@ -252,7 +251,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
         }
     }
 
-    pos = (fcs_pats_position_t *)p;
+    var_AUTO(pos, (fcs_pats_position_t *)p);
     pos->queue = NULL;
     pos->parent = parent;
     pos->node = node;
