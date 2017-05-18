@@ -94,10 +94,6 @@ static inline void unpack_position(
     }
 
     {
-        u_char c;
-        u_char *p;
-        fcs_pats__bucket_list_t *l;
-
         /* Unpack bytes p into pile numbers j.
            p         p         p
            +--------+----:----+--------+
@@ -105,9 +101,8 @@ static inline void unpack_position(
            +--------+----:----+--------+
            j             j
            */
-
-        c = 0;
-        p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
+        u_char c = 0;
+        u_char *p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
         fcs_bool_t k = FALSE;
         for (int w = 0; w < LOCAL_STACKS_NUM; w++)
         {
@@ -125,7 +120,7 @@ static inline void unpack_position(
             }
             k = !k;
             soft_thread->current_pos.stack_ids[w] = i;
-            l = soft_thread->bucket_from_pile_lookup[i];
+            var_AUTO(l, soft_thread->bucket_from_pile_lookup[i]);
             fcs_cards_column_t w_col =
                 fcs_state_get_col(soft_thread->current_pos.s, w);
             i = strecpy(w_col + 1, (char *)(l->pile));
