@@ -58,7 +58,7 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
             break;
         default:
             fprintf(out, "to ");
-            if (move_ptr->destcard == fc_solve_empty_card)
+            if (fcs_card_is_empty(move_ptr->destcard))
             {
                 fprintf(out, "empty pile");
             }

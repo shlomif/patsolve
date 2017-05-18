@@ -18,7 +18,7 @@ static const char *const fc_solve_pats__Suits_string = "HCDS";
 static inline void fc_solve_pats__print_card(
     const fcs_card_t card, FILE *const out_fh)
 {
-    if (fcs_card_rank(card) != fc_solve_empty_card)
+    if (fcs_card_rank(card) != 0)
     {
         fprintf(out_fh, "%c%c",
             fc_solve_pats__Ranks_string[(int)fcs_card_rank(card)],

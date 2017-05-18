@@ -260,10 +260,9 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     for (t = 0; t < LOCAL_FREECELLS_NUM; t++)
     {
         *p++ = fcs_freecell_card(soft_thread->current_pos.s, t);
-        if (fcs_freecell_card(soft_thread->current_pos.s, t) !=
-            fc_solve_empty_card)
+        if (fcs_card_is_valid(fcs_freecell_card(soft_thread->current_pos.s, t)))
         {
-            i++;
+            ++i;
         }
     }
     pos->num_cards_in_freecells = i;
