@@ -206,7 +206,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     const fcs_pats__move_t *const m)
 {
     DECLARE_STACKS();
-    int t, cluster;
+    int cluster;
     u_char *p;
 
     /* Search the list of stored positions.  If this position is found,
@@ -257,7 +257,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
 
     p += sizeof(fcs_pats_position_t);
     int i = 0;
-    for (t = 0; t < LOCAL_FREECELLS_NUM; t++)
+    for (int t = 0; t < LOCAL_FREECELLS_NUM; t++)
     {
         *p++ = fcs_freecell_card(soft_thread->current_pos.s, t);
         if (!fcs_freecell_is_empty(soft_thread->current_pos.s, t))

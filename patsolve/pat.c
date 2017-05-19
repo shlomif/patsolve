@@ -339,39 +339,34 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
     /* Check for moves from soft_thread->current_pos.stacks to one of any empty
      * soft_thread->current_pos.freecells cells. */
 
+    for (int t = 0; t < LOCAL_FREECELLS_NUM; t++)
     {
-        int t;
-        for (t = 0; t < LOCAL_FREECELLS_NUM; t++)
+        if (!fcs_freecell_is_empty(soft_thread->current_pos.s, t))
         {
-            if (fcs_freecell_is_empty(soft_thread->current_pos.s, t))
+            continue;
+        }
+        for (int w = 0; w < LOCAL_STACKS_NUM; w++)
+        {
+            fcs_cards_column_t w_col =
+                fcs_state_get_col(soft_thread->current_pos.s, w);
+            const_AUTO(w_col_len, fcs_col_len(w_col));
+            if (w_col_len > 0)
             {
-                break;
+                *(move_ptr++) = (typeof(*move_ptr)){
+                    .card = fcs_col_get_card(w_col, w_col_len - 1),
+                    .from = w,
+                    .fromtype = FCS_PATS__TYPE_WASTE,
+                    .to = t,
+                    .totype = FCS_PATS__TYPE_FREECELL,
+                    .srccard = ((w_col_len > 1)
+                                    ? fcs_col_get_card(w_col, w_col_len - 2)
+                                    : fc_solve_empty_card),
+                    .destcard = fc_solve_empty_card,
+                    .pri = soft_thread->pats_solve_params.x[7],
+                };
             }
         }
-        if (t < LOCAL_FREECELLS_NUM)
-        {
-            for (int w = 0; w < LOCAL_STACKS_NUM; w++)
-            {
-                fcs_cards_column_t w_col =
-                    fcs_state_get_col(soft_thread->current_pos.s, w);
-                const_AUTO(w_col_len, fcs_col_len(w_col));
-                if (w_col_len > 0)
-                {
-                    *(move_ptr++) = (typeof(*move_ptr)){
-                        .card = fcs_col_get_card(w_col, w_col_len - 1),
-                        .from = w,
-                        .fromtype = FCS_PATS__TYPE_WASTE,
-                        .to = t,
-                        .totype = FCS_PATS__TYPE_FREECELL,
-                        .srccard = ((w_col_len > 1)
-                                        ? fcs_col_get_card(w_col, w_col_len - 2)
-                                        : fc_solve_empty_card),
-                        .destcard = fc_solve_empty_card,
-                        .pri = soft_thread->pats_solve_params.x[7],
-                    };
-                }
-            }
-        }
+        break;
     }
     return NUM_MOVES;
 }
