@@ -230,7 +230,7 @@ fcs_pats__insert_code_t fc_solve_pats__insert(
     {
         return FCS_PATS__INSERT_CODE_ERR;
     }
-    soft_thread->num_states_in_collection++;
+    ++soft_thread->num_states_in_collection;
 
     const fcs_pats__insert_code_t verdict =
         insert_node(soft_thread, new_pos, d, &tl->tree, node);

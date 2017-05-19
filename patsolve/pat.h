@@ -224,9 +224,8 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__move_t possible_moves[FCS_PATS__MAX_NUM_MOVES];
 
     /* Statistics. */
-
-    int num_checked_states, max_num_checked_states;
-    int num_states_in_collection;
+    long num_checked_states, max_num_checked_states;
+    long num_states_in_collection;
 
     fcs_pats_xy_param_t pats_solve_params;
 
@@ -376,7 +375,6 @@ static inline void fc_solve_pats__release(fcs_pats_thread_t *const soft_thread,
     void *const ptr, const size_t count_freed)
 {
     free(ptr);
-
     soft_thread->remaining_memory += count_freed;
 }
 

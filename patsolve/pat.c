@@ -104,33 +104,33 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
         const fcs_cards_column_t col =
             fcs_state_get_col(soft_thread->current_pos.s, w);
         const int col_len = fcs_col_len(col);
-        if (col_len > 0)
+        if (!col_len)
         {
-            const fcs_card_t card = fcs_col_get_card(col, col_len - 1);
-            const int o = fcs_card_suit(card);
-            if (fcs_card_rank(card) ==
-                fcs_foundation_value(soft_thread->current_pos.s, o) + 1)
+            continue;
+        }
+        const fcs_card_t card = fcs_col_get_card(col, col_len - 1);
+        const int o = fcs_card_suit(card);
+        if (fcs_card_rank(card) ==
+            fcs_foundation_value(soft_thread->current_pos.s, o) + 1)
+        {
+            *(move_ptr++) = (typeof(*move_ptr)){.card = card,
+                .from = w,
+                .fromtype = FCS_PATS__TYPE_WASTE,
+                .to = o,
+                .totype = FCS_PATS__TYPE_FOUNDATION,
+                .srccard = ((col_len > 1) ? fcs_col_get_card(col, col_len - 2)
+                                          : fc_solve_empty_card),
+                .destcard = fc_solve_empty_card,
+                .pri = 0}; /* unused */
+            /* If it's an automove, just do it. */
+            if (good_automove(soft_thread, o, fcs_card_rank(card)))
             {
-                *(move_ptr++) = (typeof(*move_ptr)){.card = card,
-                    .from = w,
-                    .fromtype = FCS_PATS__TYPE_WASTE,
-                    .to = o,
-                    .totype = FCS_PATS__TYPE_FOUNDATION,
-                    .srccard =
-                        ((col_len > 1) ? fcs_col_get_card(col, col_len - 2)
-                                       : fc_solve_empty_card),
-                    .destcard = fc_solve_empty_card,
-                    .pri = 0}; /* unused */
-                /* If it's an automove, just do it. */
-                if (good_automove(soft_thread, o, fcs_card_rank(card)))
+                *a = TRUE;
+                if (NUM_MOVES != 1)
                 {
-                    *a = TRUE;
-                    if (NUM_MOVES != 1)
-                    {
-                        soft_thread->possible_moves[0] = move_ptr[-1];
-                    }
-                    return 1;
+                    soft_thread->possible_moves[0] = move_ptr[-1];
                 }
+                return 1;
             }
         }
     }
