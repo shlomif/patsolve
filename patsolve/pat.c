@@ -343,8 +343,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
         int t;
         for (t = 0; t < LOCAL_FREECELLS_NUM; t++)
         {
-            if (fcs_freecell_card(soft_thread->current_pos.s, t) ==
-                fc_solve_empty_card)
+            if (fcs_freecell_is_empty(soft_thread->current_pos.s, t))
             {
                 break;
             }

@@ -410,6 +410,4 @@ The name '-' also specifies stdin. */
 
     *argc_ptr = argc;
     *argv_ptr = argv;
-
-    return;
 }
