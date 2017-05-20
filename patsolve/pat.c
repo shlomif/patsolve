@@ -101,8 +101,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
         soft_thread->possible_moves;
     for (int w = 0; w < LOCAL_STACKS_NUM; ++w)
     {
-        const fcs_cards_column_t col =
-            fcs_state_get_col(soft_thread->current_pos.s, w);
+        const_AUTO(col, fcs_state_get_col(soft_thread->current_pos.s, w));
         const int col_len = fcs_col_len(col);
         if (!col_len)
         {
@@ -193,8 +192,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
     {
         for (int i = 0; i < LOCAL_STACKS_NUM; i++)
         {
-            const fcs_cards_column_t i_col =
-                fcs_state_get_col(soft_thread->current_pos.s, i);
+            const_AUTO(i_col, fcs_state_get_col(soft_thread->current_pos.s, i));
             const int i_col_len = fcs_col_len(i_col);
             if (i_col_len > 1)
             {
@@ -226,8 +224,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
 
     for (int i = 0; i < LOCAL_STACKS_NUM; i++)
     {
-        const fcs_cards_column_t i_col =
-            fcs_state_get_col(soft_thread->current_pos.s, i);
+        const_AUTO(i_col, fcs_state_get_col(soft_thread->current_pos.s, i));
         const int i_col_len = fcs_col_len(i_col);
         if (i_col_len > 0)
         {
@@ -238,8 +235,8 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
                 {
                     continue;
                 }
-                const fcs_cards_column_t w_col =
-                    fcs_state_get_col(soft_thread->current_pos.s, w);
+                const_AUTO(
+                    w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
                 if (fcs_col_len(w_col) > 0)
                 {
                     const fcs_card_t w_card =
@@ -284,8 +281,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
 
         for (int w = 0; w < LOCAL_STACKS_NUM; w++)
         {
-            fcs_cards_column_t w_col =
-                fcs_state_get_col(soft_thread->current_pos.s, w);
+            var_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
             if (fcs_col_len(w_col) > 0)
             {
                 const fcs_card_t w_card =
@@ -347,8 +343,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
         }
         for (int w = 0; w < LOCAL_STACKS_NUM; w++)
         {
-            fcs_cards_column_t w_col =
-                fcs_state_get_col(soft_thread->current_pos.s, w);
+            var_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
             const_AUTO(w_col_len, fcs_col_len(w_col));
             if (w_col_len > 0)
             {
@@ -472,8 +467,7 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
 
     fcs_pats__bucket_list_t *list_iter = soft_thread->buckets_list[bucket],
                             *last_item = NULL;
-    const fcs_cards_column_t w_col =
-        fcs_state_get_col(soft_thread->current_pos.s, w);
+    const_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
     const int w_col_len = fcs_col_len(w_col);
     const char *w_col_data = (const char *)w_col + 1;
     for (; list_iter; list_iter = list_iter->next)
@@ -596,8 +590,8 @@ static inline int prune_seahaven(fcs_pats_thread_t *const soft_thread,
 
     const int r = fcs_card_rank(move_ptr->card) + 1;
     const int s = fcs_card_suit(move_ptr->card);
-    const fcs_cards_column_t col =
-        fcs_state_get_col(soft_thread->current_pos.s, move_ptr->to);
+    const_AUTO(
+        col, fcs_state_get_col(soft_thread->current_pos.s, move_ptr->to));
     const int len = fcs_col_len(col);
 
     {
@@ -921,8 +915,7 @@ static inline void prioritize(fcs_pats_thread_t *const soft_thread,
 
     for (int w = 0; w < LOCAL_STACKS_NUM; w++)
     {
-        fcs_cards_column_t col =
-            fcs_state_get_col(soft_thread->current_pos.s, w);
+        var_AUTO(col, fcs_state_get_col(soft_thread->current_pos.s, w));
         const int len = fcs_col_len(col);
         for (int i = 0; i < len; i++)
         {
@@ -971,9 +964,7 @@ end_of_stacks:;
                     move_ptr->pri += soft_thread->pats_solve_params.x[0];
                 }
             }
-            fcs_cards_column_t col =
-                fcs_state_get_col(soft_thread->current_pos.s, w);
-
+            var_AUTO(col, fcs_state_get_col(soft_thread->current_pos.s, w));
             if (fcs_col_len(col) > 1)
             {
                 const fcs_card_t card =

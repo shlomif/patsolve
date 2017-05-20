@@ -121,8 +121,7 @@ static inline void unpack_position(
             k = !k;
             soft_thread->current_pos.stack_ids[w] = i;
             var_AUTO(l, soft_thread->bucket_from_pile_lookup[i]);
-            fcs_cards_column_t w_col =
-                fcs_state_get_col(soft_thread->current_pos.s, w);
+            var_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
             i = strecpy(w_col + 1, (char *)(l->pile));
             fcs_col_len(w_col) = i;
             soft_thread->current_pos.stack_hashes[w] = l->hash;
@@ -305,8 +304,7 @@ static inline void freecell_solver_pats__make_move(
     }
     else
     {
-        fcs_cards_column_t from_col =
-            fcs_state_get_col(soft_thread->current_pos.s, from);
+        var_AUTO(from_col, fcs_state_get_col(soft_thread->current_pos.s, from));
         fcs_col_pop_card(from_col, card);
         fc_solve_pats__hashpile(soft_thread, from);
     }

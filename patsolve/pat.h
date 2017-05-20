@@ -502,7 +502,7 @@ static inline void fc_solve_pats__destroy_soft_thread(
 static inline void fc_solve_pats__hashpile(
     fcs_pats_thread_t *const soft_thread, const int w)
 {
-    fcs_cards_column_t col = fcs_state_get_col(soft_thread->current_pos.s, w);
+    var_AUTO(col, fcs_state_get_col(soft_thread->current_pos.s, w));
     fcs_col_get_card(col, (int)fcs_col_len(col)) = '\0';
     soft_thread->current_pos.stack_hashes[w] =
         fnv_hash_str((const u_char *)(col + 1));

@@ -70,7 +70,7 @@ static void *worker_thread(void *context)
 
         const long long quota_end = min(proposed_quota_end, past_end_board);
 
-        for (; board_num < quota_end; board_num++)
+        for (; board_num < quota_end; ++board_num)
         {
             fcs_state_string_t state_string;
             get_board(board_num, state_string);
