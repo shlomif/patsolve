@@ -604,7 +604,7 @@ static inline int prune_seahaven(fcs_pats_thread_t *const soft_thread,
         int j = 0;
         for (int i = len - 1; i >= 0; i--)
         {
-            fcs_card_t card = fcs_col_get_card(col, i);
+            const_AUTO(card, fcs_col_get_card(col, i));
             if (fcs_card_suit(card) == s && fcs_card_rank(card) == r + j)
             {
                 j++;
@@ -621,7 +621,7 @@ static inline int prune_seahaven(fcs_pats_thread_t *const soft_thread,
     const int r_minus = r - 1;
     for (int i = 0; i < len; i++)
     {
-        fcs_card_t card = fcs_col_get_card(col, i);
+        const_AUTO(card, fcs_col_get_card(col, i));
         if ((fcs_card_suit(card) == s) && (fcs_card_rank(card) < r_minus))
         {
             return TRUE;
