@@ -24,7 +24,7 @@ static inline int calc_empty_col_idx(
 {
     for (int w = 0; w < stacks_num; w++)
     {
-        if (!fcs_col_len(fcs_state_get_col(soft_thread->current_pos.s, w)))
+        if (fcs_state_col_is_empty(soft_thread->current_pos.s, w))
         {
             return w;
         }
