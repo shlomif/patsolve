@@ -87,7 +87,6 @@ static const int freecell_solver_user_set_sequences_are_built_by_type(
 static const int freecell_solver_user_set_empty_stacks_filled_by(
     fc_solve_instance_t *const instance, const int empty_stacks_fill)
 {
-
 #ifndef FCS_FREECELL_ONLY
     if ((empty_stacks_fill < 0) || (empty_stacks_fill > 2))
     {
@@ -97,7 +96,6 @@ static const int freecell_solver_user_set_empty_stacks_filled_by(
     instance->game_params.game_flags &= (~(0x3 << 2));
     instance->game_params.game_flags |= (empty_stacks_fill << 2);
 #endif
-
     return 0;
 }
 
@@ -142,23 +140,19 @@ static inline void fc_solve_pats__configure_soft_thread(
 
     /* Parse args twice.  Once to get the operating mode, and the
     next for other options. */
-
     typeof(argc) argc0 = argc;
     typeof(argv) argv0 = argv;
     const char *curr_arg;
     while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv))
     {
-
         /* Scan current argument until a flag indicates that the rest
         of the argument isn't flags (curr_arg = NULL), or until
         the end of the argument is reached (if it is all flags). */
-
         int c;
         while (curr_arg != NULL && (c = *curr_arg++) != '\0')
         {
             switch (c)
             {
-
             case 's':
                 freecell_solver_user_set_empty_stacks_filled_by(
                     instance, FCS_ES_FILLED_BY_ANY_CARD);
@@ -268,7 +262,6 @@ static inline void fc_solve_pats__configure_soft_thread(
         {
             switch (c)
             {
-
             case 's':
             case 'f':
             case 'k':

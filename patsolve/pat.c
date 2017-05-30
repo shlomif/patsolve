@@ -50,7 +50,6 @@ static inline fcs_bool_t good_automove(
     {
         if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 1)
         {
-
 #if 1 /* Raymond's Rule */
             /* Not all the N-1's of opposite color are out
             yet.  We can still make an automove if either

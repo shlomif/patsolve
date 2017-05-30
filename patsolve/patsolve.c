@@ -369,7 +369,6 @@ static inline int solve(
     *is_finished = FALSE;
     while (DEPTH >= 0)
     {
-
         if (check_for_exceeded(soft_thread))
         {
             wrap_up_solve(soft_thread, mydir);
