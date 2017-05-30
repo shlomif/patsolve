@@ -7,9 +7,7 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-/*
- * Deal Microsoft Freecell / FreeCell-Pro deals.
- */
+// Deal Microsoft Freecell / FreeCell-Pro deals.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,7 +44,7 @@ static const char Suit[] = "CDHS";
 int main(int argc, char **argv)
 {
     int j, c;
-    /* num_left_cards is the cards left to be chosen in shuffle */
+    // num_left_cards is the cards left to be chosen in shuffle
     int num_left_cards = NUM_CARDS;
     CARD deck[NUM_CARDS];
     CARD pos[10][10];
@@ -116,7 +114,7 @@ int main(int argc, char **argv)
         }
         putchar('\n');
     }
-    /* leftover cards to temp */
+    // leftover cards to temp
     c = -1;
     for (size_t i = 0; i < 4; i++)
     {

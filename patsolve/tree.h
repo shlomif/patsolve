@@ -7,15 +7,12 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-/*
- * tree.h : header of the patsolve's splay tree.
- */
+// tree.h : header of the patsolve's splay tree.
 #pragma once
 
 #include "config.h"
 
-/* A splay tree. */
-
+// A splay tree.
 typedef struct fcs_pats__tree_node_struct fcs_pats__tree_t;
 
 struct fcs_pats__tree_node_struct

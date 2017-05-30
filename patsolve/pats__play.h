@@ -16,20 +16,14 @@
 
 static inline void fc_solve_pats__before_play(fcs_pats_thread_t *soft_thread)
 {
-    /* Initialize the hash tables. */
-
     fc_solve_pats__init_buckets(soft_thread);
     fc_solve_pats__init_clusters(soft_thread);
 
-    /* Reset stats. */
-
+    // Reset stats.
     soft_thread->num_checked_states = 0;
     soft_thread->num_states_in_collection = 0;
     soft_thread->num_solutions = 0;
-
     soft_thread->status = FCS_PATS__NOSOL;
-
-    /* Go to it. */
 
     fc_solve_pats__initialize_solving_process(soft_thread);
 }
@@ -233,8 +227,7 @@ static inline void fc_solve_pats__configure_soft_thread(
         }
     }
 
-    /* Set parameters. */
-
+    // Set parameters.
     if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
             FCS_SEQ_BUILT_BY_SUIT) &&
         !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
@@ -262,11 +255,10 @@ static inline void fc_solve_pats__configure_soft_thread(
     }
     else
     {
-        set_param(soft_thread, 0); /* default */
+        set_param(soft_thread, 0); // default
     }
 
-    /* Now get the other args, and allow overriding the parameters. */
-
+    // Now get the other args, and allow overriding the parameters.
     argc = argc0;
     argv = argv0;
     int c;
@@ -312,7 +304,7 @@ static inline void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'X':
-                /* use -c for the last X param */
+                // use -c for the last X param
                 for (int i = 0; i < FC_SOLVE_PATS__NUM_X_PARAM - 1; i++)
                 {
                     soft_thread->pats_solve_params.x[i] = atoi(argv[i + 1]);
@@ -375,8 +367,6 @@ static inline void fc_solve_pats__configure_soft_thread(
 /* Process the named file, or stdin if no file given.
 The name '-' also specifies stdin. */
 
-/* Initialize the suitable() macro variables. */
-
 #ifndef FCS_FREECELL_ONLY
     instance->game_variant_suit_mask = FCS_PATS__COLOR;
     instance->game_variant_desired_suit_value = FCS_PATS__COLOR;
@@ -388,8 +378,7 @@ The name '-' also specifies stdin. */
     }
 #endif
 
-    /* Announce which variation this is. */
-
+    // Announce which variation this is.
     if (!*(is_quiet))
     {
         printf("%s", (GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==

@@ -7,9 +7,6 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-
-/* Solve Freecell and Seahaven type patience (solitaire) games. */
-
 #pragma once
 #include "config.h"
 
@@ -25,18 +22,13 @@
 #include "alloc_wrap.h"
 #include "instance.h"
 
-/* A card is represented as (suit << 4) + rank. */
-
 #define FCS_PATS__COLOR 0x01 /* black if set */
 #define FCS_PATS__SUIT 0x03  /* mask both suit bits */
 
 #define FCS_PATS__KING 13
 
-/* Some macros used in get_possible_moves(). */
-
-/* The following macro implements
-   (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b)))
-*/
+/* The following implements
+   (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b))) */
 #ifdef FCS_FREECELL_ONLY
 static inline fcs_bool_t fcs_pats_is_suitable(
     const fcs_card_t a, const fcs_card_t b)
@@ -59,7 +51,7 @@ static inline fcs_bool_t fcs_pats_is_king_only(
     return (not_king_only || fcs_card_rank(card) == FCS_PATS__KING);
 }
 
-/* Represent a move. */
+// Represent a move.
 
 typedef struct
 {
@@ -73,7 +65,7 @@ typedef struct
     signed char pri;     /* move priority (low priority == low value) */
 } fcs_pats__move_t;
 
-/* Pile types */
+// Pile types
 #define FCS_PATS__TYPE_FOUNDATION 1
 #define FCS_PATS__TYPE_FREECELL 2
 #define FCS_PATS__TYPE_WASTE 3
@@ -83,7 +75,6 @@ Temp cells are stored separately since they don't have to be compared.
 We also store the move that led to this position from the parent, as well
 as a pointers back to the parent, and the btree of all positions examined so
 far. */
-
 typedef struct fc_solve_pats__pos__struct
 {
     struct fc_solve_pats__pos__struct *queue; /* next position in the queue */
@@ -97,9 +88,8 @@ typedef struct fc_solve_pats__pos__struct
     u_char num_childs;             /* number of child nodes left */
 } fcs_pats_position_t;
 
-/* Temp storage for possible moves. */
-
-/* > max # moves from any position */
+// Temp storage for possible moves.
+// > max # moves from any position
 #define FCS_PATS__MAX_NUM_MOVES 64
 
 typedef enum {
@@ -122,8 +112,7 @@ typedef enum {
 } fc_solve_pats__status_fail_reason_t;
 #endif
 
-/* Memory. */
-
+// Memory.
 typedef struct fcs_pats__block_struct
 {
     u_char *block;
@@ -152,14 +141,13 @@ typedef struct fcs_pats__bucket_list_struct
     struct fcs_pats__bucket_list_struct *next;
 } fcs_pats__bucket_list_t;
 
-/* Statistics. */
-
+// Statistics.
 #define FC_SOLVE_PATS__NUM_QUEUES 100
 
 #ifdef PATSOLVE_STANDALONE
 struct fc_solve_instance_struct
 {
-    /* game parameters */
+    // game parameters
     fcs_game_type_params_t game_params;
 #ifndef FCS_FREECELL_ONLY
     fcs_card_t game_variant_suit_mask;
@@ -201,8 +189,7 @@ struct fc_solve__patsolve_thread_struct
 #endif
     fcs_pats_position_t *freed_positions; /* position freelist */
 
-    /* Work arrays. */
-
+    // Work arrays.
     struct
     {
         fcs_state_t s;
@@ -270,8 +257,6 @@ struct fc_solve__patsolve_thread_struct
 
 typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
 
-/* Prototypes. */
-
 extern fcs_pats__insert_code_t fc_solve_pats__insert(
     fcs_pats_thread_t *soft_thread, int *cluster, int d,
     fcs_pats__tree_t **node);
@@ -284,8 +269,6 @@ extern void fc_solve_pats__sort_piles(fcs_pats_thread_t *soft_thread);
 
 extern fcs_pats__block_t *fc_solve_pats__new_block(
     fcs_pats_thread_t *const soft_thread);
-
-/* Clusters are also stored in a hashed array. */
 
 static inline void fc_solve_pats__init_clusters(
     fcs_pats_thread_t *const soft_thread)
@@ -305,7 +288,6 @@ static inline size_t fc_solve_pats__align(const size_t i)
     return ((i & ALIGN_BITS) ? ((i | ALIGN_BITS) + 1) : i);
 }
 
-/* Initialize the hash buckets. */
 static inline void fc_solve_pats__init_buckets(
     fcs_pats_thread_t *const soft_thread)
 {
@@ -315,7 +297,7 @@ static inline void fc_solve_pats__init_buckets(
     const int stacks_num = INSTANCE_STACKS_NUM;
     const int freecells_num = INSTANCE_FREECELLS_NUM;
 
-    /* Packed positions need 3 bytes for every 2 piles. */
+    // Packed positions need 3 bytes for every 2 piles.
     soft_thread->bytes_per_pile =
         (((stacks_num * 3) >> 1) + (stacks_num & 0x1));
 
@@ -327,10 +309,8 @@ static inline void fc_solve_pats__init_buckets(
         fc_solve_pats__align(sizeof(fcs_pats_position_t) + freecells_num);
 }
 
-/* A function and some macros for allocating memory. */
-/* Allocate some space and return a pointer to it.  See fc_solve_pats__new() .
- * */
-
+// A function and some macros for allocating memory.
+// Allocate some space and return a pointer to it.  See fc_solve_pats__new()
 static inline void *fc_solve_pats__malloc(
     fcs_pats_thread_t *const soft_thread, const size_t s)
 {
@@ -498,7 +478,6 @@ static inline void fc_solve_pats__destroy_soft_thread(
     soft_thread->curr_solve_depth = -1;
 }
 
-/* Hash a pile. */
 static inline void fc_solve_pats__hashpile(
     fcs_pats_thread_t *const soft_thread, const int w)
 {
@@ -507,8 +486,7 @@ static inline void fc_solve_pats__hashpile(
     soft_thread->current_pos.stack_hashes[w] =
         fnv_hash_str((const u_char *)(col + 1));
 
-    /* Invalidate this pile's id.  We'll calculate it later. */
-
+    // Invalidate this pile's id.  We'll calculate it later.
     soft_thread->current_pos.stack_ids[w] = -1;
 }
 
@@ -539,8 +517,7 @@ static inline void fc_solve_pats__hash_layout(
 static inline void fc_solve_pats__initialize_solving_process(
     fcs_pats_thread_t *const soft_thread)
 {
-    /* Init the queues. */
-
+    // Init the queues.
     for (int i = 0; i < FC_SOLVE_PATS__NUM_QUEUES; i++)
     {
         soft_thread->queue_head[i] = NULL;
@@ -553,8 +530,7 @@ static inline void fc_solve_pats__initialize_solving_process(
         sizeof(soft_thread->num_positions_in_queue));
 #endif
 
-    /* Queue the initial position to get started. */
-
+    // Queue the initial position to get started.
     fc_solve_pats__hash_layout(soft_thread);
     fc_solve_pats__sort_piles(soft_thread);
     fcs_pats__move_t m;

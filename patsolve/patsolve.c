@@ -178,7 +178,6 @@ static inline fcs_pats_position_t *dequeue_position(
 #endif
 
     /* Decrease soft_thread->max_queue_idx if that queue emptied. */
-
     while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL &&
            soft_thread->dequeue__qpos == soft_thread->max_queue_idx &&
            soft_thread->max_queue_idx > 0)
@@ -191,7 +190,6 @@ static inline fcs_pats_position_t *dequeue_position(
     }
 
     /* Unpack the position into the work arrays. */
-
     unpack_position(soft_thread, pos);
 
 #ifdef DEBUG
@@ -225,11 +223,9 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     }
 
     /* A new or better position.  fc_solve_pats__insert() already stashed it in
-    the
-    tree, we just have to wrap a fcs_pats_position_t struct around it, and link
-    it
-    into the move stack.  Store the temp cells after the fcs_pats_position_t. */
-
+    the tree, we just have to wrap a fcs_pats_position_t struct around it, and
+    link it into the move stack.  Store the temp cells after the
+    fcs_pats_position_t. */
     if (soft_thread->freed_positions)
     {
         p = (u_char *)soft_thread->freed_positions;
@@ -269,7 +265,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     return pos;
 }
 
-/* Hash the whole layout.  This is called once, at the start. */
+// Hash the whole layout.  This is called once, at the start.
 static inline fcs_bool_t check_for_exceeded(
     fcs_pats_thread_t *const soft_thread)
 {
@@ -296,7 +292,7 @@ static inline void freecell_solver_pats__make_move(
     const_SLOT(from, m);
     const_SLOT(to, m);
 
-    /* Remove from pile. */
+    // Remove from pile.
     if (m->fromtype == FCS_PATS__TYPE_FREECELL)
     {
         card = fcs_freecell_card(soft_thread->current_pos.s, from);
@@ -309,7 +305,7 @@ static inline void freecell_solver_pats__make_move(
         fc_solve_pats__hashpile(soft_thread, from);
     }
 
-    /* Add to pile. */
+    // Add to pile.
 
     switch (m->totype)
     {
@@ -331,7 +327,7 @@ static inline void fc_solve_pats__undo_move(
 {
     const_SLOT(from, m);
     const_SLOT(to, m);
-    /* Remove from 'to' pile. */
+    // Remove from 'to' pile.
     fcs_card_t card;
     switch (m->totype)
     {
@@ -349,7 +345,7 @@ static inline void fc_solve_pats__undo_move(
         --fcs_foundation_value(soft_thread->current_pos.s, to);
         break;
     }
-    /* Add to 'from' pile. */
+    // Add to 'from' pile.
 
     if (m->fromtype == FCS_PATS__TYPE_FREECELL)
     {
@@ -394,7 +390,7 @@ static inline int solve(
             continue;
         }
 
-        /* Generate an array of all the moves we can make. */
+        // Generate an array of all the moves we can make.
         int num_moves;
         if (!LEVEL.moves_start)
         {
@@ -417,8 +413,7 @@ static inline int solve(
             num_moves = LEVEL.moves_end - LEVEL.moves_start;
         }
 
-        /* Make each move and either solve or queue the result. */
-
+        // Make each move and either solve or queue the result.
         if (mydir == FC_SOLVE_PATS__DOWN)
         {
             if (UP_LEVEL.q)
@@ -447,10 +442,10 @@ static inline int solve(
         {
             freecell_solver_pats__make_move(soft_thread, LEVEL.move_ptr);
 
-            /* Calculate indices for the new piles. */
+            // Calculate indices for the new piles.
             fc_solve_pats__sort_piles(soft_thread);
 
-            /* See if this is a new position. */
+            // See if this is a new position.
             LEVEL.pos = fc_solve_pats__new_position(
                 soft_thread, parent, LEVEL.move_ptr);
             if (!LEVEL.pos)
@@ -495,8 +490,6 @@ static inline int solve(
                 }
             }
         }
-
-        /* Return true if this position needs to be kept around. */
     }
     *is_finished = TRUE;
     wrap_up_solve(soft_thread, mydir);
@@ -508,8 +501,6 @@ static inline int solve(
 
 DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t *const soft_thread)
 {
-    /* Solve it. */
-
     while (1)
     {
         if (!soft_thread->curr_solve_pos)

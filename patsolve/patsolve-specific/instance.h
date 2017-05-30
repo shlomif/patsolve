@@ -7,14 +7,9 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-
-/* Dummy for instance.h for patsolve.h. */
-
-#ifndef FC_SOLVE_PATSOLVE_INSTANCE_H
-#define FC_SOLVE_PATSOLVE_INSTANCE_H
+// Dummy for instance.h for patsolve.h.
+#pragma once
 
 #define PATSOLVE_STANDALONE 1
 
 #include <pat.h>
-
-#endif /* #ifndef FC_SOLVE_PATSOLVE_INSTANCE_H */

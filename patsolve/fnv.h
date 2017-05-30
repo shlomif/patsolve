@@ -7,9 +7,8 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-/* This is a 32 bit FNV hash.  For more information, see
-http://www.isthe.com/chongo/tech/comp/fnv/index.html */
-
+// This is a 32 bit FNV hash.  For more information, see
+// http://www.isthe.com/chongo/tech/comp/fnv/index.html
 #pragma once
 #include "config.h"
 
@@ -23,12 +22,9 @@ static inline uint32_t fnv_hash(const char x, const uint32_t hash)
     return ((hash * FNV_32_PRIME) ^ x);
 }
 
-/* Hash a 0 terminated string. */
-
 static inline uint32_t fnv_hash_str(const u_char *s)
 {
     uint32_t h = FNV1_32_INIT;
-
     u_char c;
     while ((c = *(s++)))
     {

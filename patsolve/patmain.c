@@ -7,13 +7,8 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-
-/* Main().  Parse args, read the position, and call the solver. */
-
-#include <stdarg.h>
-
+// Main().  Parse args, read the position, and call the solver.
 #include "count.h"
-
 #include "pat.h"
 #include "range_solvers_gen_ms_boards.h"
 
@@ -38,7 +33,6 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
 {
     /* Go back up the chain of parents and store the moves
     in reverse order. */
-
     const_AUTO(num_moves, soft_thread->num_moves_to_win);
     const_SLOT(moves_to_win, soft_thread);
     const_AUTO(moves_end, moves_to_win + num_moves);
@@ -92,7 +86,7 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
 int main(int argc, char **argv)
 {
     const long long start_board_idx =
-        get_idx_from_env("PATSOLVE_START"); /* for range solving */
+        get_idx_from_env("PATSOLVE_START"); // for range solving
     const long long end_board_idx = get_idx_from_env("PATSOLVE_END");
 
     fcs_pats_thread_t soft_thread_struct__dont_use_directly;
@@ -116,8 +110,7 @@ int main(int argc, char **argv)
     }
     if (start_board_idx < 0)
     {
-
-        /* Read in the initial layout and play it. */
+        // Read in the initial layout and play it.
 
         const fcs_user_state_str_t user_state = read_state(in_fh);
         fc_solve_pats__read_layout(soft_thread, user_state.s);
@@ -168,9 +161,7 @@ int main(int argc, char **argv)
     }
     else
     {
-
-        /* Range mode.  Play lots of consecutive games. */
-
+        // Range mode.  Play lots of consecutive games.
         for (long long board_num = start_board_idx; board_num < end_board_idx;
              ++board_num)
         {

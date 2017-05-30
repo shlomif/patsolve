@@ -7,8 +7,6 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-/* Standard utilities. */
-
 #pragma once
 
 #include <stdio.h>

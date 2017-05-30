@@ -7,8 +7,7 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-
-/* Position storage.  A forest of binary trees labeled by cluster. */
+// Position storage.  A forest of binary trees labeled by cluster.
 
 #include "instance.h"
 #include "pat.h"
@@ -21,10 +20,10 @@ the cluster number, then locate its tree, creating it if necessary. */
 static inline fcs_pats__treelist_t *cluster_tree(
     fcs_pats_thread_t *const soft_thread, const int cluster)
 {
-    /* Pick a bucket, any bucket. */
+    // Pick a bucket, any bucket.
     const int bucket = cluster % FCS_PATS__TREE_LIST_NUM_BUCKETS;
 
-    /* Find the tree in this bucket with that cluster number. */
+    // Find the tree in this bucket with that cluster number.
     fcs_pats__treelist_t *last_item = NULL;
     fcs_pats__treelist_t *tl;
     for (tl = soft_thread->tree_list[bucket]; tl; tl = tl->next)
@@ -36,8 +35,7 @@ static inline fcs_pats__treelist_t *cluster_tree(
         last_item = tl;
     }
 
-    /* If we didn't find it, make a new one and add it to the list. */
-
+    // If we didn't find it, make a new one and add it to the list.
     if (!tl)
     {
         if (!(tl = fc_solve_pats__new(soft_thread, fcs_pats__treelist_t)))
@@ -56,7 +54,6 @@ static inline fcs_pats__treelist_t *cluster_tree(
             soft_thread->tree_list[bucket] = tl;
         }
     }
-
     return tl;
 }
 
@@ -160,7 +157,6 @@ static inline fcs_pats__tree_t *pack_position(
 
     /* Allocate space and store the pile numbers.  The tree node
     will get filled in later, by insert_node(). */
-
     u_char *p = fc_solve_pats__new_from_block(
         soft_thread, soft_thread->bytes_per_tree_node);
     if (p == NULL)
@@ -184,7 +180,7 @@ static inline fcs_pats__tree_t *pack_position(
                           .stack_ids[soft_thread->current_pos.column_idxs[w]];
         if (w & 0x1)
         {
-            *p++ |= j >> 8; /* j is positive */
+            *p++ |= j >> 8; // j is positive
             *p++ = j & 0xFF;
         }
         else
@@ -204,11 +200,9 @@ fcs_pats__insert_code_t fc_solve_pats__insert(
     fcs_pats_thread_t *const soft_thread, int *const cluster, const int d,
     fcs_pats__tree_t **const node)
 {
+    // Get the cluster number from the Out cell contents.
 
-    /* Get the cluster number from the Out cell contents. */
-
-    /* Get the tree for this cluster. */
-
+    // Get the tree for this cluster.
     fcs_pats__treelist_t *const tl = cluster_tree(soft_thread,
         (*cluster = ((fcs_foundation_value(soft_thread->current_pos.s, 0) +
                          (fcs_foundation_value(soft_thread->current_pos.s, 1)
@@ -223,8 +217,7 @@ fcs_pats__insert_code_t fc_solve_pats__insert(
         return FCS_PATS__INSERT_CODE_ERR;
     }
 
-    /* Create a compact position representation. */
-
+    // Create a compact position representation.
     fcs_pats__tree_t *const new_pos = pack_position(soft_thread);
     if (!new_pos)
     {
@@ -243,8 +236,7 @@ fcs_pats__insert_code_t fc_solve_pats__insert(
     return verdict;
 }
 
-/* my_block storage.  Reduces overhead, and can be freed quickly. */
-
+// my_block storage.  Reduces overhead, and can be freed quickly.
 fcs_pats__block_t *fc_solve_pats__new_block(
     fcs_pats_thread_t *const soft_thread)
 {
@@ -268,8 +260,7 @@ fcs_pats__block_t *fc_solve_pats__new_block(
     return b;
 }
 
-/* Like new(), only from the current block.  Make a new block if necessary. */
-
+// Like new(), only from the current block.  Make a new block if necessary.
 u_char *fc_solve_pats__new_from_block(
     fcs_pats_thread_t *const soft_thread, const size_t s)
 {

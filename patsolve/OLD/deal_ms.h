@@ -7,12 +7,8 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-/*
- * Deal Microsoft Freecell Cards.
- */
-
-#ifndef FC_SOLVE_PATSOLVE__DEAL_MS_H
-#define FC_SOLVE_PATSOLVE__DEAL_MS_H
+// Deal Microsoft Freecell Cards.
+#pragma once
 
 #include "pat.h"
 
@@ -102,7 +98,7 @@ static inline void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thread, 
         soft_thread->current_pos.stack_ptrs[i] = &soft_thread->current_pos.stacks[i][j - 1];
         soft_thread->current_pos.columns_lens[i] = j;
     }
-    /* leftover cards to temp */
+    // leftover cards to temp
     for (i = 0; i < MAX_NUM_FREECELLS; i++) {
         soft_thread->current_pos.freecells[i] = 0;
         if (wLeft) {
@@ -115,5 +111,3 @@ static inline void fc_solve_pats__deal_ms(fc_solve_soft_thread_t * soft_thread, 
         soft_thread->current_pos.foundations[i] = 0;
     }
 }
-
-#endif /*  FC_SOLVE_PATSOLVE__DEAL_MS_H  */

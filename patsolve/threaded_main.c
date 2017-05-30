@@ -137,7 +137,7 @@ int main(int argc, char **argv)
         }
     }
 
-    /* Wait for all threads to finish. */
+    // Wait for all threads to finish.
     for (int idx = 0; idx < num_workers; idx++)
     {
         pthread_join(workers[idx], NULL);
