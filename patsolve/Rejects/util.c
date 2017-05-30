@@ -7,14 +7,8 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-/* Standard utilities. */
-
 #include <stdarg.h>
-
 #include "util.h"
-#include "pat.h"
-
-/* Just print a message. */
 
 void fc_solve_msg(const char *msg, ...)
 {
@@ -24,5 +18,3 @@ void fc_solve_msg(const char *msg, ...)
     vfprintf(stderr, msg, ap);
     va_end(ap);
 }
-
-
