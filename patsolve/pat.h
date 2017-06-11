@@ -10,7 +10,6 @@
 #pragma once
 #include "config.h"
 
-#include "portable_int32.h"
 #include "game_type_params.h"
 #include "fcs_enums.h"
 #include "tree.h"
@@ -56,10 +55,7 @@ static inline fcs_bool_t fcs_pats_is_king_only(
 typedef struct
 {
     fcs_card_t card; /* the card we're moving */
-    u_char from;     /* from pile number */
-    u_char to;       /* to pile number */
-    u_char fromtype; /* O, T, or W */
-    u_char totype;
+    unsigned char from, to, fromtype, totype;
     fcs_card_t srccard;  /* card we're uncovering */
     fcs_card_t destcard; /* card we're moving to */
     signed char pri;     /* move priority (low priority == low value) */
@@ -79,13 +75,13 @@ typedef struct fc_solve_pats__pos__struct
 {
     struct fc_solve_pats__pos__struct *queue; /* next position in the queue */
     struct fc_solve_pats__pos__struct
-        *parent;                   /* point back up the move stack */
-    fcs_pats__tree_t *node;        /* compact position rep.'s tree node */
-    fcs_pats__move_t move;         /* move that got us here from the parent */
-    unsigned short cluster;        /* the cluster this node is in */
-    short depth;                   /* number of moves so far */
-    u_char num_cards_in_freecells; /* number of cards in T */
-    u_char num_childs;             /* number of child nodes left */
+        *parent;            /* point back up the move stack */
+    fcs_pats__tree_t *node; /* compact position rep.'s tree node */
+    fcs_pats__move_t move;  /* move that got us here from the parent */
+    unsigned short cluster; /* the cluster this node is in */
+    short depth;            /* number of moves so far */
+    unsigned char num_cards_in_freecells; /* number of cards in T */
+    unsigned char num_childs;             /* number of child nodes left */
 } fcs_pats_position_t;
 
 // Temp storage for possible moves.
@@ -115,8 +111,8 @@ typedef enum {
 // Memory.
 typedef struct fcs_pats__block_struct
 {
-    u_char *block;
-    u_char *ptr;
+    unsigned char *block;
+    unsigned char *ptr;
     size_t remaining;
     struct fcs_pats__block_struct *next;
 } fcs_pats__block_t;
@@ -135,9 +131,9 @@ typedef struct fcs_pats__treelist_struct
 
 typedef struct fcs_pats__bucket_list_struct
 {
-    u_char *pile;  /* 0 terminated copy of the pile */
-    uint32_t hash; /* the pile's hash code */
-    int pilenum;   /* the unique id for this pile */
+    unsigned char *pile; /* 0 terminated copy of the pile */
+    uint32_t hash;       /* the pile's hash code */
+    int pilenum;         /* the unique id for this pile */
     struct fcs_pats__bucket_list_struct *next;
 } fcs_pats__bucket_list_t;
 
@@ -263,7 +259,7 @@ extern fcs_pats__insert_code_t fc_solve_pats__insert(
 extern void fc_solve_pats__do_it(fcs_pats_thread_t *);
 extern fcs_pats__move_t *fc_solve_pats__get_moves(
     fcs_pats_thread_t *soft_thread, fcs_pats_position_t *, int *);
-extern u_char *fc_solve_pats__new_from_block(
+extern unsigned char *fc_solve_pats__new_from_block(
     fcs_pats_thread_t *soft_thread, size_t);
 extern void fc_solve_pats__sort_piles(fcs_pats_thread_t *soft_thread);
 
@@ -323,7 +319,7 @@ static inline void *fc_solve_pats__malloc(
 
         while (soft_thread->freed_positions) {
             pos = soft_thread->freed_positions->queue;
-            fc_solve_pats__free_array(soft_thread->freed_positions, u_char, sizeof(*pos) + LOCAL_FREECELLS_NUM);
+            fc_solve_pats__free_array(soft_thread->freed_positions, unsigned char, sizeof(*pos) + LOCAL_FREECELLS_NUM);
             soft_thread->freed_positions = pos;
         }
         if (s > soft_thread->remaining_memory) {
@@ -375,7 +371,7 @@ static inline void fc_solve_pats__free_buckets(
         while (l)
         {
             typeof(l->next) n = l->next;
-            fc_solve_pats__free_array(soft_thread, l->pile, u_char,
+            fc_solve_pats__free_array(soft_thread, l->pile, unsigned char,
                 strlen((const char *)l->pile) + 1);
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
             l = n;
@@ -392,7 +388,7 @@ static inline void fc_solve_pats__free_blocks(
     {
         const_AUTO(next, b->next);
         fc_solve_pats__free_array(
-            soft_thread, b->block, u_char, FC_SOLVE__PATS__BLOCKSIZE);
+            soft_thread, b->block, unsigned char, FC_SOLVE__PATS__BLOCKSIZE);
         fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
         b = next;
     }
@@ -484,7 +480,7 @@ static inline void fc_solve_pats__hashpile(
     var_AUTO(col, fcs_state_get_col(soft_thread->current_pos.s, w));
     fcs_col_get_card(col, (int)fcs_col_len(col)) = '\0';
     soft_thread->current_pos.stack_hashes[w] =
-        fnv_hash_str((const u_char *)(col + 1));
+        fnv_hash_str((const unsigned char *)(col + 1));
 
     // Invalidate this pile's id.  We'll calculate it later.
     soft_thread->current_pos.stack_ids[w] = -1;

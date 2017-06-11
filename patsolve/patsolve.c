@@ -101,8 +101,9 @@ static inline void unpack_position(
            +--------+----:----+--------+
            j             j
            */
-        u_char c = 0;
-        u_char *p = (u_char *)(pos->node) + sizeof(fcs_pats__tree_t);
+        unsigned char c = 0;
+        unsigned char *p =
+            (unsigned char *)(pos->node) + sizeof(fcs_pats__tree_t);
         fcs_bool_t k = FALSE;
         for (int w = 0; w < LOCAL_STACKS_NUM; w++)
         {
@@ -131,7 +132,8 @@ static inline void unpack_position(
     /* soft_thread->current_pos.freecells cells. */
 
     {
-        u_char *p = (((u_char *)pos) + sizeof(fcs_pats_position_t));
+        unsigned char *p =
+            (((unsigned char *)pos) + sizeof(fcs_pats_position_t));
         for (int i = 0; i < LOCAL_FREECELLS_NUM; i++)
         {
             fcs_freecell_card(soft_thread->current_pos.s, i) = *(p++);
@@ -204,7 +206,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
 {
     DECLARE_STACKS();
     int cluster;
-    u_char *p;
+    unsigned char *p;
 
     /* Search the list of stored positions.  If this position is found,
     then ignore it and return (unless this position is better). */
@@ -228,7 +230,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     fcs_pats_position_t. */
     if (soft_thread->freed_positions)
     {
-        p = (u_char *)soft_thread->freed_positions;
+        p = (unsigned char *)soft_thread->freed_positions;
         soft_thread->freed_positions = soft_thread->freed_positions->queue;
     }
     else

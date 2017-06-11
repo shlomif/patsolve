@@ -484,7 +484,7 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
             return -1;
         }
         list_iter->pile =
-            fc_solve_pats__new_array(soft_thread, u_char, w_col_len + 1);
+            fc_solve_pats__new_array(soft_thread, unsigned char, w_col_len + 1);
         if (list_iter->pile == NULL)
         {
             fc_solve_pats__free_ptr(

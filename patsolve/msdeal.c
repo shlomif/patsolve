@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "portable_int32.h"
 
 typedef unsigned long long LONG;
 typedef uint32_t UINT;

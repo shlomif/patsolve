@@ -12,8 +12,6 @@
 #pragma once
 #include "config.h"
 
-#include "portable_int32.h"
-
 #define FNV1_32_INIT 0x811C9DC5
 #define FNV_32_PRIME 0x01000193
 
@@ -22,10 +20,10 @@ static inline uint32_t fnv_hash(const char x, const uint32_t hash)
     return ((hash * FNV_32_PRIME) ^ x);
 }
 
-static inline uint32_t fnv_hash_str(const u_char *s)
+static inline uint32_t fnv_hash_str(const unsigned char *s)
 {
     uint32_t h = FNV1_32_INIT;
-    u_char c;
+    unsigned char c;
     while ((c = *(s++)))
     {
         h = fnv_hash(c, h);

@@ -57,8 +57,8 @@ static inline fcs_pats__treelist_t *cluster_tree(
     return tl;
 }
 
-static inline int compare_piles(
-    const size_t bytes_per_pile, const u_char *const a, const u_char *const b)
+static inline int compare_piles(const size_t bytes_per_pile,
+    const unsigned char *const a, const unsigned char *const b)
 {
     return memcmp(a, b, bytes_per_pile);
 }
@@ -70,7 +70,7 @@ fc_solve_pats__new_from_block().
 That is, no other calls to give_back_block() are allowed. */
 
 static inline void give_back_block(
-    fcs_pats_thread_t *const soft_thread, u_char *const p)
+    fcs_pats_thread_t *const soft_thread, unsigned char *const p)
 {
     var_AUTO(b, soft_thread->my_block);
     const size_t s = b->ptr - p;
@@ -85,7 +85,8 @@ static inline fcs_pats__insert_code_t insert_node(
     fcs_pats_thread_t *const soft_thread, fcs_pats__tree_t *const n,
     const int d, fcs_pats__tree_t **const tree, fcs_pats__tree_t **const node)
 {
-    const u_char *const key = (u_char *)n + sizeof(fcs_pats__tree_t);
+    const unsigned char *const key =
+        (unsigned char *)n + sizeof(fcs_pats__tree_t);
     n->depth = d;
     n->left = n->right = NULL;
     *node = n;
@@ -98,8 +99,8 @@ static inline fcs_pats__insert_code_t insert_node(
     const_SLOT(bytes_per_pile, soft_thread);
     while (1)
     {
-        const int c = compare_piles(
-            bytes_per_pile, key, ((u_char *)t + sizeof(fcs_pats__tree_t)));
+        const int c = compare_piles(bytes_per_pile, key,
+            ((unsigned char *)t + sizeof(fcs_pats__tree_t)));
         if (c == 0)
         {
             break;
@@ -157,7 +158,7 @@ static inline fcs_pats__tree_t *pack_position(
 
     /* Allocate space and store the pile numbers.  The tree node
     will get filled in later, by insert_node(). */
-    u_char *p = fc_solve_pats__new_from_block(
+    unsigned char *p = fc_solve_pats__new_from_block(
         soft_thread, soft_thread->bytes_per_tree_node);
     if (p == NULL)
     {
@@ -230,7 +231,7 @@ fcs_pats__insert_code_t fc_solve_pats__insert(
 
     if (verdict != FCS_PATS__INSERT_CODE_NEW)
     {
-        give_back_block(soft_thread, (u_char *)new_pos);
+        give_back_block(soft_thread, (unsigned char *)new_pos);
     }
 
     return verdict;
@@ -247,7 +248,7 @@ fcs_pats__block_t *fc_solve_pats__new_block(
         return NULL;
     }
     const typeof(b->block) block = fc_solve_pats__new_array(
-        soft_thread, u_char, FC_SOLVE__PATS__BLOCKSIZE);
+        soft_thread, unsigned char, FC_SOLVE__PATS__BLOCKSIZE);
     if ((b->block = block) == NULL)
     {
         fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
@@ -261,7 +262,7 @@ fcs_pats__block_t *fc_solve_pats__new_block(
 }
 
 // Like new(), only from the current block.  Make a new block if necessary.
-u_char *fc_solve_pats__new_from_block(
+unsigned char *fc_solve_pats__new_from_block(
     fcs_pats_thread_t *const soft_thread, const size_t s)
 {
     var_AUTO(b, soft_thread->my_block);
@@ -276,7 +277,7 @@ u_char *fc_solve_pats__new_from_block(
         soft_thread->my_block = b;
     }
 
-    u_char *const p = b->ptr;
+    unsigned char *const p = b->ptr;
     b->remaining -= s;
     b->ptr += s;
 
