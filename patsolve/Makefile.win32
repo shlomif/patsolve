@@ -28,4 +28,3 @@ msdealsub.obj: msdealsub.c $(INCLUDES)
 
 patsolve.exe: $(OBJECTS)
 	$(CC) /Fepatsolve.exe $(OBJECTS)
-
