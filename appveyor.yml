@@ -21,11 +21,8 @@ build: off
 test_script:
     - set CMAKE_MAKE_PROGRAM=C:\strawberry\c\bin\gmake.exe
     - perl CI-testing/continuous-integration-testing.pl --gen="MSYS Makefiles"
-
 cache:
     - C:\libtap
     - C:\Perl5
     - C:\strawberry
-
 shallow_clone: true
-

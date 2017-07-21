@@ -154,15 +154,6 @@ struct fc_solve_instance_struct
 typedef struct fc_solve_instance_struct fc_solve_instance_t;
 #endif
 
-typedef struct
-{
-    fcs_pats_position_t *parent;
-    int num_moves;
-    fcs_pats__move_t *moves_start, *moves_end, *move_ptr;
-    fcs_bool_t q;
-    fcs_pats_position_t *pos;
-} fcs_pats__solve_depth_t;
-
 enum FC_SOLVE_PATS__MYDIR
 {
     FC_SOLVE_PATS__UP,
@@ -203,15 +194,12 @@ struct fc_solve__patsolve_thread_struct
     } current_pos;
 
     /* Temp storage for possible moves. */
-
     fcs_pats__move_t possible_moves[FCS_PATS__MAX_NUM_MOVES];
 
     /* Statistics. */
     long num_checked_states, max_num_checked_states;
     long num_states_in_collection;
-
     fcs_pats_xy_param_t pats_solve_params;
-
     size_t position_size;
 
     fcs_pats__bucket_list_t *buckets_list[FC_SOLVE_BUCKETLIST_NBUCKETS];
@@ -235,7 +223,6 @@ struct fc_solve__patsolve_thread_struct
 #ifdef FCS_PATSOLVE__WITH_FAIL_REASON
     fc_solve_pats__status_fail_reason_t fail_reason;
 #endif
-
 #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499 /* a prime */
     fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
     fcs_pats__block_t *my_block;
@@ -246,7 +233,14 @@ struct fc_solve__patsolve_thread_struct
 
 #define FCS_PATS__SOLVE_LEVEL_GROW_BY 16
     int curr_solve_depth, max_solve_depth;
-    fcs_pats__solve_depth_t *solve_stack;
+    struct
+    {
+        fcs_pats_position_t *parent;
+        int num_moves;
+        fcs_pats__move_t *moves_start, *moves_end, *move_ptr;
+        fcs_bool_t q;
+        fcs_pats_position_t *pos;
+    } * solve_stack;
     fcs_pats_position_t *curr_solve_pos;
     enum FC_SOLVE_PATS__MYDIR curr_solve_dir;
 };
@@ -295,14 +289,14 @@ static inline void fc_solve_pats__init_buckets(
 
     // Packed positions need 3 bytes for every 2 piles.
     soft_thread->bytes_per_pile =
-        (((stacks_num * 3) >> 1) + (stacks_num & 0x1));
+        (size_t)(((stacks_num * 3) >> 1) + (stacks_num & 0x1));
 
     memset(soft_thread->buckets_list, 0, sizeof(soft_thread->buckets_list));
     soft_thread->next_pile_idx = 0;
     soft_thread->bytes_per_tree_node = fc_solve_pats__align(
         sizeof(fcs_pats__tree_t) + soft_thread->bytes_per_pile);
-    soft_thread->position_size =
-        fc_solve_pats__align(sizeof(fcs_pats_position_t) + freecells_num);
+    soft_thread->position_size = fc_solve_pats__align(
+        sizeof(fcs_pats_position_t) + (size_t)freecells_num);
 }
 
 // A function and some macros for allocating memory.
@@ -462,7 +456,7 @@ static inline void fc_solve_pats__init_soft_thread(
 
     soft_thread->max_solve_depth = FCS_PATS__SOLVE_LEVEL_GROW_BY;
     soft_thread->solve_stack = (typeof(soft_thread->solve_stack))SMALLOC(
-        soft_thread->solve_stack, soft_thread->max_solve_depth);
+        soft_thread->solve_stack, (size_t)soft_thread->max_solve_depth);
 }
 
 static inline void fc_solve_pats__destroy_soft_thread(

@@ -834,13 +834,11 @@ that are a waste of time, especially in the endgame where there are lots of
 possible moves, but few productive ones.  Note that we also prioritize
 positions when they are added to the queue. */
 
-#define NUM_PRIORITIZE_PILES 8
-
 static inline void prioritize(fcs_pats_thread_t *const soft_thread,
     fcs_pats__move_t *const moves_start, const int n)
 {
     DECLARE_STACKS();
-    int pile[NUM_PRIORITIZE_PILES];
+    int pile[8];
 
     /* There are 4 cards that we "need": the next cards to go out.  We
     give higher priority to the moves that remove cards from the piles

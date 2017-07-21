@@ -189,4 +189,3 @@ extern "C" {
 #endif
 
 #endif    /* #ifndef FC_SOLVE__CONFIG_H */
-

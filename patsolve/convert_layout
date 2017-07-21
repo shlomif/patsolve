@@ -44,4 +44,3 @@ for {set pile 0} {$pile < $npiles} {incr pile} {
 set p "[formatcard [lindex $hand 0]] "
 append p [formatcard [lindex $hand 1]]
 echo $p
-
