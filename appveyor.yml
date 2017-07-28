@@ -3,8 +3,7 @@
 # Thanks!
 install:
     - if not exist C:\libtap mkdir C:\libtap
-    - if not exist C:\libtap\strawberry-perl-5.24.0.1-64bit.msi curl -fsS -o C:\libtap\strawberry-perl-5.24.0.1-64bit.msi http://strawberryperl.com/download/5.24.0.1/strawberry-perl-5.24.0.1-64bit.msi
-    - if not exist C:\strawberry\perl\bin\perl.exe msiexec /i C:\libtap\strawberry-perl-5.24.0.1-64bit.msi /quiet /qn /norestart /log install.log INSTALLDIR="C:\strawberry"
+    - choco install strawberryperl
     - SET PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
     - perl -v
     - if not exist C:\Perl5 mkdir C:\Perl5
