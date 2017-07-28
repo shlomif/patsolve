@@ -22,6 +22,6 @@ test_script:
     - perl CI-testing/continuous-integration-testing.pl --gen="MSYS Makefiles"
 cache:
     - C:\libtap
-    - C:\Perl5
-    - C:\strawberry
+    # - C:\Perl5
+    # - C:\strawberry
 shallow_clone: true
