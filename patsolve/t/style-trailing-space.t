@@ -14,7 +14,7 @@ foreach my $path ( @ENV{qw/FCS_SRC_PATH FCS_PATH/} )
             filename_regex    => qr/./,
             abs_path_prune_re => qr#CMakeFiles|_Inline|
             (?:\.(?:a|patch|xcf)\z) |
-            (?:(?:\A|/|\\)(?:pats-msdeal|patsolve|threaded-pats)\z)
+            (?:(?:\A|/|\\)(?:pats-msdeal|patsolve|threaded-pats)(?:\.exe)?\z)
             #msx,
         }
     );
