@@ -361,10 +361,10 @@ static inline void fc_solve_pats__free_buckets(
 {
     for (int i = 0; i < FC_SOLVE_BUCKETLIST_NBUCKETS; i++)
     {
-        typeof(soft_thread->buckets_list[i]) l = soft_thread->buckets_list[i];
+        var_AUTO(l, soft_thread->buckets_list[i]);
         while (l)
         {
-            typeof(l->next) n = l->next;
+            var_AUTO(n, l->next);
             fc_solve_pats__free_array(soft_thread, l->pile, unsigned char,
                 strlen((const char *)l->pile) + 1);
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
@@ -394,10 +394,10 @@ static inline void fc_solve_pats__free_clusters(
 {
     for (int i = 0; i < FCS_PATS__TREE_LIST_NUM_BUCKETS; i++)
     {
-        typeof(soft_thread->tree_list[i]) l = soft_thread->tree_list[i];
+        var_AUTO(l, soft_thread->tree_list[i]);
         while (l)
         {
-            typeof(l) n = l->next;
+            var_AUTO(n, l->next);
             fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__treelist_t);
             l = n;
         }

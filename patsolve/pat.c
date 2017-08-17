@@ -90,8 +90,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
  * soft_thread->current_pos.foundations. */
 
 #define NUM_MOVES (move_ptr - soft_thread->possible_moves)
-    typeof(soft_thread->possible_moves[0]) *move_ptr =
-        soft_thread->possible_moves;
+    var_PTR(move_ptr, soft_thread->possible_moves);
     for (int w = 0; w < LOCAL_STACKS_NUM; ++w)
     {
         const_AUTO(col, fcs_state_get_col(soft_thread->current_pos.s, w));
@@ -416,9 +415,7 @@ static inline void mark_irreversible(
 #else
         FALSE;
 #endif
-
-    const typeof(soft_thread->pats_solve_params.x[8]) x_param_8 =
-        soft_thread->pats_solve_params.x[8];
+    const_AUTO(x_param_8, soft_thread->pats_solve_params.x[8]);
 
     fcs_pats__move_t *move_ptr = soft_thread->possible_moves;
     const fcs_pats__move_t *const moves_end = move_ptr + n;
@@ -895,7 +892,7 @@ end_of_stacks:;
     listed in pile[], bump their priority.  Likewise, if a move
     covers a card we need, decrease its priority.  These priority
     increments and decrements were determined empirically. */
-    const typeof(moves_start) moves_end = moves_start + n;
+    const_AUTO(moves_end, moves_start + n);
     for (fcs_pats__move_t *move_ptr = moves_start; move_ptr < moves_end;
          move_ptr++)
     {
@@ -965,9 +962,8 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
     if (!a)
     {
         // Throw out some obviously bad (non-auto)moves.
-        typeof(soft_thread->possible_moves[0]) *move_ptr =
-            soft_thread->possible_moves;
-        const typeof(move_ptr) moves_end = move_ptr + total_num_moves;
+        var_PTR(move_ptr, soft_thread->possible_moves);
+        const_AUTO(moves_end, move_ptr + total_num_moves);
         for (; move_ptr < moves_end; move_ptr++)
         {
 #ifndef FCS_FREECELL_ONLY
@@ -1102,7 +1098,7 @@ void fc_solve_pats__sort_piles(fcs_pats_thread_t *const soft_thread)
     soft_thread->current_pos.column_idxs[0] = 0;
     for (int i = 1; i < LOCAL_STACKS_NUM; i++)
     {
-        const typeof(i) w = i - 1;
+        const_AUTO(w, i - 1);
         if (wcmp(soft_thread, soft_thread->current_pos.column_idxs[w], i) < 0)
         {
             soft_thread->current_pos.column_idxs[i] = i;

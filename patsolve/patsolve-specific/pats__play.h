@@ -140,8 +140,8 @@ static inline void fc_solve_pats__configure_soft_thread(
 
     /* Parse args twice.  Once to get the operating mode, and the
     next for other options. */
-    typeof(argc) argc0 = argc;
-    typeof(argv) argv0 = argv;
+    var_AUTO(argc0, argc);
+    var_AUTO(argv0, argv);
     const char *curr_arg;
     while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv))
     {

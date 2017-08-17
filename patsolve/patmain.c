@@ -37,8 +37,7 @@ static inline void trace_solution(fcs_pats_thread_t *const soft_thread,
     const_SLOT(moves_to_win, soft_thread);
     const_AUTO(moves_end, moves_to_win + num_moves);
 
-    for (const typeof(*moves_to_win) *move_ptr = moves_to_win;
-         move_ptr < moves_end; move_ptr++)
+    for (var_PTR(move_ptr, moves_to_win); move_ptr < moves_end; move_ptr++)
     {
         fc_solve_pats__print_card(move_ptr->card, out);
         fputc(' ', out);

@@ -377,7 +377,7 @@ static inline int solve(
             return TRUE;
         }
 
-        typeof(LEVEL.parent) parent = LEVEL.parent;
+        var_S_SLOT(parent, LEVEL);
         /* If we've won already (or failed), we just go through the motions
         but always return FALSE from any position.  This enables the cleanup
         of the move stack and eventual destruction of the position store. */
@@ -555,8 +555,7 @@ void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
         fcs_foundation_value(soft_thread->current_pos.s, 3);
 
     /* y_param[0] * nout^2 + y_param[1] * nout + y_param[2] */
-    const typeof(soft_thread->pats_solve_params.y[0]) *const y_param =
-        soft_thread->pats_solve_params.y;
+    const_PTR(y_param, soft_thread->pats_solve_params.y);
     const double x =
         (y_param[0] * num_cards_out + y_param[1]) * num_cards_out + y_param[2];
     /*
