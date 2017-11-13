@@ -130,8 +130,9 @@ int main(int argc, char **argv)
             pthread_create(&workers[idx], NULL, worker_thread, NULL);
         if (check)
         {
-            fprintf(stderr, "Worker Thread No. %d Initialization failed "
-                            "with error %d!\n",
+            fprintf(stderr,
+                "Worker Thread No. %d Initialization failed "
+                "with error %d!\n",
                 idx, check);
             exit(-1);
         }

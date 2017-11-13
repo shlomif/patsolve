@@ -170,6 +170,20 @@ int main(int argc, char **argv)
             get_board_l(board_num, state_string);
             fc_solve_pats__read_layout(soft_thread, state_string);
             fc_solve_pats__play(soft_thread, is_quiet);
+            switch (soft_thread->status)
+            {
+            case FCS_PATS__WIN:
+                printf("#%ld - Won\n", (long)board_num);
+                break;
+
+            case FCS_PATS__FAIL:
+                printf("#%ld - OutOfMem\n", (long)board_num);
+                break;
+
+            case FCS_PATS__NOSOL:
+                printf("#%ld - Impossible\n", (long)board_num);
+                break;
+            }
             fc_solve_pats__recycle_soft_thread(soft_thread);
             fflush(stdout);
         }

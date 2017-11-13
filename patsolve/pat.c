@@ -86,8 +86,8 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
 #endif
     DECLARE_STACKS();
 
-/* Check for moves from soft_thread->current_pos.stacks to
- * soft_thread->current_pos.foundations. */
+    /* Check for moves from soft_thread->current_pos.stacks to
+     * soft_thread->current_pos.foundations. */
 
 #define NUM_MOVES (move_ptr - soft_thread->possible_moves)
     var_PTR(move_ptr, soft_thread->possible_moves);
@@ -331,7 +331,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
         for (int w = 0; w < LOCAL_STACKS_NUM; w++)
         {
             var_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
-            const_AUTO(w_col_len, fcs_col_len(w_col));
+            const unsigned w_col_len = fcs_col_len(w_col);
             if (w_col_len > 0)
             {
                 *(move_ptr++) = (typeof(*move_ptr)){
