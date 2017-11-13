@@ -130,11 +130,26 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 INCLUDE(CPack)
 
+SET (is_parent_gen "${FC_SOLVE_SRC_PATH}/scripts/gen_is_parent_lookup_c.pl")
+SET (is_parent_args "${is_parent_gen}")
+SET (is_parent_output
+    "${CMAKE_CURRENT_BINARY_DIR}/debondt__card_pos.c" "${CMAKE_CURRENT_BINARY_DIR}/debondt__card_pos.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/debondt__state_pos.c" "${CMAKE_CURRENT_BINARY_DIR}/debondt__state_pos.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/is_king.c" "${CMAKE_CURRENT_BINARY_DIR}/is_king.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/is_parent.c" "${CMAKE_CURRENT_BINARY_DIR}/is_parent.h"
+    "${CMAKE_CURRENT_BINARY_DIR}/pos_by_rank__freecell.c" "${CMAKE_CURRENT_BINARY_DIR}/pos_by_rank__freecell.h"
+    )
+ADD_CUSTOM_COMMAND(
+    OUTPUT ${is_parent_output}
+    COMMAND "${PERL_EXECUTABLE}"
+    ARGS ${is_parent_args}
+    DEPENDS "${is_parent_gen}"
+)
 ADD_LIBRARY(fcs_patsolve_lib
     STATIC
     "${FC_SOLVE_SRC_PATH}/card.c"
     "${FC_SOLVE_SRC_PATH}/state.c"
-    param.c pat.c patsolve.c tree.c
+    is_king.c is_king.h param.c pat.c patsolve.c tree.c
 )
 
 ADD_EXECUTABLE(patsolve patmain.c)
