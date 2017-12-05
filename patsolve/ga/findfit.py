@@ -67,9 +67,9 @@ def add(a, b):
 m = []
 
 for id in fit.keys():
-    l = fit[id]
-    avg = reduce(add, l, 0) / float(len(l))
-    m.append((avg, id, len(l)))
+    lst = fit[id]
+    avg = reduce(add, lst, 0) / float(len(lst))
+    m.append((avg, id, len(lst)))
 
 m.sort(lambda x, y: sgn(x[0] - y[0]))
 # m.sort(lambda x, y: sgn(y[2] - x[2]))

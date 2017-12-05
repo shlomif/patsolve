@@ -52,7 +52,7 @@ seed = int((time.time() * 10000.) % (1 << 30))
 rng.seed(seed)
 
 
-def mutate(l, p):
+def mutate(lst, p):
     """mutate(list, probability) -> list
 
     Given a list of integers and a mutation probability, mutate the list
@@ -70,7 +70,7 @@ def mutate(l, p):
             return x - y
         return x
 
-    return map(flip, l)
+    return map(flip, lst)
 
 
 def cross(l1, l2, p):
@@ -82,16 +82,16 @@ def cross(l1, l2, p):
     random from one of the two lists with equal probability.  The lists
     must be the same length."""
 
-    l = [0] * len(l1)
+    lst = [0] * len(l1)
     x = map(None, l1, l2)
     j = rng.random() % 2
     (p, q) = torat(p)
     for i in xrange(len(l1)):
         if rng.flip(p, q):
             j = 1 - j
-        l[i] = x[i][j]
+        lst[i] = x[i][j]
 
-    return l
+    return lst
 
 
 def breed(l1, l2):
@@ -109,25 +109,25 @@ def initpop(nl=None):
     global Npop, Nparam
 
     if nl:
-        l = []
+        lst = []
         f = open(nl[0], 'r')
         for s in f.readlines():
             if s[0] != '#':
                 m = map(int, string.split(s))
-                l.append(m)
+                lst.append(m)
         f.close()
-        Npop = len(l)
-        Nparam = len(l[0])
+        Npop = len(lst)
+        Nparam = len(lst[0])
     else:
         # oldcanon = [5, 4, 6, 0, 0, 0, 0, 0, 0, 0, 1, 3, 0, 1]
         # canon0 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         canon1 = [2, 6, 2, 0, -5, -9, -5, -11, 3, 1, -5, 2, 2, 0]
         canon2 = [1, 1, 6, -2, -1, -2, -2, -3, 0, -1, 2, 4, 6, 1]
         Nparam = len(canon1)
-        l = [breed(canon1, canon2) for x in xrange(Npop)]
-#                l = [mutate(canon0, .9) for x in xrange(Npop)]
+        lst = [breed(canon1, canon2) for x in xrange(Npop)]
+#                lst = [mutate(canon0, .9) for x in xrange(Npop)]
 
-    return l
+    return lst
 
 
 def newpop(result):
@@ -164,19 +164,19 @@ def sgn(x):
 def refill(pop):
     """Get rid of duplicates."""
 
-    for l in pop:
-        l[9] = sgn(l[9])
-        l[-1] = abs(l[-1])
+    for lst in pop:
+        lst[9] = sgn(lst[9])
+        lst[-1] = abs(lst[-1])
     pop.sort()
 
     newpop = [0] * Npop
     i = 0
     last = None
-    for l in pop:
-        if l != last:
-            newpop[i] = l
+    for lst in pop:
+        if lst != last:
+            newpop[i] = lst
             i += 1
-        last = l
+        last = lst
     for j in xrange(i, Npop):
         a = rng.random() % i
         b = rng.random() % i
@@ -191,27 +191,27 @@ def run(pop):
 
     result = [0] * Npop
     i = 0
-    for l in pop:
-        result[i] = (fitness(l), l)
+    for lst in pop:
+        result[i] = (fitness(lst), lst)
         i += 1
 
     return result
 
 
-def get_ycoeff(l):
-    """Find the quadratic through (0, l[0]), (25, l[1]), and (50, l[2]).
+def get_ycoeff(lst):
+    """Find the quadratic through (0, lst[0]), (25, lst[1]), and (50, lst[2]).
     Return the coefficients as a string, e.g., '.5 1.2 2.'"""
 
     f = open('/tmp/x', 'w')
-    f.write('0 %d\n' % l[0])
-    f.write('25 %d\n' % l[1])
-    f.write('50 %d\n' % l[2])
+    f.write('0 %d\n' % lst[0])
+    f.write('25 %d\n' % lst[1])
+    f.write('50 %d\n' % lst[2])
     f.close()
     os.system('fit/dofit /tmp/x > /tmp/coeff')
     f = open('/tmp/coeff', 'r')
-    l = f.readlines()
+    lst = f.readlines()
     f.close()
-    return string.join(map(str, map(float, l)))
+    return string.join(map(str, map(float, lst)))
 
 
 move = re.compile(r"([0-9]+) moves.")
@@ -221,13 +221,13 @@ memrem = re.compile(r"Mem_remain = ([0-9]+)")
 malloc = re.compile(r".*memory.*")
 
 
-def fitness(l):
+def fitness(lst):
     """Run the individual and return the fitness value."""
 
     nx = Nparam - 4
-    param = '-c%d ' % (abs(l[-1]) + 1)
-    param += '-X%d %s ' % (nx, string.join(map(str, l[:nx])))
-    s = get_ycoeff(l[-4:-1])
+    param = '-c%d ' % (abs(lst[-1]) + 1)
+    param += '-X%d %s ' % (nx, string.join(map(str, lst[:nx])))
+    s = get_ycoeff(lst[-4:-1])
     param += '-Y %s' % s
     resname = 'res'
 
@@ -280,8 +280,8 @@ def ga():
     while 1:
         f = open('curpop', 'w')
         f.write("# %s\n" % Opts)
-        for l in pop:
-            f.write("%s\n" % string.join(map(str, l)))
+        for lst in pop:
+            f.write("%s\n" % string.join(map(str, lst)))
         f.close()
         pop = refill(pop)
         result = run(pop)

@@ -37,13 +37,13 @@ f = open(filename)
 for line in f.xreadlines():
     if line[0] == '#' or line[0] == '\n':
         continue
-    l = string.split(line)
-    h.write("#define FC_SOLVE_PATS__PARAM_PRESET__%s %d\n" % (l[0], p))
+    fields = string.split(line)
+    h.write("#define FC_SOLVE_PATS__PARAM_PRESET__%s %d\n" % (fields[0], p))
     c.write(" {{ ")
-    for x in l[1:NXPARAM + 1]:
+    for x in fields[1:NXPARAM + 1]:
         c.write("%s, " % x)
     c.write("}, { ")
-    for y in l[NXPARAM + 1:]:
+    for y in fields[NXPARAM + 1:]:
         c.write("%s, " % y)
     c.write("}},\n")
     p += 1
