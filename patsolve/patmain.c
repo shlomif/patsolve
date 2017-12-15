@@ -117,8 +117,8 @@ int main(int argc, char **argv)
         {
             fc_solve_pats__print_layout(soft_thread);
         }
-#if 0
-        fc_solve_pats__play(soft_thread);
+#if 1
+        fc_solve_pats__play(soft_thread, is_quiet);
 #else
         fc_solve_pats__before_play(soft_thread);
 
