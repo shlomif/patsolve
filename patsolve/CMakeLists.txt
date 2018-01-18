@@ -55,30 +55,9 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "${CPACK_PACKAGE_DESCRIPTION_SUMMARY} ${CPAC
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
 
 SET(CPACK_SOURCE_IGNORE_FILES
-    "/_CPack_Packages/"
-    "/CMakeFiles/"
     "/.deps/"
-    "patsolve-shlomif-[0-9]+\\\\.[0-9]+\\\\.[0-9]+(-Source|-Linux|)(/|\\\\.(sh|tar\\\\.(gz|bz2|Z|lzma|xz))$)"
-    "\\\\.o$"
     "~$"
-    "/(patsolve)$"
-    "/lib(fcs|freecell-solver)\\\\.(a|la)$"
-    "\\\\.so(\\\\.[0-9]+)*$"
-    "/\\\\.svn/"
-    "/t/t/.*\\\\.exe$"
-    "/t/Presets"
-    "/CMakeCache\\\\.txt$"
-    "/Makefile$"
-    "/CTestTestfile\\\\.cmake$"
-    "/cmake_install\\\\.cmake$"
-    "/CPackConfig\\\\.cmake$"
-    "/CPackSourceConfig\\\\.cmake$"
     "/tags$"
-    "/freecell-solver-config$"
-    "/([0-9]+)\\\\.board$"
-    "/install_manifest\\\\.txt$"
-    "/t/card-test-(parse|render)\\\\.c$"
-    "/Testing/"
 )
 
 IF(WIN32 AND NOT UNIX)
