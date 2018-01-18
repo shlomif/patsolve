@@ -117,19 +117,7 @@ int main(int argc, char **argv)
         {
             fc_solve_pats__print_layout(soft_thread);
         }
-#if 1
         fc_solve_pats__play(soft_thread, is_quiet);
-#else
-        fc_solve_pats__before_play(soft_thread);
-
-        do
-        {
-            soft_thread->max_num_checked_states =
-                soft_thread->num_checked_states + 50;
-            soft_thread->status = FCS_PATS__NOSOL;
-            fc_solve_pats__do_it(soft_thread);
-        } while (soft_thread->status == FCS_PATS__FAIL);
-#endif
         switch (soft_thread->status)
         {
         case FCS_PATS__WIN:
