@@ -119,12 +119,6 @@ extern "C" {
 #define FCS_DISABLE_SIMPLE_SIMON
 #endif
 
-#if 0
-#ifndef FCS_WITHOUT_CARD_FLIPPING
-#define FCS_WITHOUT_CARD_FLIPPING
-#endif
-#endif
-
 #endif
 
 #ifdef HARD_CODED_NUM_FREECELLS
