@@ -426,7 +426,6 @@ static inline int solve(
                 free_position_non_recursive(soft_thread, LEVEL.pos);
             }
             fc_solve_pats__undo_move(soft_thread, LEVEL.move_ptr);
-            mydir = FC_SOLVE_PATS__UP;
             LEVEL.move_ptr++;
         }
 
