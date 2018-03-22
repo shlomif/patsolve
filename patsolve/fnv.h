@@ -20,7 +20,8 @@ static inline uint32_t fnv_hash(const unsigned char x, const uint32_t hash)
     return ((hash * FNV_32_PRIME) ^ (uint32_t)x);
 }
 
-static inline uint32_t fnv_hash_str(const unsigned char *s)
+static inline __attribute__((pure)) uint32_t fnv_hash_str(
+    const unsigned char *s)
 {
     uint32_t h = FNV1_32_INIT;
     unsigned char c;
