@@ -106,7 +106,7 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 INCLUDE(CPack)
 
-SET (is_parent_gen "${FC_SOLVE_SRC_PATH}/scripts/gen_is_parent_lookup_c.pl")
+SET (is_parent_gen "${FC_SOLVE_SRC_PATH}/scripts/gen-c-lookup-files.pl")
 SET (is_parent_args "${is_parent_gen}")
 SET (is_parent_output
     "${CMAKE_CURRENT_BINARY_DIR}/debondt__card_pos.c" "${CMAKE_CURRENT_BINARY_DIR}/debondt__card_pos.h"
