@@ -31,9 +31,8 @@ static inline int calc_empty_col_idx(
 static inline fcs_bool_t good_automove(
     fcs_pats_thread_t *const soft_thread, const int o, const int r)
 {
-#ifndef FCS_FREECELL_ONLY
-    const fc_solve_instance_t *const instance = soft_thread->instance;
-#endif
+    FCS_ON_NOT_FC_ONLY(
+        const fc_solve_instance_t *const instance = soft_thread->instance);
 
     if (
 #ifndef FCS_FREECELL_ONLY
@@ -81,9 +80,8 @@ static inline fcs_bool_t good_automove(
 static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
     fcs_bool_t *const a, int *const num_cards_out)
 {
-#ifndef FCS_FREECELL_ONLY
-    const fc_solve_instance_t *const instance = soft_thread->instance;
-#endif
+    FCS_ON_NOT_FC_ONLY(
+        const fc_solve_instance_t *const instance = soft_thread->instance);
     DECLARE_STACKS();
 
     /* Check for moves from soft_thread->current_pos.stacks to

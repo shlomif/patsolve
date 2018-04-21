@@ -88,21 +88,24 @@ typedef struct fc_solve_pats__pos__struct
 // > max # moves from any position
 #define FCS_PATS__MAX_NUM_MOVES 64
 
-typedef enum {
+typedef enum
+{
     FCS_PATS__INSERT_CODE_NEW,
     FCS_PATS__INSERT_CODE_FOUND,
     FCS_PATS__INSERT_CODE_FOUND_BETTER,
     FCS_PATS__INSERT_CODE_ERR
 } fcs_pats__insert_code_t;
 
-typedef enum {
+typedef enum
+{
     FCS_PATS__FAIL = -1,
     FCS_PATS__WIN = 0,
     FCS_PATS__NOSOL = 1
 } fc_solve_pats__status_code_t;
 
 #ifdef FCS_PATSOLVE__WITH_FAIL_REASON
-typedef enum {
+typedef enum
+{
     FCS_PATS__FAIL_CHECKED_STATES = 0,
     FCS_PATS__FAIL_OTHER = 1,
 } fc_solve_pats__status_fail_reason_t;
@@ -165,8 +168,9 @@ struct fc_solve__patsolve_thread_struct
     fc_solve_instance_t *instance;
     size_t remaining_memory;
     size_t bytes_per_pile;
-    fcs_pats_position_t *queue_head
-        [FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each priority */
+    fcs_pats_position_t
+        *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each
+                                                   priority */
     fcs_pats_position_t
         *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
     int max_queue_idx;

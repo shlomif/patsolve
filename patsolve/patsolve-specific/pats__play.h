@@ -190,16 +190,12 @@ static inline void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'w':
-#ifndef FCS_FREECELL_ONLY
-                INSTANCE_STACKS_NUM = atoi(curr_arg);
-#endif
+                FCS_ON_NOT_FC_ONLY(INSTANCE_STACKS_NUM = atoi(curr_arg));
                 curr_arg = NULL;
                 break;
 
             case 't':
-#ifndef FCS_FREECELL_ONLY
-                INSTANCE_FREECELLS_NUM = atoi(curr_arg);
-#endif
+                FCS_ON_NOT_FC_ONLY(INSTANCE_FREECELLS_NUM = atoi(curr_arg));
                 curr_arg = NULL;
                 break;
 
