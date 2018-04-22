@@ -8,7 +8,7 @@
  * Copyright (c) 2002 Tom Holroyd
  */
 #pragma once
-#include "config.h"
+#include "fcs_conf.h"
 
 #include "game_type_params.h"
 #include "fcs_enums.h"

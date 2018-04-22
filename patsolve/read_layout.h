@@ -7,12 +7,7 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-
 #pragma once
-
-#include "config.h"
-
-#include "instance.h"
 #include "pat.h"
 
 static inline void fc_solve_pats__read_layout(
