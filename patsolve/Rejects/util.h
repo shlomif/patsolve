@@ -8,15 +8,9 @@
  * Copyright (c) 2002 Tom Holroyd
  */
 /* Standard utilities. */
-
-#ifndef FC_SOLVE__UTIL_H
-#define FC_SOLVE__UTIL_H
-
+#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-
 #include "instance.h"
-
-#endif  /* FC_SOLVE__UTIL_H */
