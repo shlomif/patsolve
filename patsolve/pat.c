@@ -9,10 +9,7 @@
  */
 #include "alloc_wrap.h"
 #include "count.h"
-
 #include "instance.h"
-#include "fnv.h"
-#include "tree.h"
 
 static inline int calc_empty_col_idx(
     fcs_pats_thread_t *const soft_thread, const int stacks_num)
