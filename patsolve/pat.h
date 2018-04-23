@@ -17,7 +17,7 @@
 #include "bool.h"
 #include "fcs_dllexport.h"
 #include "state.h"
-#include "fnv.h"
+#include "wrap_xxhash.h"
 #include "alloc_wrap.h"
 #include "instance.h"
 
@@ -478,8 +478,7 @@ static inline void fc_solve_pats__hashpile(
     var_AUTO(col, fcs_state_get_col(soft_thread->current_pos.s, w));
     fcs_col_get_card(col, (int)fcs_col_len(col)) = '\0';
     soft_thread->current_pos.stack_hashes[w] =
-        fnv_hash_str((const unsigned char *)(col + 1));
-
+        XXH32(col + 1, fcs_col_len(col), 0);
     // Invalidate this pile's id.  We'll calculate it later.
     soft_thread->current_pos.stack_ids[w] = -1;
 }

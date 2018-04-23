@@ -1,6 +1,8 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 INCLUDE ("${CMAKE_SOURCE_DIR}/cmake/shlomif_common_bootstrap.cmake")
+INCLUDE("${private_mod_path}/xxhash_wrapper_bootstrap.cmake")
+
 SHLOMIF_COMMON_SETUP("${private_mod_path}")
 
 INCLUDE(CheckCCompilerFlag)
