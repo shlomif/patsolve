@@ -16,7 +16,6 @@ search. */
 
 #include <math.h>
 #include "instance.h"
-#include "bool.h"
 
 /* We can't free the stored piles in the trees, but we can free some of the
 fcs_pats_position_t structs.  We have to be careful, though, because there are
@@ -604,7 +603,3 @@ void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
     ++soft_thread->num_positions_in_clusters[pos->cluster];
 #endif
 }
-
-/* Unpack a compact position rep.  soft_thread->current_pos.freecells cells must
- * be restored from
- * the array following the fcs_pats_position_t struct. */
