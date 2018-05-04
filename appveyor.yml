@@ -13,8 +13,6 @@ install:
     - SET PERL_MB_OPT=--install_base C:/Perl5
     - SET PERL_MM_OPT=INSTALL_BASE=C:/Perl5
     - cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Path::Tiny Test::Differences Test::More Test::PerlTidy Test::TrailingSpace Test::Trap
-    - hg clone https://bitbucket.org/shlomif/shlomif-cmake-modules patsolve/cmake/sfc
-    - copy patsolve\cmake\sfc\shlomif-cmake-modules\Shlomif_Common.cmake patsolve\cmake\
     - git clone git://github.com/shlomif/fc-solve.git
 build: off
 test_script:
