@@ -101,14 +101,14 @@ typedef enum
     FCS_PATS__FAIL = -1,
     FCS_PATS__WIN = 0,
     FCS_PATS__NOSOL = 1
-} fc_solve_pats__status_code_t;
+} fc_solve_pats__status_code;
 
 #ifdef FCS_PATSOLVE__WITH_FAIL_REASON
 typedef enum
 {
     FCS_PATS__FAIL_CHECKED_STATES = 0,
     FCS_PATS__FAIL_OTHER = 1,
-} fc_solve_pats__status_fail_reason_t;
+} fc_solve_pats__status_fail_reason;
 #endif
 
 // Memory.
@@ -223,9 +223,9 @@ struct fc_solve__patsolve_thread_struct
     /* Switch between depth- and breadth-first. Default is "1".*/
     int num_moves_to_cut_off;
     /* win, lose, or fail */
-    fc_solve_pats__status_code_t status;
+    fc_solve_pats__status_code status;
 #ifdef FCS_PATSOLVE__WITH_FAIL_REASON
-    fc_solve_pats__status_fail_reason_t fail_reason;
+    fc_solve_pats__status_fail_reason fail_reason;
 #endif
 #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499 /* a prime */
     fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
