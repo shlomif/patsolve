@@ -55,7 +55,7 @@ static void *worker_thread(void *context)
     char **argv = context_argv;
 
     fc_solve_instance_t instance_struct;
-    fcs_bool_t is_quiet = FALSE;
+    bool is_quiet = FALSE;
     fc_solve_pats__configure_soft_thread(soft_thread, &(instance_struct), &argc,
         (const char ***)(&argv), &is_quiet);
 

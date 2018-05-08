@@ -29,7 +29,7 @@ static inline void fc_solve_pats__before_play(fcs_pats_thread_t *soft_thread)
 }
 
 static inline void fc_solve_pats__play(
-    fcs_pats_thread_t *const soft_thread, const fcs_bool_t is_quiet)
+    fcs_pats_thread_t *const soft_thread, const bool is_quiet)
 {
     fc_solve_pats__before_play(soft_thread);
     fc_solve_pats__do_it(soft_thread);
@@ -129,7 +129,7 @@ static inline void pats__init_soft_thread_and_instance(
 static inline void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread_t *const soft_thread, fc_solve_instance_t *const instance,
     int *const argc_ptr, const char ***const argv_ptr,
-    fcs_bool_t *const is_quiet)
+    bool *const is_quiet)
 {
     int argc = *argc_ptr;
     const char **argv = *argv_ptr;

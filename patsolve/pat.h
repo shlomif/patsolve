@@ -29,7 +29,7 @@
 /* The following implements
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b))) */
 #ifdef FCS_FREECELL_ONLY
-static inline fcs_bool_t fcs_pats_is_suitable(
+static inline bool fcs_pats_is_suitable(
     const fcs_card_t a, const fcs_card_t b)
 {
     const fcs_card_t suit_mask = FCS_PATS__COLOR;
@@ -37,15 +37,15 @@ static inline fcs_bool_t fcs_pats_is_suitable(
     return (((a ^ b) & suit_mask) == suit_val);
 }
 #else
-static inline fcs_bool_t fcs_pats_is_suitable(const fcs_card_t a,
+static inline bool fcs_pats_is_suitable(const fcs_card_t a,
     const fcs_card_t b, const fcs_card_t suit_mask, const fcs_card_t suit_val)
 {
     return (((a ^ b) & suit_mask) == suit_val);
 }
 #endif
 
-static inline fcs_bool_t fcs_pats_is_king_only(
-    const fcs_bool_t not_king_only, const fcs_card_t card)
+static inline bool fcs_pats_is_king_only(
+    const bool not_king_only, const fcs_card_t card)
 {
     return (not_king_only || fcs_card_rank(card) == FCS_PATS__KING);
 }
@@ -213,13 +213,13 @@ struct fc_solve__patsolve_thread_struct
                        from the pile */
     fcs_pats__bucket_list_t *bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
     size_t bytes_per_tree_node;
-    fcs_bool_t dont_exit_on_sol; /* -E means don't exit */
+    bool dont_exit_on_sol; /* -E means don't exit */
     int num_solutions;           /* number of solutions found in -E mode */
     /* -S means stack, not queue, the moves to be done. This is a boolean
      * value.
      * Default should be FALSE.
      * */
-    fcs_bool_t to_stack;
+    bool to_stack;
     /* Switch between depth- and breadth-first. Default is "1".*/
     int num_moves_to_cut_off;
     /* win, lose, or fail */
@@ -242,7 +242,7 @@ struct fc_solve__patsolve_thread_struct
         fcs_pats_position_t *parent;
         int num_moves;
         fcs_pats__move_t *moves_start, *moves_end, *move_ptr;
-        fcs_bool_t q;
+        bool q;
         fcs_pats_position_t *pos;
     } * solve_stack;
     fcs_pats_position_t *curr_solve_pos;

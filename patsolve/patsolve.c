@@ -101,7 +101,7 @@ static inline void unpack_position(
         unsigned char c = 0;
         unsigned char *p =
             (unsigned char *)(pos->node) + sizeof(fcs_pats__tree_t);
-        fcs_bool_t k = FALSE;
+        bool k = FALSE;
         for (int w = 0; w < LOCAL_STACKS_NUM; w++)
         {
             int i;
@@ -148,7 +148,7 @@ static inline fcs_pats_position_t *dequeue_position(
     but we still get lots of low priority action (instead of
     ignoring it completely). */
 
-    fcs_bool_t is_last = FALSE;
+    bool is_last = FALSE;
     do
     {
         if ((--soft_thread->dequeue__qpos) < soft_thread->dequeue__minpos)
@@ -265,7 +265,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
 }
 
 // Hash the whole layout.  This is called once, at the start.
-static inline fcs_bool_t check_for_exceeded(
+static inline bool check_for_exceeded(
     fcs_pats_thread_t *const soft_thread)
 {
     return ((soft_thread->status == FCS_PATS__NOSOL) &&
@@ -358,7 +358,7 @@ static inline void fc_solve_pats__undo_move(
 }
 
 static inline int solve(
-    fcs_pats_thread_t *const soft_thread, fcs_bool_t *const is_finished)
+    fcs_pats_thread_t *const soft_thread, bool *const is_finished)
 {
 #define DEPTH (soft_thread->curr_solve_depth)
 #define LEVEL (soft_thread->solve_stack[DEPTH])
@@ -513,7 +513,7 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t *const soft_thread)
             soft_thread->curr_solve_depth = 0;
             soft_thread->curr_solve_dir = FC_SOLVE_PATS__UP;
         }
-        fcs_bool_t is_finished;
+        bool is_finished;
         if (!solve(soft_thread, &is_finished))
         {
             free_position_recursive(soft_thread, soft_thread->curr_solve_pos);

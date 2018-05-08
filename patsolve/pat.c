@@ -25,7 +25,7 @@ static inline int calc_empty_col_idx(
 }
 
 // Automove logic.  Freecell games must avoid certain types of automoves.
-static inline fcs_bool_t good_automove(
+static inline bool good_automove(
     fcs_pats_thread_t *const soft_thread, const int o, const int r)
 {
     FCS_ON_NOT_FC_ONLY(
@@ -75,7 +75,7 @@ static inline fcs_bool_t good_automove(
  * soft_thread->possible_moves[]. */
 
 static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
-    fcs_bool_t *const a, int *const num_cards_out)
+    bool *const a, int *const num_cards_out)
 {
     FCS_ON_NOT_FC_ONLY(
         const fc_solve_instance_t *const instance = soft_thread->instance);
@@ -165,7 +165,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
     to one of any
     empty soft_thread->current_pos.stacks cells. */
 
-    const fcs_bool_t not_King_only =
+    const bool not_King_only =
 #ifndef FCS_FREECELL_ONLY
         (!((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
 #else
@@ -173,7 +173,7 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
 #endif
 
     const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
-    const fcs_bool_t has_empty_col = (empty_col_idx >= 0);
+    const bool has_empty_col = (empty_col_idx >= 0);
     if (has_empty_col)
     {
         for (int i = 0; i < LOCAL_STACKS_NUM; i++)
@@ -351,12 +351,12 @@ static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
 /* Moves that can't be undone get slightly higher priority, since it means
 we are moving a card for the first time. */
 
-static inline fcs_bool_t is_irreversible_move(
+static inline bool is_irreversible_move(
 #ifndef FCS_FREECELL_ONLY
     const fcs_card_t game_variant_suit_mask,
     const fcs_card_t game_variant_desired_suit_value,
 #endif
-    const fcs_bool_t King_only, const fcs_pats__move_t *const move_ptr)
+    const bool King_only, const fcs_pats__move_t *const move_ptr)
 {
     if (move_ptr->totype == FCS_PATS__TYPE_FOUNDATION)
     {
@@ -404,7 +404,7 @@ static inline void mark_irreversible(
     const fcs_card_t game_variant_desired_suit_value =
         instance->game_variant_desired_suit_value;
 #endif
-    const fcs_bool_t King_only =
+    const bool King_only =
 #ifndef FCS_FREECELL_ONLY
         (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
 #else
@@ -698,7 +698,7 @@ static inline int prune_redundant(fcs_pats_thread_t *const soft_thread,
      * ever goes to zero, from prev[0] to
     prev[j-1], there may be a dependency.  We also want to know if there
     were any empty soft_thread->current_pos.freecells cells on move prev[j]. */
-    fcs_bool_t was_all_freecells_occupied = FALSE;
+    bool was_all_freecells_occupied = FALSE;
     pos = pos0;
     for (int i = 0; i < j; i++)
     {
@@ -929,7 +929,7 @@ end_of_stacks:;
     }
 }
 
-static inline fcs_bool_t is_win(fcs_pats_thread_t *const soft_thread)
+static inline bool is_win(fcs_pats_thread_t *const soft_thread)
 {
     for (int o = 0; o < 4; o++)
     {
@@ -949,7 +949,7 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
     int num_cards_out = 0;
 
     // Fill in the soft_thread->possible_moves array.
-    fcs_bool_t a;
+    bool a;
     const int total_num_moves =
         get_possible_moves(soft_thread, &a, &num_cards_out);
     int n = total_num_moves;
