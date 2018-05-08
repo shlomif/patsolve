@@ -147,7 +147,7 @@ typedef struct fcs_pats__bucket_list_struct
 struct fc_solve_instance_struct
 {
     // game parameters
-    fcs_game_type_params_t game_params;
+    fcs_game_type_params game_params;
 #ifndef FCS_FREECELL_ONLY
     fcs_card_t game_variant_suit_mask;
     fcs_card_t game_variant_desired_suit_value;
@@ -203,7 +203,7 @@ struct fc_solve__patsolve_thread_struct
     /* Statistics. */
     long num_checked_states, max_num_checked_states;
     long num_states_in_collection;
-    fcs_pats_xy_param_t pats_solve_params;
+    fcs_pats_xy_params pats_solve_params;
     size_t position_size;
 
     fcs_pats__bucket_list_t *buckets_list[FC_SOLVE_BUCKETLIST_NBUCKETS];

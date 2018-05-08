@@ -19,4 +19,4 @@ typedef struct
 {
     int x[FC_SOLVE_PATS__NUM_X_PARAM];
     double y[FC_SOLVE_PATS__NUM_Y_PARAM];
-} fcs_pats_xy_param_t;
+} fcs_pats_xy_params;
