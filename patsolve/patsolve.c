@@ -80,7 +80,7 @@ static inline void unpack_position(
     {
         int packed_foundations = pos->cluster;
 
-        fcs_state_t *s_ptr = &(soft_thread->current_pos.s);
+        fcs_state *s_ptr = &(soft_thread->current_pos.s);
         fcs_set_foundation(*s_ptr, 0, packed_foundations & 0xF);
         packed_foundations >>= 4;
         fcs_set_foundation(*s_ptr, 1, packed_foundations & 0xF);

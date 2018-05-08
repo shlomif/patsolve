@@ -183,7 +183,7 @@ struct fc_solve__patsolve_thread_struct
     // Work arrays.
     struct
     {
-        fcs_state_t s;
+        fcs_state s;
         DECLARE_IND_BUF_T(indirect_stacks_buffer);
         /* used to keep the piles sorted */
         int column_idxs[MAX_NUM_STACKS];
