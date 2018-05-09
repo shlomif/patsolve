@@ -118,7 +118,7 @@ typedef struct fcs_pats__block_struct
     unsigned char *ptr;
     size_t remaining;
     struct fcs_pats__block_struct *next;
-} fcs_pats__block_t;
+} fcs_pats__block;
 
 #define FC_SOLVE__PATS__BLOCKSIZE (32 * 4096)
 
@@ -127,7 +127,7 @@ typedef struct fcs_pats__treelist_struct
     fcs_pats__tree_t *tree;
     int cluster;
     struct fcs_pats__treelist_struct *next;
-} fcs_pats__treelist_t;
+} fcs_pats__treelist;
 
 #define FC_SOLVE_BUCKETLIST_NBUCKETS 4093 /* the largest 12 bit prime */
 #define FC_SOLVE__MAX_NUM_PILES 4096      /* a 12 bit code */
@@ -228,8 +228,8 @@ struct fc_solve__patsolve_thread_struct
     fc_solve_pats__status_fail_reason fail_reason;
 #endif
 #define FCS_PATS__TREE_LIST_NUM_BUCKETS 499 /* a prime */
-    fcs_pats__treelist_t *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
-    fcs_pats__block_t *my_block;
+    fcs_pats__treelist *tree_list[FCS_PATS__TREE_LIST_NUM_BUCKETS];
+    fcs_pats__block *my_block;
 
     ssize_t dequeue__minpos, dequeue__qpos;
     fcs_pats__move_t *moves_to_win;
@@ -261,7 +261,7 @@ extern unsigned char *fc_solve_pats__new_from_block(
     fcs_pats_thread_t *soft_thread, size_t);
 extern void fc_solve_pats__sort_piles(fcs_pats_thread_t *soft_thread);
 
-extern fcs_pats__block_t *fc_solve_pats__new_block(
+extern fcs_pats__block *fc_solve_pats__new_block(
     fcs_pats_thread_t *const soft_thread);
 
 static inline void fc_solve_pats__init_clusters(
@@ -387,7 +387,7 @@ static inline void fc_solve_pats__free_blocks(
         const_AUTO(next, b->next);
         fc_solve_pats__free_array(
             soft_thread, b->block, unsigned char, FC_SOLVE__PATS__BLOCKSIZE);
-        fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
+        fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block);
         b = next;
     }
     soft_thread->my_block = NULL;
@@ -402,7 +402,7 @@ static inline void fc_solve_pats__free_clusters(
         while (l)
         {
             var_AUTO(n, l->next);
-            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__treelist_t);
+            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__treelist);
             l = n;
         }
         soft_thread->tree_list[i] = NULL;

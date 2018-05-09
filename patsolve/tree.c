@@ -17,15 +17,14 @@
 clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
-static inline fcs_pats__treelist_t *cluster_tree(
+static inline fcs_pats__treelist *cluster_tree(
     fcs_pats_thread_t *const soft_thread, const int cluster)
 {
     // Pick a bucket, any bucket.
     const int bucket = cluster % FCS_PATS__TREE_LIST_NUM_BUCKETS;
 
     // Find the tree in this bucket with that cluster number.
-    fcs_pats__treelist_t *last_item = NULL;
-    fcs_pats__treelist_t *tl;
+    fcs_pats__treelist *last_item = NULL, *tl;
     for (tl = soft_thread->tree_list[bucket]; tl; tl = tl->next)
     {
         if (tl->cluster == cluster)
@@ -38,7 +37,7 @@ static inline fcs_pats__treelist_t *cluster_tree(
     // If we didn't find it, make a new one and add it to the list.
     if (!tl)
     {
-        if (!(tl = fc_solve_pats__new(soft_thread, fcs_pats__treelist_t)))
+        if (!(tl = fc_solve_pats__new(soft_thread, fcs_pats__treelist)))
         {
             return NULL;
         }
@@ -204,7 +203,7 @@ fcs_pats__insert_code fc_solve_pats__insert(
     // Get the cluster number from the Out cell contents.
 
     // Get the tree for this cluster.
-    fcs_pats__treelist_t *const tl = cluster_tree(soft_thread,
+    fcs_pats__treelist *const tl = cluster_tree(soft_thread,
         (*cluster = ((fcs_foundation_value(soft_thread->current_pos.s, 0) +
                          (fcs_foundation_value(soft_thread->current_pos.s, 1)
                              << 4)) |
@@ -238,11 +237,11 @@ fcs_pats__insert_code fc_solve_pats__insert(
 }
 
 // my_block storage.  Reduces overhead, and can be freed quickly.
-fcs_pats__block_t *fc_solve_pats__new_block(
+fcs_pats__block *fc_solve_pats__new_block(
     fcs_pats_thread_t *const soft_thread)
 {
-    fcs_pats__block_t *const b =
-        fc_solve_pats__new(soft_thread, fcs_pats__block_t);
+    fcs_pats__block *const b =
+        fc_solve_pats__new(soft_thread, fcs_pats__block);
     if (b == NULL)
     {
         return NULL;
@@ -251,7 +250,7 @@ fcs_pats__block_t *fc_solve_pats__new_block(
         soft_thread, unsigned char, FC_SOLVE__PATS__BLOCKSIZE);
     if ((b->block = block) == NULL)
     {
-        fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block_t);
+        fc_solve_pats__free_ptr(soft_thread, b, fcs_pats__block);
         return NULL;
     }
     b->ptr = block;
