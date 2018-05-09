@@ -443,7 +443,7 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
 
     // Look for the pile in this bucket.
     fcs_pats__bucket_list *list_iter = soft_thread->buckets_list[bucket],
-                            *last_item = NULL;
+                          *last_item = NULL;
     const_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
     const int w_col_len = fcs_col_len(w_col);
     const char *w_col_data = (const char *)w_col + 1;

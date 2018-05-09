@@ -265,8 +265,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
 }
 
 // Hash the whole layout.  This is called once, at the start.
-static inline bool check_for_exceeded(
-    fcs_pats_thread_t *const soft_thread)
+static inline bool check_for_exceeded(fcs_pats_thread_t *const soft_thread)
 {
     return ((soft_thread->status == FCS_PATS__NOSOL) &&
             (soft_thread->max_num_checked_states >= 0) &&

@@ -29,16 +29,15 @@
 /* The following implements
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b))) */
 #ifdef FCS_FREECELL_ONLY
-static inline bool fcs_pats_is_suitable(
-    const fcs_card_t a, const fcs_card_t b)
+static inline bool fcs_pats_is_suitable(const fcs_card_t a, const fcs_card_t b)
 {
     const fcs_card_t suit_mask = FCS_PATS__COLOR;
     const fcs_card_t suit_val = FCS_PATS__COLOR;
     return (((a ^ b) & suit_mask) == suit_val);
 }
 #else
-static inline bool fcs_pats_is_suitable(const fcs_card_t a,
-    const fcs_card_t b, const fcs_card_t suit_mask, const fcs_card_t suit_val)
+static inline bool fcs_pats_is_suitable(const fcs_card_t a, const fcs_card_t b,
+    const fcs_card_t suit_mask, const fcs_card_t suit_val)
 {
     return (((a ^ b) & suit_mask) == suit_val);
 }
@@ -214,7 +213,7 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__bucket_list *bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
     size_t bytes_per_tree_node;
     bool dont_exit_on_sol; /* -E means don't exit */
-    int num_solutions;           /* number of solutions found in -E mode */
+    int num_solutions;     /* number of solutions found in -E mode */
     /* -S means stack, not queue, the moves to be done. This is a boolean
      * value.
      * Default should be FALSE.

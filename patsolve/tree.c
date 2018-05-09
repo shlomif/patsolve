@@ -237,11 +237,9 @@ fcs_pats__insert_code fc_solve_pats__insert(
 }
 
 // my_block storage.  Reduces overhead, and can be freed quickly.
-fcs_pats__block *fc_solve_pats__new_block(
-    fcs_pats_thread_t *const soft_thread)
+fcs_pats__block *fc_solve_pats__new_block(fcs_pats_thread_t *const soft_thread)
 {
-    fcs_pats__block *const b =
-        fc_solve_pats__new(soft_thread, fcs_pats__block);
+    fcs_pats__block *const b = fc_solve_pats__new(soft_thread, fcs_pats__block);
     if (b == NULL)
     {
         return NULL;
