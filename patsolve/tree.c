@@ -81,7 +81,7 @@ static inline void give_back_block(
 /* Add it to the binary tree for this cluster.  The piles are stored
 following the fcs_pats__tree_t structure. */
 
-static inline fcs_pats__insert_code_t insert_node(
+static inline fcs_pats__insert_code insert_node(
     fcs_pats_thread_t *const soft_thread, fcs_pats__tree_t *const n,
     const int d, fcs_pats__tree_t **const tree, fcs_pats__tree_t **const node)
 {
@@ -197,7 +197,7 @@ static inline fcs_pats__tree_t *pack_position(
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
-fcs_pats__insert_code_t fc_solve_pats__insert(
+fcs_pats__insert_code fc_solve_pats__insert(
     fcs_pats_thread_t *const soft_thread, int *const cluster, const int d,
     fcs_pats__tree_t **const node)
 {
@@ -226,7 +226,7 @@ fcs_pats__insert_code_t fc_solve_pats__insert(
     }
     ++soft_thread->num_states_in_collection;
 
-    const fcs_pats__insert_code_t verdict =
+    const fcs_pats__insert_code verdict =
         insert_node(soft_thread, new_pos, d, &tl->tree, node);
 
     if (verdict != FCS_PATS__INSERT_CODE_NEW)

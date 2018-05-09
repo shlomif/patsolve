@@ -111,7 +111,7 @@ int main(int argc, char **argv)
     {
         // Read in the initial layout and play it.
 
-        const fcs_user_state_str_t user_state = read_state(in_fh);
+        const fcs_user_state_str user_state = read_state(in_fh);
         fc_solve_pats__read_layout(soft_thread, user_state.s);
         if (!is_quiet)
         {

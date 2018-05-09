@@ -94,7 +94,7 @@ typedef enum
     FCS_PATS__INSERT_CODE_FOUND,
     FCS_PATS__INSERT_CODE_FOUND_BETTER,
     FCS_PATS__INSERT_CODE_ERR
-} fcs_pats__insert_code_t;
+} fcs_pats__insert_code;
 
 typedef enum
 {
@@ -138,7 +138,7 @@ typedef struct fcs_pats__bucket_list_struct
     uint32_t hash;       /* the pile's hash code */
     int pilenum;         /* the unique id for this pile */
     struct fcs_pats__bucket_list_struct *next;
-} fcs_pats__bucket_list_t;
+} fcs_pats__bucket_list;
 
 // Statistics.
 #define FC_SOLVE_PATS__NUM_QUEUES 100
@@ -206,12 +206,12 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats_xy_params pats_solve_params;
     size_t position_size;
 
-    fcs_pats__bucket_list_t *buckets_list[FC_SOLVE_BUCKETLIST_NBUCKETS];
+    fcs_pats__bucket_list *buckets_list[FC_SOLVE_BUCKETLIST_NBUCKETS];
     /* The next pile number to be assigned. */
     int next_pile_idx;
     /* reverse lookup for unpack to get the bucket
                        from the pile */
-    fcs_pats__bucket_list_t *bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
+    fcs_pats__bucket_list *bucket_from_pile_lookup[FC_SOLVE__MAX_NUM_PILES];
     size_t bytes_per_tree_node;
     bool dont_exit_on_sol; /* -E means don't exit */
     int num_solutions;           /* number of solutions found in -E mode */
@@ -251,7 +251,7 @@ struct fc_solve__patsolve_thread_struct
 
 typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
 
-extern fcs_pats__insert_code_t fc_solve_pats__insert(
+extern fcs_pats__insert_code fc_solve_pats__insert(
     fcs_pats_thread_t *soft_thread, int *cluster, int d,
     fcs_pats__tree_t **node);
 extern void fc_solve_pats__do_it(fcs_pats_thread_t *);
@@ -371,7 +371,7 @@ static inline void fc_solve_pats__free_buckets(
             var_AUTO(n, l->next);
             fc_solve_pats__free_array(soft_thread, l->pile, unsigned char,
                 strlen((const char *)l->pile) + 1);
-            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list_t);
+            fc_solve_pats__free_ptr(soft_thread, l, fcs_pats__bucket_list);
             l = n;
         }
         soft_thread->buckets_list[i] = NULL;

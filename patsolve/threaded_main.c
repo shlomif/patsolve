@@ -72,7 +72,7 @@ static void *worker_thread(void *context)
 
         for (; board_num < quota_end; ++board_num)
         {
-            fcs_state_string_t state_string;
+            fcs_state_string state_string;
             get_board(board_num, state_string);
 
             fc_solve_pats__read_layout(soft_thread, state_string);

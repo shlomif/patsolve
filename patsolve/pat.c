@@ -442,7 +442,7 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
         soft_thread->current_pos.stack_hashes[w] % FC_SOLVE_BUCKETLIST_NBUCKETS;
 
     // Look for the pile in this bucket.
-    fcs_pats__bucket_list_t *list_iter = soft_thread->buckets_list[bucket],
+    fcs_pats__bucket_list *list_iter = soft_thread->buckets_list[bucket],
                             *last_item = NULL;
     const_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
     const int w_col_len = fcs_col_len(w_col);
@@ -470,7 +470,7 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
 #endif
             return -1;
         }
-        list_iter = fc_solve_pats__new(soft_thread, fcs_pats__bucket_list_t);
+        list_iter = fc_solve_pats__new(soft_thread, fcs_pats__bucket_list);
         if (list_iter == NULL)
         {
             return -1;
@@ -480,7 +480,7 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
         if (list_iter->pile == NULL)
         {
             fc_solve_pats__free_ptr(
-                soft_thread, list_iter, fcs_pats__bucket_list_t);
+                soft_thread, list_iter, fcs_pats__bucket_list);
             return -1;
         }
 

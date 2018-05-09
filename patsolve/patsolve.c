@@ -210,7 +210,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     const int depth = (parent ? (parent->depth + 1) : 0);
 
     fcs_pats__tree_t *node;
-    const fcs_pats__insert_code_t verdict =
+    const fcs_pats__insert_code verdict =
         fc_solve_pats__insert(soft_thread, &cluster, depth, &node);
     if (verdict == FCS_PATS__INSERT_CODE_NEW)
     {
