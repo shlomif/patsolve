@@ -18,7 +18,7 @@ static inline void fc_solve_pats__print_layout(
     FCS_ON_NOT_FC_ONLY(
         fc_solve_instance_t *const instance = soft_thread->instance);
 
-    fcs_state_locs_struct_t locs;
+    fcs_state_locs_struct locs;
     fc_solve_init_locs(&locs);
     char s[1000];
     fc_solve_state_as_string(s, &(soft_thread->current_pos.s), &(locs),

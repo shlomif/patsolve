@@ -81,7 +81,7 @@ typedef struct fc_solve_pats__pos__struct
     short depth;            /* number of moves so far */
     unsigned char num_cards_in_freecells; /* number of cards in T */
     unsigned char num_childs;             /* number of child nodes left */
-} fcs_pats_position_t;
+} fcs_pats_position;
 
 // Temp storage for possible moves.
 // > max # moves from any position
@@ -167,17 +167,17 @@ struct fc_solve__patsolve_thread_struct
     fc_solve_instance_t *instance;
     size_t remaining_memory;
     size_t bytes_per_pile;
-    fcs_pats_position_t
+    fcs_pats_position
         *queue_head[FC_SOLVE_PATS__NUM_QUEUES]; /* separate queue for each
                                                    priority */
-    fcs_pats_position_t
+    fcs_pats_position
         *queue_tail[FC_SOLVE_PATS__NUM_QUEUES]; /* positions are added here */
     int max_queue_idx;
 #ifdef DEBUG
     int num_positions_in_clusters[0x10000];
     int num_positions_in_queue[FC_SOLVE_PATS__NUM_QUEUES];
 #endif
-    fcs_pats_position_t *freed_positions; /* position freelist */
+    fcs_pats_position *freed_positions; /* position freelist */
 
     // Work arrays.
     struct
@@ -238,13 +238,13 @@ struct fc_solve__patsolve_thread_struct
     int curr_solve_depth, max_solve_depth;
     struct
     {
-        fcs_pats_position_t *parent;
+        fcs_pats_position *parent;
         int num_moves;
         fcs_pats__move *moves_start, *moves_end, *move_ptr;
         bool q;
-        fcs_pats_position_t *pos;
+        fcs_pats_position *pos;
     } * solve_stack;
-    fcs_pats_position_t *curr_solve_pos;
+    fcs_pats_position *curr_solve_pos;
     enum FC_SOLVE_PATS__MYDIR curr_solve_dir;
 };
 
@@ -254,7 +254,7 @@ extern fcs_pats__insert_code fc_solve_pats__insert(
     fcs_pats_thread_t *soft_thread, int *cluster, int d, fcs_pats__tree **node);
 extern void fc_solve_pats__do_it(fcs_pats_thread_t *);
 extern fcs_pats__move *fc_solve_pats__get_moves(
-    fcs_pats_thread_t *soft_thread, fcs_pats_position_t *, int *);
+    fcs_pats_thread_t *soft_thread, fcs_pats_position *, int *);
 extern unsigned char *fc_solve_pats__new_from_block(
     fcs_pats_thread_t *soft_thread, size_t);
 extern void fc_solve_pats__sort_piles(fcs_pats_thread_t *soft_thread);
@@ -297,8 +297,8 @@ static inline void fc_solve_pats__init_buckets(
     soft_thread->next_pile_idx = 0;
     soft_thread->bytes_per_tree_node = fc_solve_pats__align(
         sizeof(fcs_pats__tree) + soft_thread->bytes_per_pile);
-    soft_thread->position_size = fc_solve_pats__align(
-        sizeof(fcs_pats_position_t) + (size_t)freecells_num);
+    soft_thread->position_size =
+        fc_solve_pats__align(sizeof(fcs_pats_position) + (size_t)freecells_num);
 }
 
 // A function and some macros for allocating memory.
@@ -309,7 +309,7 @@ static inline void *fc_solve_pats__malloc(
     if (s > soft_thread->remaining_memory)
     {
 #if 0
-        fcs_pats_position_t *pos;
+        fcs_pats_position *pos;
 
         /* Try to get some space back from the freelist. A vain hope. */
 
@@ -482,12 +482,12 @@ static inline void fc_solve_pats__hashpile(
     soft_thread->current_pos.stack_ids[w] = -1;
 }
 
-extern fcs_pats_position_t *fc_solve_pats__new_position(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const parent,
+extern fcs_pats_position *fc_solve_pats__new_position(
+    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const parent,
     const fcs_pats__move *const m);
 
 extern void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
-    fcs_pats_position_t *const pos, int pri);
+    fcs_pats_position *const pos, int pri);
 
 #if !defined(HARD_CODED_NUM_STACKS)
 #define DECLARE_STACKS() const_SLOT(game_params, soft_thread->instance)
@@ -527,7 +527,7 @@ static inline void fc_solve_pats__initialize_solving_process(
     fc_solve_pats__sort_piles(soft_thread);
     fcs_pats__move m;
     m.card = fc_solve_empty_card;
-    fcs_pats_position_t *const pos =
+    fcs_pats_position *const pos =
         fc_solve_pats__new_position(soft_thread, NULL, &m);
     if (pos == NULL)
     {

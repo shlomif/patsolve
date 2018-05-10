@@ -506,7 +506,7 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
 }
 
 static inline void win(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const pos)
+    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const pos)
 {
     if (soft_thread->moves_to_win)
     {
@@ -515,7 +515,7 @@ static inline void win(
     }
 
     size_t num_moves = 0;
-    for (fcs_pats_position_t *p = pos; p->parent; p = p->parent)
+    for (fcs_pats_position *p = pos; p->parent; p = p->parent)
     {
         ++num_moves;
     }
@@ -526,7 +526,7 @@ static inline void win(
         return; // how sad, so close...
     }
     var_AUTO(moves_ptr, moves_to_win + num_moves);
-    for (fcs_pats_position_t *p = pos; p->parent; p = p->parent)
+    for (fcs_pats_position *p = pos; p->parent; p = p->parent)
     {
         *(--moves_ptr) = (p->move);
     }
@@ -637,14 +637,14 @@ static inline int was_card_moved_or_dest(
 #define MAX_PREVIOUS_MOVES 4 /* Increasing this beyond 4 doesn't do much. */
 
 static inline int prune_redundant(fcs_pats_thread_t *const soft_thread,
-    const fcs_pats__move *const move_ptr, fcs_pats_position_t *const pos0)
+    const fcs_pats__move *const move_ptr, fcs_pats_position *const pos0)
 {
     DECLARE_STACKS();
     int j;
     fcs_pats__move *m, *prev[MAX_PREVIOUS_MOVES];
 
     // Don't move the same card twice in a row.
-    fcs_pats_position_t *pos = pos0;
+    fcs_pats_position *pos = pos0;
     if (pos->depth == 0)
     {
         return FALSE;
@@ -944,7 +944,7 @@ static inline bool is_win(fcs_pats_thread_t *const soft_thread)
 
 // Generate an array of the moves we can make from this position.
 fcs_pats__move *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
-    fcs_pats_position_t *const pos, int *const num_moves)
+    fcs_pats_position *const pos, int *const num_moves)
 {
     int num_cards_out = 0;
 

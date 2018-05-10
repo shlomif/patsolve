@@ -18,7 +18,7 @@ search. */
 #include "instance.h"
 
 /* We can't free the stored piles in the trees, but we can free some of the
-fcs_pats_position_t structs.  We have to be careful, though, because there are
+fcs_pats_position structs.  We have to be careful, though, because there are
 many
 threads running through the game tree starting from the queued positions.
 The num_childs element keeps track of descendents, and when there are none left
@@ -30,7 +30,7 @@ recursively (rec == TRUE). */
 */
 
 static inline void free_position_non_recursive(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const pos)
+    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const pos)
 {
     pos->queue = soft_thread->freed_positions;
     soft_thread->freed_positions = pos;
@@ -38,7 +38,7 @@ static inline void free_position_non_recursive(
 }
 
 static inline void free_position_recursive(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *pos)
+    fcs_pats_thread_t *const soft_thread, fcs_pats_position *pos)
 {
     do
     {
@@ -71,7 +71,7 @@ it, along with the pointer to its parent and the move we used to get here. */
 /* Return the position on the head of the queue, or NULL if there isn't one. */
 
 static inline void unpack_position(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const pos)
+    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const pos)
 {
     DECLARE_STACKS();
 
@@ -129,8 +129,7 @@ static inline void unpack_position(
     /* soft_thread->current_pos.freecells cells. */
 
     {
-        unsigned char *p =
-            (((unsigned char *)pos) + sizeof(fcs_pats_position_t));
+        unsigned char *p = (((unsigned char *)pos) + sizeof(fcs_pats_position));
         for (int i = 0; i < LOCAL_FREECELLS_NUM; i++)
         {
             fcs_freecell_card(soft_thread->current_pos.s, i) = *(p++);
@@ -138,7 +137,7 @@ static inline void unpack_position(
     }
 }
 
-static inline fcs_pats_position_t *dequeue_position(
+static inline fcs_pats_position *dequeue_position(
     fcs_pats_thread_t *const soft_thread)
 {
     /* This is a kind of prioritized round robin.  We make sweeps
@@ -169,7 +168,7 @@ static inline fcs_pats_position_t *dequeue_position(
         }
     } while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL);
 
-    fcs_pats_position_t *const pos =
+    fcs_pats_position *const pos =
         soft_thread->queue_head[soft_thread->dequeue__qpos];
     soft_thread->queue_head[soft_thread->dequeue__qpos] = pos->queue;
 #ifdef DEBUG
@@ -197,8 +196,8 @@ static inline fcs_pats_position_t *dequeue_position(
     return pos;
 }
 
-fcs_pats_position_t *fc_solve_pats__new_position(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const parent,
+fcs_pats_position *fc_solve_pats__new_position(
+    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const parent,
     const fcs_pats__move *const m)
 {
     DECLARE_STACKS();
@@ -222,9 +221,9 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     }
 
     /* A new or better position.  fc_solve_pats__insert() already stashed it in
-    the tree, we just have to wrap a fcs_pats_position_t struct around it, and
+    the tree, we just have to wrap a fcs_pats_position struct around it, and
     link it into the move stack.  Store the temp cells after the
-    fcs_pats_position_t. */
+    fcs_pats_position. */
     if (soft_thread->freed_positions)
     {
         p = (unsigned char *)soft_thread->freed_positions;
@@ -240,7 +239,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
         }
     }
 
-    var_AUTO(pos, (fcs_pats_position_t *)p);
+    var_AUTO(pos, (fcs_pats_position *)p);
     pos->queue = NULL;
     pos->parent = parent;
     pos->node = node;
@@ -249,7 +248,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     pos->depth = depth;
     pos->num_childs = 0;
 
-    p += sizeof(fcs_pats_position_t);
+    p += sizeof(fcs_pats_position);
     int i = 0;
     for (int t = 0; t < LOCAL_FREECELLS_NUM; t++)
     {
@@ -501,7 +500,7 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t *const soft_thread)
     {
         if (!soft_thread->curr_solve_pos)
         {
-            fcs_pats_position_t *const pos = dequeue_position(soft_thread);
+            fcs_pats_position *const pos = dequeue_position(soft_thread);
             if (!pos)
             {
                 break;
@@ -537,8 +536,8 @@ DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t *const soft_thread)
 that got us here.  The work queue is kept sorted by priority (simply by
 having separate queues). */
 
-void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
-    fcs_pats_position_t *const pos, int pri)
+void fc_solve_pats__queue_position(
+    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const pos, int pri)
 {
     /* In addition to the priority of a move, a position gets an
     additional priority depending on the number of cards out.  We use a
