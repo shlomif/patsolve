@@ -94,7 +94,7 @@ static inline int get_possible_moves(
         {
             continue;
         }
-        const fcs_card_t card = fcs_col_get_card(col, col_len - 1);
+        const fcs_card card = fcs_col_get_card(col, col_len - 1);
         const int o = fcs_card_suit(card);
         if (fcs_card_rank(card) ==
             fcs_foundation_value(soft_thread->current_pos.s, o) + 1)
@@ -126,8 +126,7 @@ static inline int get_possible_moves(
 
     for (int t = 0; t < LOCAL_FREECELLS_NUM; t++)
     {
-        const fcs_card_t card =
-            fcs_freecell_card(soft_thread->current_pos.s, t);
+        const fcs_card card = fcs_freecell_card(soft_thread->current_pos.s, t);
         if (fcs_card_is_empty(card))
         {
             continue;
@@ -182,7 +181,7 @@ static inline int get_possible_moves(
             const int i_col_len = fcs_col_len(i_col);
             if (i_col_len > 1)
             {
-                const fcs_card_t card = fcs_col_get_card(i_col, i_col_len - 1);
+                const fcs_card card = fcs_col_get_card(i_col, i_col_len - 1);
                 if (fcs_pats_is_king_only(not_King_only, card))
                 {
                     *(move_ptr++) = (typeof(*move_ptr)){
@@ -201,8 +200,8 @@ static inline int get_possible_moves(
     }
 
 #ifndef FCS_FREECELL_ONLY
-    const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
-    const fcs_card_t game_variant_desired_suit_value =
+    const fcs_card game_variant_suit_mask = instance->game_variant_suit_mask;
+    const fcs_card game_variant_desired_suit_value =
         instance->game_variant_desired_suit_value;
 #endif
     /* Check for moves from soft_thread->current_pos.stacks to non-empty
@@ -213,7 +212,7 @@ static inline int get_possible_moves(
         const int i_col_len = fcs_col_len(i_col);
         if (i_col_len > 0)
         {
-            const fcs_card_t card = fcs_col_get_card(i_col, i_col_len - 1);
+            const fcs_card card = fcs_col_get_card(i_col, i_col_len - 1);
             for (int w = 0; w < LOCAL_STACKS_NUM; w++)
             {
                 if (i == w)
@@ -224,7 +223,7 @@ static inline int get_possible_moves(
                     w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
                 if (fcs_col_len(w_col) > 0)
                 {
-                    const fcs_card_t w_card =
+                    const fcs_card w_card =
                         fcs_col_get_card(w_col, fcs_col_len(w_col) - 1);
                     if (fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
                         fcs_pats_is_suitable(card, w_card
@@ -256,8 +255,7 @@ static inline int get_possible_moves(
      * soft_thread->current_pos.stacks cells. */
     for (int t = 0; t < LOCAL_FREECELLS_NUM; t++)
     {
-        const fcs_card_t card =
-            fcs_freecell_card(soft_thread->current_pos.s, t);
+        const fcs_card card = fcs_freecell_card(soft_thread->current_pos.s, t);
         if (fcs_card_is_empty(card))
         {
             continue;
@@ -268,7 +266,7 @@ static inline int get_possible_moves(
             var_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
             if (fcs_col_len(w_col) > 0)
             {
-                const fcs_card_t w_card =
+                const fcs_card w_card =
                     fcs_col_get_card(w_col, fcs_col_len(w_col) - 1);
                 if ((fcs_card_rank(card) == fcs_card_rank(w_card) - 1 &&
                         fcs_pats_is_suitable(card, w_card
@@ -298,7 +296,7 @@ static inline int get_possible_moves(
     {
         for (int t = 0; t < LOCAL_FREECELLS_NUM; t++)
         {
-            const fcs_card_t card =
+            const fcs_card card =
                 fcs_freecell_card(soft_thread->current_pos.s, t);
             if (fcs_card_is_valid(card) &&
                 fcs_pats_is_king_only(not_King_only, card))
@@ -353,8 +351,8 @@ we are moving a card for the first time. */
 
 static inline bool is_irreversible_move(
 #ifndef FCS_FREECELL_ONLY
-    const fcs_card_t game_variant_suit_mask,
-    const fcs_card_t game_variant_desired_suit_value,
+    const fcs_card game_variant_suit_mask,
+    const fcs_card game_variant_desired_suit_value,
 #endif
     const bool King_only, const fcs_pats__move *const move_ptr)
 {
@@ -400,8 +398,8 @@ static inline void mark_irreversible(
 #ifndef FCS_FREECELL_ONLY
     const fcs_instance *const instance = soft_thread->instance;
 
-    const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
-    const fcs_card_t game_variant_desired_suit_value =
+    const fcs_card game_variant_suit_mask = instance->game_variant_suit_mask;
+    const fcs_card game_variant_desired_suit_value =
         instance->game_variant_desired_suit_value;
 #endif
     const bool King_only =
@@ -600,7 +598,7 @@ static inline int prune_seahaven(
 a sequence of moves. */
 
 static inline int was_card_moved(
-    const fcs_card_t card, fcs_pats__move *const *const moves, const int j)
+    const fcs_card card, fcs_pats__move *const *const moves, const int j)
 {
     for (int i = 0; i < j; i++)
     {
@@ -615,7 +613,7 @@ static inline int was_card_moved(
 /* This utility routine is used to check if a card is ever used as a
 destination in a sequence of moves. */
 static inline int is_card_dest(
-    const fcs_card_t card, fcs_pats__move *const *const moves, const int j)
+    const fcs_card card, fcs_pats__move *const *const moves, const int j)
 {
     for (int i = 0; i < j; i++)
     {
@@ -628,7 +626,7 @@ static inline int is_card_dest(
 }
 
 static inline int was_card_moved_or_dest(
-    const fcs_card_t card, fcs_pats__move *const *const moves, const int j)
+    const fcs_card card, fcs_pats__move *const *const moves, const int j)
 {
     return (was_card_moved(card, moves, j) || is_card_dest(card, moves, j));
 }
@@ -816,7 +814,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread,
 }
 
 // Next card in rank.
-static inline fcs_card_t fcs_pats_next_card(const fcs_card_t card)
+static inline fcs_card fcs_pats_next_card(const fcs_card card)
 {
     return card + (1 << 2);
 }
@@ -840,11 +838,11 @@ static inline void prioritize(fcs_pats_thread *const soft_thread,
         pile[i] = -1;
     }
 
-    fcs_card_t needed_cards[FCS_NUM_SUITS];
+    fcs_card needed_cards[FCS_NUM_SUITS];
     for (int suit = 0; suit < FCS_NUM_SUITS; suit++)
     {
         needed_cards[suit] = fc_solve_empty_card;
-        const fcs_card_t rank =
+        const fcs_card rank =
             fcs_foundation_value(soft_thread->current_pos.s, suit);
         if (rank != FCS_PATS__KING)
         {
@@ -863,7 +861,7 @@ static inline void prioritize(fcs_pats_thread *const soft_thread,
         const int len = fcs_col_len(col);
         for (int i = 0; i < len; i++)
         {
-            const fcs_card_t card = fcs_col_get_card(col, i);
+            const fcs_card card = fcs_col_get_card(col, i);
             const int suit = fcs_card_suit(card);
 
             /* Save the locations of the piles containing
@@ -908,7 +906,7 @@ end_of_stacks:;
             var_AUTO(col, fcs_state_get_col(soft_thread->current_pos.s, w));
             if (fcs_col_len(col) > 1)
             {
-                const fcs_card_t card =
+                const fcs_card card =
                     fcs_col_get_card(col, fcs_col_len(col) - 2);
                 if (card == needed_cards[(int)fcs_card_suit(card)])
                 {

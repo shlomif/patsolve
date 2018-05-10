@@ -285,7 +285,7 @@ static inline void wrap_up_solve(
 static inline void freecell_solver_pats__make_move(
     fcs_pats_thread *const soft_thread, const fcs_pats__move *const m)
 {
-    fcs_card_t card;
+    fcs_card card;
     const_SLOT(from, m);
     const_SLOT(to, m);
 
@@ -325,7 +325,7 @@ static inline void fc_solve_pats__undo_move(
     const_SLOT(from, m);
     const_SLOT(to, m);
     // Remove from 'to' pile.
-    fcs_card_t card;
+    fcs_card card;
     switch (m->totype)
     {
     case FCS_PATS__TYPE_FREECELL:

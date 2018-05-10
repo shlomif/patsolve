@@ -5,7 +5,7 @@
 #define FCS_PATS__HEART     0x00         /* red */
 #define FCS_PATS__SPADE     0x03         /* black */
 
-static inline fcs_card_t fcs_pats_card_color(const fcs_card_t card)
+static inline fcs_card fcs_pats_card_color(const fcs_card card)
 {
     return (card & FCS_PATS__COLOR);
 }

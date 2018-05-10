@@ -29,22 +29,22 @@
 /* The following implements
    (Same_suit ? (suit(a) == suit(b)) : (color(a) != color(b))) */
 #ifdef FCS_FREECELL_ONLY
-static inline bool fcs_pats_is_suitable(const fcs_card_t a, const fcs_card_t b)
+static inline bool fcs_pats_is_suitable(const fcs_card a, const fcs_card b)
 {
-    const fcs_card_t suit_mask = FCS_PATS__COLOR;
-    const fcs_card_t suit_val = FCS_PATS__COLOR;
+    const fcs_card suit_mask = FCS_PATS__COLOR;
+    const fcs_card suit_val = FCS_PATS__COLOR;
     return (((a ^ b) & suit_mask) == suit_val);
 }
 #else
-static inline bool fcs_pats_is_suitable(const fcs_card_t a, const fcs_card_t b,
-    const fcs_card_t suit_mask, const fcs_card_t suit_val)
+static inline bool fcs_pats_is_suitable(const fcs_card a, const fcs_card b,
+    const fcs_card suit_mask, const fcs_card suit_val)
 {
     return (((a ^ b) & suit_mask) == suit_val);
 }
 #endif
 
 static inline bool fcs_pats_is_king_only(
-    const bool not_king_only, const fcs_card_t card)
+    const bool not_king_only, const fcs_card card)
 {
     return (not_king_only || fcs_card_rank(card) == FCS_PATS__KING);
 }
@@ -53,11 +53,11 @@ static inline bool fcs_pats_is_king_only(
 
 typedef struct
 {
-    fcs_card_t card; /* the card we're moving */
+    fcs_card card; /* the card we're moving */
     unsigned char from, to, fromtype, totype;
-    fcs_card_t srccard;  /* card we're uncovering */
-    fcs_card_t destcard; /* card we're moving to */
-    signed char pri;     /* move priority (low priority == low value) */
+    fcs_card srccard;  /* card we're uncovering */
+    fcs_card destcard; /* card we're moving to */
+    signed char pri;   /* move priority (low priority == low value) */
 } fcs_pats__move;
 
 // Pile types
@@ -148,8 +148,8 @@ struct fc_solve_instance_struct
     // game parameters
     fcs_game_type_params game_params;
 #ifndef FCS_FREECELL_ONLY
-    fcs_card_t game_variant_suit_mask;
-    fcs_card_t game_variant_desired_suit_value;
+    fcs_card game_variant_suit_mask;
+    fcs_card game_variant_desired_suit_value;
 #endif
 };
 
