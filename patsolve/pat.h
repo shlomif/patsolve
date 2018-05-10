@@ -58,7 +58,7 @@ typedef struct
     fcs_card_t srccard;  /* card we're uncovering */
     fcs_card_t destcard; /* card we're moving to */
     signed char pri;     /* move priority (low priority == low value) */
-} fcs_pats__move_t;
+} fcs_pats__move;
 
 // Pile types
 #define FCS_PATS__TYPE_FOUNDATION 1
@@ -75,8 +75,8 @@ typedef struct fc_solve_pats__pos__struct
     struct fc_solve_pats__pos__struct *queue; /* next position in the queue */
     struct fc_solve_pats__pos__struct
         *parent;            /* point back up the move stack */
-    fcs_pats__tree_t *node; /* compact position rep.'s tree node */
-    fcs_pats__move_t move;  /* move that got us here from the parent */
+    fcs_pats__tree *node;   /* compact position rep.'s tree node */
+    fcs_pats__move move;    /* move that got us here from the parent */
     unsigned short cluster; /* the cluster this node is in */
     short depth;            /* number of moves so far */
     unsigned char num_cards_in_freecells; /* number of cards in T */
@@ -123,7 +123,7 @@ typedef struct fcs_pats__block_struct
 
 typedef struct fcs_pats__treelist_struct
 {
-    fcs_pats__tree_t *tree;
+    fcs_pats__tree *tree;
     int cluster;
     struct fcs_pats__treelist_struct *next;
 } fcs_pats__treelist;
@@ -197,7 +197,7 @@ struct fc_solve__patsolve_thread_struct
     } current_pos;
 
     /* Temp storage for possible moves. */
-    fcs_pats__move_t possible_moves[FCS_PATS__MAX_NUM_MOVES];
+    fcs_pats__move possible_moves[FCS_PATS__MAX_NUM_MOVES];
 
     /* Statistics. */
     long num_checked_states, max_num_checked_states;
@@ -231,7 +231,7 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__block *my_block;
 
     ssize_t dequeue__minpos, dequeue__qpos;
-    fcs_pats__move_t *moves_to_win;
+    fcs_pats__move *moves_to_win;
     size_t num_moves_to_win;
 
 #define FCS_PATS__SOLVE_LEVEL_GROW_BY 16
@@ -240,7 +240,7 @@ struct fc_solve__patsolve_thread_struct
     {
         fcs_pats_position_t *parent;
         int num_moves;
-        fcs_pats__move_t *moves_start, *moves_end, *move_ptr;
+        fcs_pats__move *moves_start, *moves_end, *move_ptr;
         bool q;
         fcs_pats_position_t *pos;
     } * solve_stack;
@@ -251,10 +251,9 @@ struct fc_solve__patsolve_thread_struct
 typedef struct fc_solve__patsolve_thread_struct fcs_pats_thread_t;
 
 extern fcs_pats__insert_code fc_solve_pats__insert(
-    fcs_pats_thread_t *soft_thread, int *cluster, int d,
-    fcs_pats__tree_t **node);
+    fcs_pats_thread_t *soft_thread, int *cluster, int d, fcs_pats__tree **node);
 extern void fc_solve_pats__do_it(fcs_pats_thread_t *);
-extern fcs_pats__move_t *fc_solve_pats__get_moves(
+extern fcs_pats__move *fc_solve_pats__get_moves(
     fcs_pats_thread_t *soft_thread, fcs_pats_position_t *, int *);
 extern unsigned char *fc_solve_pats__new_from_block(
     fcs_pats_thread_t *soft_thread, size_t);
@@ -270,9 +269,9 @@ static inline void fc_solve_pats__init_clusters(
     soft_thread->my_block = fc_solve_pats__new_block(soft_thread);
 }
 
-/* In order to keep the fcs_pats__tree_t structure aligned, we need to add
+/* In order to keep the fcs_pats__tree structure aligned, we need to add
 up to 7 bytes on Alpha or 3 bytes on Intel -- but this is still
-better than storing the fcs_pats__tree_t nodes and keys separately, as that
+better than storing the fcs_pats__tree nodes and keys separately, as that
 requires a pointer.  On Intel for -f bytes_per_tree_node winds up being
 a multiple of 8 currently anyway so it doesn't matter. */
 static inline size_t fc_solve_pats__align(const size_t i)
@@ -297,7 +296,7 @@ static inline void fc_solve_pats__init_buckets(
     memset(soft_thread->buckets_list, 0, sizeof(soft_thread->buckets_list));
     soft_thread->next_pile_idx = 0;
     soft_thread->bytes_per_tree_node = fc_solve_pats__align(
-        sizeof(fcs_pats__tree_t) + soft_thread->bytes_per_pile);
+        sizeof(fcs_pats__tree) + soft_thread->bytes_per_pile);
     soft_thread->position_size = fc_solve_pats__align(
         sizeof(fcs_pats_position_t) + (size_t)freecells_num);
 }
@@ -485,7 +484,7 @@ static inline void fc_solve_pats__hashpile(
 
 extern fcs_pats_position_t *fc_solve_pats__new_position(
     fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const parent,
-    const fcs_pats__move_t *const m);
+    const fcs_pats__move *const m);
 
 extern void fc_solve_pats__queue_position(fcs_pats_thread_t *const soft_thread,
     fcs_pats_position_t *const pos, int pri);
@@ -526,7 +525,7 @@ static inline void fc_solve_pats__initialize_solving_process(
     // Queue the initial position to get started.
     fc_solve_pats__hash_layout(soft_thread);
     fc_solve_pats__sort_piles(soft_thread);
-    fcs_pats__move_t m;
+    fcs_pats__move m;
     m.card = fc_solve_empty_card;
     fcs_pats_position_t *const pos =
         fc_solve_pats__new_position(soft_thread, NULL, &m);

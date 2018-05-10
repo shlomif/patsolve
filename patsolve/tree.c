@@ -78,18 +78,18 @@ static inline void give_back_block(
 }
 
 /* Add it to the binary tree for this cluster.  The piles are stored
-following the fcs_pats__tree_t structure. */
+following the fcs_pats__tree structure. */
 
 static inline fcs_pats__insert_code insert_node(
-    fcs_pats_thread_t *const soft_thread, fcs_pats__tree_t *const n,
-    const int d, fcs_pats__tree_t **const tree, fcs_pats__tree_t **const node)
+    fcs_pats_thread_t *const soft_thread, fcs_pats__tree *const n, const int d,
+    fcs_pats__tree **const tree, fcs_pats__tree **const node)
 {
     const unsigned char *const key =
-        (unsigned char *)n + sizeof(fcs_pats__tree_t);
+        (unsigned char *)n + sizeof(fcs_pats__tree);
     n->depth = d;
     n->left = n->right = NULL;
     *node = n;
-    fcs_pats__tree_t *t = *tree;
+    fcs_pats__tree *t = *tree;
     if (t == NULL)
     {
         *tree = n;
@@ -98,8 +98,8 @@ static inline fcs_pats__insert_code insert_node(
     const_SLOT(bytes_per_pile, soft_thread);
     while (1)
     {
-        const int c = compare_piles(bytes_per_pile, key,
-            ((unsigned char *)t + sizeof(fcs_pats__tree_t)));
+        const int c = compare_piles(
+            bytes_per_pile, key, ((unsigned char *)t + sizeof(fcs_pats__tree)));
         if (c == 0)
         {
             break;
@@ -150,7 +150,7 @@ cells are encoded as a cluster number: no two positions with different
 cluster numbers can ever be the same, so we store different clusters in
 different trees.  */
 
-static inline fcs_pats__tree_t *pack_position(
+static inline fcs_pats__tree *pack_position(
     fcs_pats_thread_t *const soft_thread)
 {
     DECLARE_STACKS();
@@ -163,8 +163,8 @@ static inline fcs_pats__tree_t *pack_position(
     {
         return NULL;
     }
-    fcs_pats__tree_t *const node = (fcs_pats__tree_t *)p;
-    p += sizeof(fcs_pats__tree_t);
+    fcs_pats__tree *const node = (fcs_pats__tree *)p;
+    p += sizeof(fcs_pats__tree);
 
     /* Pack the pile numers j into bytes p.
                j             j
@@ -198,7 +198,7 @@ it was new. */
 
 fcs_pats__insert_code fc_solve_pats__insert(
     fcs_pats_thread_t *const soft_thread, int *const cluster, const int d,
-    fcs_pats__tree_t **const node)
+    fcs_pats__tree **const node)
 {
     // Get the cluster number from the Out cell contents.
 
@@ -218,7 +218,7 @@ fcs_pats__insert_code fc_solve_pats__insert(
     }
 
     // Create a compact position representation.
-    fcs_pats__tree_t *const new_pos = pack_position(soft_thread);
+    fcs_pats__tree *const new_pos = pack_position(soft_thread);
     if (!new_pos)
     {
         return FCS_PATS__INSERT_CODE_ERR;

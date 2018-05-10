@@ -356,7 +356,7 @@ static inline bool is_irreversible_move(
     const fcs_card_t game_variant_suit_mask,
     const fcs_card_t game_variant_desired_suit_value,
 #endif
-    const bool King_only, const fcs_pats__move_t *const move_ptr)
+    const bool King_only, const fcs_pats__move *const move_ptr)
 {
     if (move_ptr->totype == FCS_PATS__TYPE_FOUNDATION)
     {
@@ -412,8 +412,8 @@ static inline void mark_irreversible(
 #endif
     const_AUTO(x_param_8, soft_thread->pats_solve_params.x[8]);
 
-    fcs_pats__move_t *move_ptr = soft_thread->possible_moves;
-    const fcs_pats__move_t *const moves_end = move_ptr + n;
+    fcs_pats__move *move_ptr = soft_thread->possible_moves;
+    const fcs_pats__move *const moves_end = move_ptr + n;
     for (; move_ptr < moves_end; ++move_ptr)
     {
         if (is_irreversible_move(
@@ -543,8 +543,8 @@ a row, and if there is a smaller card of the same suit below the run, then
 the position is unsolvable.  This cuts out a lot of useless searching, so
 it's worth checking.  */
 
-static inline int prune_seahaven(fcs_pats_thread_t *const soft_thread,
-    const fcs_pats__move_t *const move_ptr)
+static inline int prune_seahaven(
+    fcs_pats_thread_t *const soft_thread, const fcs_pats__move *const move_ptr)
 {
     const fc_solve_instance_t *const instance = soft_thread->instance;
     const_SLOT(game_params, instance);
@@ -600,7 +600,7 @@ static inline int prune_seahaven(fcs_pats_thread_t *const soft_thread,
 a sequence of moves. */
 
 static inline int was_card_moved(
-    const fcs_card_t card, fcs_pats__move_t *const *const moves, const int j)
+    const fcs_card_t card, fcs_pats__move *const *const moves, const int j)
 {
     for (int i = 0; i < j; i++)
     {
@@ -615,7 +615,7 @@ static inline int was_card_moved(
 /* This utility routine is used to check if a card is ever used as a
 destination in a sequence of moves. */
 static inline int is_card_dest(
-    const fcs_card_t card, fcs_pats__move_t *const *const moves, const int j)
+    const fcs_card_t card, fcs_pats__move *const *const moves, const int j)
 {
     for (int i = 0; i < j; i++)
     {
@@ -628,7 +628,7 @@ static inline int is_card_dest(
 }
 
 static inline int was_card_moved_or_dest(
-    const fcs_card_t card, fcs_pats__move_t *const *const moves, const int j)
+    const fcs_card_t card, fcs_pats__move *const *const moves, const int j)
 {
     return (was_card_moved(card, moves, j) || is_card_dest(card, moves, j));
 }
@@ -637,11 +637,11 @@ static inline int was_card_moved_or_dest(
 #define MAX_PREVIOUS_MOVES 4 /* Increasing this beyond 4 doesn't do much. */
 
 static inline int prune_redundant(fcs_pats_thread_t *const soft_thread,
-    const fcs_pats__move_t *const move_ptr, fcs_pats_position_t *const pos0)
+    const fcs_pats__move *const move_ptr, fcs_pats_position_t *const pos0)
 {
     DECLARE_STACKS();
     int j;
-    fcs_pats__move_t *m, *prev[MAX_PREVIOUS_MOVES];
+    fcs_pats__move *m, *prev[MAX_PREVIOUS_MOVES];
 
     // Don't move the same card twice in a row.
     fcs_pats_position_t *pos = pos0;
@@ -827,7 +827,7 @@ possible moves, but few productive ones.  Note that we also prioritize
 positions when they are added to the queue. */
 
 static inline void prioritize(fcs_pats_thread_t *const soft_thread,
-    fcs_pats__move_t *const moves_start, const int n)
+    fcs_pats__move *const moves_start, const int n)
 {
     DECLARE_STACKS();
     int pile[8];
@@ -888,7 +888,7 @@ end_of_stacks:;
     covers a card we need, decrease its priority.  These priority
     increments and decrements were determined empirically. */
     const_AUTO(moves_end, moves_start + n);
-    for (fcs_pats__move_t *move_ptr = moves_start; move_ptr < moves_end;
+    for (fcs_pats__move *move_ptr = moves_start; move_ptr < moves_end;
          move_ptr++)
     {
         if (fcs_card_is_empty(move_ptr->card))
@@ -943,7 +943,7 @@ static inline bool is_win(fcs_pats_thread_t *const soft_thread)
 }
 
 // Generate an array of the moves we can make from this position.
-fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
+fcs_pats__move *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
     fcs_pats_position_t *const pos, int *const num_moves)
 {
     int num_cards_out = 0;
@@ -1016,9 +1016,9 @@ fcs_pats__move_t *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
     good moves, even if they didn't pass the automove test.  So we still
     do the recursive solve() on them, but only after queueing the other
     moves. */
-    fcs_pats__move_t *move_ptr, *moves_start;
+    fcs_pats__move *move_ptr, *moves_start;
     move_ptr = moves_start =
-        fc_solve_pats__new_array(soft_thread, fcs_pats__move_t, n);
+        fc_solve_pats__new_array(soft_thread, fcs_pats__move, n);
     if (move_ptr == NULL)
     {
         return NULL;

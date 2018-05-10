@@ -100,7 +100,7 @@ static inline void unpack_position(
            */
         unsigned char c = 0;
         unsigned char *p =
-            (unsigned char *)(pos->node) + sizeof(fcs_pats__tree_t);
+            (unsigned char *)(pos->node) + sizeof(fcs_pats__tree);
         bool k = FALSE;
         for (int w = 0; w < LOCAL_STACKS_NUM; w++)
         {
@@ -199,7 +199,7 @@ static inline fcs_pats_position_t *dequeue_position(
 
 fcs_pats_position_t *fc_solve_pats__new_position(
     fcs_pats_thread_t *const soft_thread, fcs_pats_position_t *const parent,
-    const fcs_pats__move_t *const m)
+    const fcs_pats__move *const m)
 {
     DECLARE_STACKS();
     int cluster;
@@ -209,7 +209,7 @@ fcs_pats_position_t *fc_solve_pats__new_position(
     then ignore it and return (unless this position is better). */
     const int depth = (parent ? (parent->depth + 1) : 0);
 
-    fcs_pats__tree_t *node;
+    fcs_pats__tree *node;
     const fcs_pats__insert_code verdict =
         fc_solve_pats__insert(soft_thread, &cluster, depth, &node);
     if (verdict == FCS_PATS__INSERT_CODE_NEW)
@@ -284,7 +284,7 @@ static inline void wrap_up_solve(
 }
 
 static inline void freecell_solver_pats__make_move(
-    fcs_pats_thread_t *const soft_thread, const fcs_pats__move_t *const m)
+    fcs_pats_thread_t *const soft_thread, const fcs_pats__move *const m)
 {
     fcs_card_t card;
     const_SLOT(from, m);
@@ -321,7 +321,7 @@ static inline void freecell_solver_pats__make_move(
 }
 
 static inline void fc_solve_pats__undo_move(
-    fcs_pats_thread_t *const soft_thread, const fcs_pats__move_t *const m)
+    fcs_pats_thread_t *const soft_thread, const fcs_pats__move *const m)
 {
     const_SLOT(from, m);
     const_SLOT(to, m);
@@ -428,7 +428,7 @@ static inline int solve(
         if (LEVEL.move_ptr == LEVEL.moves_end)
         {
             fc_solve_pats__free_array(
-                soft_thread, LEVEL.moves_start, fcs_pats__move_t, num_moves);
+                soft_thread, LEVEL.moves_start, fcs_pats__move, num_moves);
             LEVEL.moves_start = NULL;
             --DEPTH;
             mydir = FC_SOLVE_PATS__DOWN;

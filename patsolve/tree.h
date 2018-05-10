@@ -13,11 +13,11 @@
 #include "fcs_conf.h"
 
 // A splay tree.
-typedef struct fcs_pats__tree_node_struct fcs_pats__tree_t;
+typedef struct fcs_pats__tree_node_struct fcs_pats__tree;
 
 struct fcs_pats__tree_node_struct
 {
-    fcs_pats__tree_t *left;
-    fcs_pats__tree_t *right;
+    fcs_pats__tree *left;
+    fcs_pats__tree *right;
     short depth;
 };
