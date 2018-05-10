@@ -47,14 +47,13 @@ char **context_argv;
 
 static void *worker_thread(void *context)
 {
-    fcs_pats_thread_t soft_thread_struct__dont_use_directly;
-    fcs_pats_thread_t *const soft_thread =
-        &soft_thread_struct__dont_use_directly;
+    fcs_pats_thread soft_thread_struct__dont_use_directly;
+    fcs_pats_thread *const soft_thread = &soft_thread_struct__dont_use_directly;
 
     int argc = context_argc;
     char **argv = context_argv;
 
-    fc_solve_instance_t instance_struct;
+    fcs_instance instance_struct;
     bool is_quiet = FALSE;
     fc_solve_pats__configure_soft_thread(soft_thread, &(instance_struct), &argc,
         (const char ***)(&argv), &is_quiet);

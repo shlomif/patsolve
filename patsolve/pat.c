@@ -12,7 +12,7 @@
 #include "instance.h"
 
 static inline int calc_empty_col_idx(
-    fcs_pats_thread_t *const soft_thread, const int stacks_num)
+    fcs_pats_thread *const soft_thread, const int stacks_num)
 {
     for (int w = 0; w < stacks_num; w++)
     {
@@ -26,10 +26,10 @@ static inline int calc_empty_col_idx(
 
 // Automove logic.  Freecell games must avoid certain types of automoves.
 static inline bool good_automove(
-    fcs_pats_thread_t *const soft_thread, const int o, const int r)
+    fcs_pats_thread *const soft_thread, const int o, const int r)
 {
     FCS_ON_NOT_FC_ONLY(
-        const fc_solve_instance_t *const instance = soft_thread->instance);
+        const fcs_instance *const instance = soft_thread->instance);
 
     if (
 #ifndef FCS_FREECELL_ONLY
@@ -74,11 +74,11 @@ static inline bool good_automove(
 /* Get the possible moves from a position, and store them in
  * soft_thread->possible_moves[]. */
 
-static inline int get_possible_moves(fcs_pats_thread_t *const soft_thread,
-    bool *const a, int *const num_cards_out)
+static inline int get_possible_moves(
+    fcs_pats_thread *const soft_thread, bool *const a, int *const num_cards_out)
 {
     FCS_ON_NOT_FC_ONLY(
-        const fc_solve_instance_t *const instance = soft_thread->instance);
+        const fcs_instance *const instance = soft_thread->instance);
     DECLARE_STACKS();
 
     /* Check for moves from soft_thread->current_pos.stacks to
@@ -395,10 +395,10 @@ static inline bool is_irreversible_move(
 }
 
 static inline void mark_irreversible(
-    fcs_pats_thread_t *const soft_thread, const int n)
+    fcs_pats_thread *const soft_thread, const int n)
 {
 #ifndef FCS_FREECELL_ONLY
-    const fc_solve_instance_t *const instance = soft_thread->instance;
+    const fcs_instance *const instance = soft_thread->instance;
 
     const fcs_card_t game_variant_suit_mask = instance->game_variant_suit_mask;
     const fcs_card_t game_variant_desired_suit_value =
@@ -433,7 +433,7 @@ piles appear in any given game.  We'll use the pile's hash to find
 a hash bucket that contains a short list of piles, along with their
 identifiers. */
 
-static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
+static inline int get_pilenum(fcs_pats_thread *const soft_thread, const int w)
 {
     /* For a given pile, get its unique pile id.  If it doesn't have
     one, add it to the appropriate list and give it one.  First, get
@@ -506,7 +506,7 @@ static inline int get_pilenum(fcs_pats_thread_t *const soft_thread, const int w)
 }
 
 static inline void win(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const pos)
+    fcs_pats_thread *const soft_thread, fcs_pats_position *const pos)
 {
     if (soft_thread->moves_to_win)
     {
@@ -544,9 +544,9 @@ the position is unsolvable.  This cuts out a lot of useless searching, so
 it's worth checking.  */
 
 static inline int prune_seahaven(
-    fcs_pats_thread_t *const soft_thread, const fcs_pats__move *const move_ptr)
+    fcs_pats_thread *const soft_thread, const fcs_pats__move *const move_ptr)
 {
-    const fc_solve_instance_t *const instance = soft_thread->instance;
+    const fcs_instance *const instance = soft_thread->instance;
     const_SLOT(game_params, instance);
 
     if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
@@ -636,7 +636,7 @@ static inline int was_card_moved_or_dest(
 // Prune redundant moves, if we can prove that they really are redundant.
 #define MAX_PREVIOUS_MOVES 4 /* Increasing this beyond 4 doesn't do much. */
 
-static inline int prune_redundant(fcs_pats_thread_t *const soft_thread,
+static inline int prune_redundant(fcs_pats_thread *const soft_thread,
     const fcs_pats__move *const move_ptr, fcs_pats_position *const pos0)
 {
     DECLARE_STACKS();
@@ -826,7 +826,7 @@ that are a waste of time, especially in the endgame where there are lots of
 possible moves, but few productive ones.  Note that we also prioritize
 positions when they are added to the queue. */
 
-static inline void prioritize(fcs_pats_thread_t *const soft_thread,
+static inline void prioritize(fcs_pats_thread *const soft_thread,
     fcs_pats__move *const moves_start, const int n)
 {
     DECLARE_STACKS();
@@ -929,7 +929,7 @@ end_of_stacks:;
     }
 }
 
-static inline bool is_win(fcs_pats_thread_t *const soft_thread)
+static inline bool is_win(fcs_pats_thread *const soft_thread)
 {
     for (int o = 0; o < 4; o++)
     {
@@ -943,7 +943,7 @@ static inline bool is_win(fcs_pats_thread_t *const soft_thread)
 }
 
 // Generate an array of the moves we can make from this position.
-fcs_pats__move *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
+fcs_pats__move *fc_solve_pats__get_moves(fcs_pats_thread *const soft_thread,
     fcs_pats_position *const pos, int *const num_moves)
 {
     int num_cards_out = 0;
@@ -1059,7 +1059,7 @@ fcs_pats__move *fc_solve_pats__get_moves(fcs_pats_thread_t *const soft_thread,
 
 // Comparison function for sorting the soft_thread->current_pos.stacks piles.
 static inline int wcmp(
-    fcs_pats_thread_t *const soft_thread, const int a, const int b)
+    fcs_pats_thread *const soft_thread, const int a, const int b)
 {
     if (soft_thread->pats_solve_params.x[9] < 0)
     {
@@ -1075,7 +1075,7 @@ static inline int wcmp(
 
 /* Sort the piles, to remove the physical differences between logically
 equivalent layouts.  Assume it's already mostly sorted.  */
-void fc_solve_pats__sort_piles(fcs_pats_thread_t *const soft_thread)
+void fc_solve_pats__sort_piles(fcs_pats_thread *const soft_thread)
 {
     DECLARE_STACKS();
     // Make sure all the piles have id numbers.

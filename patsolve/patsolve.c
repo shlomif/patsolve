@@ -30,7 +30,7 @@ recursively (rec == TRUE). */
 */
 
 static inline void free_position_non_recursive(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const pos)
+    fcs_pats_thread *const soft_thread, fcs_pats_position *const pos)
 {
     pos->queue = soft_thread->freed_positions;
     soft_thread->freed_positions = pos;
@@ -38,7 +38,7 @@ static inline void free_position_non_recursive(
 }
 
 static inline void free_position_recursive(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position *pos)
+    fcs_pats_thread *const soft_thread, fcs_pats_position *pos)
 {
     do
     {
@@ -71,7 +71,7 @@ it, along with the pointer to its parent and the move we used to get here. */
 /* Return the position on the head of the queue, or NULL if there isn't one. */
 
 static inline void unpack_position(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const pos)
+    fcs_pats_thread *const soft_thread, fcs_pats_position *const pos)
 {
     DECLARE_STACKS();
 
@@ -138,7 +138,7 @@ static inline void unpack_position(
 }
 
 static inline fcs_pats_position *dequeue_position(
-    fcs_pats_thread_t *const soft_thread)
+    fcs_pats_thread *const soft_thread)
 {
     /* This is a kind of prioritized round robin.  We make sweeps
     through the queues, starting at the highest priority and
@@ -197,7 +197,7 @@ static inline fcs_pats_position *dequeue_position(
 }
 
 fcs_pats_position *fc_solve_pats__new_position(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const parent,
+    fcs_pats_thread *const soft_thread, fcs_pats_position *const parent,
     const fcs_pats__move *const m)
 {
     DECLARE_STACKS();
@@ -264,7 +264,7 @@ fcs_pats_position *fc_solve_pats__new_position(
 }
 
 // Hash the whole layout.  This is called once, at the start.
-static inline bool check_for_exceeded(fcs_pats_thread_t *const soft_thread)
+static inline bool check_for_exceeded(fcs_pats_thread *const soft_thread)
 {
     return ((soft_thread->status == FCS_PATS__NOSOL) &&
             (soft_thread->max_num_checked_states >= 0) &&
@@ -277,13 +277,13 @@ recursively solve them.  Return whether any of the child nodes, or their
 descendents, were queued or not (if not, the position can be freed). */
 
 static inline void wrap_up_solve(
-    fcs_pats_thread_t *const soft_thread, const enum FC_SOLVE_PATS__MYDIR mydir)
+    fcs_pats_thread *const soft_thread, const enum FC_SOLVE_PATS__MYDIR mydir)
 {
     soft_thread->curr_solve_dir = mydir;
 }
 
 static inline void freecell_solver_pats__make_move(
-    fcs_pats_thread_t *const soft_thread, const fcs_pats__move *const m)
+    fcs_pats_thread *const soft_thread, const fcs_pats__move *const m)
 {
     fcs_card_t card;
     const_SLOT(from, m);
@@ -320,7 +320,7 @@ static inline void freecell_solver_pats__make_move(
 }
 
 static inline void fc_solve_pats__undo_move(
-    fcs_pats_thread_t *const soft_thread, const fcs_pats__move *const m)
+    fcs_pats_thread *const soft_thread, const fcs_pats__move *const m)
 {
     const_SLOT(from, m);
     const_SLOT(to, m);
@@ -356,7 +356,7 @@ static inline void fc_solve_pats__undo_move(
 }
 
 static inline int solve(
-    fcs_pats_thread_t *const soft_thread, bool *const is_finished)
+    fcs_pats_thread *const soft_thread, bool *const is_finished)
 {
 #define DEPTH (soft_thread->curr_solve_depth)
 #define LEVEL (soft_thread->solve_stack[DEPTH])
@@ -494,7 +494,7 @@ static inline int solve(
 #undef DEPTH
 }
 
-DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread_t *const soft_thread)
+DLLEXPORT void fc_solve_pats__do_it(fcs_pats_thread *const soft_thread)
 {
     while (1)
     {
@@ -537,7 +537,7 @@ that got us here.  The work queue is kept sorted by priority (simply by
 having separate queues). */
 
 void fc_solve_pats__queue_position(
-    fcs_pats_thread_t *const soft_thread, fcs_pats_position *const pos, int pri)
+    fcs_pats_thread *const soft_thread, fcs_pats_position *const pos, int pri)
 {
     /* In addition to the priority of a move, a position gets an
     additional priority depending on the number of cards out.  We use a

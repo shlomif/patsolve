@@ -18,7 +18,7 @@ clusters, but we'll only use a few hundred of them at most.  Hash on
 the cluster number, then locate its tree, creating it if necessary. */
 
 static inline fcs_pats__treelist *cluster_tree(
-    fcs_pats_thread_t *const soft_thread, const int cluster)
+    fcs_pats_thread *const soft_thread, const int cluster)
 {
     // Pick a bucket, any bucket.
     const int bucket = cluster % FCS_PATS__TREE_LIST_NUM_BUCKETS;
@@ -69,7 +69,7 @@ fc_solve_pats__new_from_block().
 That is, no other calls to give_back_block() are allowed. */
 
 static inline void give_back_block(
-    fcs_pats_thread_t *const soft_thread, unsigned char *const p)
+    fcs_pats_thread *const soft_thread, unsigned char *const p)
 {
     var_AUTO(b, soft_thread->my_block);
     const size_t s = b->ptr - p;
@@ -81,7 +81,7 @@ static inline void give_back_block(
 following the fcs_pats__tree structure. */
 
 static inline fcs_pats__insert_code insert_node(
-    fcs_pats_thread_t *const soft_thread, fcs_pats__tree *const n, const int d,
+    fcs_pats_thread *const soft_thread, fcs_pats__tree *const n, const int d,
     fcs_pats__tree **const tree, fcs_pats__tree **const node)
 {
     const unsigned char *const key =
@@ -150,8 +150,7 @@ cells are encoded as a cluster number: no two positions with different
 cluster numbers can ever be the same, so we store different clusters in
 different trees.  */
 
-static inline fcs_pats__tree *pack_position(
-    fcs_pats_thread_t *const soft_thread)
+static inline fcs_pats__tree *pack_position(fcs_pats_thread *const soft_thread)
 {
     DECLARE_STACKS();
 
@@ -196,9 +195,8 @@ static inline fcs_pats__tree *pack_position(
 /* Insert key into the tree unless it's already there.  Return true if
 it was new. */
 
-fcs_pats__insert_code fc_solve_pats__insert(
-    fcs_pats_thread_t *const soft_thread, int *const cluster, const int d,
-    fcs_pats__tree **const node)
+fcs_pats__insert_code fc_solve_pats__insert(fcs_pats_thread *const soft_thread,
+    int *const cluster, const int d, fcs_pats__tree **const node)
 {
     // Get the cluster number from the Out cell contents.
 
@@ -237,7 +235,7 @@ fcs_pats__insert_code fc_solve_pats__insert(
 }
 
 // my_block storage.  Reduces overhead, and can be freed quickly.
-fcs_pats__block *fc_solve_pats__new_block(fcs_pats_thread_t *const soft_thread)
+fcs_pats__block *fc_solve_pats__new_block(fcs_pats_thread *const soft_thread)
 {
     fcs_pats__block *const b = fc_solve_pats__new(soft_thread, fcs_pats__block);
     if (b == NULL)
@@ -260,7 +258,7 @@ fcs_pats__block *fc_solve_pats__new_block(fcs_pats_thread_t *const soft_thread)
 
 // Like new(), only from the current block.  Make a new block if necessary.
 unsigned char *fc_solve_pats__new_from_block(
-    fcs_pats_thread_t *const soft_thread, const size_t s)
+    fcs_pats_thread *const soft_thread, const size_t s)
 {
     var_AUTO(b, soft_thread->my_block);
     if (s > b->remaining)

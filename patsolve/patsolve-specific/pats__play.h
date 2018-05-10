@@ -14,7 +14,7 @@
 #include "pat.h"
 #include "pats__print_msg.h"
 
-static inline void fc_solve_pats__before_play(fcs_pats_thread_t *soft_thread)
+static inline void fc_solve_pats__before_play(fcs_pats_thread *soft_thread)
 {
     fc_solve_pats__init_buckets(soft_thread);
     fc_solve_pats__init_clusters(soft_thread);
@@ -29,7 +29,7 @@ static inline void fc_solve_pats__before_play(fcs_pats_thread_t *soft_thread)
 }
 
 static inline void fc_solve_pats__play(
-    fcs_pats_thread_t *const soft_thread, const bool is_quiet)
+    fcs_pats_thread *const soft_thread, const bool is_quiet)
 {
     fc_solve_pats__before_play(soft_thread);
     fc_solve_pats__do_it(soft_thread);
@@ -60,7 +60,7 @@ static inline void fc_solve_pats__play(
 #endif
 }
 
-static void set_param(fcs_pats_thread_t *const soft_thread, const int param_num)
+static void set_param(fcs_pats_thread *const soft_thread, const int param_num)
 {
     soft_thread->pats_solve_params =
         freecell_solver_pats__x_y_params_preset[param_num];
@@ -68,7 +68,7 @@ static void set_param(fcs_pats_thread_t *const soft_thread, const int param_num)
 }
 
 static const int freecell_solver_user_set_sequences_are_built_by_type(
-    fc_solve_instance_t *const instance, const int sequences_are_built_by)
+    fcs_instance *const instance, const int sequences_are_built_by)
 {
 #ifndef FCS_FREECELL_ONLY
     if ((sequences_are_built_by < 0) || (sequences_are_built_by > 2))
@@ -85,7 +85,7 @@ static const int freecell_solver_user_set_sequences_are_built_by_type(
 }
 
 static const int freecell_solver_user_set_empty_stacks_filled_by(
-    fc_solve_instance_t *const instance, const int empty_stacks_fill)
+    fcs_instance *const instance, const int empty_stacks_fill)
 {
 #ifndef FCS_FREECELL_ONLY
     if ((empty_stacks_fill < 0) || (empty_stacks_fill > 2))
@@ -113,7 +113,7 @@ static inline const long long get_idx_from_env(const char *const name)
 }
 
 static inline void pats__init_soft_thread_and_instance(
-    fcs_pats_thread_t *const soft_thread, fc_solve_instance_t *const instance)
+    fcs_pats_thread *const soft_thread, fcs_instance *const instance)
 {
     fc_solve_pats__init_soft_thread(soft_thread, instance);
 #ifndef FCS_FREECELL_ONLY
@@ -127,7 +127,7 @@ static inline void pats__init_soft_thread_and_instance(
 }
 
 static inline void fc_solve_pats__configure_soft_thread(
-    fcs_pats_thread_t *const soft_thread, fc_solve_instance_t *const instance,
+    fcs_pats_thread *const soft_thread, fcs_instance *const instance,
     int *const argc_ptr, const char ***const argv_ptr,
     bool *const is_quiet)
 {

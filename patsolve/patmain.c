@@ -29,7 +29,7 @@ static const char Usage[] =
     "-s implies -aw10 -t4, -f implies -aw8 -t4\n";
 
 static inline void trace_solution(
-    fcs_pats_thread_t *const soft_thread, FILE *const out, const bool is_quiet)
+    fcs_pats_thread *const soft_thread, FILE *const out, const bool is_quiet)
 {
     /* Go back up the chain of parents and store the moves
     in reverse order. */
@@ -88,11 +88,10 @@ int main(int argc, char **argv)
         get_idx_from_env("PATSOLVE_START"); // for range solving
     const long long end_board_idx = get_idx_from_env("PATSOLVE_END");
 
-    fcs_pats_thread_t soft_thread_struct__dont_use_directly;
-    fcs_pats_thread_t *const soft_thread =
-        &soft_thread_struct__dont_use_directly;
+    fcs_pats_thread soft_thread_struct__dont_use_directly;
+    fcs_pats_thread *const soft_thread = &soft_thread_struct__dont_use_directly;
 
-    fc_solve_instance_t instance_struct;
+    fcs_instance instance_struct;
     bool is_quiet = FALSE;
     fc_solve_pats__configure_soft_thread(soft_thread, &instance_struct, &argc,
         (const char ***)(&argv), &is_quiet);

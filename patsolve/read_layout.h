@@ -11,13 +11,13 @@
 #include "pat.h"
 
 static inline void fc_solve_pats__read_layout(
-    fcs_pats_thread_t *const soft_thread, const char *const input_s)
+    fcs_pats_thread *const soft_thread, const char *const input_s)
 {
 #if !defined(HARD_CODED_NUM_STACKS)
     const_SLOT(game_params, soft_thread->instance);
 #endif
 
-    fcs_state_keyval_pair_t kv;
+    fcs_state_keyval_pair kv;
     fc_solve_initial_user_state_to_c(input_s, &kv, LOCAL_FREECELLS_NUM,
         LOCAL_STACKS_NUM, 1, soft_thread->current_pos.indirect_stacks_buffer);
     soft_thread->current_pos.s = kv.s;

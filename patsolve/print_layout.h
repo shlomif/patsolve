@@ -13,10 +13,9 @@
 #include "pat.h"
 
 static inline void fc_solve_pats__print_layout(
-    fcs_pats_thread_t *const soft_thread)
+    fcs_pats_thread *const soft_thread)
 {
-    FCS_ON_NOT_FC_ONLY(
-        fc_solve_instance_t *const instance = soft_thread->instance);
+    FCS_ON_NOT_FC_ONLY(fcs_instance *const instance = soft_thread->instance);
 
     fcs_state_locs_struct locs;
     fc_solve_init_locs(&locs);
