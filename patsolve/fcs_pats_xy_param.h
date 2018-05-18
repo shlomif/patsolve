@@ -8,7 +8,7 @@
  * Copyright (c) 2002 Tom Holroyd
  */
 // fcs_pats_xy_param.h - the purpose of this file is to define the
-// fcs_pats_xy_param_t type.
+// fcs_pats_xy_param type.
 
 #pragma once
 
