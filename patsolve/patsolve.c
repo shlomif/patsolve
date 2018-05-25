@@ -127,7 +127,7 @@ static inline void unpack_position(
     }
 
     /* soft_thread->current_pos.freecells cells. */
-
+#if MAX_NUM_FREECELLS > 0
     {
         unsigned char *p = (((unsigned char *)pos) + sizeof(fcs_pats_position));
         for (int i = 0; i < LOCAL_FREECELLS_NUM; i++)
@@ -135,6 +135,7 @@ static inline void unpack_position(
             fcs_freecell_card(soft_thread->current_pos.s, i) = *(p++);
         }
     }
+#endif
 }
 
 static inline fcs_pats_position *dequeue_position(
@@ -250,6 +251,7 @@ fcs_pats_position *fc_solve_pats__new_position(
 
     p += sizeof(fcs_pats_position);
     int i = 0;
+#if MAX_NUM_FREECELLS > 0
     for (int t = 0; t < LOCAL_FREECELLS_NUM; t++)
     {
         *p++ = fcs_freecell_card(soft_thread->current_pos.s, t);
@@ -258,6 +260,7 @@ fcs_pats_position *fc_solve_pats__new_position(
             ++i;
         }
     }
+#endif
     pos->num_cards_in_freecells = i;
 
     return pos;
@@ -289,6 +292,7 @@ static inline void freecell_solver_pats__make_move(
     const_SLOT(from, m);
     const_SLOT(to, m);
 
+#if MAX_NUM_FREECELLS > 0
     // Remove from pile.
     if (m->fromtype == FCS_PATS__TYPE_FREECELL)
     {
@@ -296,6 +300,7 @@ static inline void freecell_solver_pats__make_move(
         fcs_empty_freecell(soft_thread->current_pos.s, from);
     }
     else
+#endif
     {
         var_AUTO(from_col, fcs_state_get_col(soft_thread->current_pos.s, from));
         fcs_col_pop_card(from_col, card);
@@ -307,7 +312,9 @@ static inline void freecell_solver_pats__make_move(
     switch (m->totype)
     {
     case FCS_PATS__TYPE_FREECELL:
+#if MAX_NUM_FREECELLS > 0
         fcs_freecell_card(soft_thread->current_pos.s, to) = card;
+#endif
         break;
     case FCS_PATS__TYPE_WASTE:
         fcs_state_push(&soft_thread->current_pos.s, to, card);
@@ -328,10 +335,12 @@ static inline void fc_solve_pats__undo_move(
     fcs_card card;
     switch (m->totype)
     {
+#if MAX_NUM_FREECELLS > 0
     case FCS_PATS__TYPE_FREECELL:
         card = fcs_freecell_card(soft_thread->current_pos.s, to);
         fcs_empty_freecell(soft_thread->current_pos.s, to);
         break;
+#endif
     case FCS_PATS__TYPE_WASTE:
         card = fcs_state_pop_col_card(&soft_thread->current_pos.s, to);
         fc_solve_pats__hashpile(soft_thread, to);
@@ -344,11 +353,13 @@ static inline void fc_solve_pats__undo_move(
     }
     // Add to 'from' pile.
 
+#if MAX_NUM_FREECELLS > 0
     if (m->fromtype == FCS_PATS__TYPE_FREECELL)
     {
         fcs_freecell_card(soft_thread->current_pos.s, from) = card;
     }
     else
+#endif
     {
         fcs_state_push(&soft_thread->current_pos.s, from, card);
         fc_solve_pats__hashpile(soft_thread, from);

@@ -121,6 +121,7 @@ static inline int get_possible_moves(
         }
     }
 
+#if MAX_NUM_FREECELLS > 0
     /* Check for moves from soft_thread->current_pos.freecells to
      * soft_thread->current_pos.foundations. */
 
@@ -155,6 +156,7 @@ static inline int get_possible_moves(
             }
         }
     }
+#endif
 
     // No more automoves, but remember if there were any moves out.
     *a = FALSE;
@@ -251,6 +253,7 @@ static inline int get_possible_moves(
         }
     }
 
+#if MAX_NUM_FREECELLS > 0
     /* Check for moves from soft_thread->current_pos.freecells to non-empty
      * soft_thread->current_pos.stacks cells. */
     for (int t = 0; t < LOCAL_FREECELLS_NUM; t++)
@@ -289,7 +292,9 @@ static inline int get_possible_moves(
             }
         }
     }
+#endif
 
+#if MAX_NUM_FREECELLS > 0
     /* Check for moves from soft_thread->current_pos.freecells to one of any
      * empty soft_thread->current_pos.stacks cells. */
     if (has_empty_col)
@@ -343,6 +348,7 @@ static inline int get_possible_moves(
         }
         break;
     }
+#endif
     return NUM_MOVES;
 }
 
@@ -634,7 +640,7 @@ static inline int was_card_moved_or_dest(
 // Prune redundant moves, if we can prove that they really are redundant.
 #define MAX_PREVIOUS_MOVES 4 /* Increasing this beyond 4 doesn't do much. */
 
-static inline int prune_redundant(fcs_pats_thread *const soft_thread,
+static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
     const fcs_pats__move *const move_ptr, fcs_pats_position *const pos0)
 {
     DECLARE_STACKS();
