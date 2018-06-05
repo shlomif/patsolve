@@ -12,18 +12,17 @@
 #include <stdio.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    static inline void fc_solve_msg(const char *msg, ...)
-    {
-        va_list ap;
+static inline void fc_solve_msg(const char *msg, ...)
+{
+    va_list ap;
 
-        va_start(ap, msg);
-        vfprintf(stderr, msg, ap);
-        va_end(ap);
-    }
+    va_start(ap, msg);
+    vfprintf(stderr, msg, ap);
+    va_end(ap);
+}
 
 #ifdef __cplusplus
 }
