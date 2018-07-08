@@ -10,7 +10,7 @@ use Test::Trap
 
 use File::Basename qw(dirname);
 use File::Spec;
-use Path::Tiny;
+use Path::Tiny qw/ path /;
 use Socket qw(:crlf);
 
 sub _normalize_lf
