@@ -8,8 +8,6 @@ use Test::More tests => 20;
 use Test::Trap
     qw( trap $trap :flow:stderr(systemsafe):stdout(systemsafe):warn );
 
-use File::Basename qw(dirname);
-use File::Spec;
 use Path::Tiny qw/ path /;
 use Socket qw(:crlf);
 
@@ -20,8 +18,8 @@ sub _normalize_lf
     return $s;
 }
 
-my $base_dir = dirname(__FILE__);
-my $data_dir = File::Spec->catdir( $base_dir, 'data' );
+my $base_dir = path(__FILE__)->parent->absolute;
+my $data_dir = $base_dir->child('data');
 
 sub _slurp_win { return _normalize_lf( path("win")->slurp_utf8 ); }
 
@@ -77,7 +75,7 @@ sub pat_test
     pat_test(
         {
             blurb    => '24',
-            cmd_line => [ '-f', File::Spec->catfile( $data_dir, '24.board' ) ],
+            cmd_line => [ '-f', $data_dir->child('24.board') ],
             stdout   => <<'EOF',
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
@@ -199,10 +197,9 @@ EOF
     # TEST*$pat_test
     pat_test(
         {
-            blurb => '24 -S',
-            cmd_line =>
-                [ '-f', '-S', File::Spec->catfile( $data_dir, '24.board' ) ],
-            stdout => <<'EOF',
+            blurb    => '24 -S',
+            cmd_line => [ '-f', '-S', $data_dir->child('24.board') ],
+            stdout   => <<'EOF',
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
@@ -404,10 +401,9 @@ EOF
     # TEST*$pat_test
     pat_test(
         {
-            blurb => "seahaven 1",
-            cmd_line =>
-                [ "-s", File::Spec->catfile( $data_dir, "1.seahaven.board" ), ],
-            stdout => <<'EOF',
+            blurb    => "seahaven 1",
+            cmd_line => [ "-s", $data_dir->child("1.seahaven.board"), ],
+            stdout   => <<'EOF',
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
@@ -518,11 +514,8 @@ EOF
     pat_test(
         {
             blurb    => "seahaven 1 -S",
-            cmd_line => [
-                "-s", "-S",
-                File::Spec->catfile( $data_dir, "1.seahaven.board" ),
-            ],
-            stdout => <<'EOF',
+            cmd_line => [ "-s", "-S", $data_dir->child("1.seahaven.board"), ],
+            stdout   => <<'EOF',
 Seahaven; any card may start a pile.
 10 work piles, 4 temp cells.
 A winner.
@@ -649,10 +642,9 @@ EOF
     # TEST*$pat_test
     pat_test(
         {
-            blurb => '3 -S',
-            cmd_line =>
-                [ '-f', "-S", File::Spec->catfile( $data_dir, '3.board' ) ],
-            stdout => <<'EOF',
+            blurb    => '3 -S',
+            cmd_line => [ '-f', "-S", $data_dir->child('3.board') ],
+            stdout   => <<'EOF',
 Freecell; any card may start a pile.
 8 work piles, 4 temp cells.
 A winner.
