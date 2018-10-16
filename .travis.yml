@@ -2,7 +2,7 @@ os: linux
 dist: trusty
 before_install:
     - sudo apt-get update -qq
-    - sudo apt-get install -y cmake cmake-data ninja-build cpanminus mercurial perl libperl-dev valgrind
+    - sudo apt-get --no-install-recommends install -y cmake cmake-data ninja-build cpanminus mercurial perl libperl-dev valgrind
 install:
     - sudo cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Path::Tiny Test::Differences Test::More Test::PerlTidy Test::TrailingSpace Test::Trap
     - git clone git://github.com/shlomif/fc-solve.git
