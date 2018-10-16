@@ -1,12 +1,12 @@
 #!/usr/bin/env perl
 
+use 5.014;
 use strict;
 use warnings;
 use autodie;
 
-use Cwd qw/getcwd/;
-use File::Path qw/mkpath/;
-use Getopt::Long qw/GetOptions/;
+use Path::Tiny qw/ path /;
+use Getopt::Long qw/ GetOptions /;
 
 sub do_system
 {
@@ -30,8 +30,8 @@ GetOptions( 'gen=s' => \$cmake_gen, )
 
 local $ENV{RUN_TESTS_VERBOSE} = 1;
 
-my $CWD = getcwd();
-mkpath("B");
+my $CWD = Path::Tiny->cwd;
+path("B")->mkpath;
 chdir("B");
 do_system(
     {
