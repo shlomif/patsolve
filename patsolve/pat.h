@@ -11,11 +11,11 @@
 #include "fcs_conf.h"
 
 #include "game_type_params.h"
-#include "fcs_enums.h"
+#include "freecell-solver/fcs_enums.h"
 #include "tree.h"
 #include "param.h"
 #include "bool.h"
-#include "fcs_dllexport.h"
+#include "freecell-solver/fcs_dllexport.h"
 #include "state.h"
 #include "fnv.h"
 #include "alloc_wrap.h"
