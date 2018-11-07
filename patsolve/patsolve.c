@@ -54,12 +54,12 @@ static inline void free_position_recursive(
 }
 
 /* Like strcpy() but returns the length of the string. */
-static inline int strecpy(char *dest, const char *src)
+static inline int strecpy(fcs_card *dest, const fcs_card *src)
 {
     int i = 0;
     while ((*dest++ = *src++) != '\0')
     {
-        i++;
+        ++i;
     }
 
     return i;
@@ -120,7 +120,7 @@ static inline void unpack_position(
             soft_thread->current_pos.stack_ids[w] = i;
             var_AUTO(l, soft_thread->bucket_from_pile_lookup[i]);
             var_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
-            i = strecpy(w_col + 1, (char *)(l->pile));
+            i = strecpy(w_col + 1, (fcs_card *)(l->pile));
             fcs_col_len(w_col) = i;
             soft_thread->current_pos.stack_hashes[w] = l->hash;
         }
