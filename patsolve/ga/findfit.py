@@ -1,10 +1,10 @@
 #! /usr/bin/env python2
 
-import sys
 import argparse
+import os
 import re
 import string
-import os
+import sys
 from functools import reduce
 
 if sys.version_info > (3,):

@@ -1,10 +1,11 @@
 #! /usr/bin/env python2
 
-import sys
 import os
-import time
-import string
 import re
+import string
+import sys
+import time
+
 import rng
 from rng import torat
 
