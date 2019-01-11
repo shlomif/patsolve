@@ -21,7 +21,8 @@ sub do_system
 }
 
 my $IS_WIN = ( $^O eq "MSWin32" );
-my $SEP    = $IS_WIN ? "\\" : '/';
+# Cmake does not like backslashes.
+my $SEP    = $IS_WIN ? '/' : '/';
 my $MAKE   = $IS_WIN ? 'gmake' : 'make';
 
 my $cmake_gen;
