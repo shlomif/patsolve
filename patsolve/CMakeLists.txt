@@ -121,6 +121,11 @@ ADD_CUSTOM_COMMAND(
     ARGS ${is_parent_args}
     DEPENDS "${is_parent_gen}"
 )
+
+IF (WIN32)
+    EXECUTE_PROCESS(COMMAND "dir" "/s" "..")
+ENDIF()
+
 ADD_LIBRARY(fcs_patsolve_lib
     STATIC
     "${FC_SOLVE_SRC_PATH}/card.c"
