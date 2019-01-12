@@ -122,11 +122,6 @@ ADD_CUSTOM_COMMAND(
     DEPENDS "${is_parent_gen}"
 )
 
-IF (WIN32)
-    FILE( GLOB_RECURSE _foo "../*")
-    MESSAGE("found = ${_foo}")
-ENDIF()
-
 ADD_LIBRARY(fcs_patsolve_lib
     STATIC
     "${FC_SOLVE_SRC_PATH}/card.c"
