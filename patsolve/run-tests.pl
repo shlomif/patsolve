@@ -132,7 +132,6 @@ sub myglob
             || ( $a cmp $b )
         } (
         myglob('t'),
-        myglob('.'),
         (
               ( $fcs_path ne $abs_bindir )
             ? ( myglob("$abs_bindir/t") )
