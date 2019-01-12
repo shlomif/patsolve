@@ -8,7 +8,6 @@ install:
     - perl -v
     - if not exist C:\Perl5 mkdir C:\Perl5
     - SET PY=C:\Python37-x64
-    - dir %PY% /s
     - copy %PY%\python.exe %PY%\python3.exe
     - SET PATH=%PY%;C:\msys64\bin;C:\Perl5\bin;C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
     - SET PERL5LIB=C:/Perl5/lib/perl5
