@@ -123,7 +123,7 @@ ADD_CUSTOM_COMMAND(
 )
 
 IF (WIN32)
-    EXECUTE_PROCESS(COMMAND "dir" "/s" "..")
+    EXECUTE_PROCESS(COMMAND "dir" ".." "/s")
 ENDIF()
 
 ADD_LIBRARY(fcs_patsolve_lib
