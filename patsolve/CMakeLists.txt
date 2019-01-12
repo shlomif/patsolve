@@ -123,7 +123,8 @@ ADD_CUSTOM_COMMAND(
 )
 
 IF (WIN32)
-    EXECUTE_PROCESS(COMMAND "dir" ".." "/s")
+    FILE( GLOB_RECURSE _foo "../*")
+    MESSAGE("found = ${_foo}")
 ENDIF()
 
 ADD_LIBRARY(fcs_patsolve_lib
