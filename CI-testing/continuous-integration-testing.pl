@@ -21,9 +21,11 @@ sub do_system
 }
 
 my $IS_WIN = ( $^O eq "MSWin32" );
+
 # Cmake does not like backslashes.
-my $SEP    = $IS_WIN ? '/' : '/';
-my $MAKE   = $IS_WIN ? 'gmake' : 'make';
+my $CMAKE_SAFE_SEPARATOR_ON_WINDOWS = '/';
+my $SEP  = $IS_WIN ? $CMAKE_SAFE_SEPARATOR_ON_WINDOWS : '/';
+my $MAKE = $IS_WIN ? 'gmake' : 'make';
 
 my $cmake_gen;
 GetOptions( 'gen=s' => \$cmake_gen, )
