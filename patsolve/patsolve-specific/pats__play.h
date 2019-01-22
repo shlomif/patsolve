@@ -128,8 +128,7 @@ static inline void pats__init_soft_thread_and_instance(
 
 static inline void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread *const soft_thread, fcs_instance *const instance,
-    int *const argc_ptr, const char ***const argv_ptr,
-    bool *const is_quiet)
+    int *const argc_ptr, const char ***const argv_ptr, bool *const is_quiet)
 {
     int argc = *argc_ptr;
     const char **argv = *argv_ptr;
@@ -353,8 +352,8 @@ static inline void fc_solve_pats__configure_soft_thread(
         fatalerr("too many t piles (max %d)", MAX_NUM_FREECELLS);
     }
 
-/* Process the named file, or stdin if no file given.
-The name '-' also specifies stdin. */
+    /* Process the named file, or stdin if no file given.
+    The name '-' also specifies stdin. */
 
 #ifndef FCS_FREECELL_ONLY
     instance->game_variant_suit_mask = FCS_PATS__COLOR;
