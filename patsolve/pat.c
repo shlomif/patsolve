@@ -100,9 +100,9 @@ static inline int get_possible_moves(
             fcs_foundation_value(soft_thread->current_pos.s, o) + 1)
         {
             *(move_ptr++) = (typeof(*move_ptr)){.card = card,
-                .from = w,
+                .from = (unsigned char)w,
                 .fromtype = FCS_PATS__TYPE_WASTE,
-                .to = o,
+                .to = (unsigned char)o,
                 .totype = FCS_PATS__TYPE_FOUNDATION,
                 .srccard = ((col_len > 1) ? fcs_col_get_card(col, col_len - 2)
                                           : fc_solve_empty_card),
@@ -137,9 +137,9 @@ static inline int get_possible_moves(
             fcs_foundation_value(soft_thread->current_pos.s, o) + 1)
         {
             *(move_ptr++) = (typeof(*move_ptr)){.card = card,
-                .from = t,
+                .from = (unsigned char)t,
                 .fromtype = FCS_PATS__TYPE_FREECELL,
-                .to = o,
+                .to = (unsigned char)o,
                 .totype = FCS_PATS__TYPE_FOUNDATION,
                 .srccard = fc_solve_empty_card,
                 .destcard = fc_solve_empty_card,
@@ -160,7 +160,7 @@ static inline int get_possible_moves(
 
     // No more automoves, but remember if there were any moves out.
     *a = FALSE;
-    *num_cards_out = NUM_MOVES;
+    *num_cards_out = (int)NUM_MOVES;
 
     /* Check for moves from non-singleton soft_thread->current_pos.stacks cells
     to one of any
@@ -188,13 +188,13 @@ static inline int get_possible_moves(
                 {
                     *(move_ptr++) = (typeof(*move_ptr)){
                         .card = card,
-                        .from = i,
+                        .from = (unsigned char)i,
                         .fromtype = FCS_PATS__TYPE_WASTE,
-                        .to = empty_col_idx,
+                        .to = (unsigned char)empty_col_idx,
                         .totype = FCS_PATS__TYPE_WASTE,
                         .srccard = fcs_col_get_card(i_col, i_col_len - 2),
                         .destcard = fc_solve_empty_card,
-                        .pri = soft_thread->pats_solve_params.x[3],
+                        .pri = (signed char)soft_thread->pats_solve_params.x[3],
                     };
                 }
             }
@@ -237,16 +237,17 @@ static inline int get_possible_moves(
                             ))
                     {
                         *(move_ptr++) = (typeof(*move_ptr)){.card = card,
-                            .from = i,
+                            .from = (unsigned char)i,
                             .fromtype = FCS_PATS__TYPE_WASTE,
-                            .to = w,
+                            .to = (unsigned char)w,
                             .totype = FCS_PATS__TYPE_WASTE,
                             .srccard =
                                 ((i_col_len > 1)
                                         ? fcs_col_get_card(i_col, i_col_len - 2)
                                         : fc_solve_empty_card),
                             .destcard = w_card,
-                            .pri = soft_thread->pats_solve_params.x[4]};
+                            .pri = (signed char)
+                                       soft_thread->pats_solve_params.x[4]};
                     }
                 }
             }
@@ -281,13 +282,14 @@ static inline int get_possible_moves(
                             )))
                 {
                     *(move_ptr++) = (typeof(*move_ptr)){.card = card,
-                        .from = t,
+                        .from = (unsigned char)t,
                         .fromtype = FCS_PATS__TYPE_FREECELL,
-                        .to = w,
+                        .to = (unsigned char)w,
                         .totype = FCS_PATS__TYPE_WASTE,
                         .srccard = fc_solve_empty_card,
                         .destcard = w_card,
-                        .pri = soft_thread->pats_solve_params.x[5]};
+                        .pri =
+                            (signed char)soft_thread->pats_solve_params.x[5]};
                 }
             }
         }
@@ -307,13 +309,13 @@ static inline int get_possible_moves(
                 fcs_pats_is_king_only(not_King_only, card))
             {
                 *(move_ptr++) = (typeof(*move_ptr)){.card = card,
-                    .from = t,
+                    .from = (unsigned char)t,
                     .fromtype = FCS_PATS__TYPE_FREECELL,
-                    .to = empty_col_idx,
+                    .to = (unsigned char)empty_col_idx,
                     .totype = FCS_PATS__TYPE_WASTE,
                     .srccard = fc_solve_empty_card,
                     .destcard = fc_solve_empty_card,
-                    .pri = soft_thread->pats_solve_params.x[6]};
+                    .pri = (signed char)soft_thread->pats_solve_params.x[6]};
             }
         }
     }
@@ -334,22 +336,22 @@ static inline int get_possible_moves(
             {
                 *(move_ptr++) = (typeof(*move_ptr)){
                     .card = fcs_col_get_card(w_col, w_col_len - 1),
-                    .from = w,
+                    .from = (unsigned char)w,
                     .fromtype = FCS_PATS__TYPE_WASTE,
-                    .to = t,
+                    .to = (unsigned char)t,
                     .totype = FCS_PATS__TYPE_FREECELL,
                     .srccard = ((w_col_len > 1)
                                     ? fcs_col_get_card(w_col, w_col_len - 2)
                                     : fc_solve_empty_card),
                     .destcard = fc_solve_empty_card,
-                    .pri = soft_thread->pats_solve_params.x[7],
+                    .pri = (signed char)soft_thread->pats_solve_params.x[7],
                 };
             }
         }
         break;
     }
 #endif
-    return NUM_MOVES;
+    return (int)NUM_MOVES;
 }
 
 /* Moves that can't be undone get slightly higher priority, since it means
@@ -449,7 +451,7 @@ static inline int get_pilenum(fcs_pats_thread *const soft_thread, const int w)
     fcs_pats__bucket_list *list_iter = soft_thread->buckets_list[bucket],
                           *last_item = NULL;
     const_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
-    const int w_col_len = fcs_col_len(w_col);
+    const uint_fast16_t w_col_len = fcs_col_len(w_col);
     const char *w_col_data = (const char *)w_col + 1;
     for (; list_iter; list_iter = list_iter->next)
     {
@@ -845,7 +847,7 @@ static inline void prioritize(fcs_pats_thread *const soft_thread,
     }
 
     fcs_card needed_cards[FCS_NUM_SUITS];
-    for (int suit = 0; suit < FCS_NUM_SUITS; suit++)
+    for (fcs_card suit = 0; suit < FCS_NUM_SUITS; suit++)
     {
         needed_cards[suit] = fc_solve_empty_card;
         const fcs_card rank =
@@ -1022,7 +1024,7 @@ fcs_pats__move *fc_solve_pats__get_moves(fcs_pats_thread *const soft_thread,
     moves. */
     fcs_pats__move *move_ptr, *moves_start;
     move_ptr = moves_start =
-        fc_solve_pats__new_array(soft_thread, fcs_pats__move, n);
+        fc_solve_pats__new_array(soft_thread, fcs_pats__move, (size_t)n);
     if (move_ptr == NULL)
     {
         return NULL;

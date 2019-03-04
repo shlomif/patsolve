@@ -72,7 +72,7 @@ static inline void give_back_block(
     fcs_pats_thread *const soft_thread, unsigned char *const p)
 {
     var_AUTO(b, soft_thread->my_block);
-    const size_t s = b->ptr - p;
+    const size_t s = (size_t)(b->ptr - p);
     b->ptr -= s;
     b->remaining += s;
 }
@@ -86,7 +86,7 @@ static inline fcs_pats__insert_code insert_node(
 {
     const unsigned char *const key =
         (unsigned char *)n + sizeof(fcs_pats__tree);
-    n->depth = d;
+    n->depth = (short)d;
     n->left = n->right = NULL;
     *node = n;
     fcs_pats__tree *t = *tree;
@@ -130,7 +130,7 @@ static inline fcs_pats__insert_code insert_node(
 
     if (d < t->depth && !soft_thread->to_stack)
     {
-        t->depth = d;
+        t->depth = (short)d;
         *node = t;
         return FCS_PATS__INSERT_CODE_FOUND_BETTER;
     }
@@ -184,8 +184,8 @@ static inline fcs_pats__tree *pack_position(fcs_pats_thread *const soft_thread)
         }
         else
         {
-            *p++ = j >> 4;
-            *p = (j & 0xF) << 4;
+            *p++ = (unsigned char)(j >> 4);
+            *p = (unsigned char)((j & 0xF) << 4);
         }
     }
 

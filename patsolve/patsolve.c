@@ -121,7 +121,7 @@ static inline void unpack_position(
             var_AUTO(l, soft_thread->bucket_from_pile_lookup[i]);
             var_AUTO(w_col, fcs_state_get_col(soft_thread->current_pos.s, w));
             i = strecpy(w_col + 1, (fcs_card *)(l->pile));
-            fcs_col_len(w_col) = i;
+            fcs_col_len(w_col) = (fcs_card)i;
             soft_thread->current_pos.stack_hashes[w] = l->hash;
         }
     }
@@ -245,8 +245,8 @@ fcs_pats_position *fc_solve_pats__new_position(
     pos->parent = parent;
     pos->node = node;
     pos->move = *m; /* struct copy */
-    pos->cluster = cluster;
-    pos->depth = depth;
+    pos->cluster = (unsigned short)cluster;
+    pos->depth = (short)depth;
     pos->num_childs = 0;
 
     p += sizeof(fcs_pats_position);
@@ -261,7 +261,7 @@ fcs_pats_position *fc_solve_pats__new_position(
         }
     }
 #endif
-    pos->num_cards_in_freecells = i;
+    pos->num_cards_in_freecells = (unsigned char)i;
 
     return pos;
 }
@@ -410,14 +410,14 @@ static inline int solve(
                 mydir = FC_SOLVE_PATS__DOWN;
                 continue;
             }
-            LEVEL.moves_end =
-                LEVEL.moves_start + (parent->num_childs = num_moves);
+            LEVEL.moves_end = LEVEL.moves_start +
+                              (parent->num_childs = (unsigned char)num_moves);
             LEVEL.move_ptr = LEVEL.moves_start;
             LEVEL.q = FALSE;
         }
         else
         {
-            num_moves = LEVEL.moves_end - LEVEL.moves_start;
+            num_moves = (int)(LEVEL.moves_end - LEVEL.moves_start);
         }
 
         // Make each move and either solve or queue the result.
@@ -437,8 +437,8 @@ static inline int solve(
 
         if (LEVEL.move_ptr == LEVEL.moves_end)
         {
-            fc_solve_pats__free_array(
-                soft_thread, LEVEL.moves_start, fcs_pats__move, num_moves);
+            fc_solve_pats__free_array(soft_thread, LEVEL.moves_start,
+                fcs_pats__move, (size_t)num_moves);
             LEVEL.moves_start = NULL;
             --DEPTH;
             mydir = FC_SOLVE_PATS__DOWN;
@@ -478,7 +478,7 @@ static inline int solve(
                             FCS_PATS__SOLVE_LEVEL_GROW_BY;
                         soft_thread->solve_stack =
                             SREALLOC(soft_thread->solve_stack,
-                                soft_thread->max_solve_depth);
+                                (size_t)soft_thread->max_solve_depth);
                     }
                     UP_LEVEL.parent = LEVEL.pos;
                     UP_LEVEL.moves_start = NULL;
