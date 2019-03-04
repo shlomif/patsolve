@@ -564,8 +564,8 @@ static inline int prune_seahaven(
     }
 
     // Count the number of cards below this card.
-    const int r = fcs_card_rank(move_ptr->card) + 1;
-    const int s = fcs_card_suit(move_ptr->card);
+    const fcs_card r = fcs_card_rank(move_ptr->card) + 1;
+    const fcs_card s = fcs_card_suit(move_ptr->card);
     const_AUTO(
         col, fcs_state_get_col(soft_thread->current_pos.s, move_ptr->to));
     const int len = fcs_col_len(col);
