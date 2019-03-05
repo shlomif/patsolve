@@ -183,7 +183,7 @@ struct fc_solve__patsolve_thread_struct
     struct
     {
         fcs_state s;
-        DECLARE_IND_BUF_T(indirect_stacks_buffer);
+        DECLARE_IND_BUF_T(indirect_stacks_buffer)
         /* used to keep the piles sorted */
         int column_idxs[MAX_NUM_STACKS];
 /* column_inv_idxs are not needed or used. */
