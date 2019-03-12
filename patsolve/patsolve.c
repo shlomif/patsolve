@@ -23,7 +23,7 @@ many
 threads running through the game tree starting from the queued positions.
 The num_childs element keeps track of descendents, and when there are none left
 in the parent we can free it too after solve() returns and we get called
-recursively (rec == TRUE). */
+recursively (rec == true). */
 
 /* We don't really free anything here, we just push it onto a
    freelist (using the queue member), so we can use it again later.
@@ -164,7 +164,7 @@ static inline fcs_pats_position *dequeue_position(
             }
             if (soft_thread->dequeue__minpos == 0)
             {
-                is_last = TRUE;
+                is_last = true;
             }
         }
     } while (soft_thread->queue_head[soft_thread->dequeue__qpos] == NULL);
@@ -380,7 +380,7 @@ static inline int solve(
         if (check_for_exceeded(soft_thread))
         {
             wrap_up_solve(soft_thread, mydir);
-            return TRUE;
+            return true;
         }
 
         var_S_SLOT(parent, LEVEL);
@@ -425,7 +425,7 @@ static inline int solve(
         {
             if (UP_LEVEL.q)
             {
-                LEVEL.q = TRUE;
+                LEVEL.q = true;
             }
             else
             {
@@ -490,14 +490,14 @@ static inline int solve(
                     fc_solve_pats__queue_position(
                         soft_thread, LEVEL.pos, (LEVEL.move_ptr)->pri);
                     fc_solve_pats__undo_move(soft_thread, LEVEL.move_ptr);
-                    LEVEL.q = TRUE;
+                    LEVEL.q = true;
                     LEVEL.move_ptr++;
                     mydir = FC_SOLVE_PATS__UP;
                 }
             }
         }
     }
-    *is_finished = TRUE;
+    *is_finished = true;
     wrap_up_solve(soft_thread, mydir);
     return UP_LEVEL.q;
 #undef LEVEL

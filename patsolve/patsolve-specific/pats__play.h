@@ -185,7 +185,7 @@ static inline void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'S':
-                soft_thread->to_stack = TRUE;
+                soft_thread->to_stack = true;
                 break;
 
             case 'w':
@@ -270,7 +270,7 @@ static inline void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'E':
-                soft_thread->dont_exit_on_sol = TRUE;
+                soft_thread->dont_exit_on_sol = true;
                 break;
 
             case 'c':
@@ -288,7 +288,7 @@ static inline void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'q':
-                *is_quiet = TRUE;
+                *is_quiet = true;
                 break;
 
             case 'X':

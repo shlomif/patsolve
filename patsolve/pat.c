@@ -38,7 +38,7 @@ static inline bool good_automove(
 #endif
         r <= 2)
     {
-        return TRUE;
+        return true;
     }
 
     // Check the Out piles of opposite color.
@@ -69,7 +69,7 @@ static inline bool good_automove(
         }
     }
 
-    return TRUE;
+    return true;
 }
 /* Get the possible moves from a position, and store them in
  * soft_thread->possible_moves[]. */
@@ -111,7 +111,7 @@ static inline int get_possible_moves(
             // If it's an automove, just do it.
             if (good_automove(soft_thread, o, fcs_card_rank(card)))
             {
-                *a = TRUE;
+                *a = true;
                 if (NUM_MOVES != 1)
                 {
                     soft_thread->possible_moves[0] = move_ptr[-1];
@@ -147,7 +147,7 @@ static inline int get_possible_moves(
             // If it's an automove, just do it.
             if (good_automove(soft_thread, o, fcs_card_rank(card)))
             {
-                *a = TRUE;
+                *a = true;
                 if (NUM_MOVES != 1)
                 {
                     soft_thread->possible_moves[0] = move_ptr[-1];
@@ -170,7 +170,7 @@ static inline int get_possible_moves(
 #ifndef FCS_FREECELL_ONLY
         (!((INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)));
 #else
-        TRUE;
+        true;
 #endif
 
     const int empty_col_idx = calc_empty_col_idx(soft_thread, LOCAL_STACKS_NUM);
@@ -366,7 +366,7 @@ static inline bool is_irreversible_move(
 {
     if (move_ptr->totype == FCS_PATS__TYPE_FOUNDATION)
     {
-        return TRUE;
+        return true;
     }
     else if (move_ptr->fromtype == FCS_PATS__TYPE_WASTE)
     {
@@ -382,7 +382,7 @@ static inline bool is_irreversible_move(
 #endif
                     ))
             {
-                return TRUE;
+                return true;
             }
         }
         /* TODO : This is probably a bug because move_ptr->card probably cannot
@@ -393,7 +393,7 @@ static inline bool is_irreversible_move(
         else if (King_only &&
                  move_ptr->card != fcs_make_card(FCS_PATS__KING, 0))
         {
-            return TRUE;
+            return true;
         }
     }
 
@@ -594,7 +594,7 @@ static inline int prune_seahaven(
         const_AUTO(card, fcs_col_get_card(col, i));
         if ((fcs_card_suit(card) == s) && (fcs_card_rank(card) < r_minus))
         {
-            return TRUE;
+            return true;
         }
     }
 
@@ -612,7 +612,7 @@ static inline int was_card_moved(
     {
         if (moves[i]->card == card)
         {
-            return TRUE;
+            return true;
         }
     }
     return FALSE;
@@ -627,7 +627,7 @@ static inline int is_card_dest(
     {
         if (moves[i]->destcard == card)
         {
-            return TRUE;
+            return true;
         }
     }
     return FALSE;
@@ -658,7 +658,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
     m = &pos->move;
     if (m->card == move_ptr->card)
     {
-        return TRUE;
+        return true;
     }
 
     /* The check above is the simplest case of the more general strategy
@@ -740,7 +740,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
         {
             return FALSE;
         }
-        return TRUE;
+        return true;
     }
 
     /* soft_thread->current_pos.stacks -> soft_thread->current_pos.freecells,
@@ -773,7 +773,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
             return FALSE;
         }
 
-        return TRUE;
+        return true;
     }
 
     /* These are not inverse prunes, we're taking a shortcut. */
@@ -792,7 +792,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
         if (pos->num_cards_in_freecells != LOCAL_FREECELLS_NUM &&
             !was_all_freecells_occupied)
         {
-            return TRUE;
+            return true;
         }
 
         return FALSE;
@@ -815,7 +815,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
             return FALSE;
         }
 
-        return TRUE;
+        return true;
     }
 
     return FALSE;
@@ -945,7 +945,7 @@ static inline bool is_win(fcs_pats_thread *const soft_thread)
             return FALSE;
         }
     }
-    return TRUE;
+    return true;
 }
 
 // Generate an array of the moves we can make from this position.
