@@ -14,7 +14,7 @@
 #include "freecell-solver/fcs_enums.h"
 #include "tree.h"
 #include "param.h"
-#include "bool.h"
+#include <stdbool.h>
 #include "freecell-solver/fcs_dllexport.h"
 #include "state.h"
 #include "fnv.h"
