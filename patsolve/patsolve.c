@@ -101,7 +101,7 @@ static inline void unpack_position(
         unsigned char c = 0;
         unsigned char *p =
             (unsigned char *)(pos->node) + sizeof(fcs_pats__tree);
-        bool k = FALSE;
+        bool k = false;
         for (int w = 0; w < LOCAL_STACKS_NUM; w++)
         {
             int i;
@@ -148,7 +148,7 @@ static inline fcs_pats_position *dequeue_position(
     but we still get lots of low priority action (instead of
     ignoring it completely). */
 
-    bool is_last = FALSE;
+    bool is_last = false;
     do
     {
         if ((--soft_thread->dequeue__qpos) < soft_thread->dequeue__minpos)
@@ -374,7 +374,7 @@ static inline int solve(
 #define UP_LEVEL (soft_thread->solve_stack[DEPTH + 1])
     var_AUTO(mydir, soft_thread->curr_solve_dir);
 
-    *is_finished = FALSE;
+    *is_finished = false;
     while (DEPTH >= 0)
     {
         if (check_for_exceeded(soft_thread))
@@ -385,13 +385,13 @@ static inline int solve(
 
         var_S_SLOT(parent, LEVEL);
         /* If we've won already (or failed), we just go through the motions
-        but always return FALSE from any position.  This enables the cleanup
+        but always return false from any position.  This enables the cleanup
         of the move stack and eventual destruction of the position store. */
 
         if ((soft_thread->status != FCS_PATS__NOSOL) ||
             (parent->node->depth < parent->depth))
         {
-            LEVEL.q = FALSE;
+            LEVEL.q = false;
             --DEPTH;
             mydir = FC_SOLVE_PATS__DOWN;
             continue;
@@ -405,7 +405,7 @@ static inline int solve(
                 fc_solve_pats__get_moves(soft_thread, parent, &num_moves);
             if (!LEVEL.moves_start)
             {
-                LEVEL.q = FALSE;
+                LEVEL.q = false;
                 --DEPTH;
                 mydir = FC_SOLVE_PATS__DOWN;
                 continue;
@@ -413,7 +413,7 @@ static inline int solve(
             LEVEL.moves_end = LEVEL.moves_start +
                               (parent->num_childs = (unsigned char)num_moves);
             LEVEL.move_ptr = LEVEL.moves_start;
-            LEVEL.q = FALSE;
+            LEVEL.q = false;
         }
         else
         {

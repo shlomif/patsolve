@@ -58,13 +58,13 @@ static inline bool good_automove(
             {
                 if (fcs_foundation_value(soft_thread->current_pos.s, j) < r - 2)
                 {
-                    return FALSE;
+                    return false;
                 }
             }
             return (fcs_foundation_value(
                         soft_thread->current_pos.s, ((o + 2) & 3)) >= r - 3);
 #else /* Horne's Rule */
-            return FALSE;
+            return false;
 #endif
         }
     }
@@ -159,7 +159,7 @@ static inline int get_possible_moves(
 #endif
 
     // No more automoves, but remember if there were any moves out.
-    *a = FALSE;
+    *a = false;
     *num_cards_out = (int)NUM_MOVES;
 
     /* Check for moves from non-singleton soft_thread->current_pos.stacks cells
@@ -397,7 +397,7 @@ static inline bool is_irreversible_move(
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 static inline void mark_irreversible(
@@ -414,7 +414,7 @@ static inline void mark_irreversible(
 #ifndef FCS_FREECELL_ONLY
         (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY);
 #else
-        FALSE;
+        false;
 #endif
     const_AUTO(x_param_8, soft_thread->pats_solve_params.x[8]);
 
@@ -560,7 +560,7 @@ static inline int prune_seahaven(
         !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY) ||
         move_ptr->totype != FCS_PATS__TYPE_WASTE)
     {
-        return FALSE;
+        return false;
     }
 
     // Count the number of cards below this card.
@@ -582,7 +582,7 @@ static inline int prune_seahaven(
         }
         if (j < LOCAL_FREECELLS_NUM + 1)
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -598,7 +598,7 @@ static inline int prune_seahaven(
         }
     }
 
-    return FALSE;
+    return false;
 }
 #endif
 
@@ -615,7 +615,7 @@ static inline int was_card_moved(
             return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 /* This utility routine is used to check if a card is ever used as a
@@ -630,7 +630,7 @@ static inline int is_card_dest(
             return true;
         }
     }
-    return FALSE;
+    return false;
 }
 
 static inline int was_card_moved_or_dest(
@@ -653,7 +653,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
     fcs_pats_position *pos = pos0;
     if (pos->depth == 0)
     {
-        return FALSE;
+        return false;
     }
     m = &pos->move;
     if (m->card == move_ptr->card)
@@ -668,7 +668,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
     pos = pos->parent;
     if (pos->depth == 0)
     {
-        return FALSE;
+        return false;
     }
     prev[0] = m;
     j = -1;
@@ -689,7 +689,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
         pos = pos->parent;
         if (pos->depth == 0)
         {
-            return FALSE;
+            return false;
         }
     }
 
@@ -697,14 +697,14 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
     a redundant move. */
     if (j < 0)
     {
-        return FALSE;
+        return false;
     }
 
     /* If the number of empty soft_thread->current_pos.freecells cells
      * ever goes to zero, from prev[0] to
     prev[j-1], there may be a dependency.  We also want to know if there
     were any empty soft_thread->current_pos.freecells cells on move prev[j]. */
-    bool was_all_freecells_occupied = FALSE;
+    bool was_all_freecells_occupied = false;
     pos = pos0;
     for (int i = 0; i < j; i++)
     {
@@ -731,14 +731,14 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
         dependency, and we can't prune. */
         if (was_all_freecells_occupied)
         {
-            return FALSE;
+            return false;
         }
 
         /* If any intervening move used this card as a destination,
         we have a dependency and we can't prune. */
         if (is_card_dest(move_ptr->card, prev, j))
         {
-            return FALSE;
+            return false;
         }
         return true;
     }
@@ -762,7 +762,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
         it's not an inverse. */
         if (m->srccard != move_ptr->destcard)
         {
-            return FALSE;
+            return false;
         }
 
         /* If any of the intervening moves either moves the card
@@ -770,7 +770,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
         fc_solve_empty_card), there is a dependency. */
         if (was_card_moved_or_dest(move_ptr->destcard, prev, j))
         {
-            return FALSE;
+            return false;
         }
 
         return true;
@@ -795,7 +795,7 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
             return true;
         }
 
-        return FALSE;
+        return false;
     }
 
     /* soft_thread->current_pos.freecells -> soft_thread->current_pos.stacks,
@@ -812,13 +812,13 @@ static inline int prune_redundant(fcs_pats_thread *const soft_thread GCC_UNUSED,
 
         if (was_card_moved_or_dest(move_ptr->destcard, prev, j))
         {
-            return FALSE;
+            return false;
         }
 
         return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 // Next card in rank.
@@ -942,7 +942,7 @@ static inline bool is_win(fcs_pats_thread *const soft_thread)
         if (fcs_foundation_value(soft_thread->current_pos.s, o) !=
             FCS_PATS__KING)
         {
-            return FALSE;
+            return false;
         }
     }
     return true;

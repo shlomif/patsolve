@@ -22,7 +22,7 @@ static inline void fc_solve_pats__print_layout(
     char s[1000];
     fc_solve_state_as_string(s, &(soft_thread->current_pos.s), &(locs),
         INSTANCE_FREECELLS_NUM, INSTANCE_STACKS_NUM, INSTANCE_DECKS_NUM, true,
-        FALSE, true);
+        false, true);
 
     fprintf(stderr, "%s\n---\n", s);
 }

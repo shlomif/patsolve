@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     fcs_pats_thread *const soft_thread = &soft_thread_struct__dont_use_directly;
 
     fcs_instance instance_struct;
-    bool is_quiet = FALSE;
+    bool is_quiet = false;
     fc_solve_pats__configure_soft_thread(soft_thread, &instance_struct, &argc,
         (const char ***)(&argv), &is_quiet);
 

@@ -284,7 +284,7 @@ static inline void fc_solve_pats__configure_soft_thread(
                 break;
 
             case 'v':
-                *is_quiet = FALSE;
+                *is_quiet = false;
                 break;
 
             case 'q':

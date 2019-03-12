@@ -216,7 +216,7 @@ struct fc_solve__patsolve_thread_struct
     int num_solutions;     /* number of solutions found in -E mode */
     /* -S means stack, not queue, the moves to be done. This is a boolean
      * value.
-     * Default should be FALSE.
+     * Default should be false.
      * */
     bool to_stack;
     /* Switch between depth- and breadth-first. Default is "1".*/
@@ -444,8 +444,8 @@ static inline void fc_solve_pats__init_soft_thread(
     fcs_pats_thread *const soft_thread, fcs_instance *const instance)
 {
     soft_thread->instance = instance;
-    soft_thread->dont_exit_on_sol = FALSE;
-    soft_thread->to_stack = FALSE;
+    soft_thread->dont_exit_on_sol = false;
+    soft_thread->to_stack = false;
     soft_thread->num_moves_to_cut_off = 1;
     soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->freed_positions = NULL;
