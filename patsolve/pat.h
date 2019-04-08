@@ -106,7 +106,6 @@ typedef enum
 typedef enum
 {
     FCS_PATS__FAIL_CHECKED_STATES = 0,
-    FCS_PATS__FAIL_OTHER = 1,
 } fc_solve_pats__status_fail_reason;
 #endif
 
