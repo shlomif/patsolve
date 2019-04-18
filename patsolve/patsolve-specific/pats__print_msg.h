@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "fcs_conf.h"
+#include "freecell-solver/fcs_conf.h"
 #include "msg.h"
 
 static const char *program_name = NULL;

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "fcs_conf.h"
+#include "freecell-solver/fcs_conf.h"
 #include "pat.h"
 #include "pats__print_msg.h"
 

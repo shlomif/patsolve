@@ -8,7 +8,7 @@
  * Copyright (c) 2002 Tom Holroyd
  */
 #pragma once
-#include "fcs_conf.h"
+#include "freecell-solver/fcs_conf.h"
 
 #include "game_type_params.h"
 #include "freecell-solver/fcs_enums.h"

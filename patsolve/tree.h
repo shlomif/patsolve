@@ -10,7 +10,7 @@
 // tree.h : header of the patsolve's splay tree.
 #pragma once
 
-#include "fcs_conf.h"
+#include "freecell-solver/fcs_conf.h"
 
 // A splay tree.
 typedef struct fcs_pats__tree_node_struct fcs_pats__tree;
