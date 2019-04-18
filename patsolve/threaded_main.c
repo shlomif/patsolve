@@ -20,6 +20,7 @@
 #include "read_layout.h"
 #include "pats__play.h"
 #include "pats__print_msg.h"
+#include "print_time.h"
 
 static const char Usage[] =
     "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
