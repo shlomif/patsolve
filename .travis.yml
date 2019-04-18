@@ -1,13 +1,20 @@
+addons:
+    apt:
+        packages:
+            - cmake
+            - cmake-data
+            - ninja-build
+            - cpanminus
+            - perl
+            - libperl-dev
+            - valgrind
 os: linux
 dist: trusty
-before_install:
-    - sudo apt-get update -qq
-    - sudo apt-get --no-install-recommends install -y cmake cmake-data ninja-build cpanminus mercurial perl libperl-dev valgrind
 install:
     - sudo cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Path::Tiny Test::Differences Test::More Test::PerlTidy Test::TrailingSpace Test::Trap
     - git clone git://github.com/shlomif/fc-solve.git
 perl:
-    - "5.24"
+    - "5.26"
 python:
     - "3.5"
 script: "mkdir build && cd build && cmake -DFC_SOLVE_SRC_PATH=\"$(pwd)/../fc-solve/fc-solve/source/\" ../patsolve && make && make check"
