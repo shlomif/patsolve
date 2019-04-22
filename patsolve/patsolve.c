@@ -270,7 +270,6 @@ fcs_pats_position *fc_solve_pats__new_position(
 static inline bool check_for_exceeded(fcs_pats_thread *const soft_thread)
 {
     return ((soft_thread->status == FCS_PATS__NOSOL) &&
-            (soft_thread->max_num_checked_states >= 0) &&
             (soft_thread->num_checked_states >=
                 soft_thread->max_num_checked_states));
 }

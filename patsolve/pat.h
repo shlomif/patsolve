@@ -14,6 +14,7 @@
 #include "freecell-solver/fcs_enums.h"
 #include "tree.h"
 #include "param.h"
+#include <limits.h>
 #include <stdbool.h>
 #include "freecell-solver/fcs_dllexport.h"
 #include "state.h"
@@ -199,8 +200,8 @@ struct fc_solve__patsolve_thread_struct
     fcs_pats__move possible_moves[FCS_PATS__MAX_NUM_MOVES];
 
     /* Statistics. */
-    long num_checked_states, max_num_checked_states;
-    long num_states_in_collection;
+    unsigned long num_checked_states, max_num_checked_states;
+    unsigned long num_states_in_collection;
     fcs_pats_xy_params pats_solve_params;
     size_t position_size;
 
@@ -448,7 +449,7 @@ static inline void fc_solve_pats__init_soft_thread(
     soft_thread->num_moves_to_cut_off = 1;
     soft_thread->remaining_memory = (50 * 1000 * 1000);
     soft_thread->freed_positions = NULL;
-    soft_thread->max_num_checked_states = -1;
+    soft_thread->max_num_checked_states = ULONG_MAX;
 
     soft_thread->moves_to_win = NULL;
     soft_thread->num_moves_to_win = 0;
