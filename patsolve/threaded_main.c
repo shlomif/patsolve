@@ -10,7 +10,6 @@
 #include <stdarg.h>
 #include <pthread.h>
 
-#include "count.h"
 #include "portable_time.h"
 
 #include "pat.h"

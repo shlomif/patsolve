@@ -19,7 +19,7 @@
 #include "freecell-solver/fcs_dllexport.h"
 #include "state.h"
 #include "fnv.h"
-#include "alloc_wrap.h"
+#include "rinutils/alloc_wrap.h"
 #include "instance.h"
 
 #define FCS_PATS__COLOR 0x01 /* black if set */

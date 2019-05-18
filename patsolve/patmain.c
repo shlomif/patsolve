@@ -8,7 +8,6 @@
  * Copyright (c) 2002 Tom Holroyd
  */
 // Main().  Parse args, read the position, and call the solver.
-#include "count.h"
 #include "pat.h"
 #include "range_solvers_gen_ms_boards.h"
 

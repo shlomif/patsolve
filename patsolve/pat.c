@@ -7,8 +7,7 @@
  *
  * Copyright (c) 2002 Tom Holroyd
  */
-#include "alloc_wrap.h"
-#include "count.h"
+#include "rinutils/count.h"
 #include "instance.h"
 
 static inline int calc_empty_col_idx(
