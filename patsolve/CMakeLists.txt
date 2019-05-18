@@ -80,6 +80,12 @@ SET(CPACK_PACKAGE_EXECUTABLES
     "patsolve" "Patsolve"
 )
 
+SET (rinutils "rinutils")
+IF (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${rinutils}")
+    EXECUTE_PROCESS(COMMAND "git" "clone" "https://github.com/shlomif/rinutils.git" "${rinutils}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+ENDIF ()
 ### This is to set the RPATH correctly, so when installed under a prefix
 ### the executables will find the libraries.
 ###
@@ -196,3 +202,5 @@ ADD_CUSTOM_TARGET (
 
 # So it can find config.h
 INCLUDE_DIRECTORIES(BEFORE "${FC_SOLVE_SRC_PATH}/include" "${FC_SOLVE_SRC_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/patsolve-specific" "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_CURRENT_BINARY_DIR}/include ${CMAKE_CURRENT_BINARY_DIR} )
+
+INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/${rinutils}/rinutils/include")
