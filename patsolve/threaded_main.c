@@ -10,7 +10,7 @@
 #include <stdarg.h>
 #include <pthread.h>
 
-#include "portable_time.h"
+#include "rinutils/portable_time.h"
 
 #include "pat.h"
 #include "range_solvers_gen_ms_boards.h"
@@ -22,7 +22,11 @@
 #include "print_time.h"
 
 static const char Usage[] =
-    "usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
+    "SYNOPSIS:\n"
+    "\n"
+    "    PATSOLVE_START=1 PATSOLVE_END=32000 threaded-pats -f -S\n"
+    "\n"
+    "Usage: %s [-s|f] [-k|a] [-w<n>] [-t<n>] [-E] [-S] [-q|v] [layout]\n"
     "-s Seahaven (same suit), -f Freecell (red/black)\n"
     "-k only Kings start a pile, -a any card starts a pile\n"
     "-w<n> number of work piles, -t<n> number of free cells\n"
