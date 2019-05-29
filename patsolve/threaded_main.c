@@ -117,6 +117,11 @@ static void *worker_thread(void *context)
 
 int main(int argc, char **argv)
 {
+    if (argc > 1 && ((!strcmp(argv[1], "-h")) || (!strcmp(argv[1], "--help"))))
+    {
+        USAGE();
+        exit(0);
+    }
     next_board_num_lock = initial_mutex_constant;
     total_num_iters_lock = initial_mutex_constant;
     next_board_num = get_idx_from_env("PATSOLVE_START");
