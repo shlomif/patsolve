@@ -9,9 +9,7 @@ import time
 import rng
 from rng import torat
 
-
-if sys.version_info > (3,):
-    xrange = range
+from six.moves import range
 
 
 def printusage():
@@ -87,7 +85,7 @@ def cross(l1, l2, p):
     x = map(None, l1, l2)
     j = rng.random() % 2
     (p, q) = torat(p)
-    for i in xrange(len(l1)):
+    for i in range(len(l1)):
         if rng.flip(p, q):
             j = 1 - j
         lst[i] = x[i][j]
@@ -125,8 +123,8 @@ def initpop(nl=None):
         canon1 = [2, 6, 2, 0, -5, -9, -5, -11, 3, 1, -5, 2, 2, 0]
         canon2 = [1, 1, 6, -2, -1, -2, -2, -3, 0, -1, 2, 4, 6, 1]
         Nparam = len(canon1)
-        lst = [breed(canon1, canon2) for x in xrange(Npop)]
-#                lst = [mutate(canon0, .9) for x in xrange(Npop)]
+        lst = [breed(canon1, canon2) for x in range(Npop)]
+#                lst = [mutate(canon0, .9) for x in range(Npop)]
 
     return lst
 
@@ -146,9 +144,9 @@ def newpop(result):
     print('%d: %g, %s' % (Gen, result[0][0], result[0][1]))
     pop = [0] * Npop
     cut = int(Npop * .5)
-    for i in xrange(cut):
+    for i in range(cut):
         pop[i] = result[i][1]
-    for i in xrange(cut, Npop):
+    for i in range(cut, Npop):
         a = rng.random() % cut
         b = rng.random() % cut
         pop[i] = breed(result[a][1], result[b][1])
@@ -178,7 +176,7 @@ def refill(pop):
             newpop[i] = lst
             i += 1
         last = lst
-    for j in xrange(i, Npop):
+    for j in range(i, Npop):
         a = rng.random() % i
         b = rng.random() % i
         newpop[j] = breed(newpop[a], newpop[b])

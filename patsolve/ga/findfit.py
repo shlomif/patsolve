@@ -7,9 +7,7 @@ import string
 import sys
 from functools import reduce
 
-if sys.version_info > (3,):
-    long = int
-    xrange = range
+from six.moves import range
 
 
 def printusage():
@@ -73,5 +71,5 @@ for id in fit.keys():
 
 m.sort(lambda x, y: sgn(x[0] - y[0]))
 # m.sort(lambda x, y: sgn(y[2] - x[2]))
-for i in xrange(N):
+for i in range(N):
     print(m[i][1], 'fitness =', m[i][0], '(%d)' % m[i][2])
