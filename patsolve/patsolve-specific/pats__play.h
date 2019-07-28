@@ -134,19 +134,16 @@ static inline void fc_solve_pats__configure_soft_thread__set_variant(
     const_AUTO(filled_by_kings,
         (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY));
     const_SLOT(to_stack, soft_thread);
-    if (!built_by_suit && !filled_by_kings)
+    if (!filled_by_kings)
     {
-        set_param(soft_thread, to_stack
-                                   ? FC_SOLVE_PATS__PARAM_PRESET__FreecellSpeed
-                                   : FC_SOLVE_PATS__PARAM_PRESET__FreecellBest);
+        set_param(soft_thread,
+            built_by_suit
+                ? (to_stack ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenSpeed
+                            : FC_SOLVE_PATS__PARAM_PRESET__SeahavenBest)
+                : (to_stack ? FC_SOLVE_PATS__PARAM_PRESET__FreecellSpeed
+                            : FC_SOLVE_PATS__PARAM_PRESET__FreecellBest));
     }
-    else if (built_by_suit && !filled_by_kings)
-    {
-        set_param(soft_thread, to_stack
-                                   ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenSpeed
-                                   : FC_SOLVE_PATS__PARAM_PRESET__SeahavenBest);
-    }
-    else if (built_by_suit && filled_by_kings)
+    else if (built_by_suit)
     {
         set_param(soft_thread,
             to_stack ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenKingSpeed
