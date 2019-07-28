@@ -126,6 +126,33 @@ static inline void pats__init_soft_thread_and_instance(
 #endif
 }
 
+static inline void fc_solve_pats__announce_variation(
+    fcs_pats_thread *const soft_thread, fcs_instance *const instance,
+    bool *const is_quiet)
+{
+    if (*(is_quiet))
+    {
+        return;
+    }
+#if !defined(HARD_CODED_NUM_STACKS) || !defined(HARD_CODED_NUM_FREECELLS)
+    const_SLOT(game_params, soft_thread->instance);
+#endif
+    printf("%s",
+        (GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) == FCS_SEQ_BUILT_BY_SUIT)
+            ? "Seahaven; "
+            : "Freecell; ");
+    if (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)
+    {
+        printf("%s", "only Kings are allowed to start a pile.\n");
+    }
+    else
+    {
+        printf("%s", "any card may start a pile.\n");
+    }
+    printf("%d work piles, %d temp cells.\n", LOCAL_STACKS_NUM,
+        LOCAL_FREECELLS_NUM);
+}
+
 static inline void fc_solve_pats__configure_soft_thread__set_variant(
     fcs_pats_thread *const soft_thread, fcs_instance *const instance)
 {
@@ -364,24 +391,7 @@ static inline void fc_solve_pats__configure_soft_thread(
     }
 #endif
 
-    // Announce which variation this is.
-    if (!*(is_quiet))
-    {
-        printf("%s", (GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
-                         FCS_SEQ_BUILT_BY_SUIT)
-                         ? "Seahaven; "
-                         : "Freecell; ");
-        if (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY)
-        {
-            printf("%s", "only Kings are allowed to start a pile.\n");
-        }
-        else
-        {
-            printf("%s", "any card may start a pile.\n");
-        }
-        printf("%d work piles, %d temp cells.\n", LOCAL_STACKS_NUM,
-            LOCAL_FREECELLS_NUM);
-    }
+    fc_solve_pats__announce_variation(soft_thread, instance, is_quiet);
 
     *argc_ptr = argc;
     *argv_ptr = argv;
