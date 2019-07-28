@@ -143,15 +143,13 @@ static inline void fc_solve_pats__configure_soft_thread__set_variant(
                 : (to_stack ? FC_SOLVE_PATS__PARAM_PRESET__FreecellSpeed
                             : FC_SOLVE_PATS__PARAM_PRESET__FreecellBest));
     }
-    else if (built_by_suit)
-    {
-        set_param(soft_thread,
-            to_stack ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenKingSpeed
-                     : FC_SOLVE_PATS__PARAM_PRESET__SeahavenKing);
-    }
     else
     {
-        set_param(soft_thread, 0); // default
+        set_param(soft_thread,
+            built_by_suit
+                ? (to_stack ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenKingSpeed
+                            : FC_SOLVE_PATS__PARAM_PRESET__SeahavenKing)
+                : 0);
     }
 }
 
