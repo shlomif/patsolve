@@ -126,6 +126,40 @@ static inline void pats__init_soft_thread_and_instance(
 #endif
 }
 
+static inline void fc_solve_pats__configure_soft_thread__set_variant(
+    fcs_pats_thread *const soft_thread, fcs_instance *const instance)
+{
+    if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
+            FCS_SEQ_BUILT_BY_SUIT) &&
+        !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
+    {
+        set_param(soft_thread, soft_thread->to_stack
+                                   ? FC_SOLVE_PATS__PARAM_PRESET__FreecellSpeed
+                                   : FC_SOLVE_PATS__PARAM_PRESET__FreecellBest);
+    }
+    else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
+                 FCS_SEQ_BUILT_BY_SUIT) &&
+             !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
+    {
+        set_param(soft_thread, soft_thread->to_stack
+                                   ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenSpeed
+                                   : FC_SOLVE_PATS__PARAM_PRESET__SeahavenBest);
+    }
+    else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
+                 FCS_SEQ_BUILT_BY_SUIT) &&
+             (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
+    {
+        set_param(
+            soft_thread, soft_thread->to_stack
+                             ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenKingSpeed
+                             : FC_SOLVE_PATS__PARAM_PRESET__SeahavenKing);
+    }
+    else
+    {
+        set_param(soft_thread, 0); // default
+    }
+}
+
 static inline void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread *const soft_thread, fcs_instance *const instance,
     int *const argc_ptr, const char ***const argv_ptr, bool *const is_quiet)
@@ -216,36 +250,7 @@ static inline void fc_solve_pats__configure_soft_thread(
         }
     }
 
-    // Set parameters.
-    if (!(GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
-            FCS_SEQ_BUILT_BY_SUIT) &&
-        !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
-    {
-        set_param(soft_thread, soft_thread->to_stack
-                                   ? FC_SOLVE_PATS__PARAM_PRESET__FreecellSpeed
-                                   : FC_SOLVE_PATS__PARAM_PRESET__FreecellBest);
-    }
-    else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
-                 FCS_SEQ_BUILT_BY_SUIT) &&
-             !(INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
-    {
-        set_param(soft_thread, soft_thread->to_stack
-                                   ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenSpeed
-                                   : FC_SOLVE_PATS__PARAM_PRESET__SeahavenBest);
-    }
-    else if ((GET_INSTANCE_SEQUENCES_ARE_BUILT_BY(instance) ==
-                 FCS_SEQ_BUILT_BY_SUIT) &&
-             (INSTANCE_EMPTY_STACKS_FILL == FCS_ES_FILLED_BY_KINGS_ONLY))
-    {
-        set_param(
-            soft_thread, soft_thread->to_stack
-                             ? FC_SOLVE_PATS__PARAM_PRESET__SeahavenKingSpeed
-                             : FC_SOLVE_PATS__PARAM_PRESET__SeahavenKing);
-    }
-    else
-    {
-        set_param(soft_thread, 0); // default
-    }
+    fc_solve_pats__configure_soft_thread__set_variant(soft_thread, instance);
 
     // Now get the other args, and allow overriding the parameters.
     argc = argc0;
