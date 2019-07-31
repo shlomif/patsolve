@@ -260,23 +260,13 @@ static inline void fc_solve_pats__configure_soft_thread__get_operating_mode(
     }
 }
 
-static inline void fc_solve_pats__configure_soft_thread(
+static inline void
+fc_solve_pats__configure_soft_thread__process_other_cmdline_args(
     fcs_pats_thread *const soft_thread, fcs_instance *const instance,
     int *const argc_ptr, const char ***const argv_ptr, bool *const is_quiet)
 {
     int argc = *argc_ptr;
     const char **argv = *argv_ptr;
-
-    pats__init_soft_thread_and_instance(soft_thread, instance);
-
-    program_name = *argv;
-
-    /* Parse args twice.  Once to get the operating mode, and the
-    next for other options. */
-    fc_solve_pats__configure_soft_thread__get_operating_mode(
-        soft_thread, instance, argc, argv);
-    fc_solve_pats__configure_soft_thread__set_variant(soft_thread, instance);
-
     // Now get the other args, and allow overriding the parameters.
     int c;
     const char *curr_arg;
@@ -360,6 +350,30 @@ static inline void fc_solve_pats__configure_soft_thread(
             }
         }
     }
+
+    *argc_ptr = argc;
+    *argv_ptr = argv;
+}
+
+static inline void fc_solve_pats__configure_soft_thread(
+    fcs_pats_thread *const soft_thread, fcs_instance *const instance,
+    int *const argc_ptr, const char ***const argv_ptr, bool *const is_quiet)
+{
+    int argc = *argc_ptr;
+    const char **argv = *argv_ptr;
+
+    pats__init_soft_thread_and_instance(soft_thread, instance);
+
+    program_name = *argv;
+
+    /* Parse args twice.  Once to get the operating mode, and the
+    next for other options. */
+    fc_solve_pats__configure_soft_thread__get_operating_mode(
+        soft_thread, instance, argc, argv);
+    fc_solve_pats__configure_soft_thread__set_variant(soft_thread, instance);
+
+    fc_solve_pats__configure_soft_thread__process_other_cmdline_args(
+        soft_thread, instance, argc_ptr, argv_ptr, is_quiet);
 #if !defined(HARD_CODED_NUM_STACKS) || !defined(HARD_CODED_NUM_FREECELLS)
     const_SLOT(game_params, soft_thread->instance);
 #endif
@@ -396,7 +410,4 @@ static inline void fc_solve_pats__configure_soft_thread(
 #endif
 
     fc_solve_pats__announce_variation(soft_thread, instance, is_quiet);
-
-    *argc_ptr = argc;
-    *argv_ptr = argv;
 }
