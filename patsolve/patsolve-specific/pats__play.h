@@ -359,7 +359,6 @@ static inline void fc_solve_pats__configure_soft_thread(
     fcs_pats_thread *const soft_thread, fcs_instance *const instance,
     int *const argc_ptr, const char ***const argv_ptr, bool *const is_quiet)
 {
-    int argc = *argc_ptr;
     const char **argv = *argv_ptr;
 
     pats__init_soft_thread_and_instance(soft_thread, instance);
@@ -369,7 +368,7 @@ static inline void fc_solve_pats__configure_soft_thread(
     /* Parse args twice.  Once to get the operating mode, and the
     next for other options. */
     fc_solve_pats__configure_soft_thread__get_operating_mode(
-        soft_thread, instance, argc, argv);
+        soft_thread, instance, *argc_ptr, argv);
     fc_solve_pats__configure_soft_thread__set_variant(soft_thread, instance);
 
     fc_solve_pats__configure_soft_thread__process_other_cmdline_args(
