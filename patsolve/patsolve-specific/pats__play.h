@@ -180,21 +180,10 @@ static inline void fc_solve_pats__configure_soft_thread__set_variant(
     }
 }
 
-static inline void fc_solve_pats__configure_soft_thread(
-    fcs_pats_thread *const soft_thread, fcs_instance *const instance,
-    int *const argc_ptr, const char ***const argv_ptr, bool *const is_quiet)
+static inline void fc_solve_pats__configure_soft_thread__get_operating_mode(
+    fcs_pats_thread *const soft_thread, fcs_instance *const instance, int argc,
+    const char **argv)
 {
-    int argc = *argc_ptr;
-    const char **argv = *argv_ptr;
-
-    pats__init_soft_thread_and_instance(soft_thread, instance);
-
-    program_name = *argv;
-
-    /* Parse args twice.  Once to get the operating mode, and the
-    next for other options. */
-    var_AUTO(argc0, argc);
-    var_AUTO(argv0, argv);
     const char *curr_arg;
     while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv))
     {
@@ -269,13 +258,28 @@ static inline void fc_solve_pats__configure_soft_thread(
             }
         }
     }
+}
 
+static inline void fc_solve_pats__configure_soft_thread(
+    fcs_pats_thread *const soft_thread, fcs_instance *const instance,
+    int *const argc_ptr, const char ***const argv_ptr, bool *const is_quiet)
+{
+    int argc = *argc_ptr;
+    const char **argv = *argv_ptr;
+
+    pats__init_soft_thread_and_instance(soft_thread, instance);
+
+    program_name = *argv;
+
+    /* Parse args twice.  Once to get the operating mode, and the
+    next for other options. */
+    fc_solve_pats__configure_soft_thread__get_operating_mode(
+        soft_thread, instance, argc, argv);
     fc_solve_pats__configure_soft_thread__set_variant(soft_thread, instance);
 
     // Now get the other args, and allow overriding the parameters.
-    argc = argc0;
-    argv = argv0;
     int c;
+    const char *curr_arg;
     while (--argc > 0 && **++argv == '-' && *(curr_arg = 1 + *argv))
     {
         while (curr_arg != NULL && (c = *curr_arg++) != '\0')
