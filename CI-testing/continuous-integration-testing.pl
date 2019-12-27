@@ -57,17 +57,20 @@ if ( !$ENV{SKIP_RINUTILS_INSTALL} )
         }
     );
 }
-my $CMAKE_MODULE_PATH = join ";",
-    (
-    map { ; $_, s%/%\\%gr } (
-        map { ; $_, "$_/Rinutils", "$_/Rinutils/cmake" }
-            map { ; $_, "$_/lib", "$_/lib64" } ( map { ; "c:$_", $_ } ("/foo") )
-    )
-    );
+my $CMAKE_MODULE_PATH;
 
 # die "<$CMAKE_MODULE_PATH>";
 if ($IS_WIN)
 {
+    $CMAKE_MODULE_PATH
+        = join ";",
+        (
+        map { ; $_, s%/%\\%gr } (
+            map     { ; $_, "$_/Rinutils", "$_/Rinutils/cmake" }
+                map { ; $_, "$_/lib",      "$_/lib64" }
+                ( map { ; "c:$_", $_ } ("/foo") )
+        )
+        );
     ( $ENV{CMAKE_MODULE_PATH} //= '' ) .= ";$CMAKE_MODULE_PATH;";
 
     # ( $ENV{PKG_CONFIG_PATH} //= '' ) .= ";C:\\foo\\lib\\pkgconfig;";
@@ -82,7 +85,19 @@ chdir("B");
 do_system(
     {
         cmd => [
-                  "cmake "
+            "cmake "
+                . (
+                defined($CMAKE_MODULE_PATH)
+                ? (
+                          "-DCMAKE_MODULE_PATH="
+                        . ( $CMAKE_MODULE_PATH =~ s%\\%\\\\%gr )
+                        . (
+                        "-DCMAKE_PREFIX_PATH="
+                            . ( $CMAKE_MODULE_PATH =~ s%\\%\\\\%gr )
+                        )
+                    )
+                : ''
+                )
                 . ( defined($cmake_gen) ? qq#-G "$cmake_gen"# : "" ) . ' '
                 . (
                 defined( $ENV{CMAKE_MAKE_PROGRAM} )
