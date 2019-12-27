@@ -63,9 +63,10 @@ my $CMAKE_MODULE_PATH;
 if ($IS_WIN)
 {
     $CMAKE_MODULE_PATH
-        = join ";",
+        = join ";", (
+
+        # map { ; $_, s%/%\\%gr }
         (
-        map { ; $_, s%/%\\%gr } (
             map     { ; $_, "$_/Rinutils", "$_/Rinutils/cmake" }
                 map { ; $_, "$_/lib",      "$_/lib64" }
                 ( map { ; "c:$_", $_ } ("/foo") )
