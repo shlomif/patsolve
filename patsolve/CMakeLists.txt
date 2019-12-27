@@ -5,6 +5,7 @@ INCLUDE ("${CMAKE_SOURCE_DIR}/cmake/shlomif_common_bootstrap.cmake")
 SHLOMIF_COMMON_SETUP("${private_mod_path}")
 
 INCLUDE(CheckCCompilerFlag)
+INCLUDE(FindPkgConfig)
 
 SET (STATES_TYPE "COMPACT_STATES" CACHE STRING "States Type ('INDIRECT_STACK_STATES', or 'COMPACT_STATES'). No need to usually change.")
 SET (FCS_WITH_TEST_SUITE "1" CACHE BOOL "Also build and run the test suite.")
@@ -81,12 +82,16 @@ SET(CPACK_PACKAGE_EXECUTABLES
     "patsolve" "Patsolve"
 )
 
-SET (rinutils "rinutils")
-IF (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${rinutils}")
-    EXECUTE_PROCESS(COMMAND "git" "clone" "https://github.com/shlomif/rinutils.git" "${rinutils}"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    )
+find_package(Rinutils REQUIRED)
+if ()
+    PKG_CHECK_MODULES(RINUTILS REQUIRED "librinutils")
+    IF (NOT "${RINUTILS_FOUND}")
+        MESSAGE (FATAL "rinutils could not be found.")
+    ENDIF ()
 ENDIF ()
+
+INCLUDE_DIRECTORIES(AFTER ${RINUTILS_INCLUDE_DIR} ${RINUTILS_INCLUDE_DIRS})
+
 ### This is to set the RPATH correctly, so when installed under a prefix
 ### the executables will find the libraries.
 ###
@@ -203,5 +208,3 @@ ADD_CUSTOM_TARGET (
 
 # So it can find config.h
 INCLUDE_DIRECTORIES(BEFORE "${FC_SOLVE_SRC_PATH}/include" "${FC_SOLVE_SRC_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/patsolve-specific" "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}" ${CMAKE_CURRENT_BINARY_DIR}/include ${CMAKE_CURRENT_BINARY_DIR} )
-
-INCLUDE_DIRECTORIES(BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/${rinutils}/rinutils/include")

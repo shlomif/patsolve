@@ -1,18 +1,22 @@
 addons:
     apt:
         packages:
+            - build-essential
             - cmake
             - cmake-data
-            - ninja-build
             - cpanminus
-            - perl
             - libperl-dev
+            - ninja-build
+            - perl
             - valgrind
+            - xz-utils
+            - zip
 os: linux
-dist: trusty
+dist: bionic
 install:
     - sudo cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Path::Tiny Test::Differences Test::More Test::PerlTidy Test::TrailingSpace Test::Trap
     - git clone git://github.com/shlomif/fc-solve.git
+    - "git clone https://github.com/shlomif/rinutils && cd rinutils && mkdir b && cd b && cmake .. && make && make install && cd ../.. && rm -fr rinutils"
 perl:
     - "5.26"
 python:
