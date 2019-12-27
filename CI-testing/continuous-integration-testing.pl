@@ -81,7 +81,7 @@ if ($IS_WIN)
 
 sub _transform
 {
-    return shift;
+    return shift(@_) =~ s%\\%\\\\%gr;
 }
 my $CWD = Path::Tiny->cwd;
 path("B")->mkpath;
@@ -89,12 +89,12 @@ chdir("B");
 do_system(
     {
         cmd => [
-            "cmake " . (
+            "cmake "
+                . (
                 defined($CMAKE_MODULE_PATH)
                 ? (
-                    " -DCMAKE_MODULE_PATH="
-                        . _transform($CMAKE_MODULE_PATH
-                        )    #( $CMAKE_MODULE_PATH =~ s%\\%\\\\%gr ) . " "
+                          " -DCMAKE_MODULE_PATH="
+                        . _transform($CMAKE_MODULE_PATH)
                         . (
                         " -DCMAKE_PREFIX_PATH=" . _transform($CMAKE_MODULE_PATH)
                         )
