@@ -116,8 +116,7 @@ int main(int argc, char **argv)
         fc_solve_pats__play(soft_thread, is_quiet);
         switch (soft_thread->status)
         {
-        case FCS_PATS__WIN:
-        {
+        case FCS_PATS__WIN: {
             FILE *const out = fopen("win", "w");
             if (!out)
             {
