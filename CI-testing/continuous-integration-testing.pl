@@ -63,8 +63,10 @@ my $CMAKE_MODULE_PATH;
 if ($IS_WIN)
 {
     $CMAKE_MODULE_PATH = join ";", (
-        map { ; $_, "$_/lib", "$_/lib64" } (
-            map { ; "c:$_" }
+
+        # map { ; $_, "$_/lib", "$_/lib64" }
+        (
+            map { ; $IS_WIN ? "c:$_" : $_ }
                 ("/foo")
 
                 # map { ; "c:$_", $_ } ("/foo")
