@@ -62,11 +62,14 @@ my $CMAKE_MODULE_PATH;
 # die "<$CMAKE_MODULE_PATH>";
 if ($IS_WIN)
 {
-    $CMAKE_MODULE_PATH
-        = join ";", (
-        map { ; $_ }    # $_, "$_/Rinutils", "$_/Rinutils/cmake" }
-            map { ; $_, "$_/lib", "$_/lib64" } ( map { ; "c:$_", $_ } ("/foo") )
-        );
+    $CMAKE_MODULE_PATH = join ";", (
+        map { ; $_, "$_/lib", "$_/lib64" } (
+            map { ; "c:$_" }
+                ("/foo")
+
+                # map { ; "c:$_", $_ } ("/foo")
+        )
+    );
     ( $ENV{CMAKE_MODULE_PATH} //= '' ) .= ";$CMAKE_MODULE_PATH;";
 
     # ( $ENV{PKG_CONFIG_PATH} //= '' ) .= ";C:\\foo\\lib\\pkgconfig;";
