@@ -79,22 +79,26 @@ if ($IS_WIN)
     $ENV{RINUTILS_INCLUDE_DIR} = "C:/foo/include";
 }
 
+sub _transform
+{
+    return shift;
+}
 my $CWD = Path::Tiny->cwd;
 path("B")->mkpath;
 chdir("B");
 do_system(
     {
         cmd => [
-            "cmake "
-                . (
+            "cmake " . (
                 defined($CMAKE_MODULE_PATH)
                 ? (
-                          "-DCMAKE_MODULE_PATH="
-                        . ( $CMAKE_MODULE_PATH =~ s%\\%\\\\%gr )
+                    " -DCMAKE_MODULE_PATH="
+                        . _transform($CMAKE_MODULE_PATH
+                        )    #( $CMAKE_MODULE_PATH =~ s%\\%\\\\%gr ) . " "
                         . (
-                        "-DCMAKE_PREFIX_PATH="
-                            . ( $CMAKE_MODULE_PATH =~ s%\\%\\\\%gr )
+                        " -DCMAKE_PREFIX_PATH=" . _transform($CMAKE_MODULE_PATH)
                         )
+                        . " "
                     )
                 : ''
                 )
