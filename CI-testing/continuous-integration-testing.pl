@@ -13,7 +13,7 @@ sub do_system
     my ($args) = @_;
 
     my $cmd = $args->{cmd};
-    print "Running [@$cmd]";
+    print "Running [@$cmd]\n";
     if ( system(@$cmd) )
     {
         die "Running [@$cmd] failed!";
@@ -60,13 +60,9 @@ if ( !$ENV{SKIP_RINUTILS_INSTALL} )
 }
 my $CMAKE_PREFIX_PATH;
 
-# die "<$CMAKE_PREFIX_PATH>";
 if ($IS_WIN)
 {
-    $CMAKE_PREFIX_PATH = join ";", (
-
-        map { ; $IS_WIN ? "c:$_" : $_ } ("/foo")
-    );
+    $CMAKE_PREFIX_PATH = join ";", ( map { ; $IS_WIN ? "c:$_" : $_ } ("/foo") );
 
     # ( $ENV{PKG_CONFIG_PATH} //= '' ) .= ";C:\\foo\\lib\\pkgconfig;";
     ( $ENV{PKG_CONFIG_PATH} //= '' ) .=
@@ -78,7 +74,6 @@ sub _transform
 {
     return shift(@_) =~ s%\\%\\\\%gr;
 }
-my $CWD = Path::Tiny->cwd;
 path("B")->mkpath;
 chdir("B");
 do_system(
