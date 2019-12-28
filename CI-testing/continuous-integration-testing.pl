@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use autodie;
 
-use Path::Tiny qw/ path /;
+use Path::Tiny qw/ path cwd /;
 use Getopt::Long qw/ GetOptions /;
 
 sub do_system
@@ -19,13 +19,14 @@ sub do_system
         die "Running [@$cmd] failed!";
     }
 }
+my $cwd = cwd();
 
 my $IS_WIN = ( $^O eq "MSWin32" );
+my $MAKE   = $IS_WIN ? 'gmake' : 'make';
 
 # Cmake does not like backslashes.
 my $CMAKE_SAFE_SEPARATOR_ON_WINDOWS = '/';
 my $SEP  = $IS_WIN ? $CMAKE_SAFE_SEPARATOR_ON_WINDOWS : '/';
-my $MAKE = $IS_WIN ? 'gmake' : 'make';
 my $SUDO = $IS_WIN ? '' : 'sudo';
 
 my $cmake_gen;
@@ -98,10 +99,10 @@ do_system(
                 ? "-DCMAKE_MAKE_PROGRAM=$ENV{CMAKE_MAKE_PROGRAM}"
                 : ()
                 )
-                . qq# -DFC_SOLVE_SRC_PATH="$CWD${SEP}fc-solve${SEP}fc-solve${SEP}source" ../patsolve#
+                . qq# -DFC_SOLVE_SRC_PATH="$cwd${SEP}fc-solve${SEP}fc-solve${SEP}source" ../patsolve#
         ]
     }
 );
 do_system( { cmd => [$MAKE] } );
 do_system( { cmd => [ $MAKE, 'check', ] } );
-chdir($CWD);
+chdir($cwd);

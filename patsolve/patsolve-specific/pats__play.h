@@ -329,8 +329,7 @@ fc_solve_pats__configure_soft_thread__process_other_cmdline_args(
                 curr_arg = NULL;
                 break;
 
-            case 'P':
-            {
+            case 'P': {
                 const_AUTO(i, atoi(curr_arg));
                 if (i < 0 || i > FC_SOLVE_PATS__PARAM_PRESET__LastParam)
                 {
