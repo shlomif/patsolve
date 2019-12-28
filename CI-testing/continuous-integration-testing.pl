@@ -63,17 +63,8 @@ my $CMAKE_PREFIX_PATH;
 if ($IS_WIN)
 {
     $CMAKE_PREFIX_PATH = join ";", ( map { ; $IS_WIN ? "c:$_" : $_ } ("/foo") );
-
-    # ( $ENV{PKG_CONFIG_PATH} //= '' ) .= ";C:\\foo\\lib\\pkgconfig;";
-    ( $ENV{PKG_CONFIG_PATH} //= '' ) .=
-        ";/foo/lib/pkgconfig/;/c/foo/lib/pkgconfig/";
-    $ENV{RINUTILS_INCLUDE_DIR} = "C:/foo/include";
 }
 
-sub _transform
-{
-    return shift(@_) =~ s%\\%\\\\%gr;
-}
 path("B")->mkpath;
 chdir("B");
 do_system(
@@ -82,9 +73,7 @@ do_system(
             "cmake "
                 . (
                 defined($CMAKE_PREFIX_PATH)
-                ? ( " -DCMAKE_PREFIX_PATH="
-                        . _transform($CMAKE_PREFIX_PATH)
-                        . " " )
+                ? ( " -DCMAKE_PREFIX_PATH=" . $CMAKE_PREFIX_PATH . " " )
                 : ''
                 )
                 . " "
