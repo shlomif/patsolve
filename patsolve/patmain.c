@@ -143,14 +143,14 @@ int main(int argc, char **argv)
     }
     else
     {
+        fcs_state_string state_string;
+        get_board__setup_string(state_string);
         // Range mode.  Play lots of consecutive games.
         for (long long board_num = start_board_idx; board_num < end_board_idx;
              ++board_num)
         {
             printf("#%ld\n", (long)board_num);
-            char state_string[1000];
-            memset(state_string, '\0', sizeof(state_string));
-            get_board_l(board_num, state_string);
+            get_board_l__without_setup(board_num, state_string);
             fc_solve_pats__read_layout(soft_thread, state_string);
             fc_solve_pats__play(soft_thread, is_quiet);
             switch (soft_thread->status)

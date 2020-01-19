@@ -62,6 +62,8 @@ static void *worker_thread(void *context)
 
     long long board_num;
     fcs_int_limit_t total_num_iters_temp = 0;
+    fcs_state_string state_string;
+    get_board__setup_string(state_string);
     do
     {
         pthread_mutex_lock(&next_board_num_lock);
@@ -73,8 +75,7 @@ static void *worker_thread(void *context)
 
         for (; board_num < quota_end; ++board_num)
         {
-            fcs_state_string state_string;
-            get_board(board_num, state_string);
+            get_board_l__without_setup(board_num, state_string);
 
             fc_solve_pats__read_layout(soft_thread, state_string);
             fc_solve_pats__play(soft_thread, is_quiet);
