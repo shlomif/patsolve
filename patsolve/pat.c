@@ -1117,11 +1117,4 @@ void fc_solve_pats__sort_piles(fcs_pats_thread *const soft_thread)
             }
         }
     }
-
-#if 0
-    // Compute the inverse.
-    for (i = 0; i < LOCAL_STACKS_NUM; i++) {
-        soft_thread->current_pos.column_inv_idxs[soft_thread->current_pos.column_idxs[i]] = i;
-    }
-#endif
 }

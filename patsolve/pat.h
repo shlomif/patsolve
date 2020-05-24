@@ -184,11 +184,6 @@ struct fc_solve__patsolve_thread_struct
         DECLARE_IND_BUF_T(indirect_stacks_buffer)
         /* used to keep the piles sorted */
         int column_idxs[MAX_NUM_STACKS];
-/* column_inv_idxs are not needed or used. */
-#if 0
-        /* Inverse of column_idxs */
-        int column_inv_idxs[MAX_NUM_STACKS];
-#endif
         /* Every different pile has a hash and a unique id. */
         uint32_t stack_hashes[MAX_NUM_STACKS];
         int stack_ids[MAX_NUM_STACKS];
