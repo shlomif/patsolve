@@ -27,7 +27,7 @@ my $MAKE   = $IS_WIN ? 'gmake' : 'make';
 # Cmake does not like backslashes.
 my $CMAKE_SAFE_SEPARATOR_ON_WINDOWS = '/';
 my $SEP  = $IS_WIN ? $CMAKE_SAFE_SEPARATOR_ON_WINDOWS : '/';
-my $SUDO = $IS_WIN ? '' : 'sudo';
+my $SUDO = $IS_WIN ? ''                               : 'sudo';
 
 my $cmake_gen;
 GetOptions( 'gen=s' => \$cmake_gen, )

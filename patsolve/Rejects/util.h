@@ -5,7 +5,7 @@
 // or distributed except according to the terms contained in the COPYING file.
 //
 // Copyright (c) 2002 Tom Holroyd
-/* Standard utilities. */
+// Standard utilities.
 #pragma once
 #include <stdio.h>
 #include <stdlib.h>
