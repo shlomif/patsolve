@@ -82,8 +82,9 @@ SET(CPACK_PACKAGE_EXECUTABLES
     "patsolve" "Patsolve"
 )
 
-find_package(Rinutils REQUIRED)
-INCLUDE_DIRECTORIES(AFTER ${RINUTILS_INCLUDE_DIR} ${RINUTILS_INCLUDE_DIRS})
+INCLUDE ("${CMAKE_SOURCE_DIR}/cmake/rinutils_bootstrap.cmake")
+
+RINUTILS_SET_UP_FLAGS()
 
 ### This is to set the RPATH correctly, so when installed under a prefix
 ### the executables will find the libraries.
