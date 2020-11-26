@@ -127,7 +127,7 @@ typedef struct fcs_pats__treelist_struct
 } fcs_pats__treelist;
 
 #define FC_SOLVE_BUCKETLIST_NBUCKETS 4093 /* the largest 12 bit prime */
-#define FC_SOLVE__MAX_NUM_PILES 4096      /* a 12 bit code */
+#define FC_SOLVE__MAX_NUM_PILES 4096 /* a 12 bit code */
 
 typedef struct fcs_pats__bucket_list_struct
 {

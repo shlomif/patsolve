@@ -42,9 +42,10 @@ sub pat_test
     local $Test::Builder::Level = $Test::Builder::Level + 1;
     my ($args) = @_;
     my $blurb = $args->{blurb};
+    my $exit_code;
     trap
     {
-        system( "./patsolve", "-f", @{ $args->{cmd_line} } );
+        $exit_code = system( "./patsolve", "-f", @{ $args->{cmd_line} } );
     };
 
     # TEST:$pat_test++;
@@ -55,7 +56,7 @@ sub pat_test
     );
 
     # TEST:$pat_test++;
-    ok( !defined( $trap->exit() ), "$blurb : 0 exit status." );
+    is( $exit_code, 0, "$blurb : 0 exit status." );
 
     # TEST:$pat_test++;
     is(
