@@ -114,7 +114,8 @@ int main(int argc, char **argv)
             fc_solve_pats__print_layout(soft_thread);
         }
         fc_solve_pats__play(soft_thread, is_quiet);
-        switch (soft_thread->status)
+        const_AUTO(exit_code, (soft_thread->status));
+        switch (exit_code)
         {
         case FCS_PATS__WIN: {
             FILE *const out = fopen("win", "w");
@@ -136,7 +137,6 @@ int main(int argc, char **argv)
             printf("%s\n", "Failed to solve.");
             break;
         }
-        const_AUTO(exit_code, (soft_thread->status));
         fc_solve_pats__recycle_soft_thread(soft_thread);
         fc_solve_pats__destroy_soft_thread(soft_thread);
 
