@@ -64,8 +64,9 @@ sub myglob
 }
 
 {
-    my $fcs_path = Path::Tiny->cwd;
-    local $ENV{FCS_PATH}                = $fcs_path;
+    my $fcs_bin_path = Path::Tiny->cwd->absolute;
+    local $ENV{FCS_PATH}                = $fcs_bin_path;
+    local $ENV{FCS_BIN_PATH}            = $fcs_bin_path;
     local $ENV{FCS_SRC_PATH}            = $abs_bindir;
     local $ENV{PYTHONDONTWRITEBYTECODE} = '1';
 
@@ -78,11 +79,11 @@ sub myglob
     my $IS_WIN = ( $^O eq "MSWin32" );
     Env::Path->CPATH->Prepend( $abs_bindir, );
 
-    Env::Path->LD_LIBRARY_PATH->Prepend($fcs_path);
+    Env::Path->LD_LIBRARY_PATH->Prepend($fcs_bin_path);
     if ($IS_WIN)
     {
         # For the shared objects.
-        Env::Path->PATH->Append($fcs_path);
+        Env::Path->PATH->Append($fcs_bin_path);
     }
 
     my $foo_lib_dir = $abs_bindir->child( "t", "lib" );
@@ -133,7 +134,7 @@ sub myglob
         } (
         myglob('t'),
         (
-              ( $fcs_path ne $abs_bindir )
+              ( $fcs_bin_path ne $abs_bindir )
             ? ( myglob("$abs_bindir/t") )
             : ()
         ),
