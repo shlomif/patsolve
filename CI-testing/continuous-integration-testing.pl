@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use autodie;
 
-use Path::Tiny qw/ path cwd /;
+use Path::Tiny   qw/ path cwd /;
 use Getopt::Long qw/ GetOptions /;
 
 sub do_system

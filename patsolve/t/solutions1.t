@@ -9,7 +9,7 @@ use Test::Trap
     qw( trap $trap :flow:stderr(systemsafe):stdout(systemsafe):warn );
 
 use Path::Tiny qw/ path /;
-use Socket qw(:crlf);
+use Socket     qw(:crlf);
 
 sub _normalize_lf
 {
