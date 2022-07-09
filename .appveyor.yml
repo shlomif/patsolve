@@ -16,7 +16,7 @@ install:
     - SET PERL_MM_OPT=INSTALL_BASE=C:/Perl5
     - python -c "print('hi');"
     - python3 -c "print('hi');"
-    - cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Moo Path::Tiny Test::Differences Test::More Test::PerlTidy Test::TrailingSpace Test::Trap
+    - cpanm --notest autodie strict warnings Cwd Env::Path File::Basename File::Copy File::Path File::Spec File::Which Getopt::Long IO::All Moo Path::Tiny Perl::Tidy Test::Differences Test::More Test::PerlTidy Test::TrailingSpace Test::Trap
     - git clone https://github.com/shlomif/fc-solve
 build: off
 test_script:
