@@ -236,7 +236,7 @@ struct fc_solve__patsolve_thread_struct
         fcs_pats__move *moves_start, *moves_end, *move_ptr;
         bool q;
         fcs_pats_position *pos;
-    } * solve_stack;
+    } *solve_stack;
     fcs_pats_position *curr_solve_pos;
     enum FC_SOLVE_PATS__MYDIR curr_solve_dir;
 };
