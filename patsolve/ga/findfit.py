@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 
 import argparse
+from functools import reduce
 import os
 import re
 import string
 import sys
-from functools import reduce
 
 from six.moves import range
 

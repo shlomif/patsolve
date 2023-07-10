@@ -27,7 +27,7 @@ Mem = 10 * 1000 * 1000
 
 
 def parseargs():
-    # TODO: implement
+    # TODO(parseargs): implement
     return ([], [])
 
 
@@ -56,7 +56,8 @@ def mutate(lst, p):
 
     Given a list of integers and a mutation probability, mutate the list
     by either adding or subtracting from some of the elements.  The
-    mutated list is returned."""
+    mutated list is returned.
+    """
 
     (p, q) = torat(p)
     m = [1] * 24 + [2] * 12 + [3] * 6 + [4] * 3 + [5] * 2 + [6] * 1
@@ -79,7 +80,8 @@ def cross(l1, l2, p):
     elements from the other list, and so on, with the given probability
     of a crossover at each position.  The initial list is chosen at
     random from one of the two lists with equal probability.  The lists
-    must be the same length."""
+    must be the same length.
+    """
 
     lst = [0] * len(l1)
     x = map(None, l1, l2)
@@ -96,14 +98,18 @@ def cross(l1, l2, p):
 def breed(l1, l2):
     """breed(list, list) -> list
 
-    Given two individuals, cross them and mutate the result."""
+    Given two individuals, cross them and mutate the result.
+    """
 
     return mutate(cross(l1, l2, crossprob), mutateprob)
 
 
 def initpop(nl=None):
-    """The initial population is a list of length Npop of lists of
-    length Nparam."""
+    """initpop
+
+    The initial population is a list of length Npop of lists of
+    length Nparam.
+    """
 
     global Npop, Nparam
 
@@ -130,7 +136,9 @@ def initpop(nl=None):
 
 
 def newpop(result):
-    """The result of a generation is a list of pairs, where each
+    """newpop
+
+    The result of a generation is a list of pairs, where each
     pair consists of the fitness value and the individual that
     generated it.  Construct a new population (formatted as a
     list of lists) using the following steps:
@@ -138,7 +146,8 @@ def newpop(result):
         2. Replace the last half of the sorted population with
            new individuals bred from pairs chosen at random
            from the first half.
-    The new population is returned."""
+    The new population is returned.
+    """
 
     result.sort()
     print('%d: %g, %s' % (Gen, result[0][0], result[0][1]))
@@ -185,8 +194,11 @@ def refill(pop):
 
 
 def run(pop):
-    """Test each member of the population and save it with its
-    fitness value."""
+    """run
+
+    Test each member of the population and save it with its
+    fitness value.
+    """
 
     result = [0] * Npop
     i = 0
@@ -198,8 +210,11 @@ def run(pop):
 
 
 def get_ycoeff(lst):
-    """Find the quadratic through (0, lst[0]), (25, lst[1]), and (50, lst[2]).
-    Return the coefficients as a string, e.g., '.5 1.2 2.'"""
+    """get_ycoeff
+
+    Find the quadratic through (0, lst[0]), (25, lst[1]), and (50, lst[2]).
+    Return the coefficients as a string, e.g., '.5 1.2 2.'
+    """
 
     f = open('/tmp/x', 'w')
     f.write('0 %d\n' % lst[0])

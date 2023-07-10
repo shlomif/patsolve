@@ -47,18 +47,19 @@ bits; exactly 32 should be fastest, but 64 is better on an Alpha with GCC at
 
 typedef unsigned long uint32;
 
-#define N             (624)                /* length of state vector */
-#define M             (397)                /* a period parameter */
-#define L             (N-M+1)
-#define K1            (0x9908B0DFU)        /* magic constants */
-#define K2            (0x9D2C5680U)
-#define K3            (0xEFC60000U)
-#define hiBit(u)      ((u) & 0x80000000U)  /* mask all but highest   bit of u */
-#define loBit(u)      ((u) & 0x00000001U)  /* mask all but lowest    bit of u */
-#define loBits(u)     ((u) & 0x7FFFFFFFU)  /* mask     the highest   bit of u */
-#define mixBits(u, v) (hiBit(u)|loBits(v)) /* move hi bit of u to hi bit of v */
+#define N (624) /* length of state vector */
+#define M (397) /* a period parameter */
+#define L (N - M + 1)
+#define K1 (0x9908B0DFU) /* magic constants */
+#define K2 (0x9D2C5680U)
+#define K3 (0xEFC60000U)
+#define hiBit(u) ((u)&0x80000000U)  /* mask all but highest   bit of u */
+#define loBit(u) ((u)&0x00000001U)  /* mask all but lowest    bit of u */
+#define loBits(u) ((u)&0x7FFFFFFFU) /* mask     the highest   bit of u */
+#define mixBits(u, v)                                                          \
+    (hiBit(u) | loBits(v)) /* move hi bit of u to hi bit of v */
 
-static uint32 state[N+1];   /* state vector + 1 extra to not violate ANSI C */
+static uint32 state[N + 1]; /* state vector + 1 extra to not violate ANSI C */
 static uint32 *next;        /* next random value is computed from here */
 static int left = -1;       /* can *next++ this many times before reloading */
 
@@ -112,7 +113,8 @@ void seedMT(uint32 seed)
     register int j;
 
     left = 0;
-    for (*s++ = x, j = N; --j; *s++ = (x *= 69069U) & 0xFFFFFFFFU) {
+    for (*s++ = x, j = N; --j; *s++ = (x *= 69069U) & 0xFFFFFFFFU)
+    {
     }
 }
 
@@ -124,17 +126,19 @@ static uint32 reloadMT(void)
     left = N - 1;
     next = state + 1;
 
-    for (s0 = state[0], s1 = state[1], j = L; --j; s0 = s1, s1 = *p2++) {
+    for (s0 = state[0], s1 = state[1], j = L; --j; s0 = s1, s1 = *p2++)
+    {
         *p0++ = *pM++ ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
     }
-    for (pM = state, j = M; --j; s0 = s1, s1 = *p2++) {
+    for (pM = state, j = M; --j; s0 = s1, s1 = *p2++)
+    {
         *p0++ = *pM++ ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
     }
     s1 = state[0];
     *p0 = *pM ^ (mixBits(s0, s1) >> 1) ^ (loBit(s1) ? K1 : 0U);
 
     s1 ^= (s1 >> 11);
-    s1 ^= (s1 <<  7) & K2;
+    s1 ^= (s1 << 7) & K2;
     s1 ^= (s1 << 15) & K3;
     return (s1 ^ (s1 >> 18));
 }
@@ -143,12 +147,13 @@ uint32 randomMT(void)
 {
     uint32 y;
 
-    if (--left < 0) {
+    if (--left < 0)
+    {
         return (reloadMT());
     }
-    y  = *next++;
+    y = *next++;
     y ^= (y >> 11);
-    y ^= (y <<  7) & K2;
+    y ^= (y << 7) & K2;
     y ^= (y << 15) & K3;
     return (y ^ (y >> 18));
 }
