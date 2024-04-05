@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED (VERSION 3.4)
+CMAKE_MINIMUM_REQUIRED (VERSION 3.9)
 PROJECT(patsolve C)
 
 INCLUDE ("${CMAKE_SOURCE_DIR}/cmake/shlomif_common_bootstrap.cmake")

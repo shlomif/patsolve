@@ -53,9 +53,9 @@ typedef unsigned long uint32;
 #define K1 (0x9908B0DFU) /* magic constants */
 #define K2 (0x9D2C5680U)
 #define K3 (0xEFC60000U)
-#define hiBit(u) ((u)&0x80000000U)  /* mask all but highest   bit of u */
-#define loBit(u) ((u)&0x00000001U)  /* mask all but lowest    bit of u */
-#define loBits(u) ((u)&0x7FFFFFFFU) /* mask     the highest   bit of u */
+#define hiBit(u) ((u) & 0x80000000U)  /* mask all but highest   bit of u */
+#define loBit(u) ((u) & 0x00000001U)  /* mask all but lowest    bit of u */
+#define loBits(u) ((u) & 0x7FFFFFFFU) /* mask     the highest   bit of u */
 #define mixBits(u, v)                                                          \
     (hiBit(u) | loBits(v)) /* move hi bit of u to hi bit of v */
 
