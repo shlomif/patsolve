@@ -54,8 +54,9 @@ SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSIO
 
 SET(CPACK_SOURCE_IGNORE_FILES
     "/.deps/"
-    "~$"
     "/tags$"
+    "\\\\.tidyall\\\\.d"
+    "~$"
 )
 
 IF(WIN32 AND NOT UNIX)
