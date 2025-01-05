@@ -244,7 +244,7 @@ static inline int get_possible_moves(
                                         : fc_solve_empty_card),
                             .destcard = w_card,
                             .pri = (signed char)
-                                       soft_thread->pats_solve_params.x[4]};
+                                soft_thread->pats_solve_params.x[4]};
                     }
                 }
             }
@@ -892,7 +892,7 @@ end_of_stacks:;
     increments and decrements were determined empirically. */
     const_AUTO(moves_end, moves_start + n);
     for (fcs_pats__move *move_ptr = moves_start; move_ptr < moves_end;
-         move_ptr++)
+        move_ptr++)
     {
         if (fcs_card_is_empty(move_ptr->card))
         {

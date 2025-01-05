@@ -148,7 +148,7 @@ int main(int argc, char **argv)
         get_board__setup_string(state_string);
         // Range mode.  Play lots of consecutive games.
         for (long long board_num = start_board_idx; board_num < end_board_idx;
-             ++board_num)
+            ++board_num)
         {
             printf("#%ld\n", (long)board_num);
             get_board_l__without_setup(board_num, state_string);
