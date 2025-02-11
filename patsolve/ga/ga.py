@@ -115,12 +115,11 @@ def initpop(nl=None):
 
     if nl:
         lst = []
-        f = open(nl[0], 'r')
-        for s in f.readlines():
-            if s[0] != '#':
-                m = map(int, string.split(s))
-                lst.append(m)
-        f.close()
+        with open(nl[0], 'r') as f:
+            for s in f.readlines():
+                if s[0] != '#':
+                    m = map(int, string.split(s))
+                    lst.append(m)
         Npop = len(lst)
         Nparam = len(lst[0])
     else:
@@ -216,15 +215,13 @@ def get_ycoeff(lst):
     Return the coefficients as a string, e.g., '.5 1.2 2.'
     """
 
-    f = open('/tmp/x', 'w')
-    f.write('0 %d\n' % lst[0])
-    f.write('25 %d\n' % lst[1])
-    f.write('50 %d\n' % lst[2])
-    f.close()
+    with open('/tmp/x', 'w') as f:
+        f.write('0 %d\n' % lst[0])
+        f.write('25 %d\n' % lst[1])
+        f.write('50 %d\n' % lst[2])
     os.system('fit/dofit /tmp/x > /tmp/coeff')
-    f = open('/tmp/coeff', 'r')
-    lst = f.readlines()
-    f.close()
+    with open('/tmp/coeff', 'r') as infh:
+        lst = infh.readlines()
     return string.join(map(str, map(float, lst)))
 
 
@@ -254,29 +251,28 @@ def fitness(lst):
     os.system(cmd)
     t1 = os.times()[2]
 
-    f = open(resname, 'r')
-    sum = 0
-    n = 0
-    mem = 0
-    for s in f.xreadlines():
-        x = move.findall(s)
-#                x = pos.findall(s)
-#                x = memrem.findall(s)
-        if x:
-            m = int(x[-1])
-            sum += m
-            n += 1
-        elif malloc.match(s):
-            sum += 1000
-            mem += 1
-            n += 1
-    f.close()
+    with open(resname, 'r') as f:
+        mysum = 0
+        n = 0
+        mem = 0
+        for s in f.xreadlines():
+            x = move.findall(s)
+            # x = pos.findall(s)
+            # x = memrem.findall(s)
+            if x:
+                m = int(x[-1])
+                mysum += m
+                n += 1
+            elif malloc.match(s):
+                mysum += 1000
+                mem += 1
+                n += 1
 
     if n == 0:
         print('no result')
         return 1000000
-#        fit = Mem - float(sum) / n
-#        fit = float(sum) / n
+#        fit = Mem - float(mysum) / n
+#        fit = float(mysum) / n
     fit = (t1 - t0) / Len
     if mem > 0:
         print('fitness = %g, oom = %d' % (fit, mem))
@@ -291,16 +287,15 @@ def ga():
     global Start, Gen
 
     pop = initpop(args)
-    while 1:
-        f = open('curpop', 'w')
-        f.write("# %s\n" % Opts)
-        for lst in pop:
-            f.write("%s\n" % string.join(map(str, lst)))
-        f.close()
+    while True:
+        with open('curpop', 'w') as f:
+            f.write("# %s\n" % Opts)
+            for lst in pop:
+                f.write("%s\n" % string.join(map(str, lst)))
         pop = refill(pop)
         result = run(pop)
         pop = newpop(result)
-#                Start = Start + Len
+        # Start += Len
         Start = rng.random() % 1000000000
         Gen += 1
 

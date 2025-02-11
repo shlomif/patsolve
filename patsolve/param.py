@@ -49,6 +49,3 @@ const fcs_pats_xy_params freecell_solver_pats__x_y_params_preset[] = {
         h.write(
             "#define FC_SOLVE_PATS__PARAM_PRESET__LastParam %d\n" % (p - 1)
         )
-
-        c.close()
-        h.close()

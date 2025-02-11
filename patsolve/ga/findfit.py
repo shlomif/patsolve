@@ -44,18 +44,17 @@ def sgn(x):
 fit = {}
 
 for filename in args.files:
-    f = open(filename, 'r')
-    for line in f.xreadlines():
-        p = parse.match(line)
-        if p:
-            s = string.split(p.group(1))
-            s[11] = str(sgn(int(s[11])))
-            s = string.join(s)
-            if s in fit:
-                fit[s].append(float(p.group(2)))
-            else:
-                fit[s] = [float(p.group(2))]
-    f.close()
+    with open(filename, 'r') as f:
+        for line in f.xreadlines():
+            p = parse.match(line)
+            if p:
+                s = string.split(p.group(1))
+                s[11] = str(sgn(int(s[11])))
+                s = string.join(s)
+                if s in fit:
+                    fit[s].append(float(p.group(2)))
+                else:
+                    fit[s] = [float(p.group(2))]
 
 
 def add(a, b):
