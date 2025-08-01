@@ -9,8 +9,6 @@ import time
 import rng
 from rng import torat
 
-from six.moves import range
-
 
 def printusage():
     print("[-c crossprob] [-m mutateprob] [-n Npop] [-l #games] [pop]")

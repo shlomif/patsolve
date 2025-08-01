@@ -7,8 +7,6 @@ import re
 import string
 import sys
 
-from six.moves import range
-
 
 def printusage():
     print("""[-n <n>] filename ...""")
