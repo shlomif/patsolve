@@ -38,8 +38,10 @@ static inline bool good_automove(
         return true;
     }
 
+    const_AUTO(start_idx, 1 - (o & 1));
+
     // Check the Out piles of opposite color.
-    for (int i = 1 - (o & 1); i < 4; i += 2)
+    for (int i = start_idx; i < 4; i += 2)
     {
         if (fcs_foundation_value(soft_thread->current_pos.s, i) < r - 1)
         {
@@ -51,7 +53,7 @@ static inline bool good_automove(
             the loop variable i.  We return here and never
             make it back to the outer loop. */
 
-            for (int j = 1 - (o & 1); j < 4; j += 2)
+            for (int j = start_idx; j < 4; j += 2)
             {
                 if (fcs_foundation_value(soft_thread->current_pos.s, j) < r - 2)
                 {
